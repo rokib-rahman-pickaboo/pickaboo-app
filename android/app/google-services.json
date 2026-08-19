@@ -1,0 +1,205 @@
+{
+  "project_info": {
+    "project_number": "72825511182",
+    "firebase_url": "https://pickaboo-app.firebaseio.com",
+    "project_id": "pickaboo-app",
+    "storage_bucket": "pickaboo-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72825511182:android:67f3f9a672caf075118b5f",
+        "android_client_info": {
+          "package_name": "com.pickaboo.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72825511182-3k299dg9565598k6rt9f7p1tpqjct5d6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.android",
+            "certificate_hash": "b84c6b19042581c4e29c8be41f59c47c30b67b7d"
+          }
+        },
+        {
+          "client_id": "72825511182-abm8fvrsu1gdtd2uv4c96ip311g6mhlg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.android",
+            "certificate_hash": "4ddd28a5a7cf236ccd10f586793a367bf0be5c9f"
+          }
+        },
+        {
+          "client_id": "72825511182-rgt3jj91nkfja7l6mvehtf37bfmf2l50.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt9p3ih-v49m9KsNKcBfMpJxfV3Bs17lI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72825511182-2iv6fonv6177bm3nlfoihacoqp3ps92v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "72825511182-7f62gjla12auq85srbbda6b0gjpdkr70.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pickaboo.ios",
+                "app_store_id": "1457168813"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72825511182:android:6e2300ff764f49a3",
+        "android_client_info": {
+          "package_name": "com.pickaboo.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72825511182-2cg31tfjpc7987jr3ntnujcbp8v7scn5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "96c50f2dbac8e8b4cea18e9e782c65e5e818ce19"
+          }
+        },
+        {
+          "client_id": "72825511182-7hg6tdmg2cd91ili846vnbtkeb1iqag9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "4ddd28a5a7cf236ccd10f586793a367bf0be5c9f"
+          }
+        },
+        {
+          "client_id": "72825511182-9aap3fkr5ibeseg10ved9flep7d75gqv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "b5fef61d2a0e9e8bc6a96349170cd5c32d735409"
+          }
+        },
+        {
+          "client_id": "72825511182-ahd0n48f2v5u2l1fi14ulj91aokqu1pn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "72825511182-bi22c80rg1khvcf1kvvd9fd8ot4v9ofj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "576374994792dc025f8b41372bd8af201d957b6f"
+          }
+        },
+        {
+          "client_id": "72825511182-ev92rvtmi6f4m8u668ap9isbvv2llkn8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "c810e0447d21a12aff61cb51b4de139f1066bc8c"
+          }
+        },
+        {
+          "client_id": "72825511182-i3ie03d3foluuf0nv4nijq6obka1ob1d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "b84c6b19042581c4e29c8be41f59c47c30b67b7d"
+          }
+        },
+        {
+          "client_id": "72825511182-mt2n1o6p88d6e1iflbhnac11cgqc96sf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "eee2175ef3f6d3053482bd5cfc83b1c842644d3a"
+          }
+        },
+        {
+          "client_id": "72825511182-pckn1hpishlm236ntd8sl0j982atle6u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "0166a8c2c5b2f4a203031d091b64f207e57a8032"
+          }
+        },
+        {
+          "client_id": "72825511182-plj9fhmaj45gbcc3g5t3lrti7ti2uv8v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "aad02762ca7cd2762b69d568fba2e5704a006001"
+          }
+        },
+        {
+          "client_id": "72825511182-q6fck6lu68ikdsjel7udtckrrvdv7ukd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "d91e84a45843d608459f7bf26dd960b805fb1384"
+          }
+        },
+        {
+          "client_id": "72825511182-tlrr6q4tqbgppuvt32mneobe22onksmb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "897603af865d763f977abec01a61206eb21954fa"
+          }
+        },
+        {
+          "client_id": "72825511182-v63ia7np9pudil4cempv1fl99cj50blv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pickaboo.app",
+            "certificate_hash": "b3e1f90125790c585221b247c8c627b4aec1973b"
+          }
+        },
+        {
+          "client_id": "72825511182-rgt3jj91nkfja7l6mvehtf37bfmf2l50.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt9p3ih-v49m9KsNKcBfMpJxfV3Bs17lI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72825511182-2iv6fonv6177bm3nlfoihacoqp3ps92v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "72825511182-7f62gjla12auq85srbbda6b0gjpdkr70.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pickaboo.ios",
+                "app_store_id": "1457168813"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

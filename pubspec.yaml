@@ -1,0 +1,143 @@
+name: pickaboo
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# Drives the iOS build (CFBundleShortVersionString / CFBundleVersion) to
+# continue the React Native App Store track (live was 16.1.4 / 44).
+# Android version is pinned separately in android/app/build.gradle.kts.
+version: 16.1.6+49
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  bloc: ^9.1.0
+  bloc_concurrency: ^0.3.0
+  flutter_bloc: ^9.1.1
+  # Imported directly by my_app.dart (MultiProvider). It arrives transitively
+  # through flutter_bloc, but relying on that breaks if flutter_bloc ever drops
+  # it, so declare it explicitly.
+  provider: ^6.1.0
+  injectable: ^2.6.0
+  get_it: ^9.1.0
+  freezed_annotation: ^2.4.4
+  dio: ^5.9.0
+  dartz: ^0.10.1
+  get_storage: ^2.1.1
+  google_fonts: ^6.3.3
+  cached_network_image: ^3.4.1
+  internet_connection_checker: ^1.0.0+1
+  flutter_svg: ^2.2.3
+  carousel_slider: ^5.1.1
+  smooth_page_indicator: ^2.0.1
+  go_router: ^17.0.1
+  collection: ^1.19.1
+  flutter_html: ^3.0.0
+  html: ^0.15.4
+  flutter_html_table: ^3.0.0-alpha.6
+  flutter_secure_storage: ^9.2.2
+  hive_flutter: ^1.1.0
+  hive: ^2.2.3
+  intl: ^0.20.2
+  image_picker: ^1.2.1
+  image_cropper: ^12.2.1
+  package_info_plus: ^8.1.0
+  youtube_player_flutter: ^9.1.1
+  dropdown_button2: ^2.3.9
+  badges: ^3.1.2
+  pinput: ^6.0.1
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^7.1.5
+  sign_in_with_apple: ^6.1.1
+  url_launcher: ^6.3.2
+  crypto: ^3.0.3
+  json_annotation: ^4.9.0
+  flutter_screenutil: ^5.9.3
+  share_plus: ^12.0.1
+  permission_handler: ^12.0.1
+  geolocator: ^14.0.2
+  path_provider: ^2.1.5
+  infinite_scroll_pagination:
+    git:
+      url: https://github.com/shaunhossain/infinite_scroll_pagination.git
+  flutter_staggered_grid_view:
+    git:
+      url: https://github.com/letsar/flutter_staggered_grid_view.git
+      ref: feature/masonry_cache
+  encrypt: ^5.0.3
+  pointycastle: ^3.9.1
+  firebase_core: ^3.3.0
+  firebase_messaging: ^15.0.4
+  flutter_local_notifications: ^18.0.0
+  photo_view: ^0.15.0
+  app_links: ^6.4.1
+  skeletonizer: ^2.1.2
+  timelines_plus: ^2.0.0
+  firebase_analytics: ^11.4.1
+  facebook_app_events: ^0.24.0
+  app_tracking_transparency: ^2.0.4
+  webview_flutter: ^4.10.0
+  percent_indicator: ^4.2.5
+  shared_preferences: ^2.5.2
+  maplibre_gl: ^0.21.0
+  syncfusion_flutter_sliders: ^33.2.10
+  syncfusion_flutter_core: ^33.2.10
+  recaptcha_enterprise_flutter: 18.8.2
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_native_splash: ^2.4.4
+  flutter_lints: ^3.0.0
+  injectable_generator: ^2.6.1
+  json_serializable: ^6.8.0
+  freezed: ^2.5.2
+  build_runner: ^2.4.11
+  hive_generator_plus: ^4.0.2
+  dart_style: 3.0.1
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+
+dependency_overrides:
+  analyzer: 7.7.0
+
+flutter:
+  uses-material-design: true
+  
+  # Assets
+  assets:
+    - assets/images/
+    - assets/images/drawer/
+    - assets/gif/
+    - assets/lottie/
+    - assets/marker/
+    - assets/svg/
+    - assets/new/svg/
+    - assets/new/demo/
+    - assets/new/svg/payment/
+    - assets/new/special_timer_background.png
+    - assets/new/svg/detail/
+
+# Native system splash (iOS launch screen + Android splash).
+# White background, mascot centered — same asset for both platforms.
+# Generate/refresh with:  dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#ffffff"
+  # 720px source -> ~180dp logo (legacy splash size = source_px / 4), so it
+  # doesn't look oversized on small/low-res screens. Bump this file's size up
+  # for a larger logo, down for smaller.
+  image: assets/new/svg/pickaboo_splash_sm.png
+  android: true
+  ios: true
+  web: false
+  fullscreen: true
+  # Android 12+ masks the logo into a centered circle, so use a padded image
+  # (mascot shrunk inside a transparent canvas) to avoid clipping.
+  android_12:
+    color: "#ffffff"
+    image: assets/new/svg/pickaboo_splash_android12.png

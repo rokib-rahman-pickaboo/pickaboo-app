@@ -1,0 +1,19 @@
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+
+# Exception: the debug keystore is not a secret — it signs debug builds only,
+# and everyone on the team needs the same one so Google Sign-In / Firebase /
+# Facebook accept a single debug SHA-1 fingerprint.
+!app/debug.keystore

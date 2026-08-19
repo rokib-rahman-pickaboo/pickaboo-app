@@ -1,0 +1,201 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+
+class ChangeEmailSection extends StatefulWidget {
+  final bool isEnabled;
+  final VoidCallback onToggle;
+  final Function(String) onSave;
+
+  const ChangeEmailSection({
+    super.key,
+    required this.isEnabled,
+    required this.onToggle,
+    required this.onSave,
+  });
+
+  @override
+  State<ChangeEmailSection> createState() => _ChangeEmailSectionState();
+}
+
+class _ChangeEmailSectionState extends State<ChangeEmailSection> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _confirmEmailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _confirmEmailController.dispose();
+    super.dispose();
+  }
+
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      widget.onSave(_emailController.text.trim());
+      _emailController.clear();
+      _confirmEmailController.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textTheme = context.textStyle;
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: colors.black.withValues(alpha: 0.04),
+            blurRadius: 8.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Change Email Address',
+                  style: textTheme.bodyMediumMedium.copyWith(
+                    color: colors.text,
+                  ),
+                ),
+              ),
+              Switch(
+                value: widget.isEnabled,
+                onChanged: (_) => widget.onToggle(),
+                activeThumbColor: colors.primary,
+                activeTrackColor: colors.primary.withAlpha(128),
+              ),
+            ],
+          ),
+          if (widget.isEnabled)
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  SizedBox(height: 16.h),
+                  TextFormField(
+                    controller: _emailController,
+                    style: textTheme.bodyMedium.copyWith(color: colors.text),
+                    decoration: InputDecoration(
+                      hintText: 'Enter your email id',
+                      hintStyle: textTheme.bodyMedium.copyWith(
+                        color: colors.gray,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.borderColor.withAlpha(128),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.borderColor.withAlpha(128),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.primary,
+                          width: 1.5.w,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.all(16.w),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email id';
+                      }
+                      if (!_isValidEmail(value)) {
+                        return 'Please enter valid email id';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 12.h),
+                  TextFormField(
+                    controller: _confirmEmailController,
+                    style: textTheme.bodyMedium.copyWith(color: colors.text),
+                    decoration: InputDecoration(
+                      hintText: 'Confirm your email id',
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
+                      hintStyle: textTheme.bodyMedium.copyWith(
+                        color: colors.gray,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.borderColor.withAlpha(128),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.borderColor.withAlpha(128),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.primary,
+                          width: 1.5.w,
+                        ),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your confirm email id';
+                      }
+                      if (!_isValidEmail(value)) {
+                        return 'Please enter valid email id';
+                      }
+                      if (value != _emailController.text) {
+                        return 'Email and Confirm Email are not same';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48.h,
+                    child: ElevatedButton(
+                      onPressed: _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.button,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: Text(
+                        'Save Email',
+                        style: textTheme.buttonMedium.copyWith(
+                          color: colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

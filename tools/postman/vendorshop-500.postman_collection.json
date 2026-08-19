@@ -1,0 +1,288 @@
+{
+  "info": {
+    "name": "Pickaboo — vendorshop 500 diagnostics",
+    "description": "Isolates why GET /rest/V1/dcastalia-vendorshop/products returns 500 for shopUrl=final-shop1684744680 on staging.\n\nRun the requests in order and read the test results in the Postman console. Each request asserts something specific; together they tell you whether the fault is the vendor's data, the Accept header, the page size, or the module itself.\n\nVariables live on the collection — edit shopUrl / healthyShopUrl before running.\n\nBackground: the Flutter app targets staging (gcpadmin) by default; the React Native app is hardcoded to production (www). So the two apps have never hit the same backend for this endpoint, and a staging-only failure would be invisible in RN.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "stagingHost",
+      "value": "https://gcpadmin.pickaboo.com",
+      "type": "string"
+    },
+    {
+      "key": "prodHost",
+      "value": "https://www.pickaboo.com",
+      "type": "string"
+    },
+    {
+      "key": "shopUrl",
+      "value": "final-shop1684744680",
+      "type": "string",
+      "description": "The vendor that 500s. From product.sold_by_vendor_url_key."
+    },
+    {
+      "key": "healthyShopUrl",
+      "value": "",
+      "type": "string",
+      "description": "REQUIRED for request 4. Any vendor whose shop page loads fine. Grab sold_by_vendor_url_key from a real product."
+    },
+    {
+      "key": "currentPage",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "pageSize",
+      "value": "10",
+      "type": "string",
+      "description": "10 = RN's APP_CONSTANT.PRODUCT_LIMIT. Flutter now matches."
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Staging — failing vendor (baseline)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const code = pm.response.code;",
+              "console.log('=== 1. Staging / failing vendor → ' + code + ' ===');",
+              "console.log(pm.response.text().substring(0, 800));",
+              "",
+              "pm.test('Reproduces the 500 seen in the app', function () {",
+              "    pm.expect(code).to.eql(500);",
+              "});",
+              "",
+              "if (code === 200) {",
+              "    console.log('NOT REPRODUCED — endpoint is healthy now. The app failure was transient.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{stagingHost}}/rest/V1/dcastalia-vendorshop/products?shopUrl={{shopUrl}}&currentPage={{currentPage}}&pageSize={{pageSize}}",
+          "host": ["{{stagingHost}}"],
+          "path": ["rest", "V1", "dcastalia-vendorshop", "products"],
+          "query": [
+            { "key": "shopUrl", "value": "{{shopUrl}}" },
+            { "key": "currentPage", "value": "{{currentPage}}" },
+            { "key": "pageSize", "value": "{{pageSize}}" }
+          ]
+        },
+        "description": "Byte-for-byte what the Flutter app sends: no Authorization header (the app sets noAuth:true for this endpoint), Accept + Content-Type application/json.\n\nExpected: 500, matching the app log."
+      }
+    },
+    {
+      "name": "2. Production — same vendor (is it staging-only?)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const code = pm.response.code;",
+              "console.log('=== 2. Production / same vendor → ' + code + ' ===');",
+              "console.log(pm.response.text().substring(0, 800));",
+              "",
+              "if (code === 200) {",
+              "    console.log('VERDICT: works on prod, fails on staging → staging data or staging module. Not a client bug.');",
+              "} else if (code === 500) {",
+              "    console.log('VERDICT: fails on BOTH → module-level bug. Pull the Magento exception log.');",
+              "} else if (code === 404) {",
+              "    console.log('Vendor does not exist on prod (expected — it is a staging test shop). Inconclusive; use request 4 instead.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{prodHost}}/rest/V1/dcastalia-vendorshop/products?shopUrl={{shopUrl}}&currentPage={{currentPage}}&pageSize={{pageSize}}",
+          "host": ["{{prodHost}}"],
+          "path": ["rest", "V1", "dcastalia-vendorshop", "products"],
+          "query": [
+            { "key": "shopUrl", "value": "{{shopUrl}}" },
+            { "key": "currentPage", "value": "{{currentPage}}" },
+            { "key": "pageSize", "value": "{{pageSize}}" }
+          ]
+        },
+        "description": "Same request against the host the RN app actually uses (AppConstant.js:15 → https://www.pickaboo.com/rest).\n\nThis vendor is likely staging-only, so a 404 here is plausible and inconclusive — fall through to request 4."
+      }
+    },
+    {
+      "name": "3. Staging — no Accept header (rules out content negotiation)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const code = pm.response.code;",
+              "console.log('=== 3. Staging / no Accept → ' + code + ' ===');",
+              "console.log(pm.response.text().substring(0, 800));",
+              "",
+              "if (code === 200) {",
+              "    console.log('VERDICT: the Accept header is the trigger. Flutter sets Accept: application/json globally in auth_interceptor.dart:30; RN sends only Content-Type. Scope Accept out of this call.');",
+              "} else {",
+              "    console.log('Accept header is NOT the cause — same failure without it.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "", "disabled": true }
+        ],
+        "url": {
+          "raw": "{{stagingHost}}/rest/V1/dcastalia-vendorshop/products?shopUrl={{shopUrl}}&currentPage={{currentPage}}&pageSize={{pageSize}}",
+          "host": ["{{stagingHost}}"],
+          "path": ["rest", "V1", "dcastalia-vendorshop", "products"],
+          "query": [
+            { "key": "shopUrl", "value": "{{shopUrl}}" },
+            { "key": "currentPage", "value": "{{currentPage}}" },
+            { "key": "pageSize", "value": "{{pageSize}}" }
+          ]
+        },
+        "description": "The ONE remaining difference between the two clients.\n\nRN (AxiosService.js:7) sends only Content-Type. Flutter's AuthInterceptor adds Accept: application/json to every request. Magento does content negotiation on Accept, so this is worth eliminating before blaming the data.\n\nNote: Postman may still send its own Accept: */* — check the actual sent headers in the console if this comes back 200."
+      }
+    },
+    {
+      "name": "4. Staging — healthy vendor (is it this vendor's data?)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get('healthyShopUrl')) {",
+              "    console.warn('Set the healthyShopUrl collection variable first — any vendor whose shop page loads fine.');",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const code = pm.response.code;",
+              "console.log('=== 4. Staging / healthy vendor → ' + code + ' ===');",
+              "console.log(pm.response.text().substring(0, 800));",
+              "",
+              "if (code === 200) {",
+              "    console.log('VERDICT: endpoint works on staging for a good vendor → the failure is specific to ' + pm.collectionVariables.get('shopUrl') + \"'s data. Nothing to fix in the app.\");",
+              "} else {",
+              "    console.log('VERDICT: every vendor fails on staging → module-level bug, not data. Backend needs to look at it.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{stagingHost}}/rest/V1/dcastalia-vendorshop/products?shopUrl={{healthyShopUrl}}&currentPage={{currentPage}}&pageSize={{pageSize}}",
+          "host": ["{{stagingHost}}"],
+          "path": ["rest", "V1", "dcastalia-vendorshop", "products"],
+          "query": [
+            { "key": "shopUrl", "value": "{{healthyShopUrl}}" },
+            { "key": "currentPage", "value": "{{currentPage}}" },
+            { "key": "pageSize", "value": "{{pageSize}}" }
+          ]
+        },
+        "description": "The decisive request. If a known-good vendor returns 200 on the same host with the same headers, the module is fine and final-shop1684744680's catalog data is the problem.\n\nSet healthyShopUrl first — take sold_by_vendor_url_key off any real product's detail response."
+      }
+    },
+    {
+      "name": "5. Staging — pageSize 20 (the value Flutter used to send)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const code = pm.response.code;",
+              "console.log('=== 5. Staging / pageSize=20 → ' + code + ' ===');",
+              "console.log(pm.response.text().substring(0, 800));",
+              "",
+              "console.log('Compare against request 1 (pageSize=10). Different codes would mean page size matters — unlikely, but it was the only param that differed from RN.');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{stagingHost}}/rest/V1/dcastalia-vendorshop/products?shopUrl={{shopUrl}}&currentPage=1&pageSize=20",
+          "host": ["{{stagingHost}}"],
+          "path": ["rest", "V1", "dcastalia-vendorshop", "products"],
+          "query": [
+            { "key": "shopUrl", "value": "{{shopUrl}}" },
+            { "key": "currentPage", "value": "1" },
+            { "key": "pageSize", "value": "20" }
+          ]
+        },
+        "description": "Flutter sent pageSize=20 until this session; RN sends 10 (APP_CONSTANT.PRODUCT_LIMIT). I already aligned the app to 10.\n\nIf this 500s and request 1 does not, page size was the cause and the fix is already in."
+      }
+    },
+    {
+      "name": "6. Reference — product detail (proves the vendor slug)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "console.log('=== 6. Product detail → ' + pm.response.code + ' ===');",
+              "if (pm.response.code === 200) {",
+              "    const b = pm.response.json();",
+              "    console.log('sold_by             : ' + b.sold_by);",
+              "    console.log('sold_by_vendor_url_key : ' + b.sold_by_vendor_url_key);",
+              "    console.log('This is exactly the value both apps pass as shopUrl.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{stagingHost}}/rest/V1/product/info/id/80622",
+          "host": ["{{stagingHost}}"],
+          "path": ["rest", "V1", "product", "info", "id", "80622"]
+        },
+        "description": "The product from your run log. Confirms sold_by_vendor_url_key is where shopUrl comes from — RN productdetails/index.js:496-499, Flutter navigation_extensions.dart pushToBrandProduct."
+      }
+    }
+  ]
+}

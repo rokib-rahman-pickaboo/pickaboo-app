@@ -1,0 +1,147 @@
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
+
+class CategoryList extends StatelessWidget {
+  final List<CategoryListEntity> categories;
+  final Function(CategoryListEntity)? onCategoryTap;
+  final VoidCallback? onViewAllTap;
+
+  const CategoryList({
+    super.key,
+    required this.categories,
+    this.onCategoryTap,
+    this.onViewAllTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textStyle = context.textStyle;
+
+    if (categories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Categories',
+                style: textStyle.bodyMediumBold.copyWith(
+                  color: colors.text,
+                ),
+              ),
+              if (onViewAllTap != null)
+                TextButton(
+                  onPressed: onViewAllTap,
+                  child: Text(
+                    'View All',
+                    style: textStyle.link.withColor(colors.primary),
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        SizedBox(
+          height: 110.h,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return _CategoryItem(
+                category: category,
+                onTap: () => onCategoryTap?.call(category),
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 8.h),
+      ],
+    );
+  }
+}
+
+class _CategoryItem extends StatelessWidget {
+  final CategoryListEntity category;
+  final VoidCallback? onTap;
+
+  const _CategoryItem({required this.category, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textStyle = context.textStyle;
+
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+      child: SizedBox(
+        width: 80.w,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 6.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: SizedBox(
+                  width: 52.w,
+                  height: 52.w,
+                  child: category.icon.isNotEmpty
+                      ? AppImage(
+                          imageUrl: category.icon,
+                          fit: BoxFit.cover,
+                          width: 52.w,
+                          height: 52.w,
+                          placeholder: const SizedBox.shrink(),
+                          errorWidget: Icon(
+                            Icons.category_outlined,
+                            color: colors.primary,
+                            size: 32.sp,
+                          ),
+                        )
+                      : Icon(
+                          Icons.category_outlined,
+                          color: colors.primary,
+                          size: 32.sp,
+                        ),
+                ),
+              ),
+              SizedBox(height: 6.h),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    category.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: textStyle.caption.copyWith(color: colors.text,fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

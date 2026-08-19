@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+    <g id="bkash" transform="translate(-16 -396)">
+        <g id="Rectangle_172" data-name="Rectangle 172" transform="translate(16 396)" fill="none" stroke="#e8f3ff" stroke-width="1">
+            <rect width="30" height="30" rx="5" stroke="none"/>
+            <rect x="0.5" y="0.5" width="29" height="29" rx="4.5" fill="none"/>
+        </g>
+        <g id="Frame" transform="translate(22 403)">
+            <g id="Group">
+                <path id="Vector" d="M0,0,8.118,1.039,6.192,7.655Z" transform="translate(0.097)" fill="#d83868"/>
+                <path id="Vector-2" data-name="Vector" d="M1.867,0,7.9,7.875.937,11.152.07,7.686A5.093,5.093,0,0,1,.2,5.45Z" transform="translate(6.636 1.071)" fill="#d83868"/>
+                <path id="Vector-3" data-name="Vector" d="M2.246,3.717,0,.63,3.785,0Z" transform="translate(12.513 5.166)" fill="#b11116"/>
+                <path id="Vector-4" data-name="Vector" d="M.641,0,2.054,1.481H0Z" transform="translate(15.946 5.166)" fill="#b11116"/>
+                <path id="Vector-5" data-name="Vector" d="M0,2.8,5.743,0,5.55.661Z" transform="translate(8.792 9.199)" fill="#d93b2b"/>
+                <path id="Vector-6" data-name="Vector" d="M2.406,0,0,7.938,3.657,5.1Z" transform="translate(3.883 8.348)" fill="#9e0b0f"/>
+                <path id="Vector-7" data-name="Vector" d="M3.241,2.93.9,0,0,.032Z" transform="translate(0 1.323)" fill="#b11116"/>
+                <path id="Vector-8" data-name="Vector" d="M0,0C.02.266.051.438.051.438L.917,3.9,7.88.627,7.816.544Z" transform="translate(6.655 8.32)" fill="#c4161c"/>
+            </g>
+        </g>
+    </g>
+</svg>

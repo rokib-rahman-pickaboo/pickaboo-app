@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/presentation/bloc/search_bloc/search_bloc.dart';
+
+class SortDropdown extends StatelessWidget {
+  const SortDropdown({super.key});
+
+  static final List<SortOptionItem> _sortOptions = [
+    SortOptionItem(
+      id: '1',
+      title: 'Newest First',
+      param: 'created',
+      orderBy: 'desc',
+      isDefault: true,
+    ),
+    SortOptionItem(
+      id: '2',
+      title: 'Oldest First',
+      param: 'created',
+      orderBy: 'asc',
+    ),
+    SortOptionItem(
+      id: '3',
+      title: 'Name A to Z',
+      param: 'title',
+      orderBy: 'asc',
+    ),
+    SortOptionItem(
+      id: '4',
+      title: 'Name Z to A',
+      param: 'title',
+      orderBy: 'desc',
+    ),
+    SortOptionItem(
+      id: '5',
+      title: 'Price High to Low',
+      param: 'price',
+      orderBy: 'desc',
+    ),
+    SortOptionItem(
+      id: '6',
+      title: 'Price Low to High',
+      param: 'price',
+      orderBy: 'asc',
+    ),
+    SortOptionItem(
+      id: '7',
+      title: 'Position',
+      param: 'position',
+      orderBy: 'asc',
+    ),
+    SortOptionItem(
+      id: '8',
+      title: 'Express Delivery',
+      param: 'express',
+      orderBy: 'desc',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyle;
+
+    return PopupMenuButton<SortOptionItem>(
+      icon: Icon(Icons.arrow_drop_down, color: colors.text, size: 24.sp),
+      offset: Offset(0, 40.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      color: colors.white,
+      elevation: 8,
+      itemBuilder: (context) {
+        return _sortOptions.map((option) {
+          return PopupMenuItem<SortOptionItem>(
+            value: option,
+            padding: EdgeInsets.zero,
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Text(
+                option.title,
+                style: textStyles.bodyMedium.copyWith(color: colors.text),
+              ),
+            ),
+          );
+        }).toList();
+      },
+      onSelected: (SortOptionItem option) {
+        context.read<SearchBloc>().add(
+          SearchEvent.searchSortApplied(
+            sortBy: option.param,
+            sortOrder: option.orderBy,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class SortOptionItem {
+  final String id;
+  final String title;
+  final String param;
+  final String orderBy;
+  final bool isDefault;
+
+  SortOptionItem({
+    required this.id,
+    required this.title,
+    required this.param,
+    required this.orderBy,
+    this.isDefault = false,
+  });
+}

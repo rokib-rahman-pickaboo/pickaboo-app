@@ -1,0 +1,70 @@
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
+
+/// Shared "we can't ask again" dialog.
+///
+/// Android stops showing the system permission sheet after two denials and
+/// every later request returns `deniedForever` instantly; iOS does the same
+/// after one denial. Re-requesting is a silent no-op, so the only way forward
+/// is the app's own settings page — without this the button simply does
+/// nothing and looks broken.
+class PermissionPrompt {
+  const PermissionPrompt._();
+
+  /// Shows the explanation and, if the user agrees, opens the OS settings for
+  /// this app. Returns `true` when the user was sent to Settings, so the
+  /// caller can re-check the permission on resume.
+  static Future<bool> openSettings(
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) async {
+    final colors = context.colors;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text('Not now', style: TextStyle(color: colors.textMedium)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              'Open Settings',
+              style: TextStyle(color: colors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return false;
+
+    await Geolocator.openAppSettings();
+    return true;
+  }
+
+  /// Copy for the location permission, used by the product page and the
+  /// delivery sheet so both read the same.
+  static Future<bool> location(BuildContext context) => openSettings(
+    context,
+    title: 'Turn on location',
+    message:
+        'Allow location access to see delivery time and charges for your '
+        'area. You can turn it on any time in Settings.',
+  );
+
+  /// Copy for notifications.
+  static Future<bool> notifications(BuildContext context) => openSettings(
+    context,
+    title: 'Turn on notifications',
+    message:
+        'Allow notifications to get order updates, delivery alerts and offers. '
+        'You can turn them on any time in Settings.',
+  );
+}
