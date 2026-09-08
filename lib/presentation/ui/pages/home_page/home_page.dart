@@ -4,12 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:go_router/go_router.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
-import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/home_banner_bloc/home_banner_bloc.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
@@ -23,30 +19,29 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:collection/collection.dart';
 import 'package:pickaboo/presentation/bloc/nav_drawer/nav_drawer_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/product_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/banner_carousel.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/banner_item_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/category_list.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/category_slider.dart';
+import 'package:pickaboo/presentation/ui/widgets/home_page/home_category_nav.dart';
+import 'package:pickaboo/presentation/ui/widgets/home_page/primary_home_widget.dart';
+import 'package:pickaboo/presentation/ui/widgets/home_page/secondary_home_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/search_app_bar/search_app_bar.dart';
 import 'package:pickaboo/domain/entity/banner/banner_entity.dart';
+import 'package:pickaboo/domain/entity/common/category/category_entity.dart';
 import 'package:pickaboo/domain/entity/home_banner/home_banner_entity.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
 import 'package:pickaboo/domain/entity/home_content/category_insertion_models.dart';
 import 'package:pickaboo/presentation/bloc/popup_bloc/popup_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/popup_banner_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/category_insertion_builder.dart';
 import 'package:pickaboo/data/services/push_notification_service.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/notification_bloc/notification_bloc.dart';
 import 'package:pickaboo/presentation/bloc/promotion_slider_bloc/promotion_slider_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/flash_sale_category_slider.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/flash_sale_banner_widget.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/promotion_banner_slider.dart';
-import 'package:pickaboo/presentation/ui/widgets/home_page/homepage_offers_section.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/bloc/internet/internet_bloc.dart';
+import 'package:pickaboo/presentation/ui/pages/main_page.dart';
+import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -57,15 +52,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final int _cartCount = 0;
+  final ScrollController _scrollController = ScrollController();
+
+  String _selectedCategory = 'For You';
+  bool _isCategoryNavCollapsed = false;
 
   StreamSubscription<String?>? _fcmTokenSub;
 
   List<CategoryProductEntity>? _lastSections;
   List<HomeBannerEntity>? _lastBanners;
   Map<int, List<CategoryInsertionItem>> _insertionMap = const {};
-
-  List<Widget> _categoryRows = const [];
 
   List<BannerEntity> _heroTopBanners = const [];
   List<BannerEntity> _heroBottomBanners = const [];
@@ -77,6 +73,7 @@ class _HomePageState extends State<HomePage> {
       const HomeContentEvent.getFeedContent(),
     );
     context.read<HomeBannerBloc>().add(const HomeBannerEvent.load());
+    context.read<CategoryBloc>().add(const CategoryEvent.getCategories());
 
     final customerId = context.read<AuthBloc>().state.maybeWhen(
       authenticated: (token, user) => user.id.toString(),
@@ -121,69 +118,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _fcmTokenSub?.cancel();
+    _scrollController.dispose();
+    MainPage.hideBottomNav.value = false;
     super.dispose();
-  }
-
-  List<Widget> _buildCategoryRows(
-    BuildContext context,
-    List<CategoryProductEntity> sections,
-  ) {
-    final rows = <Widget>[];
-    for (int i = 0; i < sections.length; i++) {
-      final section = sections[i];
-
-      rows.add(
-        CategorySlider(
-          key: PageStorageKey('cat_section_${section.categoryId}'),
-          onProductTap: (product) {
-            getIt<AnalyticsService>().logClick(
-              section: 'category_products',
-              source: 'homepage',
-              medium: 'product_card',
-              entityId: product.id.toString(),
-              title: product.productName,
-            );
-            context.goToProductDetail(
-              product.id.toString(),
-              slug: product.slug,
-              productName: product.productName,
-            );
-          },
-          categoryProduct: section,
-          onCategoryTap: (category) {
-            getIt<AnalyticsService>().logClick(
-              section: 'category_slider',
-              source: 'homepage',
-              medium: 'category_tile',
-              entityId: category.categoryId.toString(),
-              title: category.categoryName,
-            );
-            context.pushToCategoryProduct(
-              categoryId: category.categoryId,
-              categoryName: category.categoryName,
-            );
-          },
-        ),
-      );
-
-      final insertions = _insertionMap[i];
-      if (insertions != null) {
-        for (int j = 0; j < insertions.length; j++) {
-          final insertion = insertions[j];
-          rows.add(
-            KeyedSubtree(
-              key: ValueKey(insertion.id),
-              child: CategoryInsertionBuilder.build(
-                context,
-                insertion,
-                isFirst: j == 0,
-              ),
-            ),
-          );
-        }
-      }
-    }
-    return rows;
   }
 
   Future<void> _onRefresh() async {
@@ -198,56 +135,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeroBannerRowSliver(List<BannerEntity> banners) {
-    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final slotCount = banners.isEmpty ? 1 : banners.length;
-    final slotWidth =
-        (screenWidth - 32.w - (slotCount - 1) * 8.w) / slotCount;
-    final bannerCacheWidth = (slotWidth * devicePixelRatio).round();
-
-    final children = <Widget>[];
-    for (var i = 0; i < banners.length; i++) {
-      if (i > 0) children.add(SizedBox(width: 8.w));
-      final banner = banners[i];
-      children.add(
-        Expanded(
-          child: RepaintBoundary(
-            child: BannerItemView(
-              banner: banner.toSliderEntity(),
-              naturalHeight: true,
-              cacheWidth: bannerCacheWidth,
-              onTap: (item) {
-                context.handleBannerTap(
-                  linkType: item.linkType,
-                  link: item.link,
-                  categoryName: item.name,
-                );
-              },
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.only(top: 8.w, bottom: 8.w, left: 16.w, right: 16.w),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
+    const colors = _HomeColors();
 
     return MultiBlocListener(
       listeners: [
+        BlocListener<InternetBloc, InternetState>(
+          listenWhen: (previous, current) =>
+              previous.maybeWhen(disconnected: (_) => true, orElse: () => false) &&
+              current.maybeWhen(connected: (_) => true, orElse: () => false),
+          listener: (context, state) {
+            _onRefresh();
+          },
+        ),
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (kDebugMode) {
@@ -287,7 +188,7 @@ class _HomePageState extends State<HomePage> {
 
                 context.read<CartBloc>().add(const CartEvent.getCart());
                 context.read<UserProfileBloc>().add(
-                  const UserProfileEvent.started(),
+                  const UserProfileEvent.clear(),
                 );
               },
               orElse: () {},
@@ -332,341 +233,248 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ],
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: colors.white,
-        body: RefreshIndicator(
-          onRefresh: _onRefresh,
-          color: colors.primary,
-          child: CustomScrollView(
-            slivers: [
-              SearchAppBar(
-                cartCount: _cartCount,
-                onMenuTap: () => context.read<NavDrawerBloc>().add(
-                  const NavDrawerEvent.openDrawer(),
+      child: BlocBuilder<HomeContentBloc, HomeContentState>(
+        builder: (context, homeContentState) {
+          final isUncachedOffline = homeContentState.homeFeed == null &&
+              (ConnectivityUtils.isNoInternet(homeContentState.error, context) ||
+                  homeContentState.status == HomeContentStatus.error);
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (MainPage.hideBottomNav.value != isUncachedOffline) {
+              MainPage.hideBottomNav.value = isUncachedOffline;
+            }
+          });
+
+          if (isUncachedOffline) {
+            return Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppColors.pageBg,
+              body: SafeArea(
+                child: NoInternetPage(
+                  showAppBar: false,
+                  onRetry: () => _onRefresh(),
                 ),
               ),
+            );
+          }
 
-              BlocBuilder<HomeContentBloc, HomeContentState>(
-                builder: (context, state) {
-                  if (state.status == HomeContentStatus.loading) {
-                    return SliverFillRemaining(
+          if (homeContentState.homeFeed == null &&
+              homeContentState.status == HomeContentStatus.loading) {
+            return Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppColors.pageBg,
+              body: SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    HomeTopHeader(
+                      onMenuTap: () => context.read<NavDrawerBloc>().add(
+                        const NavDrawerEvent.openDrawer(),
+                      ),
+                      categoryName: _selectedCategory,
+                    ),
+                    Expanded(
                       child: Center(
                         child: CircularProgressIndicator(
                           color: colors.primary,
                           strokeWidth: 2.w,
                         ),
                       ),
-                    );
-                  }
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
 
-                  if (state.status == HomeContentStatus.success &&
-                      state.homeFeed != null) {
-                    final sections = state.homeFeed!.categoryProducts;
+          final homeFeed = homeContentState.homeFeed;
+          final drawerCategories = context
+              .select<CategoryBloc, List<CategoryEntity>?>(
+                (b) => b.state.categories,
+              );
+          final displayCategories = homeFeed != null
+              ? alignCategoriesWithDrawerOrder(
+                  homeFeed.categoryList,
+                  drawerCategories,
+                )
+              : const <CategoryListEntity>[];
 
-                    final banners = context
-                        .select<HomeBannerBloc, List<HomeBannerEntity>>(
-                          (b) => b.state.banners,
-                        );
+          if (homeFeed != null) {
+            final sections = homeFeed.categoryProducts;
+            final banners = context
+                .select<HomeBannerBloc, List<HomeBannerEntity>>(
+                  (b) => b.state.banners,
+                );
 
-                    if (!identical(sections, _lastSections) ||
-                        !identical(banners, _lastBanners)) {
-                      final bannerEntities =
-                          banners.map((b) => b.toBannerEntity()).toList();
-                      _insertionMap =
-                          _buildInsertionMap(sections, bannerEntities);
-                      _heroTopBanners = _buildHeroBanners(
-                        bannerEntities,
-                        _kHeroTopIdentifier,
-                      );
-                      _heroBottomBanners = _buildHeroBanners(
-                        bannerEntities,
-                        _kHeroBottomIdentifier,
-                      );
-                      _lastSections = sections;
-                      _lastBanners = banners;
-                      _categoryRows = _buildCategoryRows(context, sections);
-                    }
+            if (!identical(sections, _lastSections) ||
+                !identical(banners, _lastBanners)) {
+              final bannerEntities =
+                  banners.map((b) => b.toBannerEntity()).toList();
+              _insertionMap =
+                  _buildInsertionMap(sections, bannerEntities);
+              _heroTopBanners = _buildHeroBanners(
+                bannerEntities,
+                _kHeroTopIdentifier,
+              );
+              _heroBottomBanners = _buildHeroBanners(
+                bannerEntities,
+                _kHeroBottomIdentifier,
+              );
+              _lastSections = sections;
+              _lastBanners = banners;
 
-                    return SliverMainAxisGroup(
-                      slivers: [
-                        if (state.homeFeed?.mainSlider.isNotEmpty == true)
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8.w, bottom: 8.w),
-                              child: RepaintBoundary(
-                                child: BannerCarousel(
-                                  banners: state.homeFeed!.mainSlider,
-                                  onBannerTap: (banner) {
-                                    context.handleBannerTap(
-                                      linkType: banner.linkType,
-                                      link: banner.link,
-                                      urlKey: banner.urlKey,
-                                      categoryName: banner.name,
+              for (final cat in displayCategories) {
+                SecondaryHomeWidget.prewarm(cat);
+              }
+            }
+          }
+
+          return Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: AppColors.pageBg,
+            body: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  HomeTopHeader(
+                    onMenuTap: () => context.read<NavDrawerBloc>().add(
+                      const NavDrawerEvent.openDrawer(),
+                    ),
+                    categoryName: _selectedCategory,
+                  ),
+                  if (displayCategories.isNotEmpty)
+                    HomeCategoryNav(
+                      categories: displayCategories,
+                      selectedCategory: _selectedCategory,
+                      isCollapsed: _isCategoryNavCollapsed,
+                      onCategorySelected: (cat) {
+                        if (_selectedCategory != cat) {
+                          setState(() {
+                            _selectedCategory = cat;
+                          });
+                          if (_scrollController.hasClients) {
+                            _scrollController.jumpTo(0);
+                          }
+                        }
+                      },
+                      onViewAll: () {
+                        context.go(Routes.discoverCategory);
+                      },
+                    ),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: _onRefresh,
+                      color: colors.primary,
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          if (notification is ScrollUpdateNotification) {
+                            final metrics = notification.metrics;
+                            if (metrics.axis == Axis.vertical) {
+                              final isDown = (notification.scrollDelta ?? 0) > 2;
+                              final isUp = (notification.scrollDelta ?? 0) < -2;
+                              if (isDown && !_isCategoryNavCollapsed && metrics.pixels > 60) {
+                                setState(() => _isCategoryNavCollapsed = true);
+                              } else if ((isUp || metrics.pixels <= 20) && _isCategoryNavCollapsed) {
+                                setState(() => _isCategoryNavCollapsed = false);
+                              }
+                            }
+                          }
+                          return false;
+                        },
+                        child: CustomScrollView(
+                          controller: _scrollController,
+                          slivers: [
+                            if (homeFeed != null) ...[
+                              if (_selectedCategory == 'For You')
+                                PrimaryHomeWidget(
+                                  homeFeed: homeFeed,
+                                  heroTopBanners: _heroTopBanners,
+                                  heroBottomBanners: _heroBottomBanners,
+                                  insertionMap: _insertionMap,
+                                )
+                              else ...[
+                                Builder(
+                                  builder: (context) {
+                                    final selectedCategoryEntity =
+                                        displayCategories.firstWhereOrNull(
+                                      (c) => c.name == _selectedCategory,
+                                    ) ?? homeFeed.categoryList.firstWhereOrNull(
+                                      (c) => c.name == _selectedCategory,
+                                    );
+                                    if (selectedCategoryEntity != null) {
+                                      return SecondaryHomeWidget(
+                                        category: selectedCategoryEntity,
+                                        onViewAll: () {
+                                          context.pushToCategoryProduct(
+                                            categoryId: selectedCategoryEntity.id,
+                                            categoryName: selectedCategoryEntity.name,
+                                          );
+                                        },
+                                      );
+                                    }
+                                    return const SliverToBoxAdapter(
+                                      child: SizedBox.shrink(),
                                     );
                                   },
                                 ),
+                              ],
+                            ] else if (homeContentState.status == HomeContentStatus.error) ...[
+                              SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: AppErrorView(
+                                  type: AppErrorType.server,
+                                  message: homeContentState.error?.message,
+                                  onRetry: () => _onRefresh(),
+                                ),
                               ),
-                            ),
-                          ),
-
-                        if (_heroTopBanners.isNotEmpty ||
-                            _heroBottomBanners.isNotEmpty)
-                          _buildHeroBannerRowSliver([
-                            ..._heroTopBanners,
-                            ..._heroBottomBanners,
-                          ]),
-
-                        if (state.homeFeed?.categoryList.isNotEmpty == true)
-                          SliverToBoxAdapter(
-                            child: CategoryList(
-                              categories: state.homeFeed!.categoryList,
-                              onCategoryTap: (category) {
-                                context.pushToCategoryProduct(
-                                  categoryId: category.id,
-                                  categoryName: category.name,
-                                );
-                              },
-                              onViewAllTap: () {
-                                context.go(Routes.discoverCategory);
-                              },
-                            ),
-                          ),
-
-                        BlocBuilder<PromotionSliderBloc, PromotionSliderState>(
-                          builder: (context, promoState) {
-                            if (promoState.status ==
-                                    PromotionSliderStatus.success &&
-                                promoState.slides.isNotEmpty) {
-                              return SliverPadding(
-                                padding: EdgeInsets.only(
-                                  left: 16.w,
-                                  right: 16.w,
-                                  bottom: 8.w,
-                                  top: 6.w,
-                                ),
-                                sliver: SliverToBoxAdapter(
-                                  child: RepaintBoundary(
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 12.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: colors.whiteSmoke,
-                                        borderRadius: BorderRadius.circular(
-                                          12.r,
-                                        ),
-                                      ),
-                                      child: PromotionBannerSlider(
-                                        slides: promoState.slides,
-                                        onSlideTap: (slide) {
-                                          context.handleBannerTap(
-                                            linkType: slide.linkType,
-                                            link: slide.link,
-                                            categoryName: slide.name,
-                                            urlKey: slide.urlKey,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                            return const SliverToBoxAdapter(
-                              child: SizedBox.shrink(),
-                            );
-                          },
-                        ),
-
-                        BlocBuilder<HomeFlashSaleBloc, HomeFlashSaleState>(
-                          builder: (context, flashState) {
-                            if (flashState.status ==
-                                    HomeFlashSaleStatus.success &&
-                                flashState.flashSale != null) {
-                              final flashSale = flashState.flashSale!;
-                              final slivers = <Widget>[];
-
-                              slivers.add(
-                                SliverToBoxAdapter(
-                                  child: FlashSaleCategorySlider(
-                                    category: flashSale.category,
-                                    title: flashSale.title,
-                                    onProductTap: (product) {
-                                      context.goToProductDetail(
-                                        product.id.toString(),
-                                        slug: product.slug,
-                                        productName: product.productName,
-                                      );
-                                    },
-                                    onViewAll: () {
-                                      context.pushToCategoryProduct(
-                                        categoryId: flashSale.category.categoryId.toString(),
-                                        categoryName:
-                                            flashSale.category.name,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              );
-
-                              if (flashSale.banners.isNotEmpty &&
-                                  flashSale.isVisible) {
-                                for (var banner in flashSale.banners) {
-                                  slivers.add(
-                                    SliverToBoxAdapter(
-                                      child: RepaintBoundary(
-                                        child: FlashSaleBannerWidget(
-                                          banner: banner,
-                                          startTime: flashSale.startTime,
-                                          endTime: flashSale.endTime,
-                                          title: flashSale.title,
-                                          shortDescription:
-                                              flashSale.shortDescription,
-                                          description: flashSale.description,
-                                          titleColor: flashSale.titleColor,
-                                          subTitleColor:
-                                              flashSale.subTitleColor,
-                                          descriptionColor:
-                                              flashSale.descriptionColor,
-                                          onShopNow: () {
-                                            context.handleBannerTap(
-                                              linkType: banner.linkType,
-                                              link: banner.linkValue,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }
-
-                              return SliverMainAxisGroup(slivers: slivers);
-                            }
-                            return const SliverToBoxAdapter(
-                              child: SizedBox.shrink(),
-                            );
-                          },
-                        ),
-
-                        if (_categoryRows.isNotEmpty)
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => _categoryRows[index],
-                              childCount: _categoryRows.length,
-                            ),
-                          ),
-                      ],
-                    );
-                  }
-
-                  if (state.status == HomeContentStatus.error) {
-                    // Reached only when there is no cached feed to fall back
-                    // on — with a cache the repository serves the stale copy
-                    // instead of surfacing the failure.
-                    final isOffline = state.error?.isConnectivity ?? false;
-                    return SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: AppErrorView(
-                        type: isOffline
-                            ? AppErrorType.noInternet
-                            : AppErrorType.server,
-                        message: isOffline ? null : state.error?.message,
-                        onRetry: () => context.read<HomeContentBloc>().add(
-                          const HomeContentEvent.getFeedContent(
-                            forceRefresh: true,
-                          ),
+                            ],
+                          ],
                         ),
                       ),
-                    );
-                  }
-
-                  return const SliverToBoxAdapter(child: SizedBox.shrink());
-                },
-              ),
-
-              const HomepageOffersSection(),
-
-              SliverPadding(
-                padding: EdgeInsets.all(16.w),
-                sliver: SliverToBoxAdapter(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Just For You",
-                        style: textStyle.bodyMediumBold.withColor(colors.text),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                sliver: BlocBuilder<JustForYouBloc, JustForYouState>(
-                  builder: (context, state) {
-                    return PagedSliverAlignedGrid<int, ProductEntity>(
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      showNoMoreItemsIndicatorAsGridChild: false,
-                      showNewPageProgressIndicatorAsGridChild: false,
-                      showNewPageErrorIndicatorAsGridChild: false,
-                      gridDelegateBuilder: (int childCount) {
-                        return SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: gridColumnsFor(context),
-                        );
-                      },
-                      builderDelegate: PagedChildBuilderDelegate<ProductEntity>(
-                        firstPageErrorIndicatorBuilder: (context) => const SizedBox(),
-                        newPageErrorIndicatorBuilder: (context) => const SizedBox(),
-                        firstPageProgressIndicatorBuilder: (context) => Center(
-                          child: CircularProgressIndicator(
-                            color: Theme.of(context).highlightColor,
-                          ),
-                        ),
-                        noMoreItemsIndicatorBuilder: (context) => Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                          child: Center(
-                            child: Text(
-                              'No more products',
-                              style: context.textStyle.bodySmall.withColor(
-                                context.colors.gray,
-                              ),
-                            ),
-                          ),
-                        ),
-                        itemBuilder: (context, product, index) {
-                          return ProductView(
-                            product: product,
-                            onTap: (product) {
-                              context.goToProductDetail(
-                                product.id.toString(),
-                                slug: product.slug,
-                                productName: product.productName,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      state: state.pagingState,
-                      fetchNextPage: () {
-                        context.read<JustForYouBloc>().add(
-                          const JustForYouEvent.getProducts(),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              SliverToBoxAdapter(child: SizedBox(height: 16.h)),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
+}
+
+/// Re-orders [homeCategories] to match the canonical ordering from the category API
+/// response ([drawerCategories], as rendered in [NavDrawer]). Any categories not found
+/// in [drawerCategories] remain in the list and are placed at the end.
+@visibleForTesting
+List<CategoryListEntity> alignCategoriesWithDrawerOrder(
+  List<CategoryListEntity> homeCategories,
+  List<CategoryEntity>? drawerCategories,
+) {
+  if (drawerCategories == null || drawerCategories.isEmpty) {
+    return homeCategories;
+  }
+  final orderMap = <String, int>{};
+  for (int i = 0; i < drawerCategories.length; i++) {
+    final cat = drawerCategories[i];
+    if (cat.id.isNotEmpty) orderMap[cat.id] = i;
+    if (cat.slug.isNotEmpty) orderMap[cat.slug.toLowerCase()] = i;
+    if (cat.name.isNotEmpty) orderMap[cat.name.toLowerCase()] = i;
+  }
+
+  final sorted = List<CategoryListEntity>.from(homeCategories);
+  sorted.sort((a, b) {
+    final indexA = orderMap[a.id] ??
+        orderMap[a.slug.toLowerCase()] ??
+        orderMap[a.name.toLowerCase()] ??
+        999;
+    final indexB = orderMap[b.id] ??
+        orderMap[b.slug.toLowerCase()] ??
+        orderMap[b.name.toLowerCase()] ??
+        999;
+    return indexA.compareTo(indexB);
+  });
+  return sorted;
 }
 
 const String _kHeroTopIdentifier = 'home-banner-hero-top';
@@ -779,4 +587,13 @@ Map<int, List<CategoryInsertionItem>> _buildInsertionMap(
   }
 
   return insertionMap;
+}
+
+class _HomeColors {
+  const _HomeColors();
+  Color get white => AppColors.white;
+  Color get primary => AppColors.pickabooBlue;
+  Color get whiteSmoke => AppColors.surfaceBlue;
+  Color get text => AppColors.navy;
+  Color get gray => AppColors.muted;
 }

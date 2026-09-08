@@ -75,7 +75,7 @@ class ProductRepositoryImpl implements ProductRepository {
         final id = response.prodId;
         if (id == null || id.isEmpty) {
           return left(
-            AppErrorEntity(message: 'Could not resolve product link'),
+            const AppErrorEntity(message: 'Could not resolve product link'),
           );
         }
         return right(SlugResolutionEntity(id: id, type: type));
@@ -114,7 +114,8 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!forceRefresh) {
       final cached = await _homeContentLocalDataSource.getHomeContentIfValid();
       if (cached != null) {
-        return right(cached.toEntity());
+        final entity = cached.toEntity();
+        return right(await _alignHomeFeedCategories(entity));
       }
     }
 
@@ -135,15 +136,66 @@ class ProductRepositoryImpl implements ProductRepository {
       (l) async {
         final stale = await _homeContentLocalDataSource.getHomeContentStale();
         if (stale != null) {
-          return right(stale.toEntity());
+          final entity = stale.toEntity();
+          return right(await _alignHomeFeedCategories(entity));
         }
         return left(l.toEntity());
       },
       (r) async {
         await _homeContentLocalDataSource.insertHomeContent(r);
-        return right(r.toEntity());
+        final entity = r.toEntity();
+        return right(await _alignHomeFeedCategories(entity));
       },
     );
+  }
+
+  Future<HomeContentEntity> _alignHomeFeedCategories(
+    HomeContentEntity entity,
+  ) async {
+    try {
+      final cachedCategories =
+          await _categoryLocalDataSource.getCategoriesIfValid();
+      if (cachedCategories == null || cachedCategories.isEmpty) {
+        return entity;
+      }
+      final orderMap = <String, int>{};
+      for (int i = 0; i < cachedCategories.length; i++) {
+        final cat = cachedCategories[i];
+        if (cat.id != null && cat.id!.isNotEmpty) {
+          orderMap[cat.id!] = i;
+        }
+        if (cat.slug != null && cat.slug!.isNotEmpty) {
+          orderMap[cat.slug!.toLowerCase()] = i;
+        }
+        if (cat.name != null && cat.name!.isNotEmpty) {
+          orderMap[cat.name!.toLowerCase()] = i;
+        }
+      }
+
+      final sortedList = List<CategoryListEntity>.from(entity.categoryList);
+      sortedList.sort((a, b) {
+        final indexA = orderMap[a.id] ??
+            orderMap[a.slug.toLowerCase()] ??
+            orderMap[a.name.toLowerCase()] ??
+            999;
+        final indexB = orderMap[b.id] ??
+            orderMap[b.slug.toLowerCase()] ??
+            orderMap[b.name.toLowerCase()] ??
+            999;
+        return indexA.compareTo(indexB);
+      });
+
+      return HomeContentEntity(
+        categoryList: sortedList,
+        mainSlider: entity.mainSlider,
+        commonLinkSlider: entity.commonLinkSlider,
+        categorySlider: entity.categorySlider,
+        categoryProducts: entity.categoryProducts,
+        justForYou: entity.justForYou,
+      );
+    } catch (_) {
+      return entity;
+    }
   }
 
   @override
@@ -182,7 +234,7 @@ class ProductRepositoryImpl implements ProductRepository {
         return right(r.toDomain());
       } catch (e) {
         return left(
-          AppErrorEntity(message: 'Could not load products. Please try again.'),
+          const AppErrorEntity(message: 'Could not load products. Please try again.'),
         );
       }
     });
@@ -345,7 +397,7 @@ class ProductRepositoryImpl implements ProductRepository {
         return right(r.toDomain());
       } catch (e) {
         return left(
-          AppErrorEntity(message: 'Could not load products. Please try again.'),
+          const AppErrorEntity(message: 'Could not load products. Please try again.'),
         );
       }
     });
