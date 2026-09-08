@@ -15,6 +15,7 @@ class ProductImageCarousel extends StatefulWidget {
   final bool isFavorite;
   final int productId;
   final bool showShareButton;
+  final bool showCompareButton;
 
   final bool flexible;
 
@@ -28,6 +29,7 @@ class ProductImageCarousel extends StatefulWidget {
     this.isFavorite = false,
     required this.productId,
     this.showShareButton = true,
+    this.showCompareButton = false,
     this.flexible = false,
   });
 
@@ -47,15 +49,13 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     if (widget.images.isEmpty) {
-      return _buildPlaceholder(colors);
+      return _buildPlaceholder();
     }
 
     return Container(
       height: widget.flexible ? null : 350.h,
-      color: colors.white,
+      color: AppColors.white,
       child: Stack(
         children: [
           GestureDetector(
@@ -87,27 +87,28 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                       : 'assets/new/svg/favorite_icon.svg',
                   width: 22.w,
                   height: 20.h,
-                  iconColor: widget.isFavorite ? colors.red : colors.primary,
+                  iconColor: widget.isFavorite ? AppColors.red : AppColors.pickabooBlue,
                 ),
-                BlocBuilder<CompareBloc, CompareState>(
-                  builder: (context, compareState) {
-                    final isCompared = compareState.products.any((p) => p.id == widget.productId);
-                    return AppBarButton(
-                      onPressed: () => widget.onCompareTap(isCompared),
-                      iconPath: 'assets/new/svg/compare_icon.svg',
-                      width: 22.w,
-                      height: 20.h,
-                      iconColor: isCompared ? colors.orange : colors.primary,
-                    );
-                  },
-                ),
+                if (widget.showCompareButton)
+                  BlocBuilder<CompareBloc, CompareState>(
+                    builder: (context, compareState) {
+                      final isCompared = compareState.products.any((p) => p.id == widget.productId);
+                      return AppBarButton(
+                        onPressed: () => widget.onCompareTap(isCompared),
+                        iconPath: 'assets/new/svg/compare_icon.svg',
+                        width: 22.w,
+                        height: 20.h,
+                        iconColor: isCompared ? AppColors.orange : AppColors.pickabooBlue,
+                      );
+                    },
+                  ),
                 if (widget.showShareButton == true)
                   AppBarButton(
                     onPressed: widget.onShareTap,
                     iconPath: 'assets/new/svg/link_share_icon.svg',
                     width: 22.w,
                     height: 20.h,
-                    iconColor: colors.primary,
+                    iconColor: AppColors.pickabooBlue,
                   ),
               ],
             ),
@@ -130,8 +131,8 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4.r),
                       color: _currentPage == index
-                          ? colors.primary
-                          : colors.gray.withValues(alpha: 0.3),
+                          ? AppColors.pickabooBlue
+                          : AppColors.muted.withValues(alpha: 0.3),
                     ),
                   ),
                 ),
@@ -142,15 +143,15 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
     );
   }
 
-  Widget _buildPlaceholder(AppColors colors) {
+  Widget _buildPlaceholder() {
     return Container(
       height: 400.h,
-      color: colors.scaffoldBackground,
+      color: AppColors.pageBg,
       child: Center(
         child: Icon(
           Icons.image_not_supported,
           size: 100.sp,
-          color: colors.gray,
+          color: AppColors.muted,
         ),
       ),
     );
