@@ -9,10 +9,10 @@ part of 'ticket_order_model.dart';
 _$TicketOrderModelImpl _$$TicketOrderModelImplFromJson(
   Map<String, dynamic> json,
 ) => _$TicketOrderModelImpl(
-  orderId: json['order_id'] as String?,
-  incrementId: json['increment_id'] as String?,
-  createdAt: json['created_at'] as String?,
-  status: json['status'] as String?,
+  orderId: _toString(json['order_id']),
+  incrementId: _toString(_readIncrementId(json, 'increment_id')),
+  createdAt: _toString(json['created_at']),
+  status: _toString(json['status']),
   grandTotal: (json['grand_total'] as num?)?.toDouble(),
 );
 

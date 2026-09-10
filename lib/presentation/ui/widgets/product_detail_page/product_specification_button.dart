@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ProductSpecificationButton extends StatelessWidget {
   final VoidCallback? onTap;
@@ -11,7 +10,6 @@ class ProductSpecificationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Padding(
@@ -22,7 +20,7 @@ class ProductSpecificationButton extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           decoration: BoxDecoration(
-            color: colors.whiteSmoke,
+            color: AppColors.pageBg,
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Row(
@@ -31,14 +29,14 @@ class ProductSpecificationButton extends StatelessWidget {
                 width: 36.w,
                 height: 36.w,
                 decoration: BoxDecoration(
-                  color: colors.primary,
+                  color: AppColors.pickabooBlue,
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 padding: EdgeInsets.all(6.w),
                 child: SvgPicture.asset(
                   'assets/new/svg/detail/assured_icon.svg',
                   fit: BoxFit.fill,
-                  colorFilter: ColorFilter.mode(colors.white, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
                 ),
               ),
               SizedBox(width: 16.w),
@@ -47,12 +45,12 @@ class ProductSpecificationButton extends StatelessWidget {
                 child: Text(
                   'View All Specification',
                   style: textStyle.bodyMediumMedium.copyWith(
-                    color: colors.text,
+                    color: AppColors.text,
                   ),
                 ),
               ),
 
-              Icon(Icons.chevron_right, color: colors.textMedium, size: 20.sp),
+              Icon(Icons.chevron_right, color: AppColors.muted, size: 20.sp),
             ],
           ),
         ),

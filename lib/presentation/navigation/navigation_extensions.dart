@@ -42,50 +42,50 @@ extension NavigationExtensions on BuildContext {
   }
 
   void goToShop(String shopId) {
-    go(Routes.productShop.replaceAll(':id', shopId));
+    push(Routes.productShop.replaceAll(':id', shopId));
   }
 
   void goToSearch({String? query}) {
     if (query != null && query.isNotEmpty) {
-      go('${Routes.search}?q=${Uri.encodeComponent(query)}');
+      push('${Routes.search}?q=${Uri.encodeComponent(query)}');
     } else {
-      go(Routes.search);
+      push(Routes.search);
     }
   }
 
   void goToCart({bool guest = false}) {
-    go(guest ? Routes.cartGuest : Routes.cart);
+    push(guest ? Routes.cartGuest : Routes.cart);
   }
 
   void goToOrderDetails(String orderId) {
-    go(Routes.orderDetails.replaceAll(':id', orderId));
+    push(Routes.orderDetails.replaceAll(':id', orderId));
   }
 
   void goToOrderPlaced({String? orderId, int earnedPoints = 0}) {
     if (orderId != null) {
-      go(
+      push(
         '${Routes.orderPlaced}'
         '?orderId=${Uri.encodeComponent(orderId)}'
         '&earnedPoints=$earnedPoints',
       );
     } else {
-      go(Routes.orderPlaced);
+      push(Routes.orderPlaced);
     }
   }
 
   void goToOrderFailed({String? orderId}) {
     if (orderId != null) {
-      go('${Routes.orderFailed}?orderId=${Uri.encodeComponent(orderId)}');
+      push('${Routes.orderFailed}?orderId=${Uri.encodeComponent(orderId)}');
     } else {
-      go(Routes.orderFailed);
+      push(Routes.orderFailed);
     }
   }
 
   void goToOrderCancelled({String? orderId}) {
     if (orderId != null) {
-      go('${Routes.orderCancelled}?orderId=${Uri.encodeComponent(orderId)}');
+      push('${Routes.orderCancelled}?orderId=${Uri.encodeComponent(orderId)}');
     } else {
-      go(Routes.orderCancelled);
+      push(Routes.orderCancelled);
     }
   }
 
@@ -115,23 +115,23 @@ extension NavigationExtensions on BuildContext {
   }
 
   void goToOrderList() {
-    go(Routes.orderList);
+    push(Routes.orderList);
   }
 
   void goToTicketDetail(String ticketId) {
-    go(Routes.ticketDetail.replaceAll(':id', ticketId));
+    push(Routes.ticketDetail.replaceAll(':id', ticketId));
   }
 
   void goToCreateTicket() {
-    go(Routes.createTicket);
+    push(Routes.createTicket);
   }
 
   void goToKnowledgeBaseArticle(String articleId) {
-    go(Routes.knowledgeBaseDetails.replaceAll(':id', articleId));
+    push(Routes.knowledgeBaseDetails.replaceAll(':id', articleId));
   }
 
   void goToContactUs() {
-    go(Routes.contactUs);
+    push(Routes.contactUs);
   }
 
   void goToDiscoverCategory() {
@@ -216,11 +216,17 @@ extension NavigationExtensions on BuildContext {
 
     switch (type) {
       case 'product':
-        goToProductDetail(urlKey ?? link, slug: linkType);
+        final target = (link.isNotEmpty ? link : urlKey) ?? '';
+        if (target.isNotEmpty) {
+          goToProductDetail(target, slug: target);
+        }
         return;
 
       case 'category':
-        pushToCategoryProduct(categoryId: urlKey ?? link, categoryName: categoryName);
+        pushToCategoryProduct(
+          categoryId: (link.isNotEmpty ? link : urlKey) ?? '',
+          categoryName: categoryName,
+        );
         return;
       case 'special_category':
         pushToSpecialCategoryProduct(
@@ -235,7 +241,7 @@ extension NavigationExtensions on BuildContext {
         return;
 
       case 'page':
-        final pageId = _firstNonEmpty([urlKey, link]);
+        final pageId = _firstNonEmpty([link, urlKey]);
         if (pageId != null) {
           await _openExternalLink('https://www.pickaboo.com/details/$pageId');
         }
@@ -243,17 +249,17 @@ extension NavigationExtensions on BuildContext {
 
       case 'faq':
       case 'hyperlink':
-      goToKnowledgeBaseArticle(urlKey ?? link);
+        goToKnowledgeBaseArticle(link.isNotEmpty ? link : (urlKey ?? ''));
         return;
 
       case 'external':
-        await _openExternalLink(_firstNonEmpty([urlKey, link]));
+        await _openExternalLink(_firstNonEmpty([link, urlKey]));
         return;
 
       default:
         if (type.isEmpty) return;
         await _openExternalLink(
-          _firstNonEmpty([urlKey, link, linkType]),
+          _firstNonEmpty([link, urlKey, linkType]),
         );
         return;
     }
@@ -384,11 +390,15 @@ extension NavigationExtensions on BuildContext {
     bool isPop = false,
     bool isBuyNow = false,
     bool isPopGuest = false,
+    bool redirectToHome = false,
+    String? from,
   }) {
     final params = <String>[];
     if (isPop) params.add('isPop=true');
     if (isBuyNow) params.add('isBuyNow=true');
     if (isPopGuest) params.add('isPopGuest=true');
+    if (redirectToHome) params.add('redirectToHome=true');
+    if (from != null) params.add('from=$from');
 
     final paramString = params.isEmpty ? '' : '?${params.join('&')}';
     go('${Routes.login}$paramString');

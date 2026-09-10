@@ -1,9 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/auth/user_entity.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/user_image_widget.dart';
 
 class ProfileHeaderCard extends StatelessWidget {
   final UserEntity user;
@@ -13,63 +20,42 @@ class ProfileHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
+    final fullName = '${user.firstname} ${user.lastname}'.trim();
+    final displayName = fullName.isNotEmpty ? fullName : 'Pickaboo User';
 
-    return Container(
-      margin: EdgeInsets.all(16.w),
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+    return AppCard(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w + 6.w,
+        vertical: 20.h,
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            width: 80.w,
-            height: 80.h,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: colors.primary.withAlpha(25),
-              image: validImageUrl != null
-                  ? DecorationImage(
-                      image: CachedNetworkImageProvider(validImageUrl!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: validImageUrl == null
-                ? Icon(Icons.person, size: 40.sp, color: colors.primary)
-                : null,
+          // ── Large Avatar with Initials Fallback ──
+          UserImageWidget.profileHeader(
+            imageUrl: validImageUrl,
+            name: displayName,
           ),
-          SizedBox(width: 16.w),
+          SizedBox(height: 12.h),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${user.firstname} ${user.lastname}',
-                  style: textTheme.headingSmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colors.text,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  user.email,
-                  style: textTheme.bodySmall.copyWith(color: colors.gray),
-                ),
-              ],
-            ),
+          // ── Name & Email ──
+          Text(
+            displayName,
+            style: AppTypography.pageTitle,
           ),
+          if (user.email.isNotEmpty) ...[
+            SizedBox(height: 2.h),
+            Text(
+              user.email,
+              style: AppTypography.bodyMuted,
+            ),
+          ],
+          if (user.id != 0) ...[
+            SizedBox(height: 2.h),
+            Text(
+              'User ID: ${user.id}',
+              style: AppTypography.bodyMuted,
+            ),
+          ],
         ],
       ),
     );

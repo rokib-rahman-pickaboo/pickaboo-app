@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/domain/entity/support_category/support_category_entity.dart';
 import 'package:pickaboo/domain/entity/support_category/support_child_entity.dart';
@@ -12,12 +11,27 @@ import 'package:pickaboo/presentation/bloc/support/support_article_bloc/support_
 import 'package:pickaboo/presentation/bloc/support/support_category_bloc/support_category_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/knowledge_base_details_page/knowledge_base_details_page.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/knowledge_base_page/category_item.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_search_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/bloc/internet/internet_bloc.dart';
+import 'package:pickaboo/presentation/ui/pages/main_page.dart';
+import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/knowledge_base_page/faq_design.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// HELP & KNOWLEDGE BASE SUPPORT PAGE
 class KnowledgeBasePage extends StatefulWidget {
-  const KnowledgeBasePage({super.key});
+  final bool showBackButton;
+
+  const KnowledgeBasePage({
+    super.key,
+    this.showBackButton = false,
+  });
 
   @override
   State<KnowledgeBasePage> createState() => _KnowledgeBasePageState();
@@ -25,9 +39,9 @@ class KnowledgeBasePage extends StatefulWidget {
 
 class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
   final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   List<SupportCategoryEntity> _categories = [];
-  final Set<String> _expandedCategoryIds = {};
+  String? _expandedCategoryId;
 
   bool _hasSelection = false;
   String? _selectedCategoryId;
@@ -44,40 +58,45 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _searchController.dispose();
-    _searchFocusNode.dispose();
+    MainPage.hideBottomNav.value = false;
     super.dispose();
   }
 
-  bool _isCategoryExpanded(String categoryId) {
-    return _expandedCategoryIds.contains(categoryId);
-  }
-
-  void _handleSearch() {
-    final query = _searchController.text.trim();
-    if (query.isEmpty) return;
+  void _handleSearch(String query) {
+    final q = query.trim();
+    if (q.isEmpty) return;
 
     if (context.useTwoPane) {
       setState(() {
         _hasSelection = true;
         _selectedCategoryId = null;
-        _selectedCategoryName = query;
-        _selectedQuery = query;
+        _selectedCategoryName = q;
+        _selectedQuery = q;
       });
       return;
     }
 
-    context.go('/help/search', extra: {'query': query, 'categoryName': query});
+    context.pushNamed(
+      'knowledgeBaseDetailsStandalone',
+      pathParameters: {'id': 'search'},
+      extra: {'query': q, 'categoryName': q},
+    );
   }
 
-  void _toggleCategory(String categoryId) {
-    setState(() {
-      if (_expandedCategoryIds.contains(categoryId)) {
-        _expandedCategoryIds.remove(categoryId);
-      } else {
-        _expandedCategoryIds.add(categoryId);
-      }
-    });
+  void _onCategoryTapped(
+    SupportCategoryEntity category,
+    bool hasSubItems,
+    bool isExpanded,
+  ) {
+    if (hasSubItems) {
+      setState(() {
+        _expandedCategoryId = isExpanded ? null : category.id;
+      });
+    } else {
+      _navigateToDetails(category);
+    }
   }
 
   void _navigateToDetails(
@@ -97,8 +116,9 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
       return;
     }
 
-    context.go(
-      '/help/$categoryId',
+    context.pushNamed(
+      'knowledgeBaseDetailsStandalone',
+      pathParameters: {'id': categoryId},
       extra: {'categoryId': categoryId, 'categoryName': categoryName},
     );
   }
@@ -110,29 +130,11 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
-  Widget _buildHeader(AppColors colors) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const FaqHero(),
-        Container(
-          color: colors.white,
-          padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 10.h),
-          child: FaqSearchField(
-            controller: _searchController,
-            focusNode: _searchFocusNode,
-            onSubmitted: _handleSearch,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _wrapTwoPane(BuildContext context, Widget list) {
     if (!context.useTwoPane) return list;
     return Row(
       children: [
-        SizedBox(width: 360, child: list),
+        SizedBox(width: 360.w, child: list),
         const VerticalDivider(width: 1, thickness: 1),
         Expanded(child: _buildDetailPane(context)),
       ],
@@ -145,7 +147,7 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
         child: Text(
           'Select a category to see its articles',
           style: context.textStyle.bodyMedium.copyWith(
-            color: context.colors.gray,
+            color: AppColors.muted,
           ),
         ),
       );
@@ -166,32 +168,52 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          context.go(Routes.home);
-        }
+    return BlocListener<InternetBloc, InternetState>(
+      listenWhen: (previous, current) =>
+          previous.maybeWhen(disconnected: (_) => true, orElse: () => false) &&
+          current.maybeWhen(connected: (_) => true, orElse: () => false),
+      listener: (context, state) {
+        context.read<SupportCategoryBloc>().add(
+          const SupportCategoryEvent.getSupportCategories(),
+        );
       },
-      child: BlocConsumer<SupportCategoryBloc, SupportCategoryState>(
-        listener: (context, state) {
-          if (state.status == SupportCategoryStatus.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.error?.message ?? 'Failed to load categories',
-                ),
-                backgroundColor: colors.redBright,
-              ),
-            );
-          }
-        },
+      child: BlocBuilder<SupportCategoryBloc, SupportCategoryState>(
         builder: (context, state) {
           if (state.status == SupportCategoryStatus.success &&
               state.categories != null) {
             _categories = state.categories!;
+          }
+
+          final isOfflineError = _categories.isEmpty &&
+              ConnectivityUtils.isOffline(context);
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (MainPage.hideBottomNav.value != isOfflineError) {
+              MainPage.hideBottomNav.value = isOfflineError;
+            }
+          });
+
+          if (isOfflineError) {
+            return PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop) {
+                  MainPage.hideBottomNav.value = false;
+                  context.go(Routes.home);
+                }
+              },
+              child: NoInternetPage(
+                showAppBar: true,
+                title: AppStrings.helpAndKnowledgeBase,
+                onBack: () {
+                  MainPage.hideBottomNav.value = false;
+                  context.go(Routes.home);
+                },
+                onRetry: () => context.read<SupportCategoryBloc>().add(
+                  const SupportCategoryEvent.getSupportCategories(),
+                ),
+              ),
+            );
           }
 
           final isLoading = state.status == SupportCategoryStatus.loading;
@@ -200,84 +222,125 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
               state.status == SupportCategoryStatus.error &&
               _categories.isEmpty;
 
-          return Scaffold(
-            backgroundColor: FaqTheme.pageBackground(colors),
-            appBar: AppBar(title: const Text('Help & Knowledge Base')),
-            bottomNavigationBar: const FaqHelpBar(),
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop) {
+                MainPage.hideBottomNav.value = false;
+                context.go(Routes.home);
+              }
+            },
+            child: Scaffold(
+              backgroundColor: AppColors.pageBg,
+              appBar: PickabooAppBar(
+                title: AppStrings.helpAndKnowledgeBase,
+                showBackButton: widget.showBackButton,
+                onBackTap: () {
+                  MainPage.hideBottomNav.value = false;
+                  context.go(Routes.home);
+                },
+              ),
             body: _wrapTwoPane(
               context,
               RefreshIndicator(
-                onRefresh: _onRefresh,
-                color: colors.primary,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      automaticallyImplyLeading: false,
-                      pinned: true,
-                      expandedHeight: 166.h,
-                      collapsedHeight: 166.h,
-                      toolbarHeight: 166.h,
-                      backgroundColor: colors.white,
-                      surfaceTintColor: colors.white,
-                      elevation: 0,
-                      flexibleSpace: FlexibleSpaceBar(
-                        collapseMode: CollapseMode.pin,
-                        background: _buildHeader(colors),
-                      ),
+                  onRefresh: _onRefresh,
+                  color: AppColors.pickabooBlue,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
                     ),
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacing.sameGroupItemSpacing.w,
+                      0,
+                      AppSpacing.sameGroupItemSpacing.w,
+                      AppSpacing.sameGroupItemSpacing.h,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── 1. MODERN SEARCH BAR (SUBMIT TRIGGERED SEARCH ONLY) ──
+                        AppSearchBar(
+                          controller: _searchController,
+                          hintText: AppStrings.searchKnowledgeBaseHint,
+                          showFilterButton: false,
+                          onSubmitted: (query) => _handleSearch(query),
+                          onClear: () {
+                            _searchController.clear();
+                          },
+                        ),
 
-                    if (isLoading)
-                      SliverFillRemaining(
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: colors.primary,
-                            strokeWidth: 2.w,
+                        AppSpacing.groupToGroupGap,
+
+                        // ── 2. CATEGORIES LIST ──
+                        if (isLoading)
+                          AppLoader.inline(
+                            padding: EdgeInsets.symmetric(vertical: 48.h),
+                          )
+                        else if (isError)
+                          AppErrorView(
+                            type: AppErrorType.server,
+                            message: state.error?.message,
+                            onRetry: () => context.read<SupportCategoryBloc>().add(
+                              const SupportCategoryEvent.getSupportCategories(),
+                            ),
+                          )
+                        else if (isEmpty || (_categories.isEmpty && !isLoading))
+                          const AppErrorView(type: AppErrorType.empty)
+                        else
+                          AppCard(
+                            padding: EdgeInsets.zero,
+                            child: Column(
+                              children: List.generate(
+                                _categories.length,
+                                (index) {
+                                  final category = _categories[index];
+                                  final isLast =
+                                      index == _categories.length - 1;
+                                  final subItems = category.children
+                                      .map((c) => c.name)
+                                      .toList();
+                                  final bool hasSubItems = subItems.isNotEmpty;
+                                  final bool isExpanded =
+                                      _expandedCategoryId == category.id;
+                                  return AppMenuTile(
+                                    icon: faqIconForCategory(category.name),
+                                    title: category.name,
+                                    subtitle: null,
+                                    subItems:
+                                        hasSubItems ? subItems : null,
+                                    isExpanded: isExpanded,
+                                    showDivider: !isLast,
+                                    onTap: () => _onCategoryTapped(
+                                      category,
+                                      hasSubItems,
+                                      isExpanded,
+                                    ),
+                                    onSubItemTap: (subTitle) {
+                                      final subCategory = category.children
+                                          .firstWhere(
+                                            (c) => c.name == subTitle,
+                                            orElse: () => SupportChildEntity(
+                                              id: category.id,
+                                              name: subTitle,
+                                              childrenCount: 0,
+                                            ),
+                                          );
+                                      _navigateToDetails(category, subCategory);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
                           ),
+
+                        // Bottom clearance for floating bottom navigation bar
+                        SizedBox(
+                          height: 90.h + MediaQuery.paddingOf(context).bottom,
                         ),
-                      )
-                    else if (isError)
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: AppErrorView(
-                          type: AppErrorType.server,
-                          message: state.error?.message,
-                          onRetry: () => context.read<SupportCategoryBloc>().add(
-                            const SupportCategoryEvent.getSupportCategories(),
-                          ),
-                        ),
-                      )
-                    else if (isEmpty)
-                      const SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: AppErrorView(type: AppErrorType.empty),
-                      )
-                    else
-                      SliverPadding(
-                        padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 24.h),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            final category = _categories[index];
-                            return CategoryItem(
-                              key: ValueKey(category.id),
-                              category: category,
-                              isExpanded: _isCategoryExpanded(category.id),
-                              icon: faqIconForCategory(category.name),
-                              colors: colors,
-                              onTap: () => _toggleCategory(category.id),
-                              onSubCategoryTap: (subCategory) {
-                                _navigateToDetails(category, subCategory);
-                              },
-                              onCategoryTap: () {
-                                _navigateToDetails(category);
-                              },
-                            );
-                          }, childCount: _categories.length),
-                        ),
-                      ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -1,16 +1,24 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/common/address_entity.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class AddressPage extends StatefulWidget {
   const AddressPage({super.key});
@@ -22,9 +30,6 @@ class AddressPage extends StatefulWidget {
 class _AddressPageState extends State<AddressPage> {
 
   void _removeAddress(AddressEntity address) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -33,39 +38,31 @@ class _AddressPageState extends State<AddressPage> {
         ),
         title: Text(
           'Remove Address',
-          style: textStyle.dialogTitle.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colors.text,
-          ),
+          style: AppTypography.pageTitle,
         ),
         content: Text(
           'Are you sure you want to remove this address?',
-          style: textStyle.dialogMessage.copyWith(color: colors.gray),
+          style: AppTypography.bodyMuted,
         ),
         actions: [
           TextButton(
             onPressed: () => context.pop(false),
             child: Text(
               'Cancel',
-              style: textStyle.buttonMedium.copyWith(color: colors.gray),
+              style: AppTypography.bodyLarge.withColor(AppColors.muted),
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              context.pop(true);
-            },
+            onPressed: () => context.pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: colors.salmon,
+              backgroundColor: AppColors.red,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
               ),
             ),
             child: Text(
               'Remove',
-              style: textStyle.buttonMedium.copyWith(
-                color: colors.white,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTypography.buttonPrimary,
             ),
           ),
         ],
@@ -89,9 +86,6 @@ class _AddressPageState extends State<AddressPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return BlocListener<UserProfileBloc, UserProfileState>(
       listener: (context, state) {
         if (ModalRoute.of(context)?.isCurrent != true) return;
@@ -105,45 +99,35 @@ class _AddressPageState extends State<AddressPage> {
         );
       },
       child: Scaffold(
-        appBar: AppBar(
-          leading: AppBarButton(
-            iconPath: 'assets/new/svg/back_nav_icon.svg',
-            width: 7.w,
-            height: 14.h,
-            onPressed: () => Navigator.of(context).pop(),
-            iconColor: colors.text,
-          ),
-          title: Text('Address Book',style: context.textStyle.appBarTitle,),
+        backgroundColor: AppColors.pageBg,
+        appBar: const PickabooAppBar(
+          title: 'Address Book',
         ),
         bottomNavigationBar: Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
+          color: AppColors.pageBg,
+          padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: SafeArea(
             top: false,
             child: SizedBox(
-              width: double.infinity,
               height: 48.h,
               child: ElevatedButton.icon(
                 onPressed: _navigateToAddAddress,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.button,
+                  backgroundColor: AppColors.pickabooBlue,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
-                icon: Icon(Icons.add, color: colors.white, size: 22.sp),
+                icon: Icon(
+                  Icons.add_location_alt_outlined,
+                  color: AppColors.white,
+                  size: 18.sp,
+                ),
                 label: Text(
                   'Add New Address',
-                  style: textStyle.buttonMedium.copyWith(color: colors.white),
+                  style: AppTypography.buttonPrimary,
                 ),
               ),
             ),
@@ -152,12 +136,7 @@ class _AddressPageState extends State<AddressPage> {
         body: BlocBuilder<UserProfileBloc, UserProfileState>(
           builder: (context, state) {
             return state.maybeWhen(
-              loading: (_, _, _) => Center(
-                child: CircularProgressIndicator(
-                  color: colors.primary,
-                  strokeWidth: 2,
-                ),
-              ),
+              loading: (_, _, _) => const AppLoader.fullPage(),
               loaded: (user, _, _) {
                 final addressList = user.addresses ?? [];
                 if (addressList.isEmpty) {
@@ -165,14 +144,14 @@ class _AddressPageState extends State<AddressPage> {
                     onRefresh: () async => context.read<UserProfileBloc>().add(
                       const UserProfileEvent.loadUserProfile(),
                     ),
-                    color: colors.primary,
+                    color: AppColors.pickabooBlue,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         return SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           child: SizedBox(
                             height: constraints.maxHeight,
-                            child: const _EmptyState(),
+                            child: _buildEmptyState(),
                           ),
                         );
                       },
@@ -183,31 +162,29 @@ class _AddressPageState extends State<AddressPage> {
                   onRefresh: () async => context.read<UserProfileBloc>().add(
                     const UserProfileEvent.loadUserProfile(),
                   ),
-                  color: colors.primary,
-                  child: CustomScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [
-                      SliverPadding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 8.h,
-                          horizontal: 16.w,
+                  color: AppColors.pickabooBlue,
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sameGroupItemSpacing.w,
+                      vertical: AppSpacing.sameGroupItemSpacing.h,
+                    ),
+                    itemCount: addressList.length,
+                    itemBuilder: (context, index) {
+                      final address = addressList[index];
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: AppSpacing.groupToGroupSpacing.h,
                         ),
-                        sliver: SliverList.separated(
-                          itemCount: addressList.length,
-                          separatorBuilder: (_, _) => SizedBox(height: 12.h),
-                          itemBuilder: (context, index) {
-                            final address = addressList[index];
-                            return _AddressCard(
-                              address: address,
-                              onEdit: () => _navigateToEditAddress(address),
-                              onRemove: () => _removeAddress(address),
-                            );
-                          },
+                        child: _AddressCard(
+                          address: address,
+                          onEdit: () => _navigateToEditAddress(address),
+                          onRemove: () => _removeAddress(address),
                         ),
-                      ),
-
-                      SliverToBoxAdapter(child: SizedBox(height: 80.h)),
-                    ],
+                      );
+                    },
                   ),
                 );
               },
@@ -218,9 +195,15 @@ class _AddressPageState extends State<AddressPage> {
       ),
     );
   }
+
+  Widget _buildEmptyState() {
+    return AppEmptyView.addresses(
+      useCard: true,
+    );
+  }
 }
 
-class _AddressCard extends StatefulWidget {
+class _AddressCard extends StatelessWidget {
   final AddressEntity address;
   final VoidCallback onEdit;
   final VoidCallback onRemove;
@@ -231,348 +214,353 @@ class _AddressCard extends StatefulWidget {
     required this.onRemove,
   });
 
-  @override
-  State<_AddressCard> createState() => _AddressCardState();
-}
-
-class _AddressCardState extends State<_AddressCard> {
-  bool _isExpanded = false;
-
-  String _getHeaderTitle() {
-    if ((widget.address.defaultShipping == true) &&
-        (widget.address.defaultBilling == true)) {
-      return 'Default Shipping & Billing Address';
-    } else if (widget.address.defaultShipping == true) {
-      return 'Default Shipping Address';
-    } else if (widget.address.defaultBilling == true) {
-      return 'Default Billing Address';
-    }
-    return '';
+  bool _canRemove() {
+    return (address.defaultShipping != true) &&
+        (address.defaultBilling != true);
   }
 
-  bool _canRemove() {
-    return (widget.address.defaultShipping != true) &&
-        (widget.address.defaultBilling != true);
+  String _getFormattedAddress() {
+    final parts = <String>[];
+    for (final s in address.street) {
+      final trimmed = s.trim();
+      if (trimmed.isNotEmpty && !parts.contains(trimmed)) {
+        parts.add(trimmed);
+      }
+    }
+    final city = address.city.trim();
+    final postcode = address.postcode.trim();
+    final cityPostcode = [city, postcode].where((e) => e.isNotEmpty).join(' - ');
+    if (cityPostcode.isNotEmpty && !parts.contains(cityPostcode) && !parts.contains(city)) {
+      parts.add(cityPostcode);
+    }
+    final region = address.region.region.trim();
+    if (region.isNotEmpty && !parts.contains(region) && !parts.any((p) => p.contains(region))) {
+      parts.add(region);
+    }
+    return parts.isNotEmpty ? parts.join(', ') : 'No address details';
+  }
+
+  Widget _buildStatusBadge({
+    required IconData icon,
+    required String label,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceBlue,
+        borderRadius: BorderRadius.circular(6.r),
+        border: Border.all(
+          color: AppColors.pickabooBlue.withValues(alpha: 0.2),
+          width: 1.w,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 11.sp,
+            color: AppColors.pickabooBlue,
+          ),
+          SizedBox(width: 4.w),
+          Text(
+            label,
+            style: AppTypography.brandTag.copyWith(
+              fontSize: 10.5.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.pickabooBlue,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final isDefault =
-        (widget.address.defaultShipping == true) ||
-        (widget.address.defaultBilling == true);
+    final isDefaultShipping = address.defaultShipping == true;
+    final isDefaultBilling = address.defaultBilling == true;
+    final isDefault = isDefaultShipping || isDefaultBilling;
+    final fullName = '${address.firstname} ${address.lastname}'.trim();
+    final formattedAddress = _getFormattedAddress();
+    final phone = address.telephone.trim();
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: isDefault
-              ? colors.primary.withAlpha(76)
-              : colors.borderColor.withAlpha(76),
-          width: isDefault ? 2 : 1,
+              ? AppColors.pickabooBlue.withValues(alpha: 0.35)
+              : AppColors.border,
+          width: isDefault ? 1.2.w : 1.w,
         ),
         boxShadow: [
           BoxShadow(
-            color: isDefault
-                ? colors.primary.withAlpha(25)
-                : colors.black.withValues(alpha: 0.06),
-            blurRadius: isDefault ? 12 : 10,
-            offset: Offset(0, isDefault ? 4 : 3),
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 10.r,
+            offset: Offset(0, 3.h),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            onTap: () => setState(() => _isExpanded = !_isExpanded),
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(15.r),
-              bottom: _isExpanded ? Radius.zero : Radius.circular(15.r),
-            ),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                gradient: isDefault
-                    ? LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          colors.primary.withAlpha(51),
-                          colors.primary.withAlpha(25),
-                        ],
-                      )
-                    : null,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(15.r),
-                ),
-              ),
-              child: Row(
-                children: [
-                  if (isDefault) ...[
-                    Container(
-                      padding: EdgeInsets.all(6.w),
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Icon(Icons.star, color: colors.white, size: 16.sp),
-                    ),
-                    SizedBox(width: 12.w),
-                  ],
-                  Expanded(
-                    child: Text(
-                      _getHeaderTitle(),
-                      style: context.textStyle.bodyMediumBold.copyWith(
-                        color: colors.text,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(2.w),
-                    decoration: BoxDecoration(
-                      color: colors.background,
-                      border: Border.all(width: 1.w, color: colors.primary),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 8.w, right: 4.w),
-                          child: Text("Edit",style: context.textStyle.buttonMedium,),
-                        ),
-                        Icon(
-                          _isExpanded
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                          color: colors.text,
-                          size: 24.sp,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14.r),
+        child: InkWell(
+          onTap: onEdit,
+          borderRadius: BorderRadius.circular(14.r),
+          child: Padding(
+            padding: EdgeInsets.all(14.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ── Top Header Row: Badges & Action Buttons ──
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
-                        color: colors.primary.withAlpha(25),
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Icon(
-                        Icons.person,
-                        size: 20.sp,
-                        color: colors.primary,
+                    Expanded(
+                      child: Wrap(
+                        spacing: 6.w,
+                        runSpacing: 4.h,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          if (isDefaultShipping && isDefaultBilling)
+                            _buildStatusBadge(
+                              icon: Icons.star_rounded,
+                              label: 'Default Address',
+                            )
+                          else ...[
+                            if (isDefaultShipping)
+                              _buildStatusBadge(
+                                icon: Icons.local_shipping_outlined,
+                                label: 'Default Shipping',
+                              ),
+                            if (isDefaultBilling)
+                              _buildStatusBadge(
+                                icon: Icons.receipt_long_outlined,
+                                label: 'Default Billing',
+                              ),
+                          ],
+                          if (!isDefault)
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.pageBg,
+                                borderRadius: BorderRadius.circular(6.r),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.bookmark_outline_rounded,
+                                    size: 11.sp,
+                                    color: AppColors.muted,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    'Saved Address',
+                                    style: AppTypography.brandTag.copyWith(
+                                      fontSize: 10.5.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.muted,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: Text(
-                        '${widget.address.firstname} ${widget.address.lastname}',
-                        style: context.textStyle.bodyMediumBold.copyWith(
-                          color: colors.text,
+                    SizedBox(width: 8.w),
+                    // Action Buttons (Edit & Remove)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Edit Action
+                        InkWell(
+                          onTap: onEdit,
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 9.w,
+                              vertical: 5.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceBlue,
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(
+                                color: AppColors.pickabooBlue.withValues(alpha: 0.15),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.edit_outlined,
+                                  size: 13.sp,
+                                  color: AppColors.pickabooBlue,
+                                ),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  'Edit',
+                                  style: AppTypography.brandActionText.copyWith(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.pickabooBlue,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        if (_canRemove()) ...[
+                          SizedBox(width: 6.w),
+                          // Remove Action
+                          InkWell(
+                            onTap: onRemove,
+                            borderRadius: BorderRadius.circular(8.r),
+                            child: Container(
+                              padding: EdgeInsets.all(5.5.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.redBg,
+                                borderRadius: BorderRadius.circular(8.r),
+                                border: Border.all(
+                                  color: AppColors.red.withValues(alpha: 0.15),
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.delete_outline_rounded,
+                                size: 15.sp,
+                                color: AppColors.red,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
-                SizedBox(height: 8.h),
+
+                SizedBox(height: 12.h),
+
+                // ── Recipient Name & Phone Row ──
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
-                        color: colors.shamrock.withAlpha(25),
-                        borderRadius: BorderRadius.circular(10.r),
+                      width: 28.w,
+                      height: 28.h,
+                      decoration: const BoxDecoration(
+                        color: AppColors.surfaceBlue,
+                        shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.location_on,
-                        size: 20.sp,
-                        color: colors.shamrock,
+                      child: Center(
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: 15.sp,
+                          color: AppColors.pickabooBlue,
+                        ),
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: 9.w),
                     Expanded(
-                      child: Text.rich(
-                        TextSpan(
+                      child: Text(
+                        fullName.isNotEmpty ? fullName : 'Recipient',
+                        style: AppTypography.cardTitle.copyWith(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.navy,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (phone.isNotEmpty) ...[
+                      SizedBox(width: 8.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.pageBg,
+                          borderRadius: BorderRadius.circular(6.r),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (widget.address.street.isNotEmpty)
-                              TextSpan(
-                                text: widget.address.street[0],
-                                style: context.textStyle.bodyMedium.copyWith(
-                                  color: colors.text,
-                                  height: 1.4.h,
-                                ),
-                              ),
-                            if (widget.address.street.length > 1)
-                              TextSpan(
-                                text: '\n${widget.address.street[1]}',
-                                style: context.textStyle.bodyMedium.copyWith(
-                                  color: colors.text,
-                                  height: 1.4.h,
-                                ),
-                              ),
-                            TextSpan(
-                              text:
-                                  '\n${widget.address.city}, ${widget.address.postcode}',
-                              style: context.textStyle.bodyMedium.copyWith(
-                                color: colors.gray,
-                                fontWeight: FontWeight.w500,
-                                height: 1.5.h,
-                              ),
+                            Icon(
+                              Icons.phone_outlined,
+                              size: 12.sp,
+                              color: AppColors.muted,
                             ),
-                            TextSpan(
-                              text: '\n${widget.address.region.region}',
-                              style: context.textStyle.bodyMedium.copyWith(
-                                color: colors.gray,
-                                height: 1.4.h,
+                            SizedBox(width: 4.w),
+                            Text(
+                              phone,
+                              style: AppTypography.cardTitle.copyWith(
+                                fontSize: 11.5.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.navy,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
-                SizedBox(height: 8.h),
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
-                        color: colors.salmon.withAlpha(25),
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Icon(
-                        Icons.phone,
-                        size: 20.sp,
-                        color: colors.salmon,
-                      ),
+
+                SizedBox(height: 10.h),
+
+                // ── Address Details Container ──
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 11.w,
+                    vertical: 9.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.pageBg,
+                    borderRadius: BorderRadius.circular(9.r),
+                    border: Border.all(
+                      color: AppColors.border.withValues(alpha: 0.6),
                     ),
-                    SizedBox(width: 12.w),
-                    Text(
-                      widget.address.telephone,
-                      style: context.textStyle.bodyMedium.copyWith(
-                        color: colors.text,
-                        fontWeight: FontWeight.w500,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 2.h),
+                        child: Icon(
+                          Icons.location_on_outlined,
+                          size: 15.sp,
+                          color: AppColors.pickabooBlue,
+                        ),
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          formattedAddress,
+                          style: AppTypography.bodyMuted.copyWith(
+                            color: AppColors.navy,
+                            fontSize: 12.5.sp,
+                            height: 1.4,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-
-          if (_isExpanded)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: widget.onEdit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.button,
-                        foregroundColor: colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                      ),
-                      icon: Icon(Icons.edit, size: 18.sp),
-                      label: Text(
-                        'Edit',
-                        style: context.textStyle.buttonMedium.copyWith(
-                          color: colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_canRemove()) ...[
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: widget.onRemove,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.redBright,
-                          foregroundColor: colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: 14.h),
-                        ),
-                        icon: Icon(Icons.delete, size: 18.sp),
-                        label: Text(
-                          'Remove',
-                          style: context.textStyle.buttonMedium.copyWith(
-                            color: colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(24.w),
-            decoration: BoxDecoration(
-              color: colors.primary.withAlpha(25),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.location_on_outlined,
-              size: 64.sp,
-              color: colors.primary,
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Text(
-            'No Addresses Added',
-            style: textStyle.headingMedium.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colors.text,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Please add your shipping & billing address',
-            style: textStyle.bodyMedium.copyWith(color: colors.gray),
-            textAlign: TextAlign.center,
-          ),
-        ],
+        ),
       ),
     );
   }

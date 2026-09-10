@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pickaboo/core/constants/app_strings.dart';
 
 part 'error_response.freezed.dart';
 part 'error_response.g.dart';
@@ -14,5 +15,5 @@ class ErrorResponse with _$ErrorResponse {
       _$ErrorResponseFromJson(json);
 
   factory ErrorResponse.unknown() =>
-      const ErrorResponse(success: false, message: 'Something went wrong');
+      const ErrorResponse(success: false, message: AppStrings.somethingWentWrong);
 }

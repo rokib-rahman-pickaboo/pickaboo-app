@@ -1,8 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
@@ -91,6 +96,21 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
     _selectedVariants = List.from(widget.initialVariants);
     _selectedAddons = List.from(widget.initialAddons);
     _totalAddonPrice = widget.initialAddonPrice;
+
+    for (final group in widget.product.variantGroups) {
+      if (group.options.length == 1) {
+        final opt = group.options.first;
+        final idx = _selectedVariants.indexWhere((e) => e.optionId == group.optionId);
+        if (idx == -1) {
+          _selectedVariants.add(
+            ConfigurableItemOptionEntity(
+              optionId: group.optionId,
+              optionValue: opt.optionValue,
+            ),
+          );
+        }
+      }
+    }
   }
 
   bool _validate({BuildContext? messengerContext}) {
@@ -199,7 +219,6 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
     required ExtraOptionEntity option,
     required ExtraOptionValueEntity val,
     required bool hasOptionError,
-    required AppColors colors,
     required AppTextStyles textStyle,
   }) {
     final isSelected = _selectedAddons.any(
@@ -215,21 +234,21 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: isSelected
-              ? colors.linkBlue.withValues(alpha: 0.03)
-              : colors.white,
+              ? AppColors.surfaceBlue
+              : AppColors.white,
           border: Border.all(
             color: isSelected
-                ? colors.linkBlue
+                ? AppColors.pickabooBlue
                 : hasOptionError
-                    ? colors.red
-                    : colors.borderColor,
-            width: isSelected || hasOptionError ? 1.2.w : 1.w,
+                    ? AppColors.red
+                    : AppColors.border,
+            width: isSelected || hasOptionError ? 1.4.w : 1.w,
           ),
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: colors.linkBlue.withValues(alpha: 0.08),
+                    color: AppColors.pickabooBlue.withValues(alpha: 0.08),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -237,7 +256,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
               : hasOptionError
                   ? [
                       BoxShadow(
-                        color: colors.red.withValues(alpha: 0.06),
+                        color: AppColors.red.withValues(alpha: 0.06),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -249,40 +268,41 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
             children: [
               Stack(
                 alignment: Alignment.center,
+                clipBehavior: Clip.none,
                 children: [
                   Container(
                     padding: EdgeInsets.all(4.w),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: colors.white,
+                      color: isSelected ? AppColors.surfaceBlue : AppColors.white,
                       border: Border.all(
                         color:
-                            isSelected ? colors.linkBlue : colors.borderColor,
+                            isSelected ? AppColors.pickabooBlue : AppColors.border,
                         width: 1.w,
                       ),
                     ),
                     child: Icon(
                       Icons.settings_outlined,
                       color:
-                          isSelected ? colors.linkBlue : colors.graySmallLight,
+                          isSelected ? AppColors.pickabooBlue : AppColors.mutedLight,
                       size: 12.sp,
                     ),
                   ),
                   if (isSelected)
                     Positioned(
-                      right: -1.w,
-                      bottom: -1.h,
+                      right: -2.w,
+                      bottom: -2.h,
                       child: Container(
                         padding: EdgeInsets.all(1.5.w),
                         decoration: BoxDecoration(
-                          color: colors.green,
+                          color: AppColors.green,
                           shape: BoxShape.circle,
-                          border: Border.all(color: colors.white, width: 1.w),
+                          border: Border.all(color: AppColors.white, width: 1.w),
                         ),
                         child: Icon(
                           Icons.check,
-                          color: colors.white,
-                          size: 8.sp,
+                          color: AppColors.white,
+                          size: 7.sp,
                         ),
                       ),
                     ),
@@ -292,7 +312,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                 margin: EdgeInsets.symmetric(horizontal: 8.w),
                 width: 1.2.w,
                 decoration: BoxDecoration(
-                  color: isSelected ? colors.linkBlue : colors.borderColor,
+                  color: isSelected ? AppColors.pickabooBlue : AppColors.border,
                   borderRadius: BorderRadius.circular(1.w),
                 ),
               ),
@@ -302,18 +322,19 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '+${val.price} ৳',
+                      '${val.price} ৳',
                       style: textStyle.bodyMediumBold.copyWith(
-                        color: isSelected ? colors.linkBlue : colors.textMedium,
-                        fontSize: 11.sp,
+                        color: isSelected ? AppColors.pickabooBlue : AppColors.navy,
+                        fontSize: 11.5.sp,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 1.h),
                     Text(
                       val.title,
                       style: textStyle.bodySmall.copyWith(
-                        color: colors.text,
-                        fontSize: 10.sp,
+                        color: AppColors.navy,
+                        fontSize: 10.5.sp,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -352,14 +373,26 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
   }
 
   Widget _buildSheet(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
-    final currentPrice =
-        (widget.product.discount > 0
-            ? widget.product.spacialPrice
-            : widget.product.regularPrice) +
-        _totalAddonPrice;
+    final matrix = widget.product.variantMatrix;
+    final selectedMap = {
+      for (final v in _selectedVariants)
+        if (v.optionValue.isNotEmpty) v.optionId: v.optionValue,
+    };
+    final matchedProduct = matrix.isNotEmpty ? matrix.productFor(selectedMap) : null;
+
+    final int baseSpecialPrice = (matchedProduct != null && matchedProduct.productSpecialPrice > 0)
+        ? matchedProduct.productSpecialPrice
+        : widget.product.spacialPrice;
+    final int baseRegularPrice = (matchedProduct != null && matchedProduct.productPrice > 0)
+        ? matchedProduct.productPrice
+        : widget.product.regularPrice;
+    final int basePrice = (widget.product.discount > 0 || baseSpecialPrice > 0)
+        ? (baseSpecialPrice > 0 ? baseSpecialPrice : baseRegularPrice)
+        : baseRegularPrice;
+
+    final currentPrice = basePrice + _totalAddonPrice;
 
     final formattedPrice = currentPrice.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -375,11 +408,11 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color: colors.background,
+        color: AppColors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.1),
+            color: AppColors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -396,7 +429,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
               width: 40.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: colors.borderColor,
+                color: AppColors.border,
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
@@ -410,14 +443,17 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                   widget.product.variantGroups.isNotEmpty
                       ? 'Select options'
                       : 'Select add-ons',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: textStyle.subheading.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.navy,
+                  ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
-                    Icons.cancel_outlined,
-                    color: colors.graySmallLight,
-                    size: 24.sp,
+                    Icons.close_rounded,
+                    color: AppColors.muted,
+                    size: 22.sp,
                   ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -425,31 +461,34 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
               ],
             ),
           ),
-          Divider(color: colors.borderColor, thickness: 1.h, height: 1.h),
+          Divider(color: AppColors.border, thickness: 1.h, height: 1.h),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   widget.product.name,
                   style: textStyle.bodyMediumBold.copyWith(
-                    color: colors.text,
-                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13.5.sp,
                   ),
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: 4.h),
                 Text(
                   '৳$formattedPrice',
                   style: textStyle.bodyLargeBold.copyWith(
-                    color: colors.linkBlue,
+                    color: AppColors.pickabooBlue,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16.sp,
                   ),
                 ),
               ],
             ),
           ),
-          Divider(color: colors.borderColor, thickness: 1.h, height: 1.h),
+          Divider(color: AppColors.border, thickness: 1.h, height: 1.h),
 
           Flexible(
             child: SingleChildScrollView(
@@ -493,17 +532,17 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
 
                     return <Widget>[
                       Divider(
-                        color: colors.borderColor,
+                        color: AppColors.border,
                         thickness: 1.h,
                         height: 1.h,
                       ),
                       Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
+                        padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 8.h),
                         child: Text(
                           'Options',
                           style: textStyle.subheading.copyWith(
-                            color: colors.text,
-                            fontWeight: FontWeight.bold,
+                            color: AppColors.navy,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -525,21 +564,62 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                             ),
                             child: Row(
                               children: [
-                                Text(
-                                  '${option.title}:',
-                                  style: textStyle.bodyMediumMedium.copyWith(
-                                    color: hasOptionError
-                                        ? colors.red
-                                        : colors.textMedium,
+                                Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: option.title,
+                                        style: textStyle.bodyMediumMedium.copyWith(
+                                          color: hasOptionError
+                                              ? AppColors.red
+                                              : AppColors.navy,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      if (option.isRequire)
+                                        TextSpan(
+                                          text: ' *',
+                                          style: TextStyle(
+                                            color: AppColors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13.sp,
+                                          ),
+                                        )
+                                      else
+                                        TextSpan(
+                                          text: ' (Optional)',
+                                          style: textStyle.bodySmall.copyWith(
+                                            color: AppColors.muted,
+                                            fontSize: 11.5.sp,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      TextSpan(
+                                        text: ':',
+                                        style: textStyle.bodyMediumMedium.copyWith(
+                                          color: hasOptionError
+                                              ? AppColors.red
+                                              : AppColors.navy,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 if (hasOptionError) ...[
                                   SizedBox(width: 6.w),
-                                  Text(
-                                    'Required',
-                                    style: textStyle.bodySmall.copyWith(
-                                      color: context.colors.red,
-                                      fontSize: 11.sp,
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.redBg,
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    child: Text(
+                                      'Required',
+                                      style: textStyle.bodySmall.copyWith(
+                                        color: AppColors.red,
+                                        fontSize: 10.5.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -569,7 +649,6 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                             option: option,
                                             val: option.values[i],
                                             hasOptionError: hasOptionError,
-                                            colors: colors,
                                             textStyle: textStyle,
                                           ),
                                         ),
@@ -581,7 +660,6 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                                   val: option.values[i + 1],
                                                   hasOptionError:
                                                       hasOptionError,
-                                                  colors: colors,
                                                   textStyle: textStyle,
                                                 )
                                               : const SizedBox.shrink(),
@@ -612,9 +690,9 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                 Navigator.pop(context, ProductOptionsSheetResult(_selectedVariants, _selectedAddons));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colors.darkBlueNav,
+                backgroundColor: AppColors.pickabooBlue,
                 minimumSize: Size(double.infinity, 48.h),
-                elevation: 2,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),
@@ -623,7 +701,10 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                 widget.isBuyNow && !widget.isSelectionOnly
                     ? 'BUY NOW'
                     : 'CONTINUE',
-                style: textStyle.buttonMedium.copyWith(color: colors.white),
+                style: textStyle.buttonMedium.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

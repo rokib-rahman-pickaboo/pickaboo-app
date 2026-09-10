@@ -1,7 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_typography.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/discover_category_page/discover_grid.dart';
 
@@ -21,7 +27,6 @@ class BrandItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final size = DiscoverMetrics.circleTile;
 
     return GestureDetector(
@@ -31,41 +36,21 @@ class BrandItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: colors.spotlightBlueLight,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: colors.black.withValues(alpha: 0.08),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: ClipOval(
+          ClipOval(
+            child: Padding(
+              padding: EdgeInsets.all(8.w),
               child: AppImage(
                 imageUrl: imageUrl,
                 width: size,
                 height: size,
-                fit: BoxFit.cover,
-                errorWidget: Padding(
-                  padding: EdgeInsets.all(6.w),
-                  child: Center(
-                    child: Text(
-                      brandName.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyle.bodyMediumBold.copyWith(
-                        color: colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11.sp,
-                        height: 1.15,
-                      ),
-                    ),
+                fit: BoxFit.contain,
+                errorWidget: Center(
+                  child: Text(
+                    brandName.toUpperCase(),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.pageTitle,
                   ),
                 ),
               ),
@@ -75,6 +60,8 @@ class BrandItem extends StatelessWidget {
           SizedBox(height: DiscoverMetrics.tileLabelGap),
 
           DiscoverTileLabel(text: brandName, maxLines: 1),
+
+          SizedBox(height: 2.h),
 
           DiscoverTileAction(text: actionText),
         ],

@@ -21,7 +21,12 @@ class UserProfileEvent with _$UserProfileEvent {
   }) = _UpdateMobile;
   const factory UserProfileEvent.uploadProfileImage({required File image}) =
       _UploadProfileImage;
-  const factory UserProfileEvent.updateEmail(String newEmail) = _UpdateEmail;
+  const factory UserProfileEvent.sendEmailUpdateOtp(String email) =
+      _SendEmailUpdateOtp;
+  const factory UserProfileEvent.updateEmail({
+    required String newEmail,
+    required String otp,
+  }) = _UpdateEmail;
   const factory UserProfileEvent.changePassword({
     required String currentPassword,
     required String newPassword,
@@ -34,4 +39,5 @@ class UserProfileEvent with _$UserProfileEvent {
   }) = _UpdateAddress;
   const factory UserProfileEvent.deleteAddress({required int addressId}) =
       _DeleteAddress;
+  const factory UserProfileEvent.clear() = _Clear;
 }

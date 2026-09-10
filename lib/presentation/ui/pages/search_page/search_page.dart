@@ -1,24 +1,29 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/search_page/search_results.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/search_page/filter_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/search_page/filter_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/search_page/search_filter_chips.dart';
 import 'package:pickaboo/presentation/utils/filter_converter.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final String? initialQuery;
+
+  const SearchPage({super.key, this.initialQuery});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -61,21 +66,32 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Scaffold(
-      backgroundColor: colors.white,
-      body: SafeArea(
-        top: false,
-        child: CustomScrollView(
-          slivers: [
-            _SearchAppBar(
-              onBackPress: () {
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                }
-              },
-            ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.home);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.pageBg,
+        body: SafeArea(
+          top: false,
+          child: CustomScrollView(
+            slivers: [
+              SearchAppBar(
+                initialQuery: widget.initialQuery,
+                onBackPress: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    context.go(Routes.home);
+                  }
+                },
+              ),
 
             BlocBuilder<SearchBloc, SearchState>(
               buildWhen: (previous, current) =>
@@ -111,7 +127,7 @@ class _SearchPageState extends State<SearchPage> {
                           context: context,
                           isScrollControlled: true,
                           useSafeArea: true,
-                          backgroundColor: colors.black.withValues(alpha: 0.0),
+                          backgroundColor: AppColors.black.withValues(alpha: 0.0),
                           builder: (_) => FilterBottomSheet(
                             facets: state.facets,
                             initialFilters: _appliedFilters,
@@ -145,24 +161,44 @@ class _SearchPageState extends State<SearchPage> {
           ],
         ),
       ),
+    ),
     );
   }
 }
 
-class _SearchAppBar extends StatefulWidget {
+class SearchAppBar extends StatefulWidget {
   final VoidCallback onBackPress;
+  final String? initialQuery;
 
-  const _SearchAppBar({required this.onBackPress});
+  const SearchAppBar({
+    super.key,
+    required this.onBackPress,
+    this.initialQuery,
+  });
 
   @override
-  State<_SearchAppBar> createState() => _SearchAppBarState();
+  State<SearchAppBar> createState() => _SearchAppBarState();
 }
 
-class _SearchAppBarState extends State<_SearchAppBar> {
-  final TextEditingController _controller = TextEditingController();
+class _SearchAppBarState extends State<SearchAppBar> {
+  late final TextEditingController _controller;
 
   Timer? _debounce;
   static const Duration _debounceDuration = Duration(milliseconds: 300);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialQuery ?? '');
+    if (widget.initialQuery != null && widget.initialQuery!.trim().isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.read<SearchBloc>().add(
+          SearchEvent.searchSubmitted(query: widget.initialQuery!.trim()),
+        );
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -185,161 +221,185 @@ class _SearchAppBarState extends State<_SearchAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return SliverAppBar(
       pinned: true,
-      toolbarHeight: 72.h,
+      toolbarHeight: 50.h,
       automaticallyImplyLeading: false,
-      flexibleSpace: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          child: Row(
-            children: [
-              AppBarButton(
-                iconPath: 'assets/new/svg/back_nav_icon.svg',
-                width: 7.w,
-                height: 14.h,
-                onPressed: widget.onBackPress,
-                iconColor: colors.text,
+      backgroundColor: AppColors.pageBg,
+      surfaceTintColor: AppColors.pageBg,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      titleSpacing: 0,
+      title: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        child: Row(
+          children: [
+            // ── Back Button ──
+            IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios_new,
+                color: AppColors.navy,
+                size: 18.sp,
               ),
-              SizedBox(width: 8.w),
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(minWidth: 32.w, minHeight: 32.h),
+              onPressed: widget.onBackPress,
+            ),
+            SizedBox(width: 6.w),
 
-              Expanded(
-                child: BlocBuilder<SearchBloc, SearchState>(
-                  builder: (context, state) {
-                    return Autocomplete<String>(
-                      optionsBuilder: (TextEditingValue textEditingValue) {
-                        return const Iterable<String>.empty();
-                      },
-                      onSelected: (String selection) {
-                        _controller.text = selection;
-                        context.read<SearchBloc>().add(
-                          SearchEvent.searchSubmitted(query: selection),
-                        );
-                      },
-                      fieldViewBuilder:
-                          (
-                            BuildContext context,
-                            TextEditingController fieldTextEditingController,
-                            FocusNode fieldFocusNode,
-                            VoidCallback onFieldSubmitted,
-                          ) {
-                            if (_controller.text !=
-                                fieldTextEditingController.text) {
-                              fieldTextEditingController.text =
-                                  _controller.text;
-                            }
+            // ── Search Input Field (Unified AppSearchBar Styling) ──
+            Expanded(
+              child: BlocBuilder<SearchBloc, SearchState>(
+                builder: (context, state) {
+                  return Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      return const Iterable<String>.empty();
+                    },
+                    onSelected: (String selection) {
+                      _controller.text = selection;
+                      context.read<SearchBloc>().add(
+                        SearchEvent.searchSubmitted(query: selection),
+                      );
+                    },
+                    fieldViewBuilder:
+                        (
+                          BuildContext context,
+                          TextEditingController fieldTextEditingController,
+                          FocusNode fieldFocusNode,
+                          VoidCallback onFieldSubmitted,
+                        ) {
+                          if (_controller.text !=
+                              fieldTextEditingController.text) {
+                            fieldTextEditingController.text =
+                                _controller.text;
+                          }
 
-                            return TextFormField(
-                              controller: fieldTextEditingController,
-                              focusNode: fieldFocusNode,
-                              autofocus: true,
-                              onChanged: _onQueryChanged,
-                              onFieldSubmitted: (text) {
-                                if (text.isNotEmpty) {
-                                  _debounce?.cancel();
-                                  context.read<SearchBloc>().add(
-                                    SearchEvent.searchSubmitted(query: text),
-                                  );
-                                  fieldFocusNode.unfocus();
-                                }
-                              },
-                              textInputAction: TextInputAction.search,
-                              decoration: InputDecoration(
-                                hintText:
-                                    'Search for Products, Brands and More',
-                                hintStyle: context.textStyle.inputPlaceholder.withColor(
-                                  colors.gray.withValues(alpha: 0.6),
+                          return Container(
+                            height: 36.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceBlue,
+                              borderRadius: BorderRadius.circular(10.r),
+                              border: Border.all(
+                                color: AppColors.pickabooBlue.withValues(alpha: 0.35),
+                                width: 1.w,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(left: 10.w, right: 6.w),
+                                  child: Icon(
+                                    Icons.search_rounded,
+                                    color: AppColors.pickabooBlue,
+                                    size: 18.sp,
+                                  ),
                                 ),
-                                filled: true,
-                                fillColor: colors.whiteSmoke,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  borderSide: BorderSide.none,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  borderSide: BorderSide.none,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 10.h,
-                                ),
-                                suffixIconConstraints: BoxConstraints(
-                                  minWidth: 40.w,
-                                  minHeight: 40.h,
-                                ),
-                                suffixIcon: GestureDetector(
-                                  onTap: () {
-                                    if (_controller.text.isNotEmpty) {
-                                      context.read<SearchBloc>().add(
-                                        SearchEvent.searchSubmitted(
-                                          query: _controller.text,
-                                        ),
-                                      );
-                                      fieldFocusNode.unfocus();
-                                    }
-                                  },
-                                  child: Container(
-                                    margin: EdgeInsets.all(6.w),
-                                    padding: EdgeInsets.all(8.w),
-                                    decoration: BoxDecoration(
-                                      color: colors.button,
-                                      borderRadius: BorderRadius.circular(6.r),
-                                    ),
-                                    child: SvgPicture.asset(
-                                      'assets/new/svg/search_icon.svg',
-                                      width: 14.w,
-                                      height: 14.h,
-                                      fit: BoxFit.fitWidth,
-                                      colorFilter: ColorFilter.mode(
-                                        colors.white,
-                                        BlendMode.srcIn,
-                                      ),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: fieldTextEditingController,
+                                    focusNode: fieldFocusNode,
+                                    autofocus: true,
+                                    cursorColor: AppColors.pickabooBlue,
+                                    style: AppTypography.bodyRegular,
+                                    onChanged: (val) {
+                                      _onQueryChanged(val);
+                                      setState(() {});
+                                    },
+                                    onFieldSubmitted: (text) {
+                                      if (text.isNotEmpty) {
+                                        _debounce?.cancel();
+                                        context.read<SearchBloc>().add(
+                                          SearchEvent.searchSubmitted(query: text),
+                                        );
+                                        fieldFocusNode.unfocus();
+                                      }
+                                    },
+                                    textInputAction: TextInputAction.search,
+                                    decoration: InputDecoration(
+                                      hintText: 'Search what you are looking for...',
+                                      hintStyle: AppTypography.inputHint,
+                                      filled: true,
+                                      fillColor: Colors.transparent,
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      errorBorder: InputBorder.none,
+                                      disabledBorder: InputBorder.none,
+                                      focusedErrorBorder: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(vertical: 6.h),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                    );
-                  },
-                ),
-              ),
-              SizedBox(width: 8.w),
-
-              BlocBuilder<CartBloc, CartState>(
-                builder: (context, cartState) {
-                  final cartCount = cartState.maybeWhen(
-                    loaded: (cart) => cart.itemsCount,
-                    itemAdded: (cart, _) => cart.itemsCount,
-                    couponApplied: (cart, _) => cart.itemsCount,
-                    rewardPointsApplied: (cart, _) => cart.itemsCount,
-                    operationInProgress: (cart, _) => cart.itemsCount,
-                    orElse: () => 0,
-                  );
-
-                  return AppBarButton(
-                    onPressed: () {
-                      context.push(Routes.cart);
-                    },
-                    iconPath: 'assets/new/svg/cart_icon.svg',
-                    width: 22.w,
-                    height: 20.h,
-                    iconColor: colors.primary,
-                    showBadge: cartCount > 0,
-                    badgeCount: cartCount,
+                                if (fieldTextEditingController.text.isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () {
+                                      fieldTextEditingController.clear();
+                                      _controller.clear();
+                                      _onQueryChanged('');
+                                      setState(() {});
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                      child: Icon(
+                                        Icons.close_rounded,
+                                        color: AppColors.muted,
+                                        size: 16.sp,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  SizedBox(width: 8.w),
+                              ],
+                            ),
+                          );
+                        },
                   );
                 },
               ),
-            ],
-          ),
+            ),
+            SizedBox(width: 6.w),
+
+            // ── Cart Icon Button ──
+            BlocBuilder<CartBloc, CartState>(
+              builder: (context, cartState) {
+                final cartCount = cartState.maybeWhen(
+                  loaded: (cart) => cart.itemsCount,
+                  itemAdded: (cart, _) => cart.itemsCount,
+                  couponApplied: (cart, _) => cart.itemsCount,
+                  rewardPointsApplied: (cart, _) => cart.itemsCount,
+                  operationInProgress: (cart, _) => cart.itemsCount,
+                  orElse: () => 0,
+                );
+
+                return IconButton(
+                  icon: Badge(
+                    isLabelVisible: cartCount > 0,
+                    label: Text(
+                      '$cartCount',
+                      style: AppTypography.bodyTiny.bold().withColor(AppColors.white),
+                    ),
+                    backgroundColor: AppColors.pickabooBlue,
+                    child: Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppColors.navy,
+                      size: 22.sp,
+                    ),
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: 36.w, minHeight: 36.h),
+                  onPressed: () => context.push(Routes.cart),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(1.0.h),
+        child: Container(
+          height: 1.0.h,
+          color: AppColors.border,
         ),
       ),
     );

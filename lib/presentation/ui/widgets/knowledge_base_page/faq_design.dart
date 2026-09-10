@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/support_category/support_category_entity.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,27 +13,27 @@ class FaqTheme {
   static double get radiusMedium => 10.r;
   static double get radiusLarge => 16.r;
 
-  static Color pageBackground(AppColors c) =>
-      Color.alphaBlend(c.black.withValues(alpha: 0.02), c.white);
+  static Color get pageBackground =>
+      Color.alphaBlend(AppColors.black.withValues(alpha: 0.02), AppColors.white);
 
-  static Color primarySurface(AppColors c) =>
-      Color.alphaBlend(c.primary.withValues(alpha: 0.04), c.white);
+  static Color get primarySurface =>
+      Color.alphaBlend(AppColors.pickabooBlue.withValues(alpha: 0.04), AppColors.white);
 
-  static Color primaryTint(AppColors c) =>
-      Color.alphaBlend(c.primary.withValues(alpha: 0.16), c.white);
+  static Color get primaryTint =>
+      Color.alphaBlend(AppColors.pickabooBlue.withValues(alpha: 0.16), AppColors.white);
 
-  static Color primaryBorder(AppColors c) =>
-      Color.alphaBlend(c.primary.withValues(alpha: 0.32), c.white);
+  static Color get primaryBorder =>
+      Color.alphaBlend(AppColors.pickabooBlue.withValues(alpha: 0.32), AppColors.white);
 
-  static Color primaryDeep(AppColors c) =>
-      Color.alphaBlend(c.black.withValues(alpha: 0.45), c.primary);
+  static Color get primaryDeep =>
+      Color.alphaBlend(AppColors.black.withValues(alpha: 0.45), AppColors.pickabooBlue);
 
-  static Color hairline(AppColors c) => c.gray.withValues(alpha: 0.14);
+  static Color get hairline => AppColors.muted.withValues(alpha: 0.14);
 
-  static LinearGradient heroGradient(AppColors c) => LinearGradient(
+  static LinearGradient get heroGradient => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [c.primary, primaryDeep(c)],
+    colors: [AppColors.pickabooBlue, primaryDeep],
   );
 }
 
@@ -53,13 +52,11 @@ class FaqHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 18.h),
       decoration: BoxDecoration(
-        gradient: FaqTheme.heroGradient(colors),
+        gradient: FaqTheme.heroGradient,
         borderRadius: roundedTop
             ? BorderRadius.vertical(top: Radius.circular(FaqTheme.radiusSmall))
             : null,
@@ -70,7 +67,7 @@ class FaqHero extends StatelessWidget {
             title,
             textAlign: TextAlign.center,
             style: context.textStyle.headingSmall.copyWith(
-              color: colors.white,
+              color: AppColors.white,
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
               height: 1.2,
@@ -81,7 +78,7 @@ class FaqHero extends StatelessWidget {
             subtitle,
             textAlign: TextAlign.center,
             style: context.textStyle.bodySmall.copyWith(
-              color: colors.white.withValues(alpha: 0.9),
+              color: AppColors.white.withValues(alpha: 0.9),
               fontSize: 13.sp,
               height: 1.3,
             ),
@@ -137,7 +134,6 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final hasText = widget.controller.text.isNotEmpty;
 
     final radius = BorderRadius.circular(FaqTheme.radiusMedium);
@@ -151,7 +147,7 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
         boxShadow: _focused
             ? [
                 BoxShadow(
-                  color: colors.primary.withValues(alpha: 0.14),
+                  color: AppColors.pickabooBlue.withValues(alpha: 0.14),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -159,13 +155,13 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
             : null,
       ),
       child: Material(
-        color: _focused ? colors.white : colors.whiteSmoke,
+        color: _focused ? AppColors.white : AppColors.pageBg,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
           side: BorderSide(
             color: _focused
-                ? colors.primary
-                : colors.gray.withValues(alpha: 0.18),
+                ? AppColors.pickabooBlue
+                : AppColors.muted.withValues(alpha: 0.18),
             width: _focused ? 1.4.w : 1.w,
           ),
         ),
@@ -176,13 +172,13 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => widget.onSubmitted(),
         onChanged: (_) => setState(() {}),
-        cursorColor: colors.primary,
+        cursorColor: AppColors.pickabooBlue,
         cursorWidth: 1.5,
         cursorRadius: const Radius.circular(1),
         style: context.textStyle.bodyMedium.copyWith(
           fontSize: 14.sp,
           height: 1.2,
-          color: colors.text,
+          color: AppColors.text,
         ),
         decoration: InputDecoration(
           isDense: true,
@@ -190,7 +186,7 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
           hintStyle: context.textStyle.inputText.copyWith(
             fontSize: 14.sp,
             height: 1.2,
-            color: colors.gray.withValues(alpha: 0.65),
+            color: AppColors.muted.withValues(alpha: 0.65),
           ),
           prefixIcon: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
@@ -198,7 +194,7 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
             child: Icon(
               Icons.search_rounded,
               size: 19.sp,
-              color: _focused ? colors.primary : colors.gray,
+              color: _focused ? AppColors.pickabooBlue : AppColors.muted,
             ),
           ),
           prefixIconConstraints: const BoxConstraints(),
@@ -216,13 +212,13 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
                       width: 22.w,
                       height: 22.w,
                       decoration: BoxDecoration(
-                        color: colors.gray.withValues(alpha: 0.16),
+                        color: AppColors.muted.withValues(alpha: 0.16),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.close_rounded,
                         size: 14.sp,
-                        color: colors.gray,
+                        color: AppColors.muted,
                       ),
                     ),
                   ),
@@ -252,8 +248,6 @@ class FaqCategoryTrigger extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
@@ -261,9 +255,9 @@ class FaqCategoryTrigger extends StatelessWidget {
         height: 48.h,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
-          color: FaqTheme.primarySurface(colors),
+          color: FaqTheme.primarySurface,
           borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
-          border: Border.all(color: FaqTheme.primaryBorder(colors), width: 1.w),
+          border: Border.all(color: FaqTheme.primaryBorder, width: 1.w),
         ),
         child: Row(
           children: [
@@ -271,10 +265,10 @@ class FaqCategoryTrigger extends StatelessWidget {
               width: 30.w,
               height: 30.w,
               decoration: BoxDecoration(
-                color: FaqTheme.primaryTint(colors),
+                color: FaqTheme.primaryTint,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.menu, size: 16.sp, color: colors.primary),
+              child: Icon(Icons.menu, size: 16.sp, color: AppColors.pickabooBlue),
             ),
             SizedBox(width: 10.w),
             Expanded(
@@ -289,7 +283,7 @@ class FaqCategoryTrigger extends StatelessWidget {
                       height: 1,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.5,
-                      color: colors.primary,
+                      color: AppColors.pickabooBlue,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -301,7 +295,7 @@ class FaqCategoryTrigger extends StatelessWidget {
                       fontSize: 13.sp,
                       height: 1.3,
                       fontWeight: FontWeight.w500,
-                      color: colors.text,
+                      color: AppColors.text,
                     ),
                   ),
                 ],
@@ -310,7 +304,7 @@ class FaqCategoryTrigger extends StatelessWidget {
             Icon(
               Icons.keyboard_arrow_down,
               size: 18.sp,
-              color: FaqTheme.primaryBorder(colors),
+              color: FaqTheme.primaryBorder,
             ),
           ],
         ),
@@ -346,14 +340,12 @@ class FaqCategorySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.65,
       ),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(FaqTheme.radiusLarge),
         ),
@@ -368,7 +360,7 @@ class FaqCategorySheet extends StatelessWidget {
               width: 36.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: colors.gray.withValues(alpha: 0.35),
+                color: AppColors.muted.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
@@ -379,7 +371,7 @@ class FaqCategorySheet extends StatelessWidget {
             style: context.textStyle.bodyMediumBold.copyWith(
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
-              color: colors.text,
+              color: AppColors.text,
             ),
           ),
           SizedBox(height: 10.h),
@@ -439,8 +431,6 @@ class _SheetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
@@ -451,7 +441,7 @@ class _SheetRow extends StatelessWidget {
           vertical: isChild ? 8.h : 10.h,
         ),
         decoration: BoxDecoration(
-          color: isActive ? FaqTheme.primaryTint(colors) : null,
+          color: isActive ? FaqTheme.primaryTint : null,
           borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
         ),
         child: Row(
@@ -462,8 +452,8 @@ class _SheetRow extends StatelessWidget {
                 height: 5.w,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? colors.primary
-                      : colors.gray.withValues(alpha: 0.4),
+                      ? AppColors.pickabooBlue
+                      : AppColors.muted.withValues(alpha: 0.4),
                   shape: BoxShape.circle,
                 ),
               )
@@ -472,13 +462,13 @@ class _SheetRow extends StatelessWidget {
                 width: 32.w,
                 height: 32.w,
                 decoration: BoxDecoration(
-                  color: isActive ? colors.white : colors.whiteSmoke,
+                  color: isActive ? AppColors.white : AppColors.pageBg,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   faqIconForCategory(label),
                   size: 16.sp,
-                  color: isActive ? colors.primary : colors.gray,
+                  color: isActive ? AppColors.pickabooBlue : AppColors.muted,
                 ),
               ),
             SizedBox(width: isChild ? 8.w : 10.w),
@@ -490,7 +480,7 @@ class _SheetRow extends StatelessWidget {
                 style: context.textStyle.bodySmall.copyWith(
                   fontSize: isChild ? 13.sp : 14.sp,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive ? FaqTheme.primaryDeep(colors) : colors.text,
+                  color: isActive ? FaqTheme.primaryDeep : AppColors.text,
                 ),
               ),
             ),
@@ -508,14 +498,13 @@ class FaqHelpBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final hasHotline = supportHotline.isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         border: Border(
-          top: BorderSide(color: FaqTheme.hairline(colors), width: 1.w),
+          top: BorderSide(color: FaqTheme.hairline, width: 1.w),
         ),
       ),
       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
@@ -567,8 +556,7 @@ class _HelpButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final foreground = filled ? colors.white : colors.primary;
+    final foreground = filled ? AppColors.white : AppColors.pickabooBlue;
 
     return InkWell(
       onTap: onTap,
@@ -576,9 +564,9 @@ class _HelpButton extends StatelessWidget {
       child: Container(
         height: 40.h,
         decoration: BoxDecoration(
-          color: filled ? colors.primary : colors.white,
+          color: filled ? AppColors.pickabooBlue : AppColors.white,
           borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
-          border: Border.all(color: colors.primary, width: 1.w),
+          border: Border.all(color: AppColors.pickabooBlue, width: 1.w),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -603,23 +591,56 @@ class _HelpButton extends StatelessWidget {
 IconData faqIconForCategory(String categoryName) {
   final name = categoryName.toLowerCase();
 
-  if (name.contains('account')) return Icons.account_circle_outlined;
-  if (name.contains('order')) return Icons.shopping_bag_outlined;
+  if (name.contains('account')) return Icons.person_outline_rounded;
+  if (name.contains('order')) return Icons.assignment_outlined;
   if (name.contains('payment') || name.contains('emi')) {
-    return Icons.payment_outlined;
+    return Icons.credit_card_outlined;
   }
   if (name.contains('shipping') || name.contains('delivery')) {
     return Icons.local_shipping_outlined;
   }
-  if (name.contains('warranty')) return Icons.verified_user_outlined;
   if (name.contains('return') || name.contains('replacement')) {
-    return Icons.keyboard_return_outlined;
+    return Icons.published_with_changes_rounded;
+  }
+  if (name.contains('warranty')) return Icons.verified_user_outlined;
+  if (name.contains('offer')) return Icons.local_offer_outlined;
+  if (name.contains('campaign')) return Icons.campaign_outlined;
+  if (name.contains('insurance') || name.contains('protect')) {
+    return Icons.shield_outlined;
+  }
+  if (name.contains('claim') || name.contains('acceptance') || name.contains('policy')) {
+    return Icons.task_alt_rounded;
   }
   if (name.contains('temp') || name.contains('service')) {
     return Icons.build_outlined;
   }
   if (name.contains('store')) return Icons.store_outlined;
-  if (name.contains('protect')) return Icons.shield_outlined;
 
-  return Icons.help_outline;
+  return Icons.help_outline_rounded;
 }
+
+String faqSubtitleForCategory(String categoryName) {
+  final name = categoryName.toLowerCase();
+
+  if (name.contains('account')) return 'Instant Help & FAQs';
+  if (name.contains('order')) return 'Tracking, Cancel & Delivery status';
+  if (name.contains('shipping') || name.contains('delivery')) {
+    return 'Delivery times, fees & tracking';
+  }
+  if (name.contains('return') || name.contains('replacement')) {
+    return 'Return window, replacement policy & process';
+  }
+  if (name.contains('warranty')) return 'Brand warranty, coverage & claims';
+  if (name.contains('insurance') || name.contains('protect')) {
+    return 'Device coverage & protection plans';
+  }
+  if (name.contains('offer') || name.contains('campaign')) {
+    return 'Bank deals, coupons & campaigns';
+  }
+  if (name.contains('claim') || name.contains('acceptance') || name.contains('policy')) {
+    return 'Acceptance rules & package claims';
+  }
+
+  return 'Help topics & frequently asked questions';
+}
+

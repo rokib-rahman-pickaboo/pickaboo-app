@@ -6,10 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/review_item.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/review_image_viewer_sheet.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class ProductReviewsSection extends StatelessWidget {
   final ProductDetailEntity product;
@@ -30,7 +30,6 @@ class ProductReviewsSection extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, ReviewState state) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     final summary = state.summary;
@@ -43,7 +42,7 @@ class ProductReviewsSection extends StatelessWidget {
     final totalReviewCount = summary?.totalReviews ?? product.reviewsCount;
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,17 +51,17 @@ class ProductReviewsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Ratings & Reviews',
+                AppStrings.pdpRatingsAndReviews,
                 style: textStyle.subheading.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: colors.text,
+                  color: AppColors.text,
                 ),
               ),
               ElevatedButton(
                 onPressed: onRate,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.white,
+                  backgroundColor: AppColors.pickabooBlue,
+                  foregroundColor: AppColors.white,
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r),
@@ -70,8 +69,8 @@ class ProductReviewsSection extends StatelessWidget {
                   minimumSize: Size(0, 36.h),
                 ),
                 child: Text(
-                  'Rate Product',
-                  style: textStyle.buttonSmall.copyWith(color: colors.white),
+                  AppStrings.pdpWriteReview,
+                  style: textStyle.buttonSmall.copyWith(color: AppColors.white),
                 ),
               ),
             ],
@@ -91,24 +90,24 @@ class ProductReviewsSection extends StatelessWidget {
                           '${summary?.averageRating ?? product.ratingSummaryValue}',
                           style: textStyle.headingMedium.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: colors.text,
+                            color: AppColors.text,
                           ),
                         ),
                         SizedBox(width: 4.w),
-                        Icon(Icons.star, color: colors.text, size: 20.sp),
+                        Icon(Icons.star, color: AppColors.text, size: 20.sp),
                       ],
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       '${summary?.ratingSummary ?? product.ratingSummary} Ratings &',
                       style: textStyle.bodySmall.copyWith(
-                        color: colors.textMedium,
+                        color: AppColors.muted,
                       ),
                     ),
                     Text(
-                      '$totalReviewCount Reviews',
+                      AppStrings.reviewsCount(totalReviewCount),
                       style: textStyle.bodySmall.copyWith(
-                        color: colors.textMedium,
+                        color: AppColors.muted,
                       ),
                     ),
                   ],
@@ -117,7 +116,7 @@ class ProductReviewsSection extends StatelessWidget {
               Container(
                 height: 80.h,
                 width: 1.w,
-                color: colors.borderColor,
+                color: AppColors.border,
                 margin: EdgeInsets.symmetric(horizontal: 16.w),
               ),
               Expanded(
@@ -160,7 +159,7 @@ class ProductReviewsSection extends StatelessWidget {
                   context,
                   '${rate.avgValue}',
                   rate.rating,
-                  colors.green,
+                  AppColors.green,
                 );
               }).toList(),
             ),
@@ -180,7 +179,7 @@ class ProductReviewsSection extends StatelessWidget {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
-                        backgroundColor: colors.black,
+                        backgroundColor: AppColors.black,
                         useSafeArea: true,
                         builder: (context) => ReviewImageViewerSheet(
                           imageUrls: reviewImages,
@@ -194,23 +193,19 @@ class ProductReviewsSection extends StatelessWidget {
                       margin: EdgeInsets.only(right: 12.w),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: colors.borderColor),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.r),
                         child: CachedNetworkImage(
                           imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
-                            child: CircularProgressIndicator(
-                              color: colors.primary,
-                              strokeWidth: 2,
-                            ),
-                          ),
+                          placeholder: (context, url) =>
+                              const AppLoader.inline(),
                           errorWidget: (context, url, error) => Icon(
                             Icons.image_not_supported,
                             size: 24.sp,
-                            color: colors.gray,
+                            color: AppColors.muted,
                           ),
                         ),
                       ),
@@ -226,7 +221,7 @@ class ProductReviewsSection extends StatelessWidget {
               children: displayReviews.take(3).map((review) {
                 return Column(
                   children: [
-                    Container(height: 1.w, color: colors.borderColor),
+                    Container(height: 1.w, color: AppColors.border),
                     ReviewItem(
                       review: review,
                       productId: product.id.toString(),
@@ -250,7 +245,7 @@ class ProductReviewsSection extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
+                  backgroundColor: AppColors.pickabooBlue,
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4.r),
@@ -258,7 +253,7 @@ class ProductReviewsSection extends StatelessWidget {
                 ),
                 child: Text(
                   'View All $totalReviewCount Reviews',
-                  style: textStyle.buttonMedium.copyWith(color: colors.white),
+                  style: textStyle.buttonMedium.copyWith(color: AppColors.white),
                 ),
               ),
             ),
@@ -274,18 +269,17 @@ class ProductReviewsSection extends StatelessWidget {
     double percent,
     String count,
   ) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     Color barColor;
     if (star >= 4) {
-      barColor = colors.green;
+      barColor = AppColors.green;
     } else if (star == 3) {
-      barColor = colors.greenlight;
+      barColor = AppColors.green;
     } else if (star == 2) {
-      barColor = colors.orange;
+      barColor = AppColors.orange;
     } else {
-      barColor = colors.red;
+      barColor = AppColors.red;
     }
 
     return Padding(
@@ -294,14 +288,14 @@ class ProductReviewsSection extends StatelessWidget {
         children: [
           Text('$star', style: textStyle.bodySmall),
           SizedBox(width: 4.w),
-          Icon(Icons.star, size: 10.sp, color: colors.text),
+          Icon(Icons.star, size: 10.sp, color: AppColors.text),
           SizedBox(width: 8.w),
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(2.r),
               child: LinearProgressIndicator(
                 value: percent,
-                backgroundColor: colors.borderColor,
+                backgroundColor: AppColors.border,
                 color: barColor,
                 minHeight: 4.h,
               ),
@@ -310,7 +304,7 @@ class ProductReviewsSection extends StatelessWidget {
           SizedBox(width: 8.w),
           Text(
             count,
-            style: textStyle.bodySmall.copyWith(color: colors.textMedium),
+            style: textStyle.bodySmall.copyWith(color: AppColors.muted),
           ),
         ],
       ),
@@ -323,7 +317,6 @@ class ProductReviewsSection extends StatelessWidget {
     String label,
     Color color,
   ) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     final ratingValue = double.tryParse(rating) ?? 0.0;
     final percent = (ratingValue / 5).clamp(0.0, 1.0);
@@ -340,11 +333,11 @@ class ProductReviewsSection extends StatelessWidget {
               rating,
               style: textStyle.bodyMedium.copyWith(
                 fontWeight: FontWeight.bold,
-                color: colors.textMedium,
+                color: AppColors.muted,
               ),
             ),
             progressColor: color,
-            backgroundColor: colors.borderColor,
+            backgroundColor: AppColors.border,
             circularStrokeCap: CircularStrokeCap.round,
             animation: true,
             animationDuration: 800,
@@ -353,7 +346,7 @@ class ProductReviewsSection extends StatelessWidget {
           Text(
             label,
             style: textStyle.caption.copyWith(
-              color: colors.textMedium,
+              color: AppColors.muted,
               fontSize: 10.sp,
             ),
             textAlign: TextAlign.center,

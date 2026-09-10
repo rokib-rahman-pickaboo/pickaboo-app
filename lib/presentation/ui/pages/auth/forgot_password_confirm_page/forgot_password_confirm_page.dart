@@ -1,16 +1,25 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/auth/forgot_password_bloc/forgot_password_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modernized Pickaboo Forgot Password Confirm Page
+/// Allows users to enter OTP and set a new password with a 5-minute expiration timer.
 class ForgotPasswordConfirmPage extends StatefulWidget {
   final bool isEmail;
   final String value;
@@ -35,68 +44,69 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
+  bool _isResending = false;
   String? _errorMessage;
 
-  static const double _horizontalPadding = 16;
-  static const double _fieldSpacing = 16;
-  static final BorderRadius _radius = BorderRadius.all(Radius.circular(10.r));
+  Timer? _resendTimer;
+  int _resendCountdown = 300; // 5 minutes = 300 seconds
 
-  InputDecoration _inputDecoration({
-    required String label,
-    String? hint,
-    Widget? prefixIcon,
-    Widget? suffixIcon,
-  }) {
-    final colors = context.colors;
+  bool get _isExpired => _resendCountdown <= 0;
 
-    return InputDecoration(
-      labelText: label,
-      hintText: hint,
-      filled: true,
-      fillColor: colors.grayLight,
-      labelStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
-      hintStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
-      floatingLabelStyle: context.textStyle.bodyMediumMedium.withColor(
-        colors.primary,
-      ),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-      border: OutlineInputBorder(
-        borderRadius: _radius,
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: _radius,
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: _radius,
-        borderSide: BorderSide(color: colors.primary, width: 1.2.w),
-      ),
-      prefixIcon: prefixIcon,
-      suffixIcon: suffixIcon,
-    );
+  String get _formattedCountdown {
+    final minutes = (_resendCountdown ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_resendCountdown % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 
-  Widget _visibilityIcon({
-    required bool isObscured,
-    required VoidCallback onTap,
-  }) {
-    final colors = context.colors;
-    return IconButton(
-      icon: Icon(
-        isObscured ? Icons.visibility_off : Icons.visibility,
-        color: colors.gray,
-      ),
-      onPressed: onTap,
-    );
+  @override
+  void initState() {
+    super.initState();
+    _startResendTimer();
+  }
+
+  void _startResendTimer() {
+    _resendTimer?.cancel();
+    setState(() => _resendCountdown = 300);
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_resendCountdown > 0) {
+        setState(() => _resendCountdown--);
+      } else {
+        timer.cancel();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _resendTimer?.cancel();
     _otpController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _dismissKeyboard() {
+    FocusScope.of(context).unfocus();
+  }
+
+  void _handleResendOtp() {
+    _dismissKeyboard();
+    if (_isResending || _isLoading) return;
+    if (widget.value.trim().isEmpty) {
+      SnackBarUtils.showError(context, 'Missing mobile number or email');
+      return;
+    }
+
+    context.read<ForgotPasswordBloc>().add(
+      ForgotPasswordEvent.sendOtp(
+        identifier: widget.value,
+        isEmail: widget.isEmail,
+      ),
+    );
   }
 
   bool _validateFields() {
@@ -106,9 +116,22 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
 
     setState(() => _errorMessage = null);
 
+    if (_isExpired) {
+      setState(() => _errorMessage = 'OTP has expired. Please request a new OTP.');
+      SnackBarUtils.showError(context, 'OTP has expired. Please request a new OTP.');
+      return false;
+    }
+
     if (otp.isEmpty) {
-      setState(() => _errorMessage = 'Please enter OTP');
-      SnackBarUtils.showError(context, 'Please enter OTP');
+      setState(() => _errorMessage = 'Please enter your OTP');
+      SnackBarUtils.showError(context, 'Please enter your OTP');
+      return false;
+    }
+
+    // OTP can be 4 digits (or up to 6 digits)
+    if (otp.length < 4) {
+      setState(() => _errorMessage = 'Please enter a valid OTP');
+      SnackBarUtils.showError(context, 'Please enter a valid OTP');
       return false;
     }
 
@@ -148,7 +171,12 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
   }
 
   void _handleSubmit() {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
+    if (_isExpired) {
+      setState(() => _errorMessage = 'OTP has expired. Please request a new OTP.');
+      SnackBarUtils.showError(context, 'OTP has expired. Please request a new OTP.');
+      return;
+    }
     if (!_validateFields()) return;
 
     context.read<ForgotPasswordBloc>().add(
@@ -161,14 +189,69 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
     );
   }
 
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: AppTypography.inputHint,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
+      filled: true,
+      fillColor: AppColors.white,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      border: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
+      ),
+      errorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red),
+      ),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red, width: 1.5),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return BlocListener<ForgotPasswordBloc, ForgotPasswordState>(
       listener: (context, state) {
         state.maybeWhen(
+          sendingOtp: () {
+            setState(() {
+              _isResending = true;
+              _errorMessage = null;
+            });
+          },
+          otpSent: (message) {
+            setState(() {
+              _isResending = false;
+              _errorMessage = null;
+              _otpController.clear();
+            });
+            _startResendTimer();
+            SnackBarUtils.showSuccess(context, message);
+          },
+          otpSendFailed: (error) {
+            setState(() {
+              _isResending = false;
+              _errorMessage = error;
+            });
+            SnackBarUtils.showError(context, error);
+          },
           resettingPassword: () {
             setState(() {
               _isLoading = true;
@@ -190,247 +273,380 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
           orElse: () {},
         );
       },
-      child: Scaffold(
-        body: ResponsiveContainer(
-          child: SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: _horizontalPadding.w,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: AppBarButton(
-                          iconPath: 'assets/new/svg/back_nav_icon.svg',
-                          width: 7.w,
-                          height: 14.h,
-                          onPressed: () {
-                            FocusScope.of(context).unfocus();
-                            if (Navigator.of(context).canPop()) {
-                              Navigator.of(context).pop();
-                            } else {
-                              context.pushReplacement(Routes.login);
-                            }
-                          },
-                          iconColor: colors.text,
-                        ),
-                      ),
-                      Text(
-                        'SET NEW PASSWORD',
-                        style: textTheme.appBarTitle.copyWith(
-                          color: colors.codGary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _horizontalPadding.w,
-                    ),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 80.h),
-
-                        Text(
-                          'Please enter OTP & set your new password.',
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: _fieldSpacing.h),
-
-                        TextField(
-                          controller: _otpController,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          decoration: _inputDecoration(
-                            label: 'OTP',
-                            hint: 'Enter 6-digit OTP',
-                            prefixIcon: Icon(Icons.lock_outline),
-                          ).copyWith(counterText: ''),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
-                          ],
-                          textInputAction: TextInputAction.next,
-                          autofillHints: [AutofillHints.oneTimeCode],
-                          onChanged: (val) {
-                            if (_errorMessage != null) {
-                              setState(() => _errorMessage = null);
-                            }
-                          },
-                        ),
-                        SizedBox(height: (_fieldSpacing - 1).h),
-
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          decoration: _inputDecoration(
-                            label: 'New Password',
-                            hint: 'Enter new password',
-                            prefixIcon: Icon(Icons.key),
-                            suffixIcon: _visibilityIcon(
-                              isObscured: _obscurePassword,
-                              onTap: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
+      child: GestureDetector(
+        onTap: _dismissKeyboard,
+        behavior: HitTestBehavior.opaque,
+        child: Scaffold(
+          backgroundColor: AppColors.pageBg,
+          body: ResponsiveContainer(
+            child: SafeArea(
+              child: Stack(
+                children: [
+                  // ── BALANCED MAIN CONTENT ──
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-                          textInputAction: TextInputAction.next,
-                          onChanged: (val) {
-                            if (_errorMessage != null) {
-                              setState(() => _errorMessage = null);
-                            }
-                          },
-                        ),
-                        SizedBox(height: (_fieldSpacing - 1).h),
-
-                        TextField(
-                          controller: _confirmPasswordController,
-                          obscureText: _obscureConfirmPassword,
-                          decoration: _inputDecoration(
-                            label: 'Confirm New Password',
-                            hint: 'Re-enter new password',
-                            prefixIcon: Icon(Icons.key),
-                            suffixIcon: _visibilityIcon(
-                              isObscured: _obscureConfirmPassword,
-                              onTap: () {
-                                setState(() {
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword;
-                                });
-                              },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24.w,
+                              vertical: 24.h,
                             ),
-                          ),
-                          onSubmitted: (_) => _handleSubmit(),
-                          textInputAction: TextInputAction.done,
-                          onChanged: (val) {
-                            if (_errorMessage != null) {
-                              setState(() => _errorMessage = null);
-                            }
-                          },
-                        ),
-                        SizedBox(height: (_fieldSpacing - 1).h),
-
-                        if (_errorMessage != null)
-                          Padding(
-                            padding: EdgeInsets.only(bottom: _fieldSpacing.h),
-                            child: Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.all(12.w),
-                              decoration: BoxDecoration(
-                                color: colors.primary.withOpacity(0.1),
-                                borderRadius: _radius,
-                                border: Border.all(
-                                  color: colors.primary.withOpacity(0.5),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Brand Logo
+                                Image.asset(
+                                  'assets/images/pickaboo_new_logo.png',
+                                  height: 44.h,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/pickaboo-login-logo.png',
+                                      height: 44.h,
+                                      fit: BoxFit.contain,
+                                    );
+                                  },
                                 ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.error_outline,
-                                    color: colors.primary,
-                                    size: 18.sp,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      _errorMessage!,
-                                      style: textTheme.bodySmall.copyWith(
-                                        color: colors.primary,
+
+                                SizedBox(height: 20.h),
+
+                                // Header Text
+                                Text(
+                                  'Set New',
+                                  style: AppTypography.heroTitle,
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 6.h),
+                                Text(
+                                  'Password',
+                                  style: AppTypography.heroTitle,
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: 10.h),
+
+                                Text(
+                                  'Please enter the OTP & set your new password.',
+                                  style: AppTypography.bodyMutedLight,
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: 24.h),
+
+                                // OTP Field (Supports 4 to 6 digit OTP)
+                                TextField(
+                                  controller: _otpController,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 6,
+                                  enabled: !_isExpired && !_isLoading,
+                                  style: AppTypography.inputText,
+                                  decoration: _buildInputDecoration(
+                                    hintText: 'Enter your otp',
+                                    prefixIcon: Icon(
+                                      Icons.lock_outline,
+                                      size: 18.sp,
+                                      color: AppColors.mutedLight,
+                                    ),
+                                  ).copyWith(counterText: ''),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(6),
+                                  ],
+                                  textInputAction: TextInputAction.next,
+                                  autofillHints: const [AutofillHints.oneTimeCode],
+                                  onChanged: (val) {
+                                    if (_errorMessage != null) {
+                                      setState(() => _errorMessage = null);
+                                    }
+                                  },
+                                ),
+
+                                SizedBox(height: 12.h),
+
+                                // New Password Field
+                                TextField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  enabled: !_isExpired && !_isLoading,
+                                  style: AppTypography.inputText,
+                                  decoration: _buildInputDecoration(
+                                    hintText: 'Enter new password',
+                                    prefixIcon: Icon(
+                                      Icons.key_outlined,
+                                      size: 18.sp,
+                                      color: AppColors.mutedLight,
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
                                       ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  textInputAction: TextInputAction.next,
+                                  onChanged: (val) {
+                                    if (_errorMessage != null) {
+                                      setState(() => _errorMessage = null);
+                                    }
+                                  },
+                                ),
+
+                                SizedBox(height: 12.h),
+
+                                // Confirm Password Field
+                                TextField(
+                                  controller: _confirmPasswordController,
+                                  obscureText: _obscureConfirmPassword,
+                                  enabled: !_isExpired && !_isLoading,
+                                  style: AppTypography.inputText,
+                                  decoration: _buildInputDecoration(
+                                    hintText: 'Confirm new password',
+                                    prefixIcon: Icon(
+                                      Icons.key_outlined,
+                                      size: 18.sp,
+                                      color: AppColors.mutedLight,
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscureConfirmPassword
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscureConfirmPassword =
+                                              !_obscureConfirmPassword;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  onSubmitted: (_) => _handleSubmit(),
+                                  onChanged: (val) {
+                                    if (_errorMessage != null) {
+                                      setState(() => _errorMessage = null);
+                                    }
+                                  },
+                                ),
+
+                                SizedBox(height: 14.h),
+
+                                // ── RESEND OTP / 5-MIN TIMER (Matching Phone Change Style) ──
+                                _resendCountdown > 0
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.access_time_rounded,
+                                            size: 14.sp,
+                                            color: AppColors.muted,
+                                          ),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            'Resend OTP in $_formattedCountdown',
+                                            style: AppTypography.bodyMuted,
+                                          ),
+                                        ],
+                                      )
+                                    : TextButton(
+                                        onPressed:
+                                            _isLoading || _isResending
+                                                ? null
+                                                : _handleResendOtp,
+                                        style: TextButton.styleFrom(
+                                          padding: EdgeInsets.zero,
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: _isResending
+                                            ? Row(
+                                                mainAxisSize:
+                                                    MainAxisSize.min,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 12.w,
+                                                    height: 12.w,
+                                                    child:
+                                                        const CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                              Color>(
+                                                        AppColors.pickabooBlue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 6.w),
+                                                  Text(
+                                                    'Resending...',
+                                                    style: AppTypography
+                                                        .brandActionText,
+                                                  ),
+                                                ],
+                                              )
+                                            : Text(
+                                                'Resend OTP',
+                                                style: AppTypography
+                                                    .brandActionText,
+                                              ),
+                                      ),
+
+                                if (_errorMessage != null) ...[
+                                  SizedBox(height: 12.h),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(12.w),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          AppColors.red.withValues(alpha: 0.1),
+                                      borderRadius: AppRadius.cardRadius,
+                                      border: Border.all(
+                                        color: AppColors.red.withValues(
+                                            alpha: 0.4),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.error_outline,
+                                          color: AppColors.red,
+                                          size: 18.sp,
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Expanded(
+                                          child: Text(
+                                            _errorMessage!,
+                                            style: AppTypography.inputError,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
-                              ),
-                            ),
-                          ),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48.h,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleSubmit,
-                            style: ElevatedButton.styleFrom(
-                              elevation: 2,
-                              backgroundColor: colors.button,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: _radius,
-                              ),
-                              disabledBackgroundColor: colors.grayLight,
-                            ),
-                            child: _isLoading
-                                ? SizedBox(
-                                    height: 20.h,
-                                    width: 20.w,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.w,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        colors.white,
+                                SizedBox(height: 20.h),
+
+                                // Primary CTA Button
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 50.h,
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        _isLoading ? null : _handleSubmit,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.pickabooBlue,
+                                      foregroundColor: AppColors.white,
+                                      elevation: 0,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: AppRadius.cardRadius,
                                       ),
                                     ),
-                                  )
-                                : Text(
-                                    'Submit',
-                                    style: context.textStyle.buttonLarge,
+                                    child: _isLoading
+                                        ? const AppLoader.button()
+                                        : Text(
+                                            'Reset Password',
+                                            style: AppTypography.buttonPrimary,
+                                          ),
                                   ),
-                          ),
-                        ),
-                        SizedBox(height: _fieldSpacing.h),
+                                ),
 
-                        Container(
-                          padding: EdgeInsets.all(16.w),
-                          decoration: BoxDecoration(
-                            color: colors.meNot,
-                            borderRadius: _radius,
-                            border: Border.all(color: colors.borderColor),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.info_outline,
-                                    color: colors.orange,
-                                    size: 20.sp,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Text(
-                                    'Password Requirements',
-                                    style: textTheme.buttonText.copyWith(
-                                      color: colors.text,
-                                      fontWeight: FontWeight.w600,
+                                SizedBox(height: 20.h),
+
+                                // Password Requirements Card
+                                Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(14.w),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceBlue,
+                                    borderRadius: AppRadius.cardRadius,
+                                    border: Border.all(
+                                      color: AppColors.pickabooBlue.withValues(
+                                          alpha: 0.15),
                                     ),
                                   ),
-                                ],
-                              ),
-                              SizedBox(height: 8.h),
-                              _PasswordRequirement(
-                                text: 'At least 6 characters',
-                                colors: colors,
-                              ),
-                              _PasswordRequirement(
-                                text: 'Passwords must match',
-                                colors: colors,
-                              ),
-                            ],
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.info_outline,
+                                            color: AppColors.pickabooBlue,
+                                            size: 18.sp,
+                                          ),
+                                          SizedBox(width: 8.w),
+                                          Text(
+                                            'Password Requirements',
+                                            style: AppTypography.cardTitle,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 8.h),
+                                      const _PasswordRequirementRow(
+                                        text: 'At least 6 characters long',
+                                      ),
+                                      SizedBox(height: 4.h),
+                                      const _PasswordRequirementRow(
+                                        text: 'Passwords must match',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
+                      );
+                    },
+                  ),
+
+                  // ── TOP BACK BUTTON (Positioned ON TOP of Stack) ──
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          _dismissKeyboard();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            context.go(Routes.login);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(20.r),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.r),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.navy,
+                            size: 20.sp,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -439,23 +655,26 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
   }
 }
 
-class _PasswordRequirement extends StatelessWidget {
+class _PasswordRequirementRow extends StatelessWidget {
   final String text;
-  final AppColors colors;
 
-  const _PasswordRequirement({required this.text, required this.colors});
+  const _PasswordRequirementRow({required this.text});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 4.h),
-      child: Row(
-        children: [
-          Icon(Icons.check_circle_outline, size: 16.sp, color: colors.gray),
-          SizedBox(width: 8.w),
-          Text(text, style: context.textStyle.bodySmall.withColor(colors.gray)),
-        ],
-      ),
+    return Row(
+      children: [
+        Icon(
+          Icons.check_circle_outline,
+          size: 14.sp,
+          color: AppColors.pickabooBlue,
+        ),
+        SizedBox(width: 6.w),
+        Text(
+          text,
+          style: AppTypography.bodyMuted,
+        ),
+      ],
     );
   }
 }

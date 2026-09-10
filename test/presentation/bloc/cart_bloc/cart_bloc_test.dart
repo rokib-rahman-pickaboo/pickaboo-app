@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
+import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/repository/cart_repository.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
@@ -34,6 +35,17 @@ void main() {
         quantity: any(named: 'quantity'),
       ),
     ).thenAnswer((_) async {});
+
+    when(
+      () => mockRepository.getCartCheckout(),
+    ).thenAnswer((_) async => const Left(AppErrorEntity(message: 'No checkout')));
+
+    when(
+      () => mockRepository.applyRewardPoints(
+        cartId: any(named: 'cartId'),
+        pointAmount: any(named: 'pointAmount'),
+      ),
+    ).thenAnswer((_) async => const Right(true));
 
     cartBloc = CartBloc(mockRepository, mockCacheManager, mockAnalytics);
   });

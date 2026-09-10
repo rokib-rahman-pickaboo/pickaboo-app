@@ -1,6 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/core/theme/app_themes.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/data/services/auth_service.dart';
@@ -17,6 +24,7 @@ import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:pickaboo/presentation/bloc/checkout_bloc/checkout_bloc.dart';
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_bloc.dart';
+import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_event.dart';
 import 'package:pickaboo/presentation/bloc/compare_bloc/compare_bloc.dart';
 import 'package:pickaboo/presentation/bloc/discover_category_bloc/discover_category_bloc.dart';
 import 'package:pickaboo/presentation/bloc/just_for_you_bloc/just_for_you_bloc.dart';
@@ -28,7 +36,6 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/wishlist/wishlist_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'bloc/internet/internet_bloc.dart';
 import 'bloc/nav_drawer/nav_drawer_bloc.dart';
 import 'navigation/route.dart';
@@ -108,12 +115,46 @@ class _MyAppState extends State<MyApp> {
             authenticated: (_, _) => true,
             orElse: () => false,
           );
-          return isAuthenticated && !wasAuthenticated;
+          return wasAuthenticated != isAuthenticated;
         },
-        listener: (context, state) {
-          context.read<UserProfileBloc>().add(
-            const UserProfileEvent.loadUserProfile(),
+        listener: (context, state) async {
+          final isAuthenticated = state.maybeWhen(
+            authenticated: (_, _) => true,
+            orElse: () => false,
           );
+          if (isAuthenticated) {
+            context.read<UserProfileBloc>().add(
+              const UserProfileEvent.loadUserProfile(),
+            );
+            context.read<ClubPointBloc>().add(
+              const ClubPointEvent.getClubPoints(limit: 5),
+            );
+            context.read<WishlistBloc>().add(
+              const WishlistEvent.started(),
+            );
+            final guestCartId =
+                await getIt<AuthCacheManager>().getGuestCartId();
+            if (context.mounted) {
+              if (guestCartId != null && guestCartId.isNotEmpty) {
+                context.read<CartBloc>().add(
+                  CartEvent.mergeGuestCart(guestCartId: guestCartId),
+                );
+              } else {
+                context.read<CartBloc>().add(const CartEvent.getCart());
+              }
+              context.read<CheckoutBloc>().add(
+                const CheckoutEvent.loadCheckout(),
+              );
+            }
+          } else {
+            context.read<UserProfileBloc>().add(
+              const UserProfileEvent.clear(),
+            );
+            context.read<CartBloc>().add(const CartEvent.getCart());
+            context.read<CheckoutBloc>().add(
+              const CheckoutEvent.resetCheckout(),
+            );
+          }
         },
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -161,12 +202,8 @@ class _MyAppState extends State<MyApp> {
                               state.whenOrNull(
                                 disconnected: (message) {
                                   debugPrint(
-                                    '🌐 [MyApp] ❌ SHOWING SNACKBAR: "$message"',
+                                    '🌐 [MyApp] Offline: "$message"',
                                   );
-                                  debugPrint(
-                                    '🌐 [MyApp] Stack trace:\n${StackTrace.current}',
-                                  );
-                                  SnackBarUtils.showError(context, message);
                                 },
                                 connected: (message) {
                                   debugPrint(

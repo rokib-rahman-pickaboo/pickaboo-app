@@ -1,9 +1,14 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
 
 class TimerBannerWidget extends StatefulWidget {
@@ -63,19 +68,18 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: colors.primary.withValues(
+        color: AppColors.pickabooBlue.withValues(
           alpha: 0.2,
         ),
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: colors.whiteSmoke.withValues(alpha: 0.08),
+            color: AppColors.pageBg.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -93,7 +97,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                 fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: colors.primary.withValues(alpha: 0.3),
+                    color: AppColors.pickabooBlue.withValues(alpha: 0.3),
                   );
                 },
               ),
@@ -119,7 +123,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                         Text(
                           'Deal of the Week',
                           style: textStyle.bodySmallBold.copyWith(
-                            color: colors.text,
+                            color: AppColors.text,
                             fontWeight: FontWeight.w800,
                             fontSize: 10.sp,
                           ),
@@ -134,7 +138,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: textStyle.bodyMedium.copyWith(
-                        color: colors.text,
+                        color: AppColors.text,
                         fontWeight: FontWeight.w700,
                         fontSize: 13.sp,
                       ),
@@ -145,7 +149,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textStyle.bodyMedium.copyWith(
-                        color: colors.primary,
+                        color: AppColors.pickabooBlue,
                         fontWeight: FontWeight.w700,
                         fontSize: 13.sp,
                       ),
@@ -153,7 +157,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
 
                     SizedBox(height: 8.h),
 
-                    _buildCountdownTimer(colors, textStyle),
+                    _buildCountdownTimer(textStyle),
 
                     SizedBox(height: 12.h),
 
@@ -162,8 +166,8 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                       child: ElevatedButton(
                         onPressed: widget.onShopNow,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: colors.white,
+                          backgroundColor: AppColors.pickabooBlue,
+                          foregroundColor: AppColors.white,
                           padding: EdgeInsets.symmetric(
                             horizontal: 10.w,
                             vertical: 0,
@@ -176,7 +180,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                         child: Text(
                           'Shop Now',
                           style: textStyle.bodyMedium.copyWith(
-                            color: colors.white,
+                            color: AppColors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 12.sp,
                           ),
@@ -193,7 +197,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
     );
   }
 
-  Widget _buildCountdownTimer(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildCountdownTimer(AppTextStyles textStyle) {
     final days = _remainingTime.inDays;
     final hours = _remainingTime.inHours % 24;
     final minutes = _remainingTime.inMinutes % 60;
@@ -206,7 +210,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             days.toString().padLeft(2, '0'),
             'DAYS',
-            colors,
             textStyle,
           ),
         ),
@@ -215,7 +218,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             hours.toString().padLeft(2, '0'),
             'HRS',
-            colors,
             textStyle,
           ),
         ),
@@ -224,7 +226,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             minutes.toString().padLeft(2, '0'),
             'MIN',
-            colors,
             textStyle,
           ),
         ),
@@ -233,7 +234,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             seconds.toString().padLeft(2, '0'),
             'SEC',
-            colors,
             textStyle,
           ),
         ),
@@ -244,22 +244,21 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
   Widget _buildTimeBox(
     String value,
     String label,
-    AppColors colors,
     AppTextStyles textStyle,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors.primary, width: 2.w),
+        border: Border.all(color: AppColors.pickabooBlue, width: 2.w),
       ),
       child: Column(
         children: [
           Text(
             value,
             style: textStyle.bodyMedium.copyWith(
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
               fontWeight: FontWeight.w700,
               fontSize: 13.sp,
             ),
@@ -267,7 +266,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           Text(
             label,
             style: textStyle.bodySmall.copyWith(
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
               fontSize: 8.sp,
               fontWeight: FontWeight.w500,
             ),

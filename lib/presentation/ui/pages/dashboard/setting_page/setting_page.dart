@@ -1,23 +1,25 @@
-import 'package:flutter/foundation.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/data/services/push_notification_service.dart';
 import 'package:pickaboo/injection.dart';
-import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
-import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
-import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/permission_prompt.dart';
-import 'package:pickaboo/presentation/ui/widgets/dashboard/setting_page/setting_list_item.dart';
-import 'package:pickaboo/presentation/ui/widgets/dashboard/setting_page/setting_toggle_item.dart';
-import 'package:pickaboo/presentation/ui/widgets/dashboard/setting_page/settings_section.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -28,11 +30,9 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage>
     with WidgetsBindingObserver {
+  final Future<PackageInfo> _appPackageInfo = PackageInfo.fromPlatform();
   bool _notificationsEnabled = false;
   bool _isLoading = true;
-
-  /// True while the user is in the OS settings screen after being prompted
-  /// from the notifications toggle.
   bool _sentToSettings = false;
 
   @override
@@ -52,7 +52,6 @@ class _SettingsPageState extends State<SettingsPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed || !_sentToSettings) return;
     _sentToSettings = false;
-    // Granted while away → finish what the toggle started.
     Permission.notification.status.then((status) {
       if (!mounted || !status.isGranted) return;
       _toggleNotifications(true);
@@ -82,9 +81,6 @@ class _SettingsPageState extends State<SettingsPage>
   }
 
   Future<void> _toggleNotifications(bool value) async {
-    // Flipping the app's own switch on is pointless while the OS permission is
-    // permanently denied — the system dialog never appears again, so the
-    // toggle would snap on and no notification would ever arrive.
     if (value) {
       final status = await Permission.notification.status;
       if (status.isPermanentlyDenied || status.isDenied) {
@@ -134,190 +130,141 @@ class _SettingsPageState extends State<SettingsPage>
     }
   }
 
-  Future<void> _handleLogout() async {
-    if (kDebugMode) {
-      print('🚪 [LOGOUT] Logout button pressed in Settings');
-      print('   Capturing AuthBloc reference...');
-    }
-
-    final authBloc = context.read<AuthBloc>();
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
-    if (kDebugMode) {
-      print('   Showing confirmation dialog...');
-    }
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        title: Text(
-          'Logout',
-          style: textTheme.headingLarge.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colors.text,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to logout?',
-          style: textTheme.bodyMedium.copyWith(color: colors.gray),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (kDebugMode) {
-                print('   Logout cancelled');
-              }
-              Navigator.pop(ctx, false);
-            },
-            child: Text(
-              'Cancel',
-              style: textTheme.bodyMedium.copyWith(color: colors.gray),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (kDebugMode) {
-                print('✅ [LOGOUT] Logout confirmed!');
-                print('   Closing dialog...');
-              }
-              Navigator.pop(ctx, true);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colors.salmon,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            child: Text(
-              'Logout',
-              style: textTheme.bodyMedium.copyWith(
-                color: colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      if (kDebugMode) {
-        print('   Triggering AuthEvent.userLoggedOut()');
-      }
-
-      authBloc.add(const AuthEvent.userLoggedOut());
-
-      if (kDebugMode) {
-        print('   Logout event dispatched successfully');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: Text('Settings', style: context.textStyle.appBarTitle),
+      backgroundColor: AppColors.pageBg,
+      appBar: const PickabooAppBar(
+        title: AppStrings.appSettings,
       ),
       body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                color: colors.primary,
-                strokeWidth: 2.w,
-              ),
-            )
-          : CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: SettingsSection(
-                    title: 'Notifications',
-                    children: [
-                      SettingToggleItem(
-                        title: 'All Notifications',
-                        value: _notificationsEnabled,
-                        onChanged: _toggleNotifications,
-                      ),
-                    ],
-                  ),
+          ? const AppLoader.fullPage()
+          : SafeArea(
+              top: false,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.sameGroupItemSpacing.w,
+                  0,
+                  AppSpacing.sameGroupItemSpacing.w,
+                  AppSpacing.sameGroupItemSpacing.h + 16.h,
                 ),
-
-                SliverToBoxAdapter(
-                  child: SettingsSection(
-                    title: 'App Information',
-                    children: [
-                      const SettingListItem(
-                        title: 'Version',
-                        subtitle: '1.0.0',
-                        onTap: null,
-                      ),
-                      SettingListItem(
-                        title: 'Privacy Policy',
-                        onTap: () {
-                          context.push(
-                            Routes.privacyPolicy,
-                            extra: {
-                              'title': 'Privacy Policy',
-                              'url': 'privacy-policy',
-                            },
-                          );
-                        },
-                      ),
-                      SettingListItem(
-                        title: 'Terms & Conditions',
-                        onTap: () => context.push(Routes.terms),
-                        showDivider: false,
-                      ),
-                    ],
-                  ),
-                ),
-
-                BlocBuilder<UserProfileBloc, UserProfileState>(
-                  builder: (context, state) {
-                    final isLoggedIn = state.maybeWhen(
-                      loaded: (_, _, _) => true,
-                      basicInfoUpdateSuccess: (_, _, _, _) => true,
-                      mobileUpdateSuccess: (_, _, _, _) => true,
-                      imageUploadSuccess: (_, _, _, _) => true,
-                      orElse: () => false,
-                    );
-
-                    if (!isLoggedIn) {
-                      return const SliverToBoxAdapter(child: SizedBox.shrink());
-                    }
-
-                    return SliverToBoxAdapter(
-                      child: SettingsSection(
-                        title: 'Account',
-                        children: [
-                          SettingListItem(
-                            title: 'Logout',
-                            titleColor: colors.salmon,
-                            icon: Icons.logout,
-                            onTap: _handleLogout,
-                            showDivider: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── 1. NOTIFICATIONS CARD ──
+                  AppCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            AppSpacing.sameGroupItemSpacing.w * 1.5,
+                            12.h,
+                            AppSpacing.sameGroupItemSpacing.w * 1.5,
+                            8.h,
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                          child: Text(
+                            AppStrings.notifications,
+                            style: AppTypography.sectionTitle,
+                          ),
+                        ),
+                        Divider(height: 1.h, color: AppColors.border),
+                        AppMenuTile(
+                          icon: Icons.notifications_none_rounded,
+                          title: 'All Notifications',
+                          subtitle: 'Push notification alerts & updates',
+                          trailing: Switch(
+                            value: _notificationsEnabled,
+                            activeTrackColor: AppColors.pickabooBlue,
+                            onChanged: _toggleNotifications,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                SliverToBoxAdapter(child: SizedBox(height: 16.h)),
-              ],
+                  AppSpacing.groupToGroupGap,
+
+                  // ── 2. APP INFORMATION CARD ──
+                  AppCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            AppSpacing.sameGroupItemSpacing.w * 1.5,
+                            12.h,
+                            AppSpacing.sameGroupItemSpacing.w * 1.5,
+                            8.h,
+                          ),
+                          child: Text(
+                            AppStrings.appInformation,
+                            style: AppTypography.sectionTitle,
+                          ),
+                        ),
+                        Divider(height: 1.h, color: AppColors.border),
+
+                        // Version
+                        FutureBuilder<PackageInfo>(
+                          future: _appPackageInfo,
+                          builder: (context, snapshot) {
+                            final version = snapshot.data?.version ?? '';
+                            return AppMenuTile(
+                              icon: Icons.info_outline_rounded,
+                              title: AppStrings.appVersion,
+                              subtitle: version.isNotEmpty ? version : '...',
+                              showTrailing: false,
+                            );
+                          },
+                        ),
+                        Divider(
+                          height: 1.h,
+                          thickness: 1.h,
+                          indent: AppMenuTile.dividerIndent,
+                          color: AppColors.border,
+                        ),
+
+                        // Privacy Policy
+                        AppMenuTile(
+                          icon: Icons.privacy_tip_outlined,
+                          title: AppStrings.privacyPolicy,
+                          subtitle: 'Policies, terms & privacy statement',
+                          onTap: () {
+                            context.push(
+                              Routes.privacyPolicy,
+                              extra: {
+                                'title': AppStrings.privacyPolicy,
+                                'url': 'privacy-policy',
+                              },
+                            );
+                          },
+                        ),
+                        Divider(
+                          height: 1.h,
+                          thickness: 1.h,
+                          indent: AppMenuTile.dividerIndent,
+                          color: AppColors.border,
+                        ),
+
+                        // Terms & Conditions
+                        AppMenuTile(
+                          icon: Icons.description_outlined,
+                          title: AppStrings.termsAndConditions,
+                          subtitle: 'Policies, terms & user agreement',
+                          onTap: () => context.push(Routes.terms),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 24.h),
+                ],
+              ),
             ),
+          ),
     );
   }
 }

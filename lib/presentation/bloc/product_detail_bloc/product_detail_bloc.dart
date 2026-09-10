@@ -50,7 +50,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     Emitter<ProductDetailState> emit,
   ) async {
     if (productId.isEmpty) {
-      emit(ProductDetailState.error(
+      emit(const ProductDetailState.error(
         AppErrorEntity(message: 'Invalid product ID'),
       ));
       return null;
@@ -66,7 +66,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     final resolvedId = resolution.fold((l) => null, (r) => r.id);
 
     if (resolvedId == null || resolvedId.isEmpty) {
-      emit(ProductDetailState.error(
+      emit(const ProductDetailState.error(
         AppErrorEntity(message: 'Could not resolve product link'),
       ));
       return null;
@@ -96,10 +96,18 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     result.fold(
       (error) => emit(ProductDetailState.error(error)),
       (product) {
+        final effectivePrice = (product.spacialPrice > 0
+                ? product.spacialPrice
+                : product.regularPrice)
+            .toDouble();
         _analytics.logViewItem(
           id: product.id.toString(),
           name: product.name,
-          price: product.spacialPrice.toDouble(),
+          price: effectivePrice,
+          category: product.categoryIds.isNotEmpty ? product.categoryIds.first : null,
+          categoryId: product.categoryIds.isNotEmpty ? product.categoryIds.first : null,
+          brand: product.brand.isNotEmpty ? product.brand : null,
+          brandId: product.brandId.isNotEmpty ? product.brandId : null,
         );
         emit(ProductDetailState.loaded(product));
       },

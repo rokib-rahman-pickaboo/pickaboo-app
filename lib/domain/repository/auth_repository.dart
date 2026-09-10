@@ -69,6 +69,7 @@ abstract class AuthRepository {
     String? email,
     required String otp,
     required String newPassword,
+    String? confirmPassword,
   });
 
   Future<Either<AppErrorEntity, String>> socialLogin({

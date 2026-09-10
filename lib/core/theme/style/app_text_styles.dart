@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pickaboo/core/theme/app_typography.dart';
+
+export 'package:pickaboo/core/theme/app_typography.dart';
 
 part 'app_text_styles.freezed.dart';
 
@@ -125,7 +128,7 @@ class AppTextStyles
     // EditableText, so never let one through — MyApp also withholds the first
     // frame until the window has a real size, this is the belt-and-braces half.
     TextStyle roboto(double size, FontWeight weight, {bool italic = false}) =>
-        GoogleFonts.roboto(
+        GoogleFonts.inter(
           fontSize: size > 0 ? size : 14,
           fontWeight: weight,
           fontStyle: italic ? FontStyle.italic : FontStyle.normal,
@@ -185,11 +188,17 @@ class AppTextStyles
 
       productName: rb(12.sp, FontWeight.w400),
       productNameLarge: rb(16.sp, FontWeight.w500),
-      productPrice: rb(13.sp, FontWeight.w700),
-      productPriceLarge: rb(20.sp, FontWeight.w700),
-      productPriceStrike: rb(
-        12.sp,
-        FontWeight.w400,
+      productPrice: GoogleFonts.poppins(
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w700,
+      ),
+      productPriceLarge: GoogleFonts.poppins(
+        fontSize: 22.sp,
+        fontWeight: FontWeight.w700,
+      ),
+      productPriceStrike: GoogleFonts.poppins(
+        fontSize: 11.5.sp,
+        fontWeight: FontWeight.w400,
       ).copyWith(decoration: TextDecoration.lineThrough),
       productDiscount: rb(10.sp, FontWeight.w700),
       productDescription: rb(13.sp, FontWeight.w400),
@@ -209,9 +218,15 @@ class AppTextStyles
       tag: rb(10.sp, FontWeight.w500),
 
       cartItemName: rb(13.sp, FontWeight.w500),
-      cartItemPrice: rb(15.sp, FontWeight.w700),
+      cartItemPrice: GoogleFonts.poppins(
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w700,
+      ),
       cartSubtotal: rb(14.sp, FontWeight.w500),
-      cartTotal: rb(18.sp, FontWeight.w700),
+      cartTotal: GoogleFonts.poppins(
+        fontSize: 18.sp,
+        fontWeight: FontWeight.w700,
+      ),
       shippingLabel: rb(14.sp, FontWeight.w500),
       shippingValue: rb(14.sp, FontWeight.w400),
 
@@ -459,28 +474,6 @@ class AppTextStyles
   AppTextStyles lerp(covariant AppTextStyles? other, double t) => this;
 }
 
-extension AppTextDecorators on TextStyle {
-  TextStyle underline([Color? color]) => copyWith(
-    decoration: TextDecoration.underline,
-    decorationColor: color ?? this.color,
-  );
-
-  TextStyle lineThrough([Color? color]) => copyWith(
-    decoration: TextDecoration.lineThrough,
-    decorationColor: color ?? this.color,
-  );
-
-  TextStyle withShadows(List<Shadow> shadows) => copyWith(shadows: shadows);
-
-  TextStyle withColor(Color color) => copyWith(color: color);
-
-  TextStyle withHeight(double height) => copyWith(height: height);
-
-  TextStyle withLetterSpacing(double spacing) =>
-      copyWith(letterSpacing: spacing);
-
-  TextStyle italic() => copyWith(fontStyle: FontStyle.italic);
-}
 
 extension AppTextStylesContextX on BuildContext {
   AppTextStyles get textStyle {
@@ -496,3 +489,10 @@ extension AppTextStylesContextX on BuildContext {
     return AppTextStyles.build(theme.brightness);
   }
 }
+
+// ============================================================================
+// ✍️ Typographies from New UI Application (Pickaboo-App-UI Compatibility)
+// ============================================================================
+typedef NewAppTypography = AppTypography;
+
+

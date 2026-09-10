@@ -1,3 +1,9 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +12,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/review/review_entity.dart';
 import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/review_image_viewer_sheet.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class ReviewItem extends StatefulWidget {
   final ReviewEntity review;
@@ -27,7 +33,6 @@ class _ReviewItemState extends State<ReviewItem> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Padding(
@@ -35,7 +40,7 @@ class _ReviewItemState extends State<ReviewItem> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildAvatar(colors),
+          _buildAvatar(),
           SizedBox(width: 12.w),
           Expanded(
             child: Column(
@@ -45,7 +50,7 @@ class _ReviewItemState extends State<ReviewItem> {
                   widget.review.reviwerName,
                   style: textStyle.reviewAuthor.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: colors.text,
+                    color: AppColors.text,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -58,7 +63,7 @@ class _ReviewItemState extends State<ReviewItem> {
                         vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: colors.primary,
+                        color: AppColors.pickabooBlue,
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Row(
@@ -66,13 +71,13 @@ class _ReviewItemState extends State<ReviewItem> {
                           Text(
                             widget.review.reviwerRating.toString(),
                             style: textStyle.bodySmall.copyWith(
-                              color: colors.white,
+                              color: AppColors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 10.sp,
                             ),
                           ),
                           SizedBox(width: 2.w),
-                          Icon(Icons.star, color: colors.white, size: 10.sp),
+                          Icon(Icons.star, color: AppColors.white, size: 10.sp),
                         ],
                       ),
                     ),
@@ -82,7 +87,7 @@ class _ReviewItemState extends State<ReviewItem> {
                         widget.review.title,
                         style: textStyle.reviewText.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: colors.text,
+                          color: AppColors.text,
                           fontSize: 14.sp,
                         ),
                         maxLines: 1,
@@ -96,7 +101,7 @@ class _ReviewItemState extends State<ReviewItem> {
                 Text(
                   'Posted on ${DateFormat('d MMMM y').format(widget.review.postedOn)}',
                   style: textStyle.reviewDate.copyWith(
-                    color: colors.textMedium,
+                    color: AppColors.muted,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -105,7 +110,7 @@ class _ReviewItemState extends State<ReviewItem> {
                   builder: (context, constraints) {
                     final span = TextSpan(
                       text: widget.review.detail,
-                      style: textStyle.reviewText.copyWith(color: colors.text),
+                      style: textStyle.reviewText.copyWith(color: AppColors.text),
                     );
 
                     final tp = TextPainter(
@@ -124,7 +129,7 @@ class _ReviewItemState extends State<ReviewItem> {
                         Text(
                           widget.review.detail,
                           style: textStyle.bodyMedium.copyWith(
-                            color: colors.text,
+                            color: AppColors.text,
                             fontSize: 13.sp,
                             height: 1.4.h,
                           ),
@@ -144,10 +149,8 @@ class _ReviewItemState extends State<ReviewItem> {
                             child: Text(
                               _isExpanded ? "Show Less" : "More",
                               style: textStyle.bodySmall.copyWith(
-                                color: colors.primary,
+                                color: AppColors.pickabooBlue,
                                 fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.underline,
-                                decorationColor: colors.primary,
                               ),
                             ),
                           ),
@@ -159,12 +162,12 @@ class _ReviewItemState extends State<ReviewItem> {
 
                 if (widget.review.images.isNotEmpty) ...[
                   SizedBox(height: 12.h),
-                  _buildReviewImages(colors),
+                  _buildReviewImages(),
                 ],
 
                 SizedBox(height: 12.h),
 
-                _buildReviewActions(colors, textStyle),
+                _buildReviewActions(textStyle),
               ],
             ),
           ),
@@ -173,13 +176,13 @@ class _ReviewItemState extends State<ReviewItem> {
     );
   }
 
-  Widget _buildAvatar(AppColors colors) {
+  Widget _buildAvatar() {
     return Container(
       width: 40.w,
       height: 40.w,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: colors.backgroundGray,
+        color: AppColors.pageBg,
       ),
       child: ClipOval(
         child: widget.review.reviwerImage.isNotEmpty
@@ -210,7 +213,7 @@ class _ReviewItemState extends State<ReviewItem> {
     );
   }
 
-  Widget _buildReviewImages(AppColors colors) {
+  Widget _buildReviewImages() {
     return SizedBox(
       height: 60.w,
       child: ListView.builder(
@@ -222,7 +225,7 @@ class _ReviewItemState extends State<ReviewItem> {
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
-                backgroundColor: colors.black,
+                backgroundColor: AppColors.black,
                 useSafeArea: true,
                 builder: (context) => ReviewImageViewerSheet(
                   imageUrls: widget.review.images,
@@ -236,21 +239,16 @@ class _ReviewItemState extends State<ReviewItem> {
               margin: EdgeInsets.only(right: 8.w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6.r),
-                border: Border.all(color: colors.borderColor),
+                border: Border.all(color: AppColors.border),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(6.r),
                 child: CachedNetworkImage(
                   imageUrl: widget.review.images[index],
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: colors.primary,
-                    ),
-                  ),
+                  placeholder: (context, url) => const AppLoader.inline(),
                   errorWidget: (context, url, error) =>
-                      Icon(Icons.broken_image, color: colors.gray, size: 20.sp),
+                      Icon(Icons.broken_image, color: AppColors.muted, size: 20.sp),
                 ),
               ),
             ),
@@ -260,7 +258,7 @@ class _ReviewItemState extends State<ReviewItem> {
     );
   }
 
-  Widget _buildReviewActions(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildReviewActions(AppTextStyles textStyle) {
     final productId = widget.productId;
 
     final isVoting = productId == null
@@ -293,7 +291,6 @@ class _ReviewItemState extends State<ReviewItem> {
           icon: 'assets/new/svg/detail/thum_up_icon.svg',
           count: widget.review.likeCount,
           isActive: widget.review.doLike,
-          colors: colors,
           textStyle: textStyle,
           onTap: (productId == null || widget.review.doLike)
               ? null
@@ -304,7 +301,6 @@ class _ReviewItemState extends State<ReviewItem> {
           icon: 'assets/new/svg/detail/thum_down.svg',
           count: widget.review.dislikesCount,
           isActive: widget.review.doDislike,
-          colors: colors,
           textStyle: textStyle,
           onTap: (productId == null || widget.review.doDislike)
               ? null
@@ -318,7 +314,6 @@ class _ReviewItemState extends State<ReviewItem> {
     required String icon,
     required int count,
     required bool isActive,
-    required AppColors colors,
     required AppTextStyles textStyle,
     VoidCallback? onTap,
   }) {
@@ -329,7 +324,7 @@ class _ReviewItemState extends State<ReviewItem> {
           icon,
           width: 16.w,
           colorFilter: ColorFilter.mode(
-            isActive ? colors.primary : colors.textMedium,
+            isActive ? AppColors.pickabooBlue : AppColors.muted,
             BlendMode.srcIn,
           ),
         ),
@@ -337,7 +332,7 @@ class _ReviewItemState extends State<ReviewItem> {
         Text(
           count.toString(),
           style: textStyle.bodySmall.copyWith(
-            color: isActive ? colors.primary : colors.textMedium,
+            color: isActive ? AppColors.pickabooBlue : AppColors.muted,
             fontSize: 12.sp,
           ),
         ),

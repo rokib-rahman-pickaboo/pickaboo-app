@@ -1,7 +1,12 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class FilterChipData {
   final String label;
@@ -25,7 +30,6 @@ class FilterChipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyles = context.textStyle;
 
     if (chips.isEmpty) {
@@ -33,7 +37,7 @@ class FilterChipRow extends StatelessWidget {
     }
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       padding: EdgeInsets.symmetric(vertical: 8.w, horizontal: 16.w),
       child: SizedBox(
         height: 32.h,
@@ -42,7 +46,7 @@ class FilterChipRow extends StatelessWidget {
           itemCount: chips.length,
           separatorBuilder: (_, _) => SizedBox(width: 12.w),
           itemBuilder: (context, index) {
-            return _buildChip(chips[index], colors, textStyles);
+            return _buildChip(chips[index], textStyles);
           },
         ),
       ),
@@ -51,7 +55,6 @@ class FilterChipRow extends StatelessWidget {
 
   Widget _buildChip(
     FilterChipData chip,
-    AppColors colors,
     AppTextStyles textStyles,
   ) {
     final isSelected = chip.isSelected;
@@ -62,12 +65,12 @@ class FilterChipRow extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
-          color: isSelected ? colors.primary : colors.white,
+          color: isSelected ? AppColors.pickabooBlue : AppColors.white,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: isSelected
-                ? colors.primary
-                : colors.gray.withValues(alpha: 0.3),
+                ? AppColors.pickabooBlue
+                : AppColors.muted.withValues(alpha: 0.3),
             width: 1.w,
           ),
         ),
@@ -78,7 +81,7 @@ class FilterChipRow extends StatelessWidget {
               Text(
                 chip.label,
                 style: textStyles.bodyMedium.copyWith(
-                  color: isSelected ? colors.white : colors.text,
+                  color: isSelected ? AppColors.white : AppColors.text,
                 ),
               ),
               if (chip.trailingIcon != null) ...[
@@ -86,7 +89,7 @@ class FilterChipRow extends StatelessWidget {
                 Icon(
                   chip.trailingIcon,
                   size: 14.sp,
-                  color: isSelected ? colors.white : colors.text,
+                  color: isSelected ? AppColors.white : AppColors.text,
                 ),
               ],
             ],

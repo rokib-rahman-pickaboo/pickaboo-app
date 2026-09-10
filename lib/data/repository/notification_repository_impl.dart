@@ -43,7 +43,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   getNotificationList() async {
     final token = await _getToken();
     if (token == null) {
-      return left(AppErrorEntity(message: 'User not authenticated'));
+      return left(const AppErrorEntity(message: 'User not authenticated'));
     }
 
     final result = await _apiService.getNotificationList();
@@ -57,7 +57,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }) async {
     final token = await _getToken();
     if (token == null) {
-      return left(AppErrorEntity(message: 'User not authenticated'));
+      return left(const AppErrorEntity(message: 'User not authenticated'));
     }
 
     final result = await _apiService.updateNotificationStatus(tag: tag);
@@ -69,7 +69,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   Future<Either<AppErrorEntity, void>> markAllAsRead() async {
     final token = await _getToken();
     if (token == null) {
-      return left(AppErrorEntity(message: 'User not authenticated'));
+      return left(const AppErrorEntity(message: 'User not authenticated'));
     }
 
     final result = await _apiService.markAllAsRead();

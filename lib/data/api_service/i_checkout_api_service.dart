@@ -893,7 +893,7 @@ class ICheckoutApiService extends CheckoutApiService {
       }
       final response = await _client.post(
         ApiEndpoints.getEmiDetailsUrl,
-        queryParameters: {'quoteid': quoteId, 'order_id': orderId},
+        queryParameters: {'quoteid': quoteId},
       );
       final data = response.data;
       if (kDebugMode) print("🟢 ICheckoutApiService: getEmiDetails -> $data");
@@ -958,7 +958,7 @@ class ICheckoutApiService extends CheckoutApiService {
       }
       final response = await _client.post(
         ApiEndpoints.getCemiDetailsUrl,
-        queryParameters: {'quoteid': quoteId, 'order_id': orderId},
+        queryParameters: {'quoteid': quoteId},
       );
       final data = response.data;
       if (kDebugMode) print("🟢 ICheckoutApiService: getCemiDetails -> $data");

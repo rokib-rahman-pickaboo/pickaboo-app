@@ -1,13 +1,18 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
-
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/selected_extra_option_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
 
+/// Modern ProtectionPlanSheet matching Pickaboo-App-UI design language.
 class ProtectionPlanSheet extends StatelessWidget {
   final List<ExtraOptionEntity> insuranceOptions;
   final Function(List<SelectedExtraOptionEntity>)? onPlanSelected;
@@ -22,79 +27,75 @@ class ProtectionPlanSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
-    final firstOption = insuranceOptions.isNotEmpty ? insuranceOptions.first : null;
-    final firstValue = firstOption?.values.isNotEmpty == true ? firstOption!.values.first : null;
+    final firstOption =
+        insuranceOptions.isNotEmpty ? insuranceOptions.first : null;
+    final firstValue = firstOption?.values.isNotEmpty == true
+        ? firstOption!.values.first
+        : null;
 
     return Container(
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20.r),
-          topRight: Radius.circular(20.r),
-        ),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(2.w),
+                  padding: EdgeInsets.all(3.w),
                   decoration: BoxDecoration(
-                    color: colors.green,
+                    color: AppColors.green,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
-                  child: Icon(Icons.check, color: colors.white, size: 16.sp),
+                  child: Icon(Icons.check, color: AppColors.white, size: 14.sp),
                 ),
                 SizedBox(width: 10.w),
                 Text(
                   'Added to cart',
-                  style: textStyle.subheading.copyWith(
-                    color: colors.text,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTypography.pageTitle,
                 ),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
-                  child: Icon(Icons.close, color: colors.text, size: 24.sp),
+                  child: Icon(
+                    Icons.close,
+                    color: AppColors.muted,
+                    size: 22.sp,
+                  ),
                 ),
               ],
             ),
           ),
-          Divider(height: 1, color: colors.borderColor),
+          const Divider(height: 1, color: AppColors.border),
 
           Flexible(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 24.w),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SvgPicture.asset(
                     'assets/new/svg/detail/pickaboo_protection_icon.svg',
-                    height: 120.h,
+                    height: 100.h,
                     fit: BoxFit.fitHeight,
                   ),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 14.h),
 
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Text(
                       'Pickaboo Protection Plan by Allstate',
                       textAlign: TextAlign.center,
-                      style: textStyle.headingMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: colors.text,
-                      ),
+                      style: AppTypography.pageTitle,
                     ),
                   ),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 12.h),
 
                   if (firstValue != null) ...[
                     Padding(
@@ -102,64 +103,71 @@ class ProtectionPlanSheet extends StatelessWidget {
                       child: Text(
                         'Protect it today. Enjoy it for years. Plan covers:',
                         textAlign: TextAlign.center,
-                        style: textStyle.bodyMediumBold.copyWith(
-                          color: colors.text,
-                        ),
+                        style: AppTypography.cardTitle,
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 12.h),
                     if (firstValue.details.isNotEmpty)
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32.w),
-                        child: AppHtml(data: firstValue.details),
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        child: Container(
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceBlue,
+                            borderRadius: AppRadius.cardRadius,
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: AppHtml(data: firstValue.details),
+                        ),
                       ),
                     SizedBox(height: 8.h),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 32.w),
                       child: GestureDetector(
-                        onTap: () {
-                        },
+                        onTap: () {},
                         child: Text(
                           'View all details',
-                          style: textStyle.bodyMedium.copyWith(
-                            color: colors.linkBlue,
-                          ),
+                          style: AppTypography.brandActionText,
                         ),
                       ),
                     ),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 20.h),
 
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+                      ),
                       child: Column(
                         children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              final selection = SelectedExtraOptionEntity(
-                                optionId: firstOption!.optionId,
-                                optionTypeId: firstValue.optionTypeId,
-                                title: firstValue.title,
-                                price: firstValue.price,
-                              );
-                              Navigator.of(context).pop();
-                              onPlanSelected?.call([selection]);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.linkBlue,
-                              minimumSize: Size(double.infinity, 48.h),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48.h,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                final selection = SelectedExtraOptionEntity(
+                                  optionId: firstOption!.optionId,
+                                  optionTypeId: firstValue.optionTypeId,
+                                  title: firstValue.title,
+                                  price: firstValue.price,
+                                );
+                                Navigator.of(context).pop();
+                                onPlanSelected?.call([selection]);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.pickabooBlue,
+                                foregroundColor: AppColors.white,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: AppRadius.cardRadius,
+                                ),
+                                elevation: 0,
                               ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              '${firstValue.title} - ${firstValue.price}',
-                              style: textStyle.buttonMedium.copyWith(
-                                color: colors.white,
+                              child: Text(
+                                '${firstValue.title} - ${firstValue.price}',
+                                style: AppTypography.buttonPrimary,
                               ),
                             ),
                           ),
-                          SizedBox(height: 16.h),
+                          SizedBox(height: 12.h),
 
                           InkWell(
                             onTap: () {
@@ -168,11 +176,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                             },
                             child: Text(
                               'No Thanks',
-                              style: textStyle.bodyMedium.copyWith(
-                                color: colors.text,
-                                decoration: TextDecoration.underline,
-                                decorationColor: colors.text,
-                              ),
+                              style: AppTypography.bodyMuted,
                             ),
                           ),
                         ],
@@ -184,18 +188,15 @@ class ProtectionPlanSheet extends StatelessWidget {
             ),
           ),
 
-          Divider(height: 1, color: colors.borderColor),
+          const Divider(height: 1, color: AppColors.border),
           SafeArea(
             top: false,
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.w),
+              padding: EdgeInsets.symmetric(vertical: 8.h),
               child: Text(
                 'pickaboo.com',
                 textAlign: TextAlign.center,
-                style: textStyle.bodyTiny.copyWith(
-                  color: colors.textLight,
-                  letterSpacing: 0.5,
-                ),
+                style: AppTypography.bodyMuted,
               ),
             ),
           ),
@@ -204,4 +205,3 @@ class ProtectionPlanSheet extends StatelessWidget {
     );
   }
 }
-

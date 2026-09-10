@@ -7,7 +7,6 @@ class ViewAllCircle extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
-
   final double topInset;
 
   const ViewAllCircle({
@@ -20,7 +19,6 @@ class ViewAllCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final size = DiscoverMetrics.circleTile;
 
     return GestureDetector(
@@ -36,15 +34,36 @@ class ViewAllCircle extends StatelessWidget {
               width: size,
               height: size,
               decoration: BoxDecoration(
-                color: colors.spotlightBlueVeryLight,
+                color: AppColors.surfaceBlue,
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.pickabooBlue.withValues(alpha: 0.25),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.pickabooBlue.withValues(alpha: 0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Icon(icon, color: colors.spotlightBlueShadow, size: 28.sp),
+              child: Center(
+                child: Icon(
+                  icon,
+                  color: AppColors.pickabooBlue,
+                  size: 24.sp,
+                ),
+              ),
             ),
 
             SizedBox(height: DiscoverMetrics.tileLabelGap),
 
             DiscoverTileLabel(text: label, maxLines: 1),
+
+            SizedBox(height: 2.h),
+
+            const DiscoverTileAction(text: 'Explore'),
           ],
         ),
       ),

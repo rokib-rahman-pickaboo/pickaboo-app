@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class AddressDropdownField extends StatelessWidget {
   final String label;
@@ -19,22 +18,21 @@ class AddressDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: textStyle.inputLabel.copyWith(color: colors.text)),
+        Text(label, style: textStyle.inputLabel.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
         InkWell(
           onTap: enabled ? onTap : null,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
             decoration: BoxDecoration(
-              color: enabled ? colors.white : colors.gray.withValues(alpha: 0.1),
+              color: enabled ? AppColors.white : AppColors.muted.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(color: colors.gray.withValues(alpha: 0.2)),
+              border: Border.all(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,10 +40,10 @@ class AddressDropdownField extends StatelessWidget {
                 Text(
                   value,
                   style: textStyle.inputText.copyWith(
-                    color: enabled ? colors.text : colors.gray,
+                    color: enabled ? AppColors.text : AppColors.muted,
                   ),
                 ),
-                Icon(Icons.arrow_drop_down, color: colors.gray),
+                const Icon(Icons.arrow_drop_down, color: AppColors.muted),
               ],
             ),
           ),

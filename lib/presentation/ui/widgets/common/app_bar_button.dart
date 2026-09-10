@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class AppBarButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -33,7 +32,7 @@ class AppBarButton extends StatelessWidget {
       style: ButtonStyle(
         fixedSize: WidgetStatePropertyAll(Size(42.w, 42.w)),
         maximumSize: WidgetStatePropertyAll(Size(42.w, 42.w)),
-        minimumSize: WidgetStatePropertyAll(Size(0, 0)),
+        minimumSize: const WidgetStatePropertyAll(Size(0, 0)),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         padding: WidgetStatePropertyAll(EdgeInsets.all(8.w)),
       ),
@@ -52,12 +51,12 @@ class AppBarButton extends StatelessWidget {
       showBadge: badgeCount > 0,
       badgeContent: Text(
         '$badgeCount',
-        style: context.textStyle.badgeSmall.copyWith(color: context.colors.white),
+        style: context.textStyle.badgeSmall.copyWith(color: AppColors.white),
       ),
       position: badges.BadgePosition.topEnd(top: -2, end: 0),
       badgeAnimation: const badges.BadgeAnimation.fade(),
-      badgeStyle: badges.BadgeStyle(
-        badgeColor: context.colors.primary,
+      badgeStyle: const badges.BadgeStyle(
+        badgeColor: AppColors.pickabooBlue,
         elevation: 0,
       ),
       child: iconButton,

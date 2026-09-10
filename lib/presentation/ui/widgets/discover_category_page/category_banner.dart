@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/discover_category/discover_category_banner_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
@@ -10,8 +9,8 @@ class CategoryBanner extends StatelessWidget {
   final String menuName;
   final VoidCallback? onTap;
 
-  static const Color _backdropStart = Color(0xFFFFFFFF);
-  static const Color _backdropEnd = Color(0xFFE7EAFB);
+  static const Color _backdropStart = AppColors.white;
+  static const Color _backdropEnd = AppColors.surfaceBlue;
 
   static const double _height = 100;
 
@@ -28,8 +27,6 @@ class CategoryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (banners.isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
     final textStyles = context.textStyle;
     final banner = banners.first;
 
@@ -57,7 +54,7 @@ class CategoryBanner extends StatelessWidget {
                   child: Text(
                     menuName,
                     style: textStyles.headingSmall
-                        .withColor(colors.primary)
+                        .withColor(AppColors.pickabooBlue)
                         .copyWith(
                           fontSize: 17.sp,
                           fontWeight: FontWeight.w700,

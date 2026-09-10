@@ -1,11 +1,18 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/enums/gender_enum.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/auth/user_entity.dart';
-import 'package:intl/intl.dart';
-import 'user_info_item.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
 
 class PersonalInformationCard extends StatelessWidget {
   final UserEntity user;
@@ -19,73 +26,91 @@ class PersonalInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
+    final fullName = '${user.firstname} ${user.lastname}'.trim();
+    final genderText =
+        Gender.fromValue(user.gender ?? 0)?.label ?? AppStrings.notProvided;
+    final dobText =
+        user.dob?.isNotEmpty == true ? _formatDate(user.dob!) : AppStrings.notProvided;
+    final phoneText = mobileNumber?.isNotEmpty == true
+        ? mobileNumber!
+        : AppStrings.notProvided;
 
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Personal Information',
-            style: textTheme.bodyMediumMedium.copyWith(
-              color: colors.text,
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.sameGroupItemSpacing.w * 1.5,
+              12.h,
+              AppSpacing.sameGroupItemSpacing.w * 1.5,
+              8.h,
+            ),
+            child: Text(
+              AppStrings.personalInformation,
+              style: AppTypography.sectionTitle,
             ),
           ),
-          SizedBox(height: 16.h),
-          UserInfoItem(
-            icon: Icons.person_outline,
-            title: 'Full Name',
-            value: '${user.firstname} ${user.lastname}',
+          Divider(height: 1.h, color: AppColors.border),
+
+          AppMenuTile(
+            icon: Icons.person_outline_rounded,
+            title: AppStrings.fullName,
+            subtitle: fullName.isNotEmpty ? fullName : AppStrings.notProvided,
+            isDetailMode: true,
           ),
-          UserInfoItem(
-            icon: Icons.phone_outlined,
-            title: 'Contact Number',
-            value: mobileNumber?.isNotEmpty == true
-                ? mobileNumber!
-                : 'Not provided',
+          Divider(
+            height: 1.h,
+            thickness: 1.h,
+            indent: AppMenuTile.dividerIndent,
+            color: AppColors.border,
           ),
-          UserInfoItem(
+
+          AppMenuTile(
             icon: Icons.email_outlined,
-            title: 'Email Address',
-            value: user.email,
+            title: AppStrings.emailAddress,
+            subtitle: user.email.isNotEmpty ? user.email : AppStrings.notProvided,
+            isDetailMode: true,
           ),
-          Row(
-            children: [
-              Expanded(
-                child: UserInfoItem(
-                  icon: Icons.wc_outlined,
-                  title: 'Gender',
-                  value:
-                      Gender.fromValue(user.gender ?? 0)?.label ??
-                      'Not specified',
-                  showDivider: false,
-                ),
-              ),
-              Expanded(
-                child: UserInfoItem(
-                  icon: Icons.cake_outlined,
-                  title: 'Date of Birth',
-                  value: user.dob?.isNotEmpty == true
-                      ? _formatDate(user.dob!)
-                      : 'Not specified',
-                  showDivider: false,
-                ),
-              ),
-            ],
+          Divider(
+            height: 1.h,
+            thickness: 1.h,
+            indent: AppMenuTile.dividerIndent,
+            color: AppColors.border,
+          ),
+
+          AppMenuTile(
+            icon: Icons.phone_outlined,
+            title: AppStrings.mobileNumber,
+            subtitle: phoneText,
+            isDetailMode: true,
+          ),
+          Divider(
+            height: 1.h,
+            thickness: 1.h,
+            indent: AppMenuTile.dividerIndent,
+            color: AppColors.border,
+          ),
+
+          AppMenuTile(
+            icon: Icons.wc_outlined,
+            title: AppStrings.gender,
+            subtitle: genderText,
+            isDetailMode: true,
+          ),
+          Divider(
+            height: 1.h,
+            thickness: 1.h,
+            indent: AppMenuTile.dividerIndent,
+            color: AppColors.border,
+          ),
+
+          AppMenuTile(
+            icon: Icons.cake_outlined,
+            title: AppStrings.dateOfBirth,
+            subtitle: dobText,
+            isDetailMode: true,
           ),
         ],
       ),

@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ProductQASection extends StatelessWidget {
   const ProductQASection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -22,7 +20,7 @@ class ProductQASection extends StatelessWidget {
             'Questions and Answers',
             style: textStyle.headingSmall.copyWith(
               fontWeight: FontWeight.w700,
-              color: colors.text,
+              color: AppColors.text,
             ),
           ),
           SizedBox(height: 16.h),
@@ -30,19 +28,19 @@ class ProductQASection extends StatelessWidget {
           _buildQAItem(context),
           Container(
             height: 2.w,
-            color: colors.borderColor,
+            color: AppColors.border,
             margin: EdgeInsets.symmetric(vertical: 16.h),
           ),
           _buildQAItem(context),
           Container(
             height: 2.w,
-            color: colors.borderColor,
+            color: AppColors.border,
             margin: EdgeInsets.symmetric(vertical: 16.h),
           ),
           _buildQAItem(context),
           Container(
             height: 2.w,
-            color: colors.borderColor,
+            color: AppColors.border,
             margin: EdgeInsets.symmetric(vertical: 16.h),
           ),
           _buildQAItem(context),
@@ -54,7 +52,7 @@ class ProductQASection extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
+                backgroundColor: AppColors.pickabooBlue,
                 padding: EdgeInsets.symmetric(vertical: 12.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4.r),
@@ -62,7 +60,7 @@ class ProductQASection extends StatelessWidget {
               ),
               child: Text(
                 'View All Questions and Answers',
-                style: textStyle.buttonMedium.copyWith(color: colors.white),
+                style: textStyle.buttonMedium.copyWith(color: AppColors.white),
               ),
             ),
           ),
@@ -72,7 +70,6 @@ class ProductQASection extends StatelessWidget {
   }
 
   Widget _buildQAItem(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Column(
@@ -89,7 +86,7 @@ class ProductQASection extends StatelessWidget {
             Expanded(
               child: Text(
                 'This fridge work to home inverter ?',
-                style: textStyle.reviewText.copyWith(color: colors.text),
+                style: textStyle.reviewText.copyWith(color: AppColors.text),
               ),
             ),
           ],
@@ -108,7 +105,7 @@ class ProductQASection extends StatelessWidget {
             Expanded(
               child: Text(
                 'Yes working for home inverter',
-                style: textStyle.reviewText.copyWith(color: colors.text),
+                style: textStyle.reviewText.copyWith(color: AppColors.text),
               ),
             ),
           ],
@@ -123,13 +120,13 @@ class ProductQASection extends StatelessWidget {
                   'assets/new/svg/detail/thum_up_icon.svg',
                   width: 16.w,
                   height: 16.w,
-                  colorFilter: ColorFilter.mode(colors.gray, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(AppColors.muted, BlendMode.srcIn),
                 ),
                 SizedBox(width: 6.w),
                 Text(
                   '305',
                   style: textStyle.ratingCount.copyWith(
-                    color: colors.textMedium,
+                    color: AppColors.muted,
                   ),
                 ),
               ],
@@ -143,13 +140,13 @@ class ProductQASection extends StatelessWidget {
                   'assets/new/svg/detail/thum_down.svg',
                   width: 16.w,
                   height: 16.w,
-                  colorFilter: ColorFilter.mode(colors.gray, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(AppColors.muted, BlendMode.srcIn),
                 ),
                 SizedBox(width: 6.w),
                 Text(
                   '116',
                   style: textStyle.ratingCount.copyWith(
-                    color: colors.textMedium,
+                    color: AppColors.muted,
                   ),
                 ),
               ],

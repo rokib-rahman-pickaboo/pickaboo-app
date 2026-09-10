@@ -47,7 +47,7 @@ class AppImage extends StatefulWidget {
     this.imageBuilder,
     this.maxWidthDiskCache,
     this.maxHeightDiskCache,
-    this.fadeInDuration = const Duration(milliseconds: 200),
+    this.fadeInDuration = const Duration(milliseconds: 120),
     this.errorListener,
     this.cacheWidth,
   });
@@ -121,11 +121,11 @@ class _AppImageState extends State<AppImage> {
       width: widget.width,
       height: widget.height,
       fit: widget.fit,
-      color: widget.color,
+      filterQuality: FilterQuality.low,
       memCacheWidth: widget.useMemCache ? targetWidth : null,
       memCacheHeight: widget.useMemCache ? targetHeight : null,
-      maxWidthDiskCache: widget.maxWidthDiskCache ?? targetWidth,
-      maxHeightDiskCache: widget.maxHeightDiskCache ?? targetHeight,
+      maxWidthDiskCache: widget.maxWidthDiskCache,
+      maxHeightDiskCache: widget.maxHeightDiskCache,
       fadeInDuration: widget.fadeInDuration,
       imageBuilder: widget.imageBuilder,
       placeholder: (context, url) =>
@@ -170,7 +170,7 @@ class _AppImageState extends State<AppImage> {
             width: width,
             height: height,
             decoration: BoxDecoration(
-              color: context.colors.grayLight,
+              color: AppColors.pageBg,
               borderRadius: BorderRadius.circular(4.r),
             ),
           ),
@@ -195,7 +195,7 @@ class _AppImageState extends State<AppImage> {
       child: Container(
         width: (widget.width?.isFinite ?? false) ? widget.width : null,
         height: (widget.height?.isFinite ?? false) ? widget.height : null,
-        color: context.colors.white,
+        color: AppColors.white,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -203,12 +203,12 @@ class _AppImageState extends State<AppImage> {
             children: [
               Icon(
                 Icons.broken_image_outlined,
-                color: context.colors.silverChalice,
+                color: AppColors.mutedLight,
                 size: 20.sp,
               ),
               if (manual) ...[
                 SizedBox(height: 4.h),
-                Icon(Icons.refresh, size: 14.sp, color: context.colors.silverChalice),
+                Icon(Icons.refresh, size: 14.sp, color: AppColors.mutedLight),
               ],
             ],
           ),

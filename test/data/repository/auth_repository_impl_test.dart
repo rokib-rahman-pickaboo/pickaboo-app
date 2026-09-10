@@ -36,6 +36,8 @@ void main() {
     mockRecaptchaService = MockRecaptchaService();
     when(() => mockRecaptchaService.executeAction(any()))
         .thenAnswer((_) async => 'test-recaptcha-token');
+    when(() => mockCacheManager.setProdToken(any())).thenAnswer((_) async {});
+    when(() => mockCacheManager.getToken()).thenAnswer((_) async => null);
     repository = AuthRepositoryImpl(
       mockApiService,
       mockCacheManager,

@@ -4,7 +4,6 @@ import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TicketMessageItem extends StatelessWidget {
@@ -14,18 +13,17 @@ class TicketMessageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.03),
+            color: AppColors.black.withValues(alpha: 0.03),
             blurRadius: 6.r,
             offset: Offset(0, 1.h),
           ),
@@ -39,10 +37,10 @@ class TicketMessageItem extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
-                  color: colors.primary.withAlpha(25),
+                  color: AppColors.pickabooBlue.withAlpha(25),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.person, size: 16.sp, color: colors.primary),
+                child: Icon(Icons.person, size: 16.sp, color: AppColors.pickabooBlue),
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -53,13 +51,13 @@ class TicketMessageItem extends StatelessWidget {
                       message.replyer,
                       style: textTheme.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: colors.text,
+                        color: AppColors.text,
                       ),
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       _formatDateTime(message.createdAt),
-                      style: textTheme.bodySmall.copyWith(color: colors.gray),
+                      style: textTheme.bodySmall.copyWith(color: AppColors.muted),
                     ),
                   ],
                 ),
@@ -70,7 +68,7 @@ class TicketMessageItem extends StatelessWidget {
           Text(
             message.body,
             style: textTheme.bodyMedium.copyWith(
-              color: colors.text,
+              color: AppColors.text,
             ),
           ),
           if (message.attachments.isNotEmpty) ...[
@@ -84,9 +82,8 @@ class TicketMessageItem extends StatelessWidget {
                   child: Text(
                     '${index + 1}. ${_displayName(message.attachments[index])}',
                     style: textTheme.bodyMedium.copyWith(
-                      color: colors.text,
-                      decoration: TextDecoration.underline,
-                      decorationColor: colors.text,
+                      color: AppColors.pickabooBlue,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -108,9 +105,37 @@ class TicketMessageItem extends StatelessWidget {
     return segments.isEmpty ? 'Attachment' : segments.last;
   }
 
+  bool _isAllowedFileType(TicketAttachmentEntity attachment) {
+    final type = attachment.fileType.toUpperCase();
+    if (type.contains('JPG') ||
+        type.contains('JPEG') ||
+        type.contains('PNG') ||
+        type.contains('PDF')) {
+      return true;
+    }
+    final name = (attachment.fileName.isNotEmpty
+            ? attachment.fileName
+            : attachment.path)
+        .toLowerCase();
+    return name.endsWith('.jpg') ||
+        name.endsWith('.jpeg') ||
+        name.endsWith('.png') ||
+        name.endsWith('.pdf');
+  }
+
   String _resolveUrl(String path) {
-    final trimmed = path.trim();
+    var trimmed = path.trim();
     if (trimmed.isEmpty) return '';
+
+    // If backend returns outdated admin.pickaboo.com, route to active host
+    if (trimmed.startsWith('http://admin.pickaboo.com') ||
+        trimmed.startsWith('https://admin.pickaboo.com')) {
+      trimmed = trimmed.replaceFirst(
+        RegExp(r'https?:\/\/admin\.pickaboo\.com'),
+        'https://gcpadmin.pickaboo.com',
+      );
+    }
+
     if (trimmed.startsWith('http')) return trimmed;
     if (trimmed.startsWith('//')) return 'https:$trimmed';
 
@@ -124,6 +149,17 @@ class TicketMessageItem extends StatelessWidget {
     BuildContext context,
     TicketAttachmentEntity attachment,
   ) async {
+    // Like Pickaboo-App-DC: Check allowed file types; show info toast if not supported
+    if (!_isAllowedFileType(attachment)) {
+      if (context.mounted) {
+        SnackBarUtils.showInfo(
+          context,
+          'Allows only this file types: jpg, jpeg, png, pdf',
+        );
+      }
+      return;
+    }
+
     final url = _resolveUrl(attachment.path);
     final uri = url.isEmpty ? null : Uri.tryParse(url);
 
@@ -134,6 +170,7 @@ class TicketMessageItem extends StatelessWidget {
       return;
     }
 
+    // Like Pickaboo-App-DC Linking.openURL: opens the URL in the system browser / viewer
     final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!launched && context.mounted) {
       SnackBarUtils.showError(context, "Couldn't open this attachment.");

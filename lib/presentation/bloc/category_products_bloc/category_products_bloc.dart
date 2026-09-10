@@ -23,8 +23,8 @@ class CategoryProductsBloc
 
   static const String _facetNamespace = 'cat';
 
-  static const int _prodLimit = 6;
-  static const int _featProdLimit = 16;
+  static const int _prodLimit = 16;
+  static const int _featProdLimit = 20;
 
   String? _currentSort;
   Map<String, List<String>>? _currentFilters;

@@ -28,17 +28,21 @@ abstract class UserProfileRepository {
     required String dob,
   });
 
+  Future<Either<AppErrorEntity, OtpResponse>> sendEmailUpdateOtp({
+    required String email,
+  });
+
   Future<Either<AppErrorEntity, UserEntity>> updateEmail({
-    required UserEntity user,
     required String newEmail,
+    required String otp,
   });
 
   Future<Either<AppErrorEntity, OtpResponse>> sendPhoneUpdateOtp({
     required String mobile,
+    bool resend = false,
   });
 
   Future<Either<AppErrorEntity, UserEntity>> updateMobile({
-    required UserEntity user,
     required String newMobile,
     required String otp,
   });
@@ -79,6 +83,16 @@ abstract class UserProfileRepository {
     required UserEntity user,
     required List<dynamic> addresses,
   });
+
+  Future<Either<AppErrorEntity, String>> addAddress(
+    Map<String, dynamic> addressData,
+  );
+
+  Future<Either<AppErrorEntity, String>> updateAddress(
+    Map<String, dynamic> addressData,
+  );
+
+  Future<Either<AppErrorEntity, String>> deleteAddress(int addressId);
 
   Future<Either<AppErrorEntity, List<dynamic>>> getCities(String division);
 

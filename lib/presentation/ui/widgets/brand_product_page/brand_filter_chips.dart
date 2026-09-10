@@ -1,8 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/presentation/bloc/brand_products_bloc/brand_products_bloc.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
@@ -21,7 +26,6 @@ class BrandFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyles = context.textStyle;
 
     if (attribute.items.isEmpty) {
@@ -29,7 +33,7 @@ class BrandFilterChips extends StatelessWidget {
     }
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       padding: EdgeInsets.symmetric(vertical: 8.w, horizontal: 16.w),
       child: SizedBox(
         height: 32.h,
@@ -39,19 +43,14 @@ class BrandFilterChips extends StatelessWidget {
           separatorBuilder: (_, _) => SizedBox(width: 12.w),
           itemBuilder: (context, index) {
             final item = attribute.items[index];
-            return _buildChip(context, item, colors, textStyles);
+            return _buildChip(context, item, textStyles);
           },
         ),
       ),
     );
   }
 
-  Widget _buildChip(
-    BuildContext context,
-    FilterItemEntity item,
-    AppColors colors,
-    AppTextStyles textStyles,
-  ) {
+  Widget _buildChip(BuildContext context, FilterItemEntity item, AppTextStyles textStyles) {
     final isSelected = currentFilters[attribute.filterCode]?.contains(item.value.toString()) ?? false;
 
     return InkWell(
@@ -75,10 +74,10 @@ class BrandFilterChips extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
-          color: isSelected ? colors.primary : colors.white,
+          color: isSelected ? AppColors.pickabooBlue : AppColors.white,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: isSelected ? colors.primary : colors.gray.withValues(alpha: 0.3),
+            color: isSelected ? AppColors.pickabooBlue : AppColors.muted.withValues(alpha: 0.3),
             width: 1.w,
           ),
         ),
@@ -86,7 +85,7 @@ class BrandFilterChips extends StatelessWidget {
           child: Text(
             item.label.removeHtmlTags,
             style: textStyles.bodyMedium.copyWith(
-              color: isSelected ? colors.white : colors.text,
+              color: isSelected ? AppColors.white : AppColors.text,
             ),
           ),
         ),

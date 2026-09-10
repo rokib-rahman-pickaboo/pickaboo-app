@@ -1,9 +1,14 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:badges/badges.dart' as badges;
 
 class DraggableCompareButton extends StatefulWidget {
@@ -37,13 +42,11 @@ class _DraggableCompareButtonState extends State<DraggableCompareButton> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     Widget buttonContent = Container(
       width: 50.w,
       height: 50.w,
       decoration: BoxDecoration(
-        color: colors.primary,
+        color: AppColors.pickabooBlue,
         borderRadius: BorderRadius.horizontal(
           left: Radius.circular(8.r),
           right: Radius.circular(8.r),
@@ -63,16 +66,12 @@ class _DraggableCompareButtonState extends State<DraggableCompareButton> {
             'assets/new/svg/compared_icon.svg',
             width: 18.w,
             height: 18.w,
-            colorFilter: ColorFilter.mode(colors.white, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
           ),
           SizedBox(height: 2.h),
           Text(
             'Compare',
-            style: TextStyle(
-              color: colors.white,
-              fontSize: 9.sp,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTypography.bodyTiny,
           ),
         ],
       ),
@@ -83,12 +82,12 @@ class _DraggableCompareButtonState extends State<DraggableCompareButton> {
         showBadge: widget.badgeCount > 0,
         badgeContent: Text(
           '${widget.badgeCount}',
-          style: context.textStyle.badgeSmall.copyWith(color: colors.primary),
+          style: context.textStyle.badgeSmall.copyWith(color: AppColors.pickabooBlue),
         ),
         position: badges.BadgePosition.topEnd(top: -4, end: -4),
         badgeAnimation: const badges.BadgeAnimation.fade(),
-        badgeStyle: badges.BadgeStyle(
-          badgeColor: colors.white,
+        badgeStyle: const badges.BadgeStyle(
+          badgeColor: AppColors.white,
           elevation: 0,
         ),
         child: buttonContent,

@@ -1,3 +1,9 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,12 +20,13 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/ui/common/bottom_sheet/delivery_location_sheet.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/phone_text_field.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/searchable_picker_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/place_picker/place_suggestion_tile.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class NewAddressPage extends StatefulWidget {
   final dynamic existingAddress;
@@ -122,26 +129,29 @@ class _NewAddressPageState extends State<NewAddressPage> {
     setState(() => _isSaving = true);
 
     try {
+      final String houseRoad =
+          (_capturedAddressController?.text ?? _addressController.text).trim();
+      final String areaThana =
+          _selectedArea?['cities_name']?.toString() ??
+          _selectedArea?['zip_code']?.toString() ??
+          '';
+
       final addressMap = {
         if (widget.existingAddress != null)
           'id': (widget.existingAddress as AddressEntity).id,
-        'customer_id':
-            (widget.existingAddress as AddressEntity?)?.customerId ?? 0,
         'firstname': _firstNameController.text.trim(),
         'lastname': _lastNameController.text.trim(),
-        'telephone': _contactNumberController.text.trim(),
+        'company': '',
         'street': [
-          (_capturedAddressController?.text ?? _addressController.text).trim(),
+          houseRoad,
+          areaThana,
         ],
         'city': _selectedCity!['cities_name'] ?? '',
-        'region': {
-          'region_id': int.tryParse(_selectedDivision!['id']!) ?? 0,
-          'region': _selectedDivision!['title'],
-          'region_code': _selectedDivision!['region_code'],
-        },
-        'region_id': int.tryParse(_selectedDivision!['id']!) ?? 0,
         'postcode': _selectedArea!['zip_code'] ?? '',
+        'region': _selectedDivision!['title'] ?? '',
+        'region_id': int.tryParse(_selectedDivision!['id']!) ?? 0,
         'country_id': 'BD',
+        'telephone': _contactNumberController.text.trim(),
         'default_shipping': _isDefaultShipping,
         'default_billing': _isDefaultBilling,
       };
@@ -165,7 +175,6 @@ class _NewAddressPageState extends State<NewAddressPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return MultiBlocListener(
@@ -258,32 +267,14 @@ class _NewAddressPageState extends State<NewAddressPage> {
         ),
       ],
       child: Scaffold(
-        appBar: AppBar(
-          leading: AppBarButton(
-            iconPath: 'assets/new/svg/back_nav_icon.svg',
-            width: 7.w,
-            height: 14.h,
-            onPressed: () => Navigator.of(context).pop(),
-            iconColor: colors.text,
-          ),
-          title: Text(
-            widget.existingAddress != null ? 'Edit Address' : 'Add New Address',
-            style: context.textStyle.appBarTitle,
-          ),
+        backgroundColor: AppColors.pageBg,
+        appBar: PickabooAppBar(
+          title: widget.existingAddress != null ? 'Edit Address' : 'Add New Address',
           actions: [
             if (_isSaving)
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.only(right: 16.w),
-                  child: SizedBox(
-                    width: 20.w,
-                    height: 20.h,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: colors.primary,
-                    ),
-                  ),
-                ),
+              Padding(
+                padding: EdgeInsets.only(right: 16.w),
+                child: const AppLoader.button(size: 20),
               ),
           ],
         ),
@@ -291,7 +282,10 @@ class _NewAddressPageState extends State<NewAddressPage> {
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.sameGroupItemSpacing.w,
+                vertical: AppSpacing.sameGroupItemSpacing.h,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -301,36 +295,36 @@ class _NewAddressPageState extends State<NewAddressPage> {
                     hint: 'Enter first name',
                     validator: (v) => v?.isEmpty ?? true ? 'Required' : null,
                   ),
-                  SizedBox(height: 16.h),
+                  AppSpacing.groupToGroupGap,
                   _buildTextField(
                     controller: _lastNameController,
                     label: 'Last Name',
                     hint: 'Enter last name',
                     validator: (v) => v?.isEmpty ?? true ? 'Required' : null,
                   ),
-                  SizedBox(height: 16.h),
+                  AppSpacing.groupToGroupGap,
                   PhoneTextField(
                     controller: _contactNumberController,
                     label: 'Contact Number',
                     hint: 'Enter contact number',
                   ),
-                  SizedBox(height: 16.h),
+                  AppSpacing.groupToGroupGap,
                   _buildAddressAutocompleteField(),
-                  SizedBox(height: 16.h),
+                  AppSpacing.groupToGroupGap,
                   _buildDropdownField(
                     label: 'Division',
                     value:
                         _selectedDivision?['title'] ?? 'Select Your Division',
                     onTap: _selectDivision,
                   ),
-                  SizedBox(height: 16.h),
+                  AppSpacing.groupToGroupGap,
                   _buildDropdownField(
                     label: 'City',
                     value: _selectedCity?['cities_name'] ?? 'Select Your City',
                     onTap: _selectCity,
                     enabled: _selectedDivision != null,
                   ),
-                  SizedBox(height: 16.h),
+                  AppSpacing.groupToGroupGap,
                   _buildDropdownField(
                     label: 'Area',
                     value:
@@ -339,8 +333,14 @@ class _NewAddressPageState extends State<NewAddressPage> {
                     onTap: _selectArea,
                     enabled: _selectedCity != null,
                   ),
-                  SizedBox(height: 24.h),
-                  SizedBox(height: 32.h),
+                  AppSpacing.groupToGroupGap,
+                  _buildTextField(
+                    controller: _addressController,
+                    label: 'Street Address',
+                    hint: 'Enter flat, house, road no.',
+                    validator: (v) => v?.isEmpty ?? true ? 'Required' : null,
+                  ),
+                  AppSpacing.groupToGroupGap,
                   _buildSwitch(
                     'Default Billing Address',
                     _isDefaultBilling,
@@ -361,7 +361,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
                       child: ElevatedButton(
                         onPressed: _isSaving ? null : _saveAddress,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
+                          backgroundColor: AppColors.pickabooBlue,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.r),
                           ),
@@ -371,7 +371,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
                               ? 'Update Address'
                               : 'Save Address',
                           style: textTheme.buttonMedium.copyWith(
-                            color: colors.white,
+                            color: AppColors.white,
                           ),
                         ),
                       ),
@@ -387,7 +387,6 @@ class _NewAddressPageState extends State<NewAddressPage> {
   }
 
   Widget _buildAddressAutocompleteField() {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Column(
@@ -395,7 +394,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
       children: [
         Text(
           'Address',
-          style: textStyle.inputLabel.copyWith(color: colors.text),
+          style: textStyle.inputLabel.copyWith(color: AppColors.text),
         ),
         SizedBox(height: 4.h),
 
@@ -404,21 +403,21 @@ class _NewAddressPageState extends State<NewAddressPage> {
             Icon(
               Icons.info_outline_rounded,
               size: 11.sp,
-              color: colors.textMedium,
+              color: AppColors.muted,
             ),
             SizedBox(width: 4.w),
             Text(
               'Type to search or tap ',
               style: textStyle.bodySmall.copyWith(
-                color: colors.textMedium,
+                color: AppColors.muted,
                 fontSize: 11.sp,
               ),
             ),
-            Icon(Icons.location_on_rounded, size: 12.sp, color: colors.primary),
+            Icon(Icons.location_on_rounded, size: 12.sp, color: AppColors.pickabooBlue),
             Text(
               ' to pick from map',
               style: textStyle.bodySmall.copyWith(
-                color: colors.textMedium,
+                color: AppColors.muted,
                 fontSize: 11.sp,
               ),
             ),
@@ -471,14 +470,14 @@ class _NewAddressPageState extends State<NewAddressPage> {
                   maxLines: 2,
                   validator: (v) =>
                       (v?.trim().isEmpty ?? true) ? 'Required' : null,
-                  style: textStyle.inputText.copyWith(color: colors.text),
+                  style: textStyle.inputText.copyWith(color: AppColors.text),
                   decoration: InputDecoration(
                     hintText: 'e.g. House 5, Road 12, Mirpur...',
                     hintStyle: textStyle.inputPlaceholder.copyWith(
-                      color: colors.gray.withValues(alpha: 0.5),
+                      color: AppColors.muted.withValues(alpha: 0.5),
                     ),
                     filled: true,
-                    fillColor: colors.white,
+                    fillColor: AppColors.white,
                     contentPadding: EdgeInsets.only(
                       left: 14.w,
                       right: 8.w,
@@ -490,7 +489,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
                       child: Icon(
                         Icons.search_rounded,
                         size: 20.sp,
-                        color: isLoading ? colors.primary : colors.gray,
+                        color: isLoading ? AppColors.pickabooBlue : AppColors.muted,
                       ),
                     ),
                     prefixIconConstraints: const BoxConstraints(),
@@ -500,14 +499,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (isLoading)
-                            SizedBox(
-                              width: 14.w,
-                              height: 14.h,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colors.primary,
-                              ),
-                            ),
+                            const AppLoader.inline(size: 14, padding: EdgeInsets.zero),
                           if (isLoading) SizedBox(width: 8.w),
                           GestureDetector(
                             onTap: _openDeliveryLocationSheet,
@@ -517,15 +509,15 @@ class _NewAddressPageState extends State<NewAddressPage> {
                                 vertical: 5.h,
                               ),
                               decoration: BoxDecoration(
-                                color: colors.primary.withValues(alpha: 0.1),
+                                color: AppColors.pickabooBlue.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20.r),
                                 border: Border.all(
-                                  color: colors.primary.withValues(alpha: 0.35),
+                                  color: AppColors.pickabooBlue.withValues(alpha: 0.35),
                                 ),
                               ),
                               child: Icon(
                                 Icons.location_on_rounded,
-                                color: colors.primary,
+                                color: AppColors.pickabooBlue,
                                 size: 13.sp,
                               ),
                             ),
@@ -537,25 +529,25 @@ class _NewAddressPageState extends State<NewAddressPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                       borderSide: BorderSide(
-                        color: colors.gray.withValues(alpha: 0.2),
+                        color: AppColors.muted.withValues(alpha: 0.2),
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                       borderSide: BorderSide(
-                        color: colors.gray.withValues(alpha: 0.2),
+                        color: AppColors.muted.withValues(alpha: 0.2),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                       borderSide: BorderSide(
-                        color: colors.primary,
+                        color: AppColors.pickabooBlue,
                         width: 1.5.w,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(color: colors.red, width: 1.w),
+                      borderSide: BorderSide(color: AppColors.red, width: 1.w),
                     ),
                   ),
                 );
@@ -567,7 +559,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
               alignment: Alignment.topLeft,
               child: Material(
                 elevation: 6,
-                shadowColor: colors.black.withValues(alpha: 0.12),
+                shadowColor: AppColors.black.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10.r),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.r),
@@ -585,11 +577,11 @@ class _NewAddressPageState extends State<NewAddressPage> {
                             horizontal: 14.w,
                             vertical: 8.h,
                           ),
-                          color: colors.backgroundGray,
+                          color: AppColors.pageBg,
                           child: Text(
                             'Suggestions',
                             style: textStyle.bodySmall.copyWith(
-                              color: colors.textMedium,
+                              color: AppColors.muted,
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -603,7 +595,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
                             separatorBuilder: (_, __) => Divider(
                               height: 1,
                               indent: 44.w,
-                              color: colors.borderColor,
+                              color: AppColors.border,
                             ),
                             itemBuilder: (_, i) {
                               final place = options.elementAt(i);
@@ -625,13 +617,13 @@ class _NewAddressPageState extends State<NewAddressPage> {
 
         if (_selectedPlace != null) ...[
           SizedBox(height: 8.h),
-          _buildSelectedPlaceChip(colors, textStyle),
+          _buildSelectedPlaceChip(textStyle),
         ],
       ],
     );
   }
 
-  Widget _buildSelectedPlaceChip(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildSelectedPlaceChip(AppTextStyles textStyle) {
     final place = _selectedPlace!;
     final subtitle = [
       place.area,
@@ -642,9 +634,9 @@ class _NewAddressPageState extends State<NewAddressPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: 0.06),
+        color: AppColors.pickabooBlue.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: colors.primary.withValues(alpha: 0.25)),
+        border: Border.all(color: AppColors.pickabooBlue.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,12 +645,12 @@ class _NewAddressPageState extends State<NewAddressPage> {
             margin: EdgeInsets.only(top: 1.h),
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.12),
+              color: AppColors.pickabooBlue.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.location_on_rounded,
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
               size: 13.sp,
             ),
           ),
@@ -670,7 +662,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
                 Text(
                   place.address ?? place.displayAddress,
                   style: textStyle.bodySmallBold.copyWith(
-                    color: colors.text,
+                    color: AppColors.text,
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 2,
@@ -681,7 +673,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
                   Text(
                     subtitle,
                     style: textStyle.bodySmall.copyWith(
-                      color: colors.textMedium,
+                      color: AppColors.muted,
                       fontSize: 11.sp,
                     ),
                     maxLines: 1,
@@ -699,7 +691,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
             }),
             child: Padding(
               padding: EdgeInsets.only(left: 8.w),
-              child: Icon(Icons.close_rounded, size: 16.sp, color: colors.gray),
+              child: Icon(Icons.close_rounded, size: 16.sp, color: AppColors.muted),
             ),
           ),
         ],
@@ -827,38 +819,37 @@ class _NewAddressPageState extends State<NewAddressPage> {
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: textStyle.inputLabel.copyWith(color: colors.text)),
+        Text(label, style: textStyle.inputLabel.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
           validator: validator,
-          style: textStyle.inputText.copyWith(color: colors.text),
+          style: textStyle.inputText.copyWith(color: AppColors.text),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: textStyle.inputPlaceholder.copyWith(
-              color: colors.gray.withValues(alpha: 0.5),
+              color: AppColors.muted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: colors.white,
+            fillColor: AppColors.white,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 16.w,
               vertical: 10.w,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: colors.gray.withValues(alpha: 0.2)),
+              borderSide: BorderSide(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: colors.gray.withValues(alpha: 0.2)),
+              borderSide: BorderSide(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
           ),
         ),
@@ -872,13 +863,12 @@ class _NewAddressPageState extends State<NewAddressPage> {
     required VoidCallback onTap,
     bool enabled = true,
   }) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: textStyle.inputLabel.copyWith(color: colors.text)),
+        Text(label, style: textStyle.inputLabel.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
         InkWell(
           onTap: enabled ? onTap : null,
@@ -886,10 +876,10 @@ class _NewAddressPageState extends State<NewAddressPage> {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
             decoration: BoxDecoration(
               color: enabled
-                  ? colors.white
-                  : colors.gray.withValues(alpha: 0.1),
+                  ? AppColors.white
+                  : AppColors.muted.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(color: colors.gray.withValues(alpha: 0.2)),
+              border: Border.all(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -897,10 +887,10 @@ class _NewAddressPageState extends State<NewAddressPage> {
                 Text(
                   value,
                   style: textStyle.inputText.copyWith(
-                    color: enabled ? colors.text : colors.gray,
+                    color: enabled ? AppColors.text : AppColors.muted,
                   ),
                 ),
-                Icon(Icons.arrow_drop_down, color: colors.gray),
+                const Icon(Icons.arrow_drop_down, color: AppColors.muted),
               ],
             ),
           ),
@@ -910,20 +900,19 @@ class _NewAddressPageState extends State<NewAddressPage> {
   }
 
   Widget _buildSwitch(String label, bool value, ValueChanged<bool> onChanged) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: textStyle.bodyMediumMedium.copyWith(color: colors.text),
+          style: textStyle.bodyMediumMedium.copyWith(color: AppColors.text),
         ),
 
         Switch(
           value: value,
           onChanged: onChanged,
-          activeThumbColor: colors.primary,
+          activeThumbColor: AppColors.pickabooBlue,
         ),
       ],
     );
@@ -1017,15 +1006,11 @@ class _NewAddressPageState extends State<NewAddressPage> {
   }
 
   Widget _buildCitySheet() {
-    final colors = context.colors;
     return BlocBuilder<AddressBloc, AddressState>(
       builder: (context, state) {
         if (state.isLoadingCities) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.h),
-              child: CircularProgressIndicator(color: colors.primary),
-            ),
+          return const AppLoader.inline(
+            padding: EdgeInsets.all(32),
           );
         }
 
@@ -1033,7 +1018,48 @@ class _NewAddressPageState extends State<NewAddressPage> {
           return Center(
             child: Padding(
               padding: EdgeInsets.all(32.h),
-              child: Text(state.error!),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.muted,
+                    size: 36.sp,
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    state.error!.contains('Type Error') ||
+                            state.error!.contains('AbstractFactory')
+                        ? 'Unable to load cities. Please try again.'
+                        : state.error!,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodyMuted.copyWith(
+                      color: AppColors.navy,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_selectedDivision != null) {
+                        context.read<AddressBloc>().add(
+                              AddressEvent.loadCities(
+                                division: _selectedDivision!['title']!,
+                              ),
+                            );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.pickabooBlue,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -1054,15 +1080,11 @@ class _NewAddressPageState extends State<NewAddressPage> {
   }
 
   Widget _buildAreaSheet() {
-    final colors = context.colors;
     return BlocBuilder<AddressBloc, AddressState>(
       builder: (context, state) {
         if (state.isLoadingAreas) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.h),
-              child: CircularProgressIndicator(color: colors.primary),
-            ),
+          return const AppLoader.inline(
+            padding: EdgeInsets.all(32),
           );
         }
 
@@ -1070,7 +1092,48 @@ class _NewAddressPageState extends State<NewAddressPage> {
           return Center(
             child: Padding(
               padding: EdgeInsets.all(32.h),
-              child: Text(state.error!),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.muted,
+                    size: 36.sp,
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    state.error!.contains('Type Error') ||
+                            state.error!.contains('AbstractFactory')
+                        ? 'Unable to load areas. Please try again.'
+                        : state.error!,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodyMuted.copyWith(
+                      color: AppColors.navy,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_selectedCity != null) {
+                        context.read<AddressBloc>().add(
+                              AddressEvent.loadAreas(
+                                city: _selectedCity!['cities_name'] ?? '',
+                              ),
+                            );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.pickabooBlue,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           );
         }

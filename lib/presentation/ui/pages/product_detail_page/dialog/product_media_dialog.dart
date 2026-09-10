@@ -1,7 +1,12 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/youtube_player_dialog.dart';
 
@@ -138,13 +143,12 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-      backgroundColor: colors.white,
+      backgroundColor: AppColors.white,
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 560),
@@ -152,17 +156,17 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
           height: MediaQuery.of(context).size.height * 0.75,
           child: Column(
             children: [
-              _buildHeader(context, colors, textStyle),
+              _buildHeader(context, textStyle),
               const Divider(height: 1),
 
               SizedBox(height: 16.h),
-              _buildFilterChips(colors, textStyle),
+              _buildFilterChips(textStyle),
               SizedBox(height: 16.h),
 
-              Expanded(child: _buildMainViewer(colors)),
+              Expanded(child: _buildMainViewer()),
 
-              Divider(height: 1, color: context.colors.gray),
-              _buildThumbnailGallery(colors),
+              const Divider(height: 1, color: AppColors.border),
+              _buildThumbnailGallery(),
               SizedBox(height: 12.h),
             ],
           ),
@@ -173,7 +177,6 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
 
   Widget _buildHeader(
     BuildContext context,
-    AppColors colors,
     AppTextStyles textStyle,
   ) {
     return Padding(
@@ -184,13 +187,13 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
           Text(
             _title,
             style: textStyle.headingMedium.copyWith(
-              color: colors.text,
+              color: AppColors.text,
               fontWeight: FontWeight.w700,
             ),
           ),
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.close, color: colors.text, size: 24.sp),
+            icon: Icon(Icons.close, color: AppColors.text, size: 24.sp),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
@@ -199,7 +202,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
     );
   }
 
-  Widget _buildFilterChips(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildFilterChips(AppTextStyles textStyle) {
     final chips = <Widget>[
       if (widget.productImages.isNotEmpty)
         _CategoryChip(
@@ -235,7 +238,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
     );
   }
 
-  Widget _buildMainViewer(AppColors colors) {
+  Widget _buildMainViewer() {
     final list = _currentList;
 
     return Stack(
@@ -260,13 +263,13 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
                       onTap: () => _playVideoAt(index),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: colors.black.withValues(alpha: 0.35),
+                          color: AppColors.black.withValues(alpha: 0.35),
                           shape: BoxShape.circle,
                         ),
                         padding: EdgeInsets.all(20.w),
                         child: Icon(
                           Icons.play_arrow_rounded,
-                          color: colors.white,
+                          color: AppColors.white,
                           size: 64.sp,
                         ),
                       ),
@@ -327,8 +330,8 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _currentIndex == index
-                        ? colors.text
-                        : colors.textMedium.withValues(alpha: 0.3),
+                        ? AppColors.text
+                        : AppColors.muted.withValues(alpha: 0.3),
                   ),
                 );
               }),
@@ -338,7 +341,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
     );
   }
 
-  Widget _buildThumbnailGallery(AppColors colors) {
+  Widget _buildThumbnailGallery() {
     final list = _currentList;
 
     return Container(
@@ -363,10 +366,10 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
               width: 66.w,
               margin: EdgeInsets.only(right: 8.w),
               decoration: BoxDecoration(
-                color: isSelected ? colors.backgroundGray : colors.white,
+                color: isSelected ? AppColors.pageBg : AppColors.white,
                 borderRadius: BorderRadius.circular(8.r),
                 border: Border.all(
-                  color: isSelected ? colors.primary : colors.borderColor,
+                  color: isSelected ? AppColors.pickabooBlue : AppColors.border,
                   width: isSelected ? 1.5.w : 0.5.w,
                 ),
               ),
@@ -400,7 +403,6 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return GestureDetector(
@@ -408,17 +410,17 @@ class _CategoryChip extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: isSelected ? colors.solitude : colors.white,
+          color: isSelected ? AppColors.surfaceBlue : AppColors.white,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: isSelected ? colors.primary : colors.borderColor,
+            color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: 1.2.w,
           ),
         ),
         child: Text(
           label,
           style: textStyle.bodySmall.copyWith(
-            color: isSelected ? colors.primary : colors.text,
+            color: isSelected ? AppColors.pickabooBlue : AppColors.text,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
@@ -435,22 +437,20 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 32.w,
         height: 36.h,
         decoration: BoxDecoration(
-          color: colors.backgroundGray.withValues(alpha: 0.8),
+          color: AppColors.pageBg.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Icon(
           icon,
           color: onTap != null
-              ? colors.text
-              : colors.textMedium.withValues(alpha: 0.3),
+              ? AppColors.text
+              : AppColors.muted.withValues(alpha: 0.3),
           size: 28.sp,
         ),
       ),

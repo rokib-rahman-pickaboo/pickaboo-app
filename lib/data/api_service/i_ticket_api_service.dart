@@ -9,6 +9,8 @@ import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/data/api_service/ticket_api_service.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 import 'package:pickaboo/data/model/ticket/create_ticket_model.dart';
+import 'package:pickaboo/data/model/ticket/ticket_issue_type_model.dart';
+import 'package:pickaboo/data/model/ticket/ticket_order_info_response.dart';
 import 'package:pickaboo/data/model/ticket/ticket_order_model.dart';
 import 'package:pickaboo/data/model/ticket/ticket_response/ticket_response.dart';
 import 'package:pickaboo/data/model/ticket/ticket_detail_response/ticket_detail_response.dart';
@@ -101,6 +103,11 @@ class ITicketApiService extends TicketApiService {
       final response = await _client.post(
         ApiEndpoints.createTicketUrl,
         data: formData,
+        options: Options(
+          headers: {
+            Headers.contentLengthHeader: formData.length,
+          },
+        ),
       );
 
       if (response.statusCode == 200) {
@@ -141,12 +148,16 @@ class ITicketApiService extends TicketApiService {
           "reply_ticket_request -> id: $id, body: $message, attachments: ${attachments?.length ?? 0}",
         );
       }
-
       final formData = FormData.fromMap(formDataMap);
 
       final response = await _client.post(
         ApiEndpoints.ticketReplyUrl,
         data: formData,
+        options: Options(
+          headers: {
+            Headers.contentLengthHeader: formData.length,
+          },
+        ),
       );
 
       if (kDebugMode) {
@@ -161,7 +172,6 @@ class ITicketApiService extends TicketApiService {
     } on DioException catch (e) {
       if (kDebugMode) {
         print("reply_ticket_error -> ${e.message}");
-        print("reply_ticket_error_response -> ${jsonEncode(e.response?.data)}");
       }
       return left(checkErrorResponse(e));
     }
@@ -170,17 +180,10 @@ class ITicketApiService extends TicketApiService {
   @override
   Future<Either<ErrorResponse, bool>> closeTicket(String id) async {
     try {
-      if (kDebugMode) {
-        print("close_ticket_request -> ticket_id: $id");
-      }
       final response = await _client.post(
         ApiEndpoints.ticketCloseUrl,
         data: {'ticket_id': id},
       );
-
-      if (kDebugMode) {
-        print("close_ticket_response -> ${jsonEncode(response.data)}");
-      }
 
       if (response.statusCode == 200) {
         return right(true);
@@ -188,27 +191,57 @@ class ITicketApiService extends TicketApiService {
         return left(const ErrorResponse(message: 'Failed to close ticket'));
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("close_ticket_error -> ${e.message}");
-        print("close_ticket_error_response -> ${jsonEncode(e.response?.data)}");
-      }
       return left(checkErrorResponse(e));
     }
   }
 
   @override
-  Future<Either<ErrorResponse, List<TicketOrderModel>>>
+  Future<Either<ErrorResponse, TicketOrderInfoResponse>>
   getTicketOrders() async {
     try {
       final response = await _client.get(ApiEndpoints.ticketOrderInfoUrl);
 
-      if (response.data is List) {
-        final list = (response.data as List)
-            .map((e) => TicketOrderModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        return right(list);
+      if (kDebugMode) {
+        print("ticket_orderinfo_response -> ${jsonEncode(response.data)}");
       }
-      return right([]);
+
+      if (response.data is List) {
+        final outerList = response.data as List;
+        List<TicketOrderModel> orders = [];
+        List<TicketIssueTypeModel> issueTypes = [];
+
+        if (outerList.isNotEmpty && outerList.first is List) {
+          // 2D Array format: [ [orders...], [departments...] ]
+          final ordersRaw = outerList[0] as List;
+          orders = ordersRaw
+              .whereType<Map<String, dynamic>>()
+              .map((e) => TicketOrderModel.fromJson(_sanitizeJsonStrings(e)))
+              .toList();
+
+          if (outerList.length > 1 && outerList[1] is List) {
+            final issuesRaw = outerList[1] as List;
+            issueTypes = issuesRaw
+                .whereType<Map<String, dynamic>>()
+                .map((e) =>
+                    TicketIssueTypeModel.fromJson(_sanitizeJsonStrings(e)))
+                .toList();
+          }
+        } else {
+          // Fallback: 1D Array format
+          orders = outerList
+              .whereType<Map<String, dynamic>>()
+              .map((e) => TicketOrderModel.fromJson(_sanitizeJsonStrings(e)))
+              .toList();
+        }
+
+        return right(
+          TicketOrderInfoResponse(
+            orders: orders,
+            issueTypes: issueTypes,
+          ),
+        );
+      }
+      return right(const TicketOrderInfoResponse());
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
     }
@@ -216,10 +249,28 @@ class ITicketApiService extends TicketApiService {
 
   ErrorResponse checkErrorResponse(DioException err) {
     if (err.type == DioExceptionType.badResponse) {
+      if (err.response?.statusCode == 413) {
+        return const ErrorResponse(
+          message:
+              'Attachments are too large for the server. Please reduce the file size.',
+        );
+      }
       final errorData = err.response?.data;
       if (errorData is Map<String, dynamic>) {
         return ErrorResponse.fromJson(errorData);
       }
+    }
+    final errorMsg = err.message?.toLowerCase() ?? '';
+    final errStr = err.error?.toString().toLowerCase() ?? '';
+    if (err.error is SocketException ||
+        errorMsg.contains('broken pipe') ||
+        errorMsg.contains('connection reset') ||
+        errStr.contains('broken pipe') ||
+        errStr.contains('connection reset')) {
+      return const ErrorResponse(
+        message:
+            'Upload failed: Server closed the connection. Attachments may exceed the server size limit.',
+      );
     }
     return const ErrorResponse(message: 'Something went wrong');
   }

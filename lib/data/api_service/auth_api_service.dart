@@ -56,6 +56,8 @@ abstract class AuthApiService {
     String? email,
     required String otp,
     required String newPassword,
+    String? confirmPassword,
+    String? recaptchaToken,
   });
 
   Future<Either<ErrorResponse, String>> socialLogin(SocialLoginRequest request);

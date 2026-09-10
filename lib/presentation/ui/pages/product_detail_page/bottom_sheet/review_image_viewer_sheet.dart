@@ -2,9 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class ReviewImageViewerSheet extends StatefulWidget {
   final List<String> imageUrls;
@@ -39,9 +39,8 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     return Scaffold(
-      backgroundColor: colors.black,
+      backgroundColor: AppColors.black,
       body: Stack(
         children: [
           PhotoViewGallery.builder(
@@ -61,7 +60,7 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
                   return Center(
                     child: Icon(
                       Icons.broken_image,
-                      color: colors.white,
+                      color: AppColors.white,
                       size: 50.sp,
                     ),
                   );
@@ -69,16 +68,14 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
               );
             },
             itemCount: widget.imageUrls.length,
-            loadingBuilder: (context, event) => Center(
-              child: CircularProgressIndicator(
-                value: event == null
-                    ? 0
-                    : event.cumulativeBytesLoaded /
-                          (event.expectedTotalBytes ?? 1),
-                color: colors.white,
-              ),
+            loadingBuilder: (context, event) => AppLoader.inline(
+              value: event == null
+                  ? 0
+                  : event.cumulativeBytesLoaded /
+                        (event.expectedTotalBytes ?? 1),
+              color: AppColors.white,
             ),
-            backgroundDecoration: BoxDecoration(color: colors.black),
+            backgroundDecoration: const BoxDecoration(color: AppColors.black),
             pageController: _pageController,
             onPageChanged: (index) {
               setState(() {
@@ -95,7 +92,7 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [colors.black.withValues(alpha: 0.7), colors.black.withValues(alpha: 0.0)],
+                  colors: [AppColors.black.withValues(alpha: 0.7), AppColors.black.withValues(alpha: 0.0)],
                 ),
               ),
               child: SafeArea(
@@ -113,12 +110,12 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
                           vertical: 6.h,
                         ),
                         decoration: BoxDecoration(
-                          color: context.colors.black.withValues(alpha: 0.4),
+                          color: AppColors.black.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Text(
                           "${_currentIndex + 1}/${widget.imageUrls.length}",
-                          style: context.textStyle.bodyMediumBold.withColor(context.colors.white),
+                          style: context.textStyle.bodyMediumBold.withColor(AppColors.white),
                         ),
                       ),
                       GestureDetector(
@@ -126,12 +123,12 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
                         child: Container(
                           padding: EdgeInsets.all(8.w),
                           decoration: BoxDecoration(
-                            color: context.colors.white.withValues(alpha: 0.2),
+                            color: AppColors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.close,
-                            color: context.colors.white,
+                            color: AppColors.white,
                             size: 24.sp,
                           ),
                         ),

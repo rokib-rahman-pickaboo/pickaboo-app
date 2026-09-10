@@ -1,17 +1,26 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_cancel_entity.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 import 'package:pickaboo/domain/entity/order/order_item_entity.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_cancelled_page/cancellation_reason_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_cancelled_page/cancellation_success_view.dart';
+import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modernized OrderCancelledPage matching Pickaboo-App-UI design language.
 class OrderCancelledPage extends StatefulWidget {
   const OrderCancelledPage({super.key, required this.order});
   final dynamic order;
@@ -54,13 +63,20 @@ class _OrderCancelledPageState extends State<OrderCancelledPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
-    return Scaffold(
-      backgroundColor: colors.scaffoldBackground,
-      appBar: AppBar(
-        title: BlocBuilder<OrderBloc, OrderState>(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.orderList);
+        }
+      },
+      child: Scaffold(
+      backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        titleWidget: BlocBuilder<OrderBloc, OrderState>(
           builder: (context, state) {
             String title = "Cancel Order";
             if (state.cancelledOrder != null) {
@@ -68,79 +84,49 @@ class _OrderCancelledPageState extends State<OrderCancelledPage> {
             }
             return Text(
               title,
-              style: textStyles.appBarTitle.copyWith(color: colors.text),
+              style: AppTypography.pageTitle,
             );
           },
-        ),
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.pop(context),
-          iconColor: colors.text,
         ),
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: BlocConsumer<OrderBloc, OrderState>(
-        listener: (context, state) {
-          if (state.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.successMessage!,
-                  style: textStyles.bodyMedium.copyWith(color: colors.white),
-                ),
-                backgroundColor: colors.green,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-            );
-          }
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.errorMessage!,
-                  style: textStyles.bodyMedium.copyWith(color: colors.white),
-                ),
-                backgroundColor: colors.red,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state.cancelledOrder != null) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.all(20.w),
-              child: CancellationSuccessView(
+          listener: (context, state) {
+            if (state.successMessage != null) {
+              SnackBarUtils.showSuccess(
+                context,
+                state.successMessage ?? AppStrings.operationSuccessful,
+              );
+            }
+            if (state.errorMessage != null) {
+              SnackBarUtils.showError(
+                context,
+                state.errorMessage ?? AppStrings.somethingWentWrong,
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state.cancelledOrder != null) {
+              return CancellationSuccessView(
                 order: state.cancelledOrder!,
                 onViewDetails: () => _openOrderDetails(state.cancelledOrder!),
-              ),
-            );
-          }
+              );
+            }
 
-          if (state.isLoading && state.orderDetails == null) {
-            return Center(
-              child: CircularProgressIndicator(color: colors.primary),
-            );
-          }
+            if (state.isLoading && state.orderDetails == null) {
+              return const AppLoader.fullPage();
+            }
 
-          final displayDetails =
-              state.orderDetails ??
-              (widget.order is OrderDetailEntity ? widget.order : null);
+            final displayDetails =
+                state.orderDetails ??
+                (widget.order is OrderDetailEntity ? widget.order : null);
 
-          if (displayDetails != null) {
-            return Stack(
-              children: [
-                CancellationReasonView(
+            if (displayDetails != null) {
+              return AppLoader.overlay(
+                isLoading: state.isLoading,
+                child: CancellationReasonView(
                   order: displayDetails,
                   onSubmit: (reason, note) {
                     context.read<OrderBloc>().add(
@@ -152,37 +138,27 @@ class _OrderCancelledPageState extends State<OrderCancelledPage> {
                     );
                   },
                 ),
-                if (state.isLoading)
-                  Container(
-                    color: colors.black.withValues(alpha: 0.3),
-                    child: Center(
-                      child: CircularProgressIndicator(color: colors.primary),
-                    ),
-                  ),
-              ],
-            );
-          }
+              );
+            }
 
-          if (widget.order is OrderCancelEntity) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.all(20.w),
-              child: CancellationSuccessView(
+            if (widget.order is OrderCancelEntity) {
+              return CancellationSuccessView(
                 order: widget.order as OrderCancelEntity,
                 onViewDetails: () =>
                     _openOrderDetails(widget.order as OrderCancelEntity),
+              );
+            }
+
+            return Center(
+              child: Text(
+                "Preparing cancellation request...",
+                style: AppTypography.bodyMutedLight,
               ),
             );
-          }
-
-          return Center(
-            child: Text(
-              "Preparing cancellation request...",
-              style: textStyles.bodyMedium.copyWith(color: colors.textLight),
-            ),
-          );
-        },
+          },
         ),
       ),
+    ),
     );
   }
 }

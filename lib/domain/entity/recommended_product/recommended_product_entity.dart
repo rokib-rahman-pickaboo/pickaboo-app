@@ -10,4 +10,17 @@ class RecommendedProductEntity {
     required this.productName,
     required this.sellerRecommendedProducts,
   });
+
+  RecommendedProductEntity copyWith({
+    int? productId,
+    String? productName,
+    List<ProductEntity>? sellerRecommendedProducts,
+  }) {
+    return RecommendedProductEntity(
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      sellerRecommendedProducts:
+          sellerRecommendedProducts ?? this.sellerRecommendedProducts,
+    );
+  }
 }

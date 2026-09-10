@@ -1,4 +1,9 @@
-import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,82 +11,106 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
-import 'package:pickaboo/injection.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/common/category/category_entity.dart';
+import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 
 final Future<PackageInfo> _appPackageInfo = PackageInfo.fromPlatform();
 
+/// ============================================================================
+/// 🧭 MODERN NAVIGATION DRAWER
+/// Updated with clean vector icon design tokens matching Profile / Dashboard.
+/// ============================================================================
 class NavDrawer extends StatelessWidget {
   const NavDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Drawer(
-      backgroundColor: colors.white,
+      backgroundColor: AppColors.white,
       child: SafeArea(
         child: Column(
           children: [
-            BlocBuilder<UserProfileBloc, UserProfileState>(
-              builder: (context, state) {
-                return state.maybeWhen(
-                  loaded: (user, imageUrl, mobileNumber) => _buildProfileHeader(
-                    context,
-                    user,
-                    imageUrl,
-                    mobileNumber ?? '',
-                  ),
-                  basicInfoUpdateSuccess:
-                      (message, user, imageUrl, mobileNumber) =>
-                          _buildProfileHeader(
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                return authState.maybeWhen(
+                  authenticated: (token, authUser) {
+                    return BlocBuilder<UserProfileBloc, UserProfileState>(
+                      builder: (context, state) {
+                        return state.maybeWhen(
+                          loaded: (user, imageUrl, mobileNumber) =>
+                              _buildProfileHeader(
                             context,
                             user,
                             imageUrl,
                             mobileNumber ?? '',
                           ),
-                  mobileUpdateSuccess:
-                      (message, user, imageUrl, mobileNumber) =>
-                          _buildProfileHeader(
+                          basicInfoUpdateSuccess:
+                              (message, user, imageUrl, mobileNumber) =>
+                                  _buildProfileHeader(
                             context,
                             user,
                             imageUrl,
                             mobileNumber ?? '',
                           ),
-                  imageUploadSuccess:
-                      (message, user, imageUrl, mobileNumber) =>
-                          _buildProfileHeader(
+                          mobileUpdateSuccess:
+                              (message, user, imageUrl, mobileNumber) =>
+                                  _buildProfileHeader(
                             context,
                             user,
                             imageUrl,
                             mobileNumber ?? '',
                           ),
-                  updating: (user, imageUrl, mobileNumber) =>
-                      _buildProfileHeader(
-                        context,
-                        user,
-                        imageUrl,
-                        mobileNumber ?? '',
-                      ),
-                  loading: (user, imageUrl, mobileNumber) => user != null
-                      ? _buildProfileHeader(
-                          context,
-                          user,
-                          imageUrl,
-                          mobileNumber ?? '',
-                        )
-                      : _buildAuthFallbackHeader(context),
-                  phoneUpdateOtpSent: (mobileNumber, user, imageUrl) =>
-                      _buildProfileHeader(context, user, imageUrl, mobileNumber),
-                  orElse: () => _buildAuthFallbackHeader(context),
+                          imageUploadSuccess:
+                              (message, user, imageUrl, mobileNumber) =>
+                                  _buildProfileHeader(
+                            context,
+                            user,
+                            imageUrl,
+                            mobileNumber ?? '',
+                          ),
+                          updating: (user, imageUrl, mobileNumber) =>
+                              _buildProfileHeader(
+                            context,
+                            user,
+                            imageUrl,
+                            mobileNumber ?? '',
+                          ),
+                          loading: (user, imageUrl, mobileNumber) =>
+                              _buildProfileHeader(
+                            context,
+                            user ?? authUser,
+                            imageUrl,
+                            mobileNumber ?? '',
+                          ),
+                          phoneUpdateOtpSent:
+                              (mobileNumber, user, imageUrl) =>
+                                  _buildProfileHeader(
+                            context,
+                            user,
+                            imageUrl,
+                            mobileNumber,
+                          ),
+                          orElse: () => _buildProfileHeader(
+                            context,
+                            authUser,
+                            null,
+                            '',
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  orElse: () => _buildGuestHeader(context),
                 );
               },
             ),
@@ -89,20 +118,21 @@ class NavDrawer extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.zero,
+                physics: const BouncingScrollPhysics(),
                 children: [
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 12.h),
 
                   _buildShopForSection(context),
 
-                  _buildDivider(colors),
+                  _buildDivider(),
 
                   _buildAccountSection(context),
 
-                  _buildDivider(colors),
+                  _buildDivider(),
 
                   _buildPreferencesSection(context),
 
-                  _buildDivider(colors),
+                  _buildDivider(),
 
                   _buildOthersSection(context),
 
@@ -139,19 +169,10 @@ class NavDrawer extends StatelessWidget {
     } else {
       context.pushToCategoryProduct(
         categoryId: category.id,
+        categorySlug: category.slug,
         categoryName: category.name,
       );
     }
-  }
-
-  Widget _buildAuthFallbackHeader(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) => authState.maybeWhen(
-        authenticated: (token, user) =>
-            _buildProfileHeader(context, user, null, ''),
-        orElse: () => _buildGuestHeader(),
-      ),
-    );
   }
 
   Widget _buildProfileHeader(
@@ -160,45 +181,42 @@ class NavDrawer extends StatelessWidget {
     String? profileImage,
     String mobileNumber,
   ) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     final borderRadius = BorderRadius.circular(12.r);
 
     return Container(
-      padding: EdgeInsets.all(16.w),
-      color: colors.white,
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+      color: AppColors.white,
       child: Row(
         children: [
           ClipRRect(
             borderRadius: borderRadius,
             child: SizedBox(
-              width: 56.w,
-              height: 56.w,
+              width: 50.w,
+              height: 50.w,
               child: profileImage != null && profileImage.isNotEmpty
                   ? AppImage(
                       imageUrl: profileImage,
                       fit: BoxFit.cover,
                       errorWidget: Container(
-                        color: colors.backgroundGray,
+                        color: AppColors.surfaceBlue,
                         child: Icon(
-                          Icons.person,
-                          size: 28.sp,
-                          color: colors.gray,
+                          Icons.person_rounded,
+                          size: 26.sp,
+                          color: AppColors.pickabooBlue,
                         ),
                       ),
                     )
                   : Container(
-                      color: colors.backgroundGray,
+                      color: AppColors.surfaceBlue,
                       child: Icon(
-                        Icons.person,
-                        size: 28.sp,
-                        color: colors.gray,
+                        Icons.person_rounded,
+                        size: 26.sp,
+                        color: AppColors.pickabooBlue,
                       ),
                     ),
             ),
           ),
-          SizedBox(width: 14.w),
+          SizedBox(width: 12.w),
 
           Expanded(
             child: Column(
@@ -207,14 +225,14 @@ class NavDrawer extends StatelessWidget {
               children: [
                 Text(
                   '${user.firstname} ${user.lastname}',
-                  style: textStyle.profileName.withColor(colors.black),
+                  style: AppTypography.pageTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 3.h),
                 Text(
                   'ID # ${user.id}',
-                  style: textStyle.profileLabel.withColor(colors.gray),
+                  style: AppTypography.bodyMuted,
                 ),
               ],
             ),
@@ -224,8 +242,59 @@ class NavDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildGuestHeader() {
-    return SizedBox(height: 24.h);
+  Widget _buildGuestHeader(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.pop();
+        context.push('${Routes.login}?from=drawer');
+      },
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+        color: AppColors.white,
+        child: Row(
+          children: [
+            Container(
+              width: 50.w,
+              height: 50.w,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceBlue,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(
+                Icons.person_outline_rounded,
+                size: 26.sp,
+                color: AppColors.pickabooBlue,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Welcome to Pickaboo!',
+                    style: AppTypography.pageTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    'Sign in or Register',
+                    style: AppTypography.brandActionText,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.mutedLight,
+              size: 20.sp,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildShopForSection(BuildContext context) {
@@ -255,8 +324,6 @@ class NavDrawer extends StatelessWidget {
   }
 
   Widget _buildAccountSection(BuildContext context) {
-    final colors = context.colors;
-
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         final isLoggedIn = state.maybeWhen(
@@ -268,44 +335,41 @@ class NavDrawer extends StatelessWidget {
           title: 'Account',
           children: [
             _DrawerMenuItem(
-              iconAsset: DrawerIcons.dashboard,
-              fallbackIcon: Icons.dashboard,
-              iconColor: colors.primary,
+              icon: Icons.grid_view_rounded,
+              iconColor: AppColors.pickabooBlue,
               title: 'Dashboard',
               onTap: () {
                 context.pop();
                 if (isLoggedIn) {
                   context.go(Routes.dashboard);
                 } else {
-                  context.push(Routes.login);
+                  context.push('${Routes.login}?from=drawer');
                 }
               },
             ),
             _DrawerMenuItem(
-              iconAsset: DrawerIcons.myOrders,
-              fallbackIcon: Icons.shopping_bag,
-              iconColor: colors.red,
+              icon: Icons.local_shipping_outlined,
+              iconColor: AppColors.pickabooBlue,
               title: 'My Orders',
               onTap: () {
                 context.pop();
                 if (isLoggedIn) {
                   context.push(Routes.orderList);
                 } else {
-                  context.push(Routes.login);
+                  context.push('${Routes.login}?from=drawer');
                 }
               },
             ),
             _DrawerMenuItem(
-              iconAsset: DrawerIcons.myWishlist,
-              fallbackIcon: Icons.favorite,
-              iconColor: colors.geraldine,
+              icon: Icons.favorite_border_rounded,
+              iconColor: AppColors.pickabooBlue,
               title: 'My Wishlist',
               onTap: () {
                 context.pop();
                 if (isLoggedIn) {
                   context.push(Routes.wishlist);
                 } else {
-                  context.push(Routes.login);
+                  context.push('${Routes.login}?from=drawer');
                 }
               },
             ),
@@ -316,15 +380,12 @@ class NavDrawer extends StatelessWidget {
   }
 
   Widget _buildPreferencesSection(BuildContext context) {
-    final colors = context.colors;
-
     return _DrawerSection(
       title: 'Preferences',
       children: [
         _DrawerMenuItem(
-          iconAsset: DrawerIcons.settings,
-          fallbackIcon: Icons.settings,
-          iconColor: colors.orange,
+          icon: Icons.settings_outlined,
+          iconColor: AppColors.pickabooBlue,
           title: 'Settings',
           onTap: () {
             context.pop();
@@ -336,15 +397,12 @@ class NavDrawer extends StatelessWidget {
   }
 
   Widget _buildOthersSection(BuildContext context) {
-    final colors = context.colors;
-
     return _DrawerSection(
       title: 'Others',
       children: [
         _DrawerMenuItem(
-          iconAsset: DrawerIcons.contactUs,
-          fallbackIcon: Icons.contact_support,
-          iconColor: colors.scampi,
+          icon: Icons.headset_mic_outlined,
+          iconColor: AppColors.pickabooBlue,
           title: 'Contact Us',
           onTap: () {
             context.pop();
@@ -356,29 +414,20 @@ class NavDrawer extends StatelessWidget {
   }
 
   Widget _buildAuthButton(BuildContext context, bool isLoggedIn) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: SizedBox(
         width: double.infinity,
-        height: 48.h,
+        height: 46.h,
         child: ElevatedButton(
           onPressed: () {
             if (isLoggedIn) {
               if (kDebugMode) {
                 print('🚪 [LOGOUT] Logout button pressed');
-                print('   Capturing AuthBloc reference...');
               }
 
               final authBloc = context.read<AuthBloc>();
-
               context.pop();
-
-              if (kDebugMode) {
-                print('   Drawer closed, showing confirmation dialog...');
-              }
 
               showDialog(
                 context: context,
@@ -387,45 +436,36 @@ class NavDrawer extends StatelessWidget {
                   content: const Text('Are you sure you want to logout?'),
                   actions: [
                     TextButton(
-                      onPressed: () {
-                        if (kDebugMode) {
-                          print('   Logout cancelled');
-                        }
-                        Navigator.pop(ctx);
-                      },
+                      onPressed: () => Navigator.pop(ctx),
                       child: const Text('Cancel'),
                     ),
                     TextButton(
                       onPressed: () {
-                        if (kDebugMode) {
-                          print('✅ [LOGOUT] Logout confirmed!');
-                          print('   Closing dialog...');
-                        }
-
                         Navigator.pop(ctx);
-
-                        if (kDebugMode) {
-                          print('   Triggering AuthEvent.userLoggedOut()');
-                        }
-
                         authBloc.add(const AuthEvent.userLoggedOut());
-
-                        if (kDebugMode) {
-                          print('   Logout event dispatched successfully');
-                        }
+                        SnackBarUtils.showSuccess(
+                          context,
+                          'Logged out successfully',
+                        );
+                        context.go(Routes.home);
                       },
-                      child: const Text('Logout'),
+                      child: Text(
+                        'Logout',
+                        style: AppTypography.inputError,
+                      ),
                     ),
                   ],
                 ),
               );
             } else {
               context.pop();
-              context.push(Routes.login);
+              context.push('${Routes.login}?from=drawer');
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: colors.primary,
+            backgroundColor:
+                isLoggedIn ? AppColors.red : AppColors.pickabooBlue,
+            foregroundColor: AppColors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.r),
             ),
@@ -433,7 +473,7 @@ class NavDrawer extends StatelessWidget {
           ),
           child: Text(
             isLoggedIn ? 'Logout' : 'Login',
-            style: textStyle.buttonLarge.withColor(colors.white),
+            style: AppTypography.buttonPrimary,
           ),
         ),
       ),
@@ -441,9 +481,6 @@ class NavDrawer extends StatelessWidget {
   }
 
   Widget _buildVersionFooter(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Padding(
       padding: EdgeInsets.only(top: 12.h),
       child: Center(
@@ -454,7 +491,7 @@ class NavDrawer extends StatelessWidget {
             if (version.isEmpty) return const SizedBox.shrink();
             return Text(
               'Version $version',
-              style: textStyle.profileLabel.withColor(colors.gray),
+              style: AppTypography.bodyMuted,
             );
           },
         ),
@@ -462,11 +499,11 @@ class NavDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider(AppColors colors) {
+  Widget _buildDivider() {
     return Divider(
       height: 1.h,
       thickness: 1,
-      color: colors.borderColor,
+      color: AppColors.border,
       indent: 16.w,
       endIndent: 16.w,
     );
@@ -481,16 +518,16 @@ class _DrawerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: textStyle.bodyLargeBold.withColor(colors.text)),
-          SizedBox(height: 8.h),
+          Text(
+            title,
+            style: AppTypography.cardTitle,
+          ),
+          SizedBox(height: 6.h),
           ...children,
         ],
       ),
@@ -499,15 +536,13 @@ class _DrawerSection extends StatelessWidget {
 }
 
 class _DrawerMenuItem extends StatelessWidget {
-  final String iconAsset;
-  final IconData fallbackIcon;
+  final IconData icon;
   final Color iconColor;
   final String title;
   final VoidCallback onTap;
 
   const _DrawerMenuItem({
-    required this.iconAsset,
-    required this.fallbackIcon,
+    required this.icon,
     required this.iconColor,
     required this.title,
     required this.onTap,
@@ -515,13 +550,10 @@ class _DrawerMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return InkWell(
       borderRadius: BorderRadius.circular(8.r),
-      splashColor: colors.primary.withValues(alpha: 0.15),
-      highlightColor: colors.primary.withValues(alpha: 0.05),
+      splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
+      highlightColor: AppColors.pickabooBlue.withValues(alpha: 0.05),
       onTap: () {
         getIt<AnalyticsService>().logClick(
           section: 'menu',
@@ -532,22 +564,18 @@ class _DrawerMenuItem extends StatelessWidget {
         onTap();
       },
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 4.w),
         child: Row(
           children: [
             Container(
-              width: 40.w,
-              height: 40.w,
-              padding: EdgeInsets.all(8.w),
+              width: 36.w,
+              height: 36.w,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.backgroundGray,
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8.r),
               ),
-              child: Image.asset(
-                iconAsset,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    Icon(fallbackIcon, color: iconColor, size: 20.sp),
+              child: Center(
+                child: Icon(icon, color: iconColor, size: 19.sp),
               ),
             ),
             SizedBox(width: 12.w),
@@ -555,25 +583,19 @@ class _DrawerMenuItem extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: textStyle.drawerItem.withColor(colors.text),
+                style: AppTypography.cardTitle,
               ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 18.sp,
+              color: AppColors.mutedLight,
             ),
           ],
         ),
       ),
     );
   }
-}
-
-class DrawerIcons {
-  const DrawerIcons._();
-
-  static const String _base = 'assets/images/drawer';
-  static const String dashboard = '$_base/dashboard.png';
-  static const String myOrders = '$_base/my_orders.png';
-  static const String myWishlist = '$_base/my_wishlist.png';
-  static const String settings = '$_base/settings.png';
-  static const String contactUs = '$_base/contact_us.png';
 }
 
 class _DrawerCategoryItem extends StatefulWidget {
@@ -596,8 +618,6 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
     final hasChildren = widget.category.children.isNotEmpty;
 
     return Column(
@@ -605,53 +625,53 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
       children: [
         InkWell(
           borderRadius: BorderRadius.circular(8.r),
-          splashColor: colors.primary.withValues(alpha: 0.15),
-          highlightColor: colors.primary.withValues(alpha: 0.05),
+          splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
+          highlightColor: AppColors.pickabooBlue.withValues(alpha: 0.05),
           onTap: () {
             widget.onCategoryTap(widget.category);
           },
           child: Padding(
             padding: EdgeInsets.symmetric(
-              vertical: widget.level > 0 ? 0 : 4.w,
+              vertical: widget.level > 0 ? 0 : 4.h,
               horizontal: 4.w,
             ),
             child: Row(
               children: [
                 if (widget.level > 0)
-                  SizedBox(width: 52.w + (12.w * (widget.level - 1))),
+                  SizedBox(width: 48.w + (12.w * (widget.level - 1))),
 
                 if (widget.level == 0) ...[
                   if (widget.category.icon.isNotEmpty)
                     Container(
-                      width: 40.w,
-                      height: 40.w,
-                      padding: EdgeInsets.all(4.w),
+                      width: 36.w,
+                      height: 36.w,
+                      padding: EdgeInsets.all(6.w),
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: colors.backgroundGray,
+                        borderRadius: BorderRadius.circular(8.r),
+                        color: AppColors.surfaceBlue,
                       ),
                       child: AppImage(
                         imageUrl: widget.category.icon,
-                        fit: BoxFit.fitHeight,
+                        fit: BoxFit.contain,
                         errorWidget: Icon(
-                          Icons.category,
-                          size: 20.sp,
-                          color: colors.primary,
+                          Icons.category_outlined,
+                          size: 18.sp,
+                          color: AppColors.pickabooBlue,
                         ),
                       ),
                     )
                   else
                     Container(
-                      width: 40.w,
-                      height: 40.h,
+                      width: 36.w,
+                      height: 36.w,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: colors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8.r),
+                        color: AppColors.surfaceBlue,
                       ),
                       child: Icon(
-                        Icons.category,
-                        color: colors.primary,
-                        size: 20.sp,
+                        Icons.category_outlined,
+                        color: AppColors.pickabooBlue,
+                        size: 18.sp,
                       ),
                     ),
                   SizedBox(width: 12.w),
@@ -663,8 +683,8 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
                         ? BoxDecoration(
                             border: Border(
                               bottom: BorderSide(
-                                color: colors.borderColor.withValues(
-                                  alpha: 0.5,
+                                color: AppColors.border.withValues(
+                                  alpha: 0.7,
                                 ),
                                 width: 1.h,
                               ),
@@ -672,16 +692,11 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
                           )
                         : null,
                     padding: widget.level > 0
-                        ? EdgeInsets.only(top: 12.h, bottom: 12.h)
+                        ? EdgeInsets.only(top: 10.h, bottom: 10.h)
                         : EdgeInsets.zero,
                     child: Text(
                       widget.category.name,
-                      style: widget.level == 0
-                          ? textStyle.drawerItem.withColor(colors.text)
-                          : textStyle.drawerItem.copyWith(
-                              color: colors.textMedium,
-                              fontWeight: FontWeight.normal,
-                            ),
+                      style: AppTypography.cardTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -697,18 +712,26 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       child: Icon(
-                        _isExpanded ? Icons.expand_less : Icons.expand_more,
-                        color: colors.gray,
-                        size: 24.sp,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        color: AppColors.muted,
+                        size: 22.sp,
                       ),
                     ),
                   )
                 else if (widget.level == 0)
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    child: Icon(Icons.chevron_right, color: colors.gray, size: 24.sp),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.mutedLight,
+                      size: 18.sp,
+                    ),
                   ),
               ],
             ),
@@ -721,33 +744,31 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
             children: [
               InkWell(
                 borderRadius: BorderRadius.circular(8.r),
-                splashColor: colors.primary.withValues(alpha: 0.15),
-                highlightColor: colors.primary.withValues(alpha: 0.05),
+                splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
+                highlightColor:
+                    AppColors.pickabooBlue.withValues(alpha: 0.05),
                 onTap: () => widget.onCategoryTap(widget.category),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.w),
                   child: Row(
                     children: [
-                      SizedBox(width: 52.w + (12.w * widget.level)),
+                      SizedBox(width: 48.w + (12.w * widget.level)),
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
                             border: Border(
                               bottom: BorderSide(
-                                color: colors.borderColor.withValues(
-                                  alpha: 0.5,
+                                color: AppColors.border.withValues(
+                                  alpha: 0.7,
                                 ),
                                 width: 1.h,
                               ),
                             ),
                           ),
-                          padding: EdgeInsets.only(top: 12.h, bottom: 12.h),
+                          padding: EdgeInsets.only(top: 10.h, bottom: 10.h),
                           child: Text(
                             'All in ${widget.category.name}',
-                            style: textStyle.drawerItem.copyWith(
-                              color: colors.textMedium,
-                              fontWeight: FontWeight.normal,
-                            ),
+                            style: AppTypography.brandActionText,
                           ),
                         ),
                       ),

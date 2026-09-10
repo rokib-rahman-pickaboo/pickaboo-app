@@ -46,5 +46,17 @@ class UserProfileState with _$UserProfileState {
     required UserEntity user,
     String? imageUrl,
   }) = _PhoneUpdateOtpSent;
+  const factory UserProfileState.emailUpdateOtpSent({
+    required String email,
+    required UserEntity user,
+    String? imageUrl,
+    String? mobileNumber,
+  }) = _EmailUpdateOtpSent;
+  const factory UserProfileState.emailUpdateSuccess({
+    required String message,
+    required UserEntity user,
+    String? imageUrl,
+    String? mobileNumber,
+  }) = _EmailUpdateSuccess;
   const factory UserProfileState.error(String message) = _Error;
 }

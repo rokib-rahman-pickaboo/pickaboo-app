@@ -1,15 +1,25 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/payment/saved_payment_entity.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/saved_payment/saved_payment_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class SavePaymentPage extends StatefulWidget {
   final String customerId;
@@ -42,163 +52,150 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Scaffold(
-      backgroundColor: colors.background,
-      appBar: AppBar(
-        backgroundColor: colors.white,
-        elevation: 0.5,
-        title: Text(
-          'Saved Payment',
-          style: context.textStyle.appBarTitle,
-        ),
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        iconTheme: IconThemeData(color: colors.text),
+      backgroundColor: AppColors.pageBg,
+      appBar: const PickabooAppBar(
+        title: 'Saved Payment Methods',
       ),
       body: BlocConsumer<SavedPaymentBloc, SavedPaymentState>(
         listener: (context, state) {
           if (state.successMessage != null) {
-            SnackBarUtils.showSuccess(context, state.successMessage!);
-          } else if (state.errorMessage != null && state.savedPayments.isNotEmpty) {
-            SnackBarUtils.showError(context, state.errorMessage!);
+            SnackBarUtils.showSuccess(
+              context,
+              state.successMessage ?? AppStrings.operationSuccessful,
+            );
+          } else if (state.errorMessage != null &&
+              state.savedPayments.isNotEmpty) {
+            SnackBarUtils.showError(
+              context,
+              state.errorMessage ?? AppStrings.somethingWentWrong,
+            );
           }
         },
         builder: (context, state) {
           if (state.isLoading && state.savedPayments.isEmpty) {
-            return Center(
-              child: CircularProgressIndicator(color: colors.primary),
-            );
+            return const AppLoader.fullPage();
           }
 
           if (state.errorMessage != null && state.savedPayments.isEmpty) {
+            final isOffline = ConnectivityUtils.isNoInternet(state.errorMessage, context);
             return AppErrorView(
-              type: AppErrorType.server,
-              message: state.errorMessage,
+              type: isOffline ? AppErrorType.noInternet : AppErrorType.server,
+              message: isOffline ? null : state.errorMessage,
               onRetry: _loadPayments,
             );
           }
 
-          return Stack(
-            children: [
-              _buildPaymentList(state.savedPayments, colors, textStyle),
-              if (state.isLoading)
-                Container(
-                  color: colors.black.withValues(alpha: 0.1),
-                  child: Center(
-                    child: CircularProgressIndicator(color: colors.primary),
-                  ),
-                ),
-            ],
+          return AppLoader.overlay(
+            isLoading: state.isLoading,
+            child: _buildPaymentList(state.savedPayments),
           );
         },
       ),
     );
   }
 
-  Widget _buildPaymentList(
-    List<SavedPaymentEntity> payments,
-    AppColors colors,
-    AppTextStyles textStyle,
-  ) {
-    return ListView(
-      padding: EdgeInsets.all(16.w),
-      children: [
-        _buildHeaderCard(colors, textStyle),
-        SizedBox(height: 16.h),
-        if (payments.isEmpty)
-          _buildEmptyState(colors, textStyle)
-        else
-          _buildMobileWalletSection(payments, colors, textStyle),
-      ],
-    );
-  }
-
-  Widget _buildHeaderCard(AppColors colors, AppTextStyles textStyle) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors.borderColor),
-      ),
-      child: Row(
+  Widget _buildPaymentList(List<SavedPaymentEntity> payments) {
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.sameGroupItemSpacing.w,
+          0,
+          AppSpacing.sameGroupItemSpacing.w,
+          AppSpacing.sameGroupItemSpacing.h + 16.h,
+        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44.w,
-            height: 44.w,
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.credit_card, color: colors.primary, size: 22.sp),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // ── Header Card ──
+          AppCard(
+            padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+            child: Row(
               children: [
-                Text(
-                  'Saved Payment Methods',
-                  style: textStyle.headingSmall.copyWith(
-                    color: colors.text,
-                    fontWeight: FontWeight.w700,
+                Container(
+                  width: 42.w,
+                  height: 42.h,
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceBlue,
+                    borderRadius: AppRadius.buttonRadius,
+                  ),
+                  child: Icon(
+                    Icons.credit_card_outlined,
+                    color: AppColors.pickabooBlue,
+                    size: 20.sp,
                   ),
                 ),
-                SizedBox(height: 2.h),
-                Text(
-                  'Manage your saved payment methods for faster checkout',
-                  style: textStyle.caption.copyWith(color: colors.gray),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Saved Payment Methods',
+                        style: AppTypography.sectionTitle,
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Manage your saved methods for faster checkout',
+                        style: AppTypography.bodyMuted,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
+
+          AppSpacing.groupToGroupGap,
+
+          // ── Mobile Wallets / Cards Section ──
+          if (payments.isEmpty)
+            _buildEmptyState()
+          else
+            _buildMobileWalletSection(payments),
+
+          SizedBox(height: 24.h),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildMobileWalletSection(
-    List<SavedPaymentEntity> payments,
-    AppColors colors,
-    AppTextStyles textStyle,
-  ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors.borderColor),
-      ),
-      clipBehavior: Clip.antiAlias,
+  Widget _buildMobileWalletSection(List<SavedPaymentEntity> payments) {
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
             child: Row(
               children: [
                 Icon(
                   Icons.account_balance_wallet_outlined,
-                  color: colors.text,
-                  size: 22.sp,
+                  color: AppColors.navy,
+                  size: 20.sp,
                 ),
                 SizedBox(width: 10.w),
                 Text(
-                  'Mobile Wallet',
-                  style: textStyle.bodyLargeBold.copyWith(color: colors.text),
+                  'Mobile Wallets & Cards',
+                  style: AppTypography.sectionTitle,
                 ),
               ],
             ),
           ),
-          Divider(height: 1, color: colors.borderColor),
-          ...payments.map(
-            (payment) => _buildWalletRow(payment, colors, textStyle),
+          Divider(height: 1.h, color: AppColors.border),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: payments.length,
+            separatorBuilder: (_, _) =>
+                Divider(height: 1.h, indent: 56.w, color: AppColors.border),
+            itemBuilder: (context, index) {
+              return _buildWalletRow(payments[index]);
+            },
           ),
         ],
       ),
@@ -212,27 +209,31 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
     return '${'*' * (digits.length - 4)}$last4';
   }
 
-  Widget _buildWalletRow(
-    SavedPaymentEntity payment,
-    AppColors colors,
-    AppTextStyles textStyle,
-  ) {
+  Widget _buildWalletRow(SavedPaymentEntity payment) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: 10.h,
+      ),
       child: Row(
         children: [
           Container(
-            width: 44.w,
-            height: 44.w,
-            padding: EdgeInsets.all(8.w),
+            width: 42.w,
+            height: 42.h,
+            padding: EdgeInsets.all(6.w),
             decoration: BoxDecoration(
-              color: colors.white,
+              color: AppColors.pageBg,
               borderRadius: BorderRadius.circular(10.r),
-              border: Border.all(color: colors.borderColor),
+              border: Border.all(color: AppColors.border),
             ),
             child: SvgPicture.asset(
               'assets/new/svg/payment/bkash_icon.svg',
               fit: BoxFit.contain,
+              errorBuilder: (_, _, _) => Icon(
+                Icons.account_balance_wallet_rounded,
+                color: AppColors.pickabooBlue,
+                size: 20.sp,
+              ),
             ),
           ),
           SizedBox(width: 12.w),
@@ -242,35 +243,38 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
               children: [
                 Text(
                   payment.network.isNotEmpty ? payment.network : 'bKash',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: AppTypography.cardTitle,
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   _maskNumber(payment.phoneNumber),
-                  style: textStyle.caption.copyWith(
-                    color: colors.gray,
-                    letterSpacing: 1,
-                  ),
+                  style: AppTypography.bodyMuted.withLetterSpacing(1),
                 ),
               ],
             ),
           ),
           SizedBox(width: 8.w),
           OutlinedButton.icon(
-            onPressed: () =>
-                _showDeleteConfirmation(payment, colors, textStyle),
-            icon: Icon(Icons.delete_outline, color: colors.red, size: 18.sp),
+            onPressed: () => _showDeleteConfirmation(payment),
+            icon: Icon(
+              Icons.delete_outline_rounded,
+              color: AppColors.red,
+              size: 15.sp,
+            ),
             label: Text(
               'Delete',
-              style: textStyle.buttonMedium.copyWith(color: colors.red),
+              style: AppTypography.brandActionText.withColor(AppColors.red),
             ),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: colors.red.withValues(alpha: 0.4)),
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              side: BorderSide(
+                color: AppColors.red.withValues(alpha: 0.35),
+                width: 1.w,
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              minimumSize: Size(0, 0),
+              minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
@@ -279,75 +283,34 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
     );
   }
 
-  Widget _buildEmptyState(AppColors colors, AppTextStyles textStyle) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 24.w),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors.borderColor),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 72.w,
-            height: 72.w,
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.account_balance_wallet_outlined,
-              color: colors.primary,
-              size: 34.sp,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'No saved payment methods',
-            style: textStyle.bodyLargeBold.copyWith(color: colors.text),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            'Wallets you save during checkout will show up here '
-            'for faster payments next time.',
-            style: textStyle.caption.copyWith(
-              color: colors.gray,
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
+  Widget _buildEmptyState() {
+    return AppEmptyView.savedPayments();
   }
 
-  void _showDeleteConfirmation(
-    SavedPaymentEntity payment,
-    AppColors colors,
-    AppTextStyles textStyle,
-  ) {
+  void _showDeleteConfirmation(SavedPaymentEntity payment) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
         title: Text(
           'Remove Payment Method?',
-          style: textStyle.headingMedium.copyWith(color: colors.text),
+          style: AppTypography.pageTitle,
         ),
         content: Text(
           'Are you sure you want to remove ${_maskNumber(payment.phoneNumber)}?',
-          style: textStyle.bodyMedium.copyWith(color: colors.text),
+          style: AppTypography.bodyMuted,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: textStyle.buttonMedium.copyWith(color: colors.gray),
+              style: AppTypography.bodyLarge.withColor(AppColors.muted),
             ),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               context.read<SavedPaymentBloc>().add(
@@ -357,9 +320,15 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
                 ),
               );
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
             child: Text(
               'Remove',
-              style: textStyle.buttonMedium.copyWith(color: colors.red),
+              style: AppTypography.buttonPrimary,
             ),
           ),
         ],

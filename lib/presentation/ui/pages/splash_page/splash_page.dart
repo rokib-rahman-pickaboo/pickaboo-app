@@ -45,7 +45,7 @@ class _SplashPageState extends State<SplashPage> {
         if (!_minDelayPassed) return;
         state.maybeWhen(
           authenticated: (_, _) => context.go(Routes.home),
-          unauthenticated: () => context.go(Routes.login),
+          unauthenticated: () => context.go(Routes.home),
           orElse: () {},
         );
       },
@@ -56,12 +56,12 @@ class _SplashPageState extends State<SplashPage> {
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: context.colors.primary,
+                color: AppColors.pickabooBlue,
                 child: Center(
                   child: Icon(
                     Icons.shopping_bag_outlined,
                     size: 120.sp,
-                    color: context.colors.white,
+                    color: AppColors.white,
                   ),
                 ),
               );

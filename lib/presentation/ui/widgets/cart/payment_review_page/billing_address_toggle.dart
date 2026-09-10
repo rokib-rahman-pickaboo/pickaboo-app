@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
+/// ============================================================================
+/// 🔄 BILLING ADDRESS TOGGLE
+/// Clean toggle switch matching the app's settings & preferences design language.
+/// ============================================================================
 class BillingAddressToggle extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -15,25 +18,26 @@ class BillingAddressToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 2.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
             "Same as shipping address",
-            style: context.textStyle.bodyMedium,
+            style: AppTypography.cardTitle.copyWith(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        SizedBox(width: 8.w),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeThumbColor: colors.primary,
-        ),
-      ],
+          Switch(
+            value: value,
+            activeTrackColor: AppColors.pickabooBlue,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
   }
 }

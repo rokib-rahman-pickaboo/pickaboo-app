@@ -1,10 +1,16 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
+/// Modern OrderReviewProductBottomSheet matching Pickaboo-App-UI design language.
 class OrderReviewProductBottomSheet extends StatefulWidget {
   final List<OrderItemDetailEntity> items;
   final Function(OrderItemDetailEntity) onProductSelected;
@@ -26,19 +32,16 @@ class _OrderReviewProductBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
     return Container(
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       padding: EdgeInsets.only(
         left: 16.w,
         right: 16.w,
         bottom: 20.h + MediaQuery.of(context).padding.bottom,
-        top: 12.h,
+        top: 16.h,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -49,23 +52,20 @@ class _OrderReviewProductBottomSheetState
             children: [
               Text(
                 "Select Product to Review",
-                style: textStyles.headingSmall.copyWith(
-                  color: colors.text,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTypography.pageTitle,
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.close, color: colors.gray, size: 24.r),
+                icon: Icon(Icons.close, color: AppColors.muted, size: 22.sp),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 4.h),
           Text(
             "Choose one product from your order to write a review.",
-            style: textStyles.bodySmall.copyWith(color: colors.gray),
+            style: AppTypography.bodyMuted,
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 16.h),
           ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.5,
@@ -73,7 +73,7 @@ class _OrderReviewProductBottomSheetState
             child: ListView.separated(
               shrinkWrap: true,
               itemCount: widget.items.length,
-              separatorBuilder: (context, index) => SizedBox(height: 12.h),
+              separatorBuilder: (context, index) => SizedBox(height: 10.h),
               itemBuilder: (context, index) {
                 final item = widget.items[index];
                 final isSelected = selectedItem?.itemId == item.itemId;
@@ -84,34 +84,38 @@ class _OrderReviewProductBottomSheetState
                       selectedItem = item;
                     });
                   },
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: Container(
+                  borderRadius: AppRadius.cardRadius,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
                     padding: EdgeInsets.all(12.w),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: isSelected ? colors.primary : colors.borderLight,
-                        width: isSelected ? 2.w : 1.w,
+                        color: isSelected
+                            ? AppColors.pickabooBlue
+                            : AppColors.border,
+                        width: isSelected ? 1.5 : 1.0,
                       ),
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: AppRadius.cardRadius,
                       color: isSelected
-                          ? colors.primary.withValues(alpha: 0.05)
-                          : colors.black.withValues(alpha: 0.0),
+                          ? AppColors.surfaceBlue
+                          : AppColors.white,
                     ),
                     child: Row(
                       children: [
                         Container(
-                          width: 60.w,
-                          height: 60.w,
+                          width: 56.w,
+                          height: 56.w,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                            color: colors.backgroundGray,
+                            borderRadius: AppRadius.cardRadius,
+                            color: AppColors.pageBg,
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.r),
+                            borderRadius: AppRadius.cardRadius,
                             child: AppImage(
                               imageUrl: item.image ?? "",
-                              width: 60.w,
-                              height: 60.w,
+                              width: 56.w,
+                              height: 56.w,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -123,20 +127,14 @@ class _OrderReviewProductBottomSheetState
                             children: [
                               Text(
                                 item.itemName,
-                                style: textStyles.bodyMediumBold.copyWith(
-                                  color: colors.text,
-                                  fontSize: 14.sp,
-                                ),
+                                style: AppTypography.cardTitle,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               SizedBox(height: 4.h),
                               Text(
                                 "৳${item.finalPrice.toStringAsFixed(0)}",
-                                style: textStyles.bodySmall.copyWith(
-                                  color: colors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppTypography.priceStandard.withColor(AppColors.pickabooBlue),
                               ),
                             ],
                           ),
@@ -146,8 +144,10 @@ class _OrderReviewProductBottomSheetState
                           isSelected
                               ? Icons.radio_button_checked
                               : Icons.radio_button_off,
-                          color: isSelected ? colors.primary : colors.grayLight,
-                          size: 24.r,
+                          color: isSelected
+                              ? AppColors.pickabooBlue
+                              : AppColors.border,
+                          size: 22.sp,
                         ),
                       ],
                     ),
@@ -156,9 +156,10 @@ class _OrderReviewProductBottomSheetState
               },
             ),
           ),
-          SizedBox(height: 24.h),
+          SizedBox(height: 20.h),
           SizedBox(
             width: double.infinity,
+            height: 48.h,
             child: ElevatedButton(
               onPressed: selectedItem == null
                   ? null
@@ -167,21 +168,17 @@ class _OrderReviewProductBottomSheetState
                       widget.onProductSelected(selectedItem!);
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.white,
-                disabledBackgroundColor: colors.grayLight,
-                padding: EdgeInsets.symmetric(vertical: 14.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
+                backgroundColor: AppColors.pickabooBlue,
+                foregroundColor: AppColors.white,
+                disabledBackgroundColor: AppColors.border,
                 elevation: 0,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.cardRadius,
+                ),
               ),
               child: Text(
                 "Continue",
-                style: textStyles.buttonMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: selectedItem == null ? colors.gray : colors.white,
-                ),
+                style: selectedItem == null ? AppTypography.buttonPrimary.withColor(AppColors.mutedLight) : AppTypography.buttonPrimary,
               ),
             ),
           ),

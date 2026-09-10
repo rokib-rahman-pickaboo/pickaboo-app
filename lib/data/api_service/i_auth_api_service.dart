@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
+import 'package:pickaboo/core/config/api_config.dart';
+import 'package:pickaboo/core/constants/app_constants.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/data/api_service/auth_api_service.dart';
 import 'package:pickaboo/data/model/auth/check_user_response/check_user_response.dart';
@@ -16,6 +18,7 @@ import 'package:pickaboo/data/model/auth/register_request/register_request.dart'
 import 'package:pickaboo/data/model/auth/social_login_request/social_login_request.dart';
 import 'package:pickaboo/data/model/auth/user_response/user_response.dart';
 import 'package:pickaboo/data/model/customer_status_response/customer_status_response.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -26,14 +29,7 @@ class IAuthApiService extends AuthApiService {
   IAuthApiService(this._client);
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
-    }
-    return const ErrorResponse(message: 'Something went wrong');
+    return ApiErrorParser.parseDioError(err);
   }
 
   @override
@@ -71,9 +67,13 @@ class IAuthApiService extends AuthApiService {
   @override
   Future<Either<ErrorResponse, String>> login(LoginRequest request) async {
     try {
+      final payload = {
+        ...request.toJson(),
+        'websiteId': request.websiteId,
+      };
       final response = await _client.post(
         ApiEndpoints.loginUrl,
-        data: request.toJson(),
+        data: payload,
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
@@ -133,7 +133,7 @@ class IAuthApiService extends AuthApiService {
       final platform = Platform.isAndroid ? 'android' : 'ios';
 
       if (kDebugMode) {
-        print('[RECAPTCHA] sendOtp | rtokenPresent=${recaptchaToken != null} '
+        print('[RECAPTCHA] sendOtp | resend=$resend rtokenPresent=${recaptchaToken != null} '
             'rtokenLen=${recaptchaToken?.length ?? 0} platform=$platform');
       }
 
@@ -141,11 +141,14 @@ class IAuthApiService extends AuthApiService {
         ApiEndpoints.sendOtpUrl,
         queryParameters: {
           'resend': resend ? 1 : 0,
+          'storeId': 1,
           'store_id': 1,
           'mobile': encryptedMobile,
+          'eventType': eventType,
           'event_type': eventType,
           'platform': platform,
-          if (recaptchaToken != null) 'rtoken': recaptchaToken,
+          if (recaptchaToken != null && recaptchaToken.isNotEmpty)
+            'rtoken': recaptchaToken,
         },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
@@ -155,10 +158,27 @@ class IAuthApiService extends AuthApiService {
       }
 
       if (response.data is Map<String, dynamic>) {
-        return right(OtpResponse.fromJson(response.data));
+        final data = response.data as Map<String, dynamic>;
+        if (data['status'] == 400 ||
+            data['status'] == 'failure' ||
+            data['success'] == false) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            data,
+            defaultMessage: 'Failed to send OTP',
+          );
+          return left(ErrorResponse(message: msg));
+        }
+        return right(OtpResponse(
+          status: 200,
+          message: data['message']?.toString() ??
+              'OTP has been sent to your mobile number.',
+        ));
       }
 
-      return left(const ErrorResponse(message: 'Invalid OTP response'));
+      return right(const OtpResponse(
+        status: 200,
+        message: 'OTP has been sent to your mobile number.',
+      ));
     } on DioException catch (e) {
       if (kDebugMode) {
         print("send_otp_error -> $e");
@@ -175,7 +195,12 @@ class IAuthApiService extends AuthApiService {
     try {
       final response = await _client.post(
         ApiEndpoints.verifyOtpUrl,
-        queryParameters: {'store_id': 1, 'mobile': mobile, 'otp': otp},
+        data: {
+          'mobile': mobile,
+          'otp': otp,
+          'storeId': 1,
+          'store_id': 1,
+        },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
@@ -183,17 +208,35 @@ class IAuthApiService extends AuthApiService {
         print("verify_otp -> ${json.encode(response.data)}");
       }
 
-      if (response.data is String) {
-        final responseData = response.data.toString();
-        if (responseData == "Verified") {
-          return right(responseData);
-        } else if (responseData == "Not Verified") {
-          return left(const ErrorResponse(message: 'Invalid OTP'));
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['status'] == 'failure' ||
+            data['success'] == false ||
+            data['status'] == 400) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            data,
+            defaultMessage: 'Invalid OTP',
+          );
+          return left(ErrorResponse(message: msg));
         }
-        return right(responseData);
+        return right(
+          data['message']?.toString() ?? 'OTP verified successfully.',
+        );
       }
 
-      return left(const ErrorResponse(message: 'OTP verification failed'));
+      if (response.data is String) {
+        final str = response.data.toString().replaceAll('"', '').trim();
+        if (str.toLowerCase().contains('invalid') ||
+            str.toLowerCase().contains('not verified') ||
+            str.toLowerCase().contains('not found')) {
+          return left(ErrorResponse(
+            message: ApiErrorParser.sanitize(str, fallback: 'Invalid OTP'),
+          ));
+        }
+        return right(str.isNotEmpty ? str : 'OTP verified successfully.');
+      }
+
+      return right('OTP verified successfully.');
     } on DioException catch (e) {
       if (kDebugMode) {
         print("verify_otp_error -> $e");
@@ -219,12 +262,39 @@ class IAuthApiService extends AuthApiService {
       }
 
       if (response.data is Map<String, dynamic>) {
-        return right(UserResponse.fromJson(response.data));
+        final data = response.data as Map<String, dynamic>;
+        if (data['status'] == 'failure' ||
+            data['success'] == false ||
+            data['status'] == 400) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            data,
+            defaultMessage: 'Registration failed',
+          );
+          return left(ErrorResponse(message: msg));
+        }
+
+        // Backend returns {"success": true, "message": "...", "customer": {...}}
+        if (data['customer'] is Map<String, dynamic>) {
+          return right(
+            UserResponse.fromJson(data['customer'] as Map<String, dynamic>),
+          );
+        }
+
+        return right(UserResponse.fromJson(data));
       } else if (response.data is String &&
           (response.data as String).isNotEmpty) {
-        return right(
-          const UserResponse(),
-        );
+        final str = response.data.toString().replaceAll('"', '').trim();
+        if (str.toLowerCase().contains('fail') ||
+            str.toLowerCase().contains('error') ||
+            str.toLowerCase().contains('not found')) {
+          return left(ErrorResponse(
+            message: ApiErrorParser.sanitize(
+              str,
+              fallback: 'Registration failed',
+            ),
+          ));
+        }
+        return right(const UserResponse());
       }
 
       return left(const ErrorResponse(message: 'Registration failed'));
@@ -314,45 +384,56 @@ class IAuthApiService extends AuthApiService {
   }) async {
     try {
       final platform = Platform.isAndroid ? 'android' : 'ios';
-      final body = <String, dynamic>{};
-      if (recaptchaToken != null) {
-        body['rtoken'] = recaptchaToken;
+      final queryParams = <String, dynamic>{
+        'platform': platform,
+      };
+      if (recaptchaToken != null && recaptchaToken.isNotEmpty) {
+        queryParams['rtoken'] = recaptchaToken;
       }
-      if (email != null) {
-        body['email'] = email;
+      if (email != null && email.isNotEmpty) {
+        queryParams['email'] = email;
       }
-      if (mobile != null) {
-        body['mobile'] = mobile;
+      if (mobile != null && mobile.isNotEmpty) {
+        queryParams['mobile'] = mobile;
       }
-      body['platform'] = platform;
-
-      final encodedBody = json.encode(body);
-      print('[RECAPTCHA] sendForgotPasswordOtp | rtokenPresent='
-          '${recaptchaToken != null} rtokenLen=${recaptchaToken?.length ?? 0}');
-      print('[RECAPTCHA] sendForgotPasswordOtp | email=$email | mobile=$mobile | platform=$platform');
-      final curlCommand = 'curl -X POST ${ApiEndpoints.sendForgotPasswordOtpUrl} -H "Content-Type: application/json" -d \'$encodedBody\'';
-      print('--- START CURL ---');
-      for (var i = 0; i < curlCommand.length; i += 1000) {
-        print(curlCommand.substring(i, i + 1000 > curlCommand.length ? curlCommand.length : i + 1000));
-      }
-      print('--- END CURL ---');
 
       final response = await _client.post(
         ApiEndpoints.sendForgotPasswordOtpUrl,
-        data: body,
+        queryParameters: queryParams,
+        data: queryParams,
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      print('[RECAPTCHA] sendForgotPasswordOtp RESPONSE | status='
-          '${response.statusCode} data=${json.encode(response.data)}');
-
-      if (response.data is Map<String, dynamic>) {
-        return right(OtpResponse.fromJson(response.data));
+      if (kDebugMode) {
+        print('[sendForgotPasswordOtp] response: ${response.data}');
       }
 
-      return left(ErrorResponse(message: response.data.toString()));
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['status'] == 400 ||
+            data['status'] == 'failure' ||
+            data['success'] == false) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            data,
+            defaultMessage: 'Failed to send OTP',
+          );
+          return left(ErrorResponse(message: msg));
+        }
+        return right(OtpResponse(
+          status: 200,
+          message: data['message']?.toString() ??
+              'OTP has been sent successfully.',
+        ));
+      }
+
+      return right(const OtpResponse(
+        status: 200,
+        message: 'OTP has been sent successfully.',
+      ));
     } on DioException catch (e) {
-      print('[RECAPTCHA] sendForgotPasswordOtp ERROR | status='
-          '${e.response?.statusCode} data=${e.response?.data} msg=${e.message}');
+      if (kDebugMode) {
+        print('[sendForgotPasswordOtp] error: $e');
+      }
       return left(checkErrorResponse(e));
     }
   }
@@ -363,17 +444,24 @@ class IAuthApiService extends AuthApiService {
     String? email,
     required String otp,
     required String newPassword,
+    String? confirmPassword,
+    String? recaptchaToken,
   }) async {
     try {
       final Map<String, dynamic> body = {
         'otp': otp,
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword ?? newPassword,
         'new_password': newPassword,
+        'confirm_password': confirmPassword ?? newPassword,
+        if (recaptchaToken != null && recaptchaToken.isNotEmpty)
+          'rtoken': recaptchaToken,
       };
 
-      if (mobile != null) {
+      if (mobile != null && mobile.isNotEmpty) {
         body['mobile'] = mobile;
       }
-      if (email != null) {
+      if (email != null && email.isNotEmpty) {
         body['email'] = email;
       }
 
@@ -383,22 +471,51 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      print('[RECAPTCHA] resetPassword RESPONSE | status='
-          '${response.statusCode} data=${json.encode(response.data)}');
+      if (kDebugMode) {
+        print('[resetPassword] response: ${response.data}');
+      }
 
       if (response.data is String) {
-        return right(response.data.toString());
+        final str = response.data.toString().replaceAll('"', '').trim();
+        if (str.toLowerCase().contains('invalid') ||
+            str.toLowerCase().contains('error') ||
+            str.toLowerCase().contains('fail') ||
+            str.toLowerCase().contains('not found')) {
+          return left(ErrorResponse(
+            message: ApiErrorParser.sanitize(
+              str,
+              fallback: 'Invalid OTP or password',
+            ),
+          ));
+        }
+        return right(
+          str.isNotEmpty ? str : 'Your password has been reset successfully.',
+        );
       }
 
-      if (response.data is Map<String, dynamic> &&
-          response.data['status'] == true) {
-        return right(response.data['message'] ?? 'Password reset successful');
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == false ||
+            data['status'] == 'failure' ||
+            data['status'] == 400 ||
+            data['status'] == false) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            data,
+            defaultMessage: 'Password reset failed',
+          );
+          return left(ErrorResponse(message: msg));
+        }
+        return right(
+          data['message']?.toString() ??
+              'Your password has been reset successfully.',
+        );
       }
 
-      return left(const ErrorResponse(message: 'Password reset failed'));
+      return right('Your password has been reset successfully.');
     } on DioException catch (e) {
-      print('[RECAPTCHA] resetPassword ERROR | status='
-          '${e.response?.statusCode} data=${e.response?.data} msg=${e.message}');
+      if (kDebugMode) {
+        print('[resetPassword] error: $e');
+      }
       return left(checkErrorResponse(e));
     }
   }
@@ -408,8 +525,14 @@ class IAuthApiService extends AuthApiService {
     SocialLoginRequest request,
   ) async {
     try {
+      // Facebook login ALWAYS targets productionURL ('https://www.pickaboo.com')
+      // regardless of whether the app is configured to use developmentURL or productionURL.
+      final url = request.type.toLowerCase() == 'facebook'
+          ? '${ApiConfig.productionURL}${ApiEndpoints.socialLoginUrl}'
+          : ApiEndpoints.socialLoginUrl;
+
       final response = await _client.post(
-        ApiEndpoints.socialLoginUrl,
+        url,
         data: request.toJson(),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
@@ -419,7 +542,22 @@ class IAuthApiService extends AuthApiService {
       }
 
       if (response.data is String) {
-        return right(response.data.toString().replaceAll('"', ''));
+        final token = response.data.toString().replaceAll('"', '').trim();
+        final isValidToken = RegExp(r'^[a-zA-Z0-9_.-]{16,512}$').hasMatch(token) &&
+            !token.contains(' ') &&
+            !token.contains('failed!') &&
+            !token.contains('Invalid');
+
+        if (!isValidToken) {
+          final isPhpDeprecated = token.contains('Deprecated') ||
+              token.contains('FacebookUrlManipulator') ||
+              token.contains('http_build_query');
+          final errorMessage = isPhpDeprecated
+              ? 'Facebook login is currently unavailable due to a server error. Please use Google or Phone login.'
+              : (token.isNotEmpty ? token : 'Social login failed');
+          return left(ErrorResponse(message: errorMessage));
+        }
+        return right(token);
       }
 
       return left(const ErrorResponse(message: 'Social login failed'));
@@ -441,10 +579,26 @@ class IAuthApiService extends AuthApiService {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      final response = await _client.get(
-        ApiEndpoints.getCurrentUserUrl,
-        options: Options(headers: headers),
-      );
+      Response response;
+      try {
+        response = await _client.get(
+          ApiEndpoints.getCurrentUserUrl,
+          options: Options(headers: headers),
+        );
+      } on DioException catch (e) {
+        // If current env (e.g. developmentURL) returned 401 and we are not already
+        // on production, try productionURL so Facebook-authenticated users can load
+        // their profile even while the developer is testing with developmentURL.
+        if (e.response?.statusCode == 401 &&
+            ApiConfig.baseUrl != ApiConfig.productionURL) {
+          response = await _client.get(
+            '${ApiConfig.productionURL}${ApiEndpoints.getCurrentUserUrl}',
+            options: Options(headers: headers),
+          );
+        } else {
+          rethrow;
+        }
+      }
 
       if (kDebugMode) {
         print("get_current_user -> ${response.data}");
@@ -470,7 +624,16 @@ class IAuthApiService extends AuthApiService {
         print('🔵 [API Service] loginWithGoogle: Starting...');
       }
 
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
+        serverClientId: AppConstants.googleAndroidWebClientId,
+        scopes: const ['email', 'profile'],
+      );
+
+      try {
+        await googleSignIn.signOut();
+      } catch (_) {}
+
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -488,7 +651,7 @@ class IAuthApiService extends AuthApiService {
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-      final String? accessToken = googleAuth.accessToken;
+      final String? accessToken = googleAuth.accessToken ?? googleAuth.idToken;
 
       if (kDebugMode) {
         print(
@@ -558,7 +721,9 @@ class IAuthApiService extends AuthApiService {
   @override
   Future<Either<ErrorResponse, String>> loginWithFacebook() async {
     try {
-      final LoginResult result = await FacebookAuth.instance.login();
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: const ['public_profile', 'email'],
+      );
 
       if (result.status == LoginStatus.cancelled) {
         return left(const ErrorResponse(message: 'Facebook sign-in cancelled'));

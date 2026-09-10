@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class SelectedVariantEntity {
   final String optionId;
@@ -22,7 +22,6 @@ class SelectedVariantEntity {
 
 class ProductVariantSelector extends StatefulWidget {
   final List<VariantEntity> variants;
-
   final VariantMatrixEntity? matrix;
   final Function(String optionId, String optionValue)? onOptionSelected;
   final Function(List<SelectedVariantEntity> selections)? onChanged;
@@ -81,8 +80,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
               valueText: option.optionText,
             ),
           );
-        } catch (e) {
-        }
+        } catch (_) {}
       }
     }
     return selections;
@@ -110,6 +108,19 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
         _selectedOptions.remove(variant.optionId);
       } else {
         _selectedOptions[variant.optionId] = value;
+
+        // Prune any now-incompatible selections in other groups
+        final matrix = _matrix;
+        if (matrix != null) {
+          final keys = _selectedOptions.keys.toList();
+          for (final key in keys) {
+            if (key == variant.optionId) continue;
+            final allowed = matrix.selectableValues(key, _selectedOptions);
+            if (!allowed.contains(_selectedOptions[key])) {
+              _selectedOptions.remove(key);
+            }
+          }
+        }
       }
     });
     if (!isSelected) widget.onOptionSelected?.call(variant.optionId, value);
@@ -129,7 +140,6 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
   }
 
   Widget _buildVariantGroup(BuildContext context, VariantEntity variant) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     final bool hasError =
         widget.showError && !_selectedOptions.containsKey(variant.optionId);
@@ -157,19 +167,33 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                 width: 80.w,
                 child: Row(
                   children: [
-                    Text(
-                      variant.optionName,
-                      style: textStyle.bodyMediumMedium.copyWith(
-                        color: hasError ? colors.red : colors.text,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: variant.optionName,
+                            style: textStyle.bodyMediumMedium.copyWith(
+                              color: hasError ? AppColors.red : AppColors.text,
+                              fontSize: 13.5.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          TextSpan(
+                            text: ' *',
+                            style: TextStyle(
+                              color: AppColors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.5.sp,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const Spacer(),
                     Text(
                       ':',
                       style: textStyle.bodyMedium.copyWith(
-                        color: hasError ? colors.red : colors.text,
+                        color: hasError ? AppColors.red : AppColors.text,
                       ),
                     ),
                     SizedBox(width: 8.w),
@@ -191,7 +215,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
             child: Text(
               'Please select ${variant.optionName}',
               style: textStyle.bodySmall.copyWith(
-                color: context.colors.red,
+                color: AppColors.red,
                 fontSize: 11.sp,
               ),
             ),
@@ -204,7 +228,6 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
     VariantEntity variant,
     List<VariantOptionEntity> options,
   ) {
-    final colors = context.colors;
     final String? selectedValue = _selectedOptions[variant.optionId];
     final bool groupHasError =
         widget.showError && !_selectedOptions.containsKey(variant.optionId);
@@ -237,101 +260,97 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
             child: Opacity(
               opacity: isOutOfStock ? 0.4 : 1.0,
               child: Column(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 65.w,
-                      height: 65.h,
-                      decoration: BoxDecoration(
-                        color: colors.white,
-                        border: Border.all(
-                          color: isSelected
-                              ? colors.linkBlue
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 65.w,
+                        height: 65.h,
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.surfaceBlue : AppColors.white,
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.pickabooBlue
+                                : groupHasError
+                                    ? AppColors.red
+                                    : AppColors.border,
+                            width: isSelected || groupHasError ? 1.5.w : 1.w,
+                          ),
+                          borderRadius: BorderRadius.circular(8.r),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.pickabooBlue.withValues(alpha: 0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
                               : groupHasError
-                                  ? colors.red
-                                  : colors.borderColor,
-                          width: isSelected || groupHasError ? 1.5.w : 1.w,
+                                  ? [
+                                      BoxShadow(
+                                        color: AppColors.red.withValues(alpha: 0.08),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
                         ),
-                        borderRadius: BorderRadius.circular(8.r),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: colors.linkBlue.withValues(alpha: 0.1),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
+                        padding: EdgeInsets.all(4.w),
+                        child: imageUrl.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.contain,
+                                placeholder: (context, url) =>
+                                    const AppLoader.inline(),
+                                errorWidget: (context, url, error) => const Icon(
+                                  Icons.image_not_supported,
+                                  size: 20,
+                                  color: AppColors.mutedLight,
                                 ),
-                              ]
-                            : groupHasError
-                                ? [
-                                    BoxShadow(
-                                      color: colors.red.withValues(alpha: 0.08),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ]
-                                : null,
-                      ),
-                      padding: EdgeInsets.all(4.w),
-                      child: imageUrl.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              fit: BoxFit.contain,
-                              placeholder: (context, url) => Center(
-                                child: CircularProgressIndicator(
-                                  color: colors.linkBlue,
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Icon(
+                              )
+                            : const Icon(
                                 Icons.image_not_supported,
-                                size: 20.sp,
-                                color: colors.graySmallLight,
+                                size: 20,
+                                color: AppColors.mutedLight,
                               ),
-                            )
-                          : Icon(
-                              Icons.image_not_supported,
-                              size: 20.sp,
-                              color: colors.graySmallLight,
+                      ),
+                      if (isSelected)
+                        Positioned(
+                          right: -4.w,
+                          bottom: -4.h,
+                          child: Container(
+                            padding: EdgeInsets.all(2.w),
+                            decoration: BoxDecoration(
+                              color: AppColors.pickabooBlue,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.white, width: 1.w),
                             ),
-                    ),
-                    if (isSelected)
-                      Positioned(
-                        right: -4.w,
-                        bottom: -4.h,
-                        child: Container(
-                          padding: EdgeInsets.all(2.w),
-                          decoration: BoxDecoration(
-                            color: colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: colors.white, width: 1.w),
-                          ),
-                          child: Icon(
-                            Icons.check,
-                            color: colors.white,
-                            size: 8.sp,
+                            child: Icon(
+                              Icons.check,
+                              color: AppColors.white,
+                              size: 8.sp,
+                            ),
                           ),
                         ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.h),
+                    child: Text(
+                      option.optionText,
+                      style: context.textStyle.bodySmall.copyWith(
+                        color: isSelected ? AppColors.pickabooBlue : AppColors.text,
+                        fontSize: 10.sp,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 10.h),
-                  child: Text(
-                    option.optionText,
-                    style: context.textStyle.bodySmall.copyWith(
-                      color: isSelected ? colors.linkBlue : colors.text,
-                      fontSize: 10.sp,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w400,
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ),
           );
         },
@@ -343,7 +362,6 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
     VariantEntity variant,
     List<VariantOptionEntity> options,
   ) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     final String? selectedValue = _selectedOptions[variant.optionId];
     final bool groupHasError =
@@ -354,7 +372,6 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
       runSpacing: 10.h,
       children: options.map((option) {
         final isSelected = selectedValue == option.optionValue;
-
         final isOutOfStock = option.configurableProduct?.stockAvailable == false;
 
         return GestureDetector(
@@ -370,64 +387,68 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? colors.linkBlue.withValues(alpha: 0.03)
-                      : colors.white,
-                  border: Border.all(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                  decoration: BoxDecoration(
                     color: isSelected
-                        ? colors.linkBlue
-                        : groupHasError
-                            ? colors.red
-                            : colors.borderColor,
-                    width: isSelected || groupHasError ? 1.5.w : 1.w,
-                  ),
-                  borderRadius: BorderRadius.circular(8.r),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: colors.linkBlue.withValues(alpha: 0.08),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : groupHasError
-                          ? [
-                              BoxShadow(
-                                color: colors.red.withValues(alpha: 0.06),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
-                ),
-                child: Text(
-                  option.optionText,
-                  style: textStyle.bodySmall.copyWith(
-                    color: isSelected ? colors.linkBlue : colors.text,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ),
-              if (isSelected)
-                Positioned(
-                  right: -4.w,
-                  top: -4.h,
-                  child: Container(
-                    padding: EdgeInsets.all(2.w),
-                    decoration: BoxDecoration(
-                      color: colors.green,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colors.white, width: 1.w),
+                        ? AppColors.surfaceBlue
+                        : AppColors.white,
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.pickabooBlue
+                          : groupHasError
+                              ? AppColors.red
+                              : AppColors.border,
+                      width: isSelected || groupHasError ? 1.5.w : 1.w,
                     ),
-                    child: Icon(Icons.check, color: colors.white, size: 8.sp),
+                    borderRadius: BorderRadius.circular(8.r),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppColors.pickabooBlue.withValues(alpha: 0.08),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : groupHasError
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.red.withValues(alpha: 0.06),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                            : null,
+                  ),
+                  child: Text(
+                    option.optionText,
+                    style: textStyle.bodySmall.copyWith(
+                      color: isSelected ? AppColors.pickabooBlue : AppColors.text,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontSize: 12.sp,
+                    ),
                   ),
                 ),
-            ],
+                if (isSelected)
+                  Positioned(
+                    right: -4.w,
+                    top: -4.h,
+                    child: Container(
+                      padding: EdgeInsets.all(2.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.pickabooBlue,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.white, width: 1.w),
+                      ),
+                      child: Icon(
+                        Icons.check,
+                        color: AppColors.white,
+                        size: 8.sp,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         );

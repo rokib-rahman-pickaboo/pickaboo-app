@@ -1,7 +1,12 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/star_rating_bar.dart';
@@ -81,8 +86,6 @@ class _ProductFrequentlyBoughtTogetherState
   @override
   Widget build(BuildContext context) {
     if (widget.items.isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Column(
@@ -93,13 +96,13 @@ class _ProductFrequentlyBoughtTogetherState
           child: Text(
             'Frequently Bought Together',
             style: textStyle.bodyMediumBold.copyWith(
-              color: colors.text,
+              color: AppColors.text,
             ),
           ),
         ),
         SizedBox(height: 16.h),
 
-        _buildProductImagesRow(colors),
+        _buildProductImagesRow(),
         SizedBox(height: 8.h),
 
         Center(
@@ -110,7 +113,7 @@ class _ProductFrequentlyBoughtTogetherState
               });
             },
             style: TextButton.styleFrom(
-              foregroundColor: colors.primary,
+              foregroundColor: AppColors.pickabooBlue,
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -122,7 +125,7 @@ class _ProductFrequentlyBoughtTogetherState
                   _isExpanded ? 'Hide Details' : 'Show Details',
                   style: textStyle.bodyMedium.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: colors.primary,
+                    color: AppColors.pickabooBlue,
                   ),
                 ),
                 SizedBox(width: 4.w),
@@ -131,7 +134,7 @@ class _ProductFrequentlyBoughtTogetherState
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
                   size: 18.sp,
-                  color: colors.primary,
+                  color: AppColors.pickabooBlue,
                 ),
               ],
             ),
@@ -139,14 +142,14 @@ class _ProductFrequentlyBoughtTogetherState
         ),
         SizedBox(height: 8.h),
 
-        if (_isExpanded) _buildDetailCards(colors, textStyle),
+        if (_isExpanded) _buildDetailCards(textStyle),
 
-        _buildBottomBar(colors, textStyle),
+        _buildBottomBar(textStyle),
       ],
     );
   }
 
-  Widget _buildProductImagesRow(AppColors colors) {
+  Widget _buildProductImagesRow() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -163,12 +166,12 @@ class _ProductFrequentlyBoughtTogetherState
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: _selectedItems[i]
-                          ? colors.primary
-                          : colors.borderColor,
+                          ? AppColors.pickabooBlue
+                          : AppColors.border,
                       width: _selectedItems[i] ? 2.w : 1.w,
                     ),
                     borderRadius: BorderRadius.circular(8.r),
-                    color: colors.white,
+                    color: AppColors.white,
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(6.r),
@@ -186,13 +189,13 @@ class _ProductFrequentlyBoughtTogetherState
                             left: 4.w,
                             child: Container(
                               padding: EdgeInsets.all(2.w),
-                              decoration: BoxDecoration(
-                                color: colors.primary,
+                              decoration: const BoxDecoration(
+                                color: AppColors.pickabooBlue,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 Icons.check,
-                                color: colors.white,
+                                color: AppColors.white,
                                 size: 12.sp,
                               ),
                             ),
@@ -207,7 +210,7 @@ class _ProductFrequentlyBoughtTogetherState
             if (i < widget.items.length - 1)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Icon(Icons.add, color: colors.textMedium, size: 20.sp),
+                child: Icon(Icons.add, color: AppColors.muted, size: 20.sp),
               ),
           ],
         ],
@@ -215,13 +218,13 @@ class _ProductFrequentlyBoughtTogetherState
     );
   }
 
-  Widget _buildDetailCards(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildDetailCards(AppTextStyles textStyle) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
           for (int i = 0; i < widget.items.length; i++)
-            _buildDetailCard(i, colors, textStyle),
+            _buildDetailCard(i, textStyle),
         ],
       ),
     );
@@ -229,7 +232,6 @@ class _ProductFrequentlyBoughtTogetherState
 
   Widget _buildDetailCard(
     int index,
-    AppColors colors,
     AppTextStyles textStyle,
   ) {
     final item = widget.items[index];
@@ -240,10 +242,10 @@ class _ProductFrequentlyBoughtTogetherState
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
-          color: colors.borderColor.withValues(alpha: 0.4),
+          color: AppColors.border.withValues(alpha: 0.4),
           width: 1.w,
         ),
       ),
@@ -261,11 +263,11 @@ class _ProductFrequentlyBoughtTogetherState
                 child: IgnorePointer(
                   child: Checkbox(
                     value: isSelected,
-                    activeColor: colors.primary,
+                    activeColor: AppColors.pickabooBlue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(3.r),
                     ),
-                    side: BorderSide(color: colors.gray, width: 1.5.w),
+                    side: BorderSide(color: AppColors.muted, width: 1.5.w),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
                     onChanged: _isSelectable(index) ? (_) {} : null,
@@ -279,7 +281,7 @@ class _ProductFrequentlyBoughtTogetherState
                 height: 60.w,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6.r),
-                  color: colors.whiteSmoke,
+                  color: AppColors.pageBg,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6.r),
@@ -304,7 +306,7 @@ class _ProductFrequentlyBoughtTogetherState
                           '৳ ${_formatPrice(displayPrice)}',
                           style: textStyle.bodyMedium.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: colors.primary,
+                            color: AppColors.pickabooBlue,
                           ),
                         ),
                         if (hasDiscount) ...[
@@ -312,9 +314,9 @@ class _ProductFrequentlyBoughtTogetherState
                           Text(
                             '৳ ${_formatPrice(item.price)}',
                             style: textStyle.bodySmall.copyWith(
-                              color: colors.gray,
+                              color: AppColors.muted,
                               decoration: TextDecoration.lineThrough,
-                              decorationColor: colors.gray,
+                              decorationColor: AppColors.muted,
                             ),
                           ),
                         ],
@@ -327,7 +329,7 @@ class _ProductFrequentlyBoughtTogetherState
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: textStyle.bodySmall.copyWith(
-                        color: colors.text,
+                        color: AppColors.text,
                         fontWeight: FontWeight.w400,
                         height: 1.3,
                       ),
@@ -337,7 +339,7 @@ class _ProductFrequentlyBoughtTogetherState
                       SizedBox(height: 4.h),
                       Text(
                         'Out of stock',
-                        style: textStyle.caption.withColor(colors.orange),
+                        style: textStyle.caption.withColor(AppColors.orange),
                       ),
                     ],
 
@@ -350,13 +352,13 @@ class _ProductFrequentlyBoughtTogetherState
                           Text(
                             '${item.rating}',
                             style: textStyle.bodySmallBold.withColor(
-                              colors.linkBlue,
+                              AppColors.pickabooBlue,
                             ),
                           ),
                           SizedBox(width: 2.w),
                           Text(
                             '(${item.ratingCount})',
-                            style: textStyle.caption.withColor(colors.gray),
+                            style: textStyle.caption.withColor(AppColors.muted),
                           ),
                         ],
                       ),
@@ -371,14 +373,14 @@ class _ProductFrequentlyBoughtTogetherState
     );
   }
 
-  Widget _buildBottomBar(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildBottomBar(AppTextStyles textStyle) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         border: Border(
           top: BorderSide(
-            color: colors.borderColor.withValues(alpha: 0.3),
+            color: AppColors.border.withValues(alpha: 0.3),
             width: 1.w,
           ),
         ),
@@ -396,7 +398,7 @@ class _ProductFrequentlyBoughtTogetherState
                       '৳ ${_formatPrice(_totalPrice)}',
                       style: textStyle.bodyLargeBold.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: colors.text,
+                        color: AppColors.text,
                       ),
                     ),
                     if (_originalPrice > _totalPrice) ...[
@@ -404,9 +406,9 @@ class _ProductFrequentlyBoughtTogetherState
                       Text(
                         '৳ ${_formatPrice(_originalPrice)}',
                         style: textStyle.bodySmall.copyWith(
-                          color: colors.gray,
+                          color: AppColors.muted,
                           decoration: TextDecoration.lineThrough,
-                          decorationColor: colors.gray,
+                          decorationColor: AppColors.muted,
                         ),
                       ),
                     ],
@@ -431,9 +433,9 @@ class _ProductFrequentlyBoughtTogetherState
                   }
                 : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: colors.primary,
-              foregroundColor: colors.white,
-              disabledBackgroundColor: colors.gray.withValues(alpha: 0.3),
+              backgroundColor: AppColors.pickabooBlue,
+              foregroundColor: AppColors.white,
+              disabledBackgroundColor: AppColors.muted.withValues(alpha: 0.3),
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
@@ -447,7 +449,7 @@ class _ProductFrequentlyBoughtTogetherState
                   ? 'Add 1 item to cart'
                   : 'Add $_selectedCount items to cart',
               style: textStyle.bodyMedium.copyWith(
-                color: colors.white,
+                color: AppColors.white,
                 fontWeight: FontWeight.w600,
               ),
             ),

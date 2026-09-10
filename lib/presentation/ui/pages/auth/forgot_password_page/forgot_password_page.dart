@@ -1,18 +1,26 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/core/validatator/validator.dart' as validators;
 import 'package:pickaboo/presentation/bloc/auth/forgot_password_bloc/forgot_password_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modernized Pickaboo Forgot Password Page
+/// Allows users to request a password reset OTP via mobile number or email.
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
 
@@ -21,7 +29,8 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final TextEditingController _emailOrPhoneController = TextEditingController();
+  final TextEditingController _emailOrPhoneController =
+      TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
   String _timerMessage = '';
@@ -47,47 +56,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     });
   }
 
-  static final BorderRadius _radius = BorderRadius.all(Radius.circular(10.r));
-
-  InputDecoration _inputDecoration({
-    required String label,
-    String? hint,
-    Widget? prefixIcon,
-  }) {
-    final colors = context.colors;
-
-    return InputDecoration(
-      labelText: label,
-      hintText: hint,
-      filled: true,
-      labelStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
-      hintStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
-      floatingLabelStyle: context.textStyle.bodyMediumMedium.withColor(
-        colors.primary,
-      ),
-      fillColor: colors.grayLight,
-      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-      border: OutlineInputBorder(
-        borderRadius: _radius,
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: _radius,
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: _radius,
-        borderSide: BorderSide(color: colors.primary, width: 1.2),
-      ),
-      prefixIcon: prefixIcon,
-    );
-  }
-
   @override
   void dispose() {
     _timer?.cancel();
     _emailOrPhoneController.dispose();
     super.dispose();
+  }
+
+  void _dismissKeyboard() {
+    FocusScope.of(context).unfocus();
   }
 
   bool _validateEmail(String email) {
@@ -101,7 +78,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   void _handleContinue() {
     if (_isLoading) return;
 
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     final input = _emailOrPhoneController.text.trim();
 
     setState(() => _errorMessage = null);
@@ -132,11 +109,44 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: AppTypography.inputHint,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
+      filled: true,
+      fillColor: AppColors.white,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      border: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
+      ),
+      errorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red),
+      ),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red, width: 1.5),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return MultiBlocListener(
       listeners: [
         BlocListener<ForgotPasswordBloc, ForgotPasswordState>(
@@ -181,206 +191,256 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           },
         ),
       ],
-      child: Scaffold(
-        body: ResponsiveContainer(
-          child: SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 16.w, right: 16.w),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: AppBarButton(
-                          iconPath: 'assets/new/svg/back_nav_icon.svg',
-                          width: 7.w,
-                          height: 14.h,
-                          onPressed: () {
-                            FocusScope.of(context).unfocus();
-                            if (Navigator.of(context).canPop()) {
-                              Navigator.of(context).pop();
-                            } else {
-                              context.go(Routes.login);
-                            }
-                          },
-                          iconColor: colors.text,
-                        ),
-                      ),
-                      Text(
-                        'FORGOT PASSWORD?',
-                        style: textTheme.appBarTitle.copyWith(
-                          color: colors.codGary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 80.h),
-
-                        Text(
-                          'Please enter your email address or phone number below & set your new password.',
-                          style: textTheme.bodyMedium.copyWith(
-                            color: colors.gray,
-                            height: 1.5.h,
+      child: GestureDetector(
+        onTap: _dismissKeyboard,
+        behavior: HitTestBehavior.opaque,
+        child: Scaffold(
+          backgroundColor: AppColors.pageBg,
+          body: ResponsiveContainer(
+            child: SafeArea(
+              child: Stack(
+                children: [
+                  // ── BALANCED MAIN CONTENT ──
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 16.h),
-
-                        AutofillGroup(
-                          child: TextField(
-                            controller: _emailOrPhoneController,
-                            keyboardType: TextInputType.text,
-                            decoration:
-                                _inputDecoration(
-                                  label: 'Mobile Number / Email',
-                                  hint: 'Enter email or phone number',
-                                  prefixIcon: Icon(
-                                    Icons.alternate_email,
-                                    color: colors.gray,
-                                    size: 20.sp,
-                                  ),
-                                ).copyWith(
-                                  errorText: _errorMessage,
-                                  errorStyle: _errorMessage?.isEmpty == true
-                                      ? const TextStyle(
-                                          height: 0.01,
-                                          fontSize: 0.01,
-                                        )
-                                      : null,
-                                ),
-                            autofillHints: const [
-                              AutofillHints.email,
-                              AutofillHints.telephoneNumber,
-                            ],
-                            onChanged: (val) {
-                              if (_errorMessage != null) {
-                                setState(() => _errorMessage = null);
-                              }
-                            },
-                            onSubmitted: (_) => _handleContinue(),
-                          ),
-                        ),
-                        SizedBox(height: (16 - 1).h),
-
-                        if (_secondsRemaining > 0)
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 16.h),
-                            child: Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.all(12.w),
-                              decoration: BoxDecoration(
-                                color: colors.orange.withOpacity(0.1),
-                                borderRadius: _radius,
-                                border: Border.all(
-                                  color: colors.orange.withOpacity(0.5),
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.timer_outlined,
-                                    color: colors.orange,
-                                    size: 20.sp,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Expanded(
-                                    child: Text(
-                                      _timerMessage.replaceAll(
-                                        '5 minutes',
-                                        _formattedTime,
-                                      ),
-                                      style: textTheme.bodySmall.copyWith(
-                                        color: colors.orange,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24.w,
+                              vertical: 24.h,
                             ),
-                          ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Brand Logo
+                                Image.asset(
+                                  'assets/images/pickaboo_new_logo.png',
+                                  height: 44.h,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/pickaboo-login-logo.png',
+                                      height: 44.h,
+                                      fit: BoxFit.contain,
+                                    );
+                                  },
+                                ),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48.h,
-                          child: ElevatedButton(
-                            onPressed: (_isLoading || _secondsRemaining > 0)
-                                ? null
-                                : _handleContinue,
-                            style: ElevatedButton.styleFrom(
-                              elevation: 2,
-                              backgroundColor: colors.button,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: _radius,
-                              ),
-                              disabledBackgroundColor: colors.grayLight,
-                            ),
-                            child: _isLoading
-                                ? SizedBox(
-                                    height: 20.h,
-                                    width: 20.w,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.w,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        colors.white,
+                                SizedBox(height: 20.h),
+
+                                // Header Text
+                                Text(
+                                  'Reset Your',
+                                  style: AppTypography.heroTitle,
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 6.h),
+                                Text(
+                                  'Password',
+                                  style: AppTypography.heroTitle,
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: 10.h),
+
+                                Text(
+                                  'Enter your mobile number or email address below to receive an OTP code.',
+                                  style: AppTypography.bodyMutedLight,
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: 28.h),
+
+                                // Email / Phone Input Field
+                                AutofillGroup(
+                                  child: TextField(
+                                    controller: _emailOrPhoneController,
+                                    keyboardType: TextInputType.text,
+                                    style: AppTypography.inputText,
+                                    decoration: _buildInputDecoration(
+                                      hintText: 'Mobile number or email address',
+                                      prefixIcon: Icon(
+                                        Icons.alternate_email,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
                                       ),
+                                    ).copyWith(
+                                      errorText: _errorMessage,
+                                      errorStyle: _errorMessage?.isEmpty == true
+                                          ? AppTypography.bodyTiny.size(0.01).withHeight(0.01)
+                                          : null,
                                     ),
-                                  )
-                                : Text(
-                                    'Continue',
-                                    style: context.textStyle.buttonLarge
-                                        .withColor(
-                                          (_isLoading || _secondsRemaining > 0)
-                                              ? colors.gray
-                                              : colors.white,
+                                    autofillHints: const [
+                                      AutofillHints.email,
+                                      AutofillHints.telephoneNumber,
+                                    ],
+                                    onChanged: (val) {
+                                      if (_errorMessage != null) {
+                                        setState(() => _errorMessage = null);
+                                      }
+                                    },
+                                    onSubmitted: (_) => _handleContinue(),
+                                  ),
+                                ),
+
+                                SizedBox(height: 14.h),
+
+                                // Timer Warning (if resend cooldown is active)
+                                if (_secondsRemaining > 0)
+                                  Padding(
+                                    padding: EdgeInsets.only(bottom: 14.h),
+                                    child: Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.all(12.w),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.amber.withValues(alpha: 0.1),
+                                        borderRadius: AppRadius.cardRadius,
+                                        border: Border.all(
+                                          color: AppColors.amber.withValues(alpha: 0.4),
                                         ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.timer_outlined,
+                                            color: AppColors.amber,
+                                            size: 20.sp,
+                                          ),
+                                          SizedBox(width: 10.w),
+                                          Expanded(
+                                            child: Text(
+                                              _timerMessage.replaceAll(
+                                                '5 minutes',
+                                                _formattedTime,
+                                              ),
+                                              style: AppTypography.cardTitle,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                          ),
-                        ),
-                        SizedBox(height: 32.h),
 
-                        Container(
-                          padding: EdgeInsets.all(16.w),
-                          decoration: BoxDecoration(
-                            color: colors.solitude,
-                            borderRadius: _radius,
-                            border: Border.all(color: colors.borderColor),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: colors.primary,
-                                size: 20.sp,
-                              ),
-                              SizedBox(width: 12.w),
-                              Expanded(
-                                child: Text(
-                                  'We\'ll send you an OTP to verify your identity',
-                                  style: textTheme.bodySmall.copyWith(
-                                    color: colors.text,
+                                // Primary CTA Button
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 50.h,
+                                  child: ElevatedButton(
+                                    onPressed: (_isLoading || _secondsRemaining > 0)
+                                        ? null
+                                        : _handleContinue,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.pickabooBlue,
+                                      foregroundColor: AppColors.white,
+                                      elevation: 0,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: AppRadius.cardRadius,
+                                      ),
+                                    ),
+                                    child: _isLoading
+                                        ? const AppLoader.button()
+                                        : Text(
+                                            'Continue',
+                                            style: AppTypography.buttonPrimary,
+                                          ),
                                   ),
                                 ),
-                              ),
-                            ],
+
+                                SizedBox(height: 20.h),
+
+                                // Identity Verification Info Card
+                                Container(
+                                  padding: EdgeInsets.all(14.w),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceBlue,
+                                    borderRadius: AppRadius.cardRadius,
+                                    border: Border.all(
+                                      color: AppColors.pickabooBlue.withValues(alpha: 0.15),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        color: AppColors.pickabooBlue,
+                                        size: 20.sp,
+                                      ),
+                                      SizedBox(width: 12.w),
+                                      Expanded(
+                                        child: Text(
+                                          "We'll send you an OTP to verify your identity.",
+                                          style: AppTypography.bodyLarge,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                SizedBox(height: 28.h),
+
+                                // Remember Password Link
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Remember your password? ',
+                                      style: AppTypography.bodyMutedLight,
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        _dismissKeyboard();
+                                        context.go(Routes.login);
+                                      },
+                                      child: Text(
+                                        'Sign in',
+                                        style: AppTypography.brandActionText,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
+                      );
+                    },
+                  ),
+
+                  // ── TOP BACK BUTTON (Positioned ON TOP of Stack) ──
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          _dismissKeyboard();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            context.go(Routes.login);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(20.r),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.r),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.navy,
+                            size: 20.sp,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

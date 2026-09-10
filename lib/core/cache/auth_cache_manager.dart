@@ -13,9 +13,24 @@ class AuthCacheManager {
     _tokenWarmed = true;
   }
 
+  static const String _keyIsProdToken = 'is_prod_token';
+  bool? _isProdTokenCache;
+
+  Future<bool> isProdToken() async {
+    if (_isProdTokenCache != null) return _isProdTokenCache!;
+    _isProdTokenCache = (await CacheManager.getBool(_keyIsProdToken)) ?? false;
+    return _isProdTokenCache!;
+  }
+
+  Future<void> setProdToken(bool isProd) async {
+    _isProdTokenCache = isProd;
+    await CacheManager.setBool(_keyIsProdToken, isProd);
+  }
+
   Future<void> signOut() async {
     _tokenCache = null;
     _tokenWarmed = true;
+    _isProdTokenCache = null;
     await CacheManager.clearAll();
     await FastCacheManager.clearAll();
   }

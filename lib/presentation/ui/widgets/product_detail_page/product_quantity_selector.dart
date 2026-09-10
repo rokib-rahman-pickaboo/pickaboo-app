@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/constants/app_constants.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ProductQuantitySelector extends StatefulWidget {
   final int initialQuantity;
@@ -77,7 +76,6 @@ class _ProductQuantitySelectorState extends State<ProductQuantitySelector> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
@@ -91,12 +89,12 @@ class _ProductQuantitySelectorState extends State<ProductQuantitySelector> {
               children: [
                 Text(
                   'Quantity',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
                 ),
                 SizedBox(width: 8.w),
                 Text(
                   ':',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
                 ),
               ],
             ),
@@ -108,7 +106,6 @@ class _ProductQuantitySelectorState extends State<ProductQuantitySelector> {
                 icon: 'assets/new/svg/detail/minus_icon.svg',
                 onTap: _decreaseQuantity,
                 enabled: _canDecrease,
-                colors: colors,
               ),
               SizedBox(width: 12.w),
 
@@ -117,15 +114,15 @@ class _ProductQuantitySelectorState extends State<ProductQuantitySelector> {
                 padding: EdgeInsets.symmetric(vertical: 8.w),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: colors.white,
-                  border: Border.all(color: colors.borderColor, width: 1.w),
+                  color: AppColors.white,
+                  border: Border.all(color: AppColors.border, width: 1.w),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
                   _quantity.toString(),
                   style: textStyle.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: colors.text,
+                    color: AppColors.text,
                   ),
                 ),
               ),
@@ -135,7 +132,6 @@ class _ProductQuantitySelectorState extends State<ProductQuantitySelector> {
                 icon: 'assets/new/svg/detail/plus_icon.svg',
                 onTap: _increaseQuantity,
                 enabled: _canIncrease,
-                colors: colors,
               ),
             ],
           ),
@@ -147,10 +143,9 @@ class _ProductQuantitySelectorState extends State<ProductQuantitySelector> {
   Widget _buildControlButton({
     required String icon,
     required VoidCallback onTap,
-    required AppColors colors,
     bool enabled = true,
   }) {
-    final tint = enabled ? colors.primary : colors.borderColor;
+    final tint = enabled ? AppColors.pickabooBlue : AppColors.border;
 
     return IconButton(
       onPressed: enabled ? onTap : null,

@@ -15,6 +15,8 @@ abstract class NetworkModule {
         receiveTimeout: const Duration(seconds: 40),
         contentType: "application/json",
         responseType: ResponseType.json,
+        followRedirects: true,
+        maxRedirects: 5,
       ),
     );
     dio.interceptors.add(authInterceptor);

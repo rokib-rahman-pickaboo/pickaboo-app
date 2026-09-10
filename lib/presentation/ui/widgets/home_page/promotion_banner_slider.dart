@@ -1,12 +1,21 @@
-import 'package:carousel_slider/carousel_slider.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/promotion_slider/promotion_slider_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
-class PromotionBannerSlider extends StatelessWidget {
+/// ============================================================================
+/// 🏷️ PROMOTION BANNER SLIDER
+/// Continuous auto-scrolling promotion cards styled after the Available Offers
+/// component in Pickaboo-App-UI:
+/// - No outer card enclosure.
+/// - Full-width scrolling with peeking cards.
+/// - Left: 65x65 (+20% size) product/promo thumbnail with tight padding.
+/// - Right: Title (Navy bold) + Subtitle (Muted 2-line description).
+/// - Precise step auto-scroll maintaining the leading margin on every cycle.
+/// ============================================================================
+class PromotionBannerSlider extends StatefulWidget {
   final List<PromotionSliderEntity> slides;
   final void Function(PromotionSliderEntity slide)? onSlideTap;
 
@@ -17,120 +26,141 @@ class PromotionBannerSlider extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    if (slides.isEmpty) return const SizedBox.shrink();
-
-    final looping = slides.length > 1;
-
-    return CarouselSlider.builder(
-      itemCount: slides.length,
-      itemBuilder: (context, index, realIndex) {
-        final slide = slides[index];
-        return _PromotionBannerItem(
-          slide: slide,
-          isFirst: !looping && index == 0,
-          isLast: !looping && index == slides.length - 1,
-          onTap: onSlideTap != null ? () => onSlideTap!(slide) : null,
-        );
-      },
-      options: CarouselOptions(
-        height: 90.h,
-        viewportFraction: 0.60,
-        autoPlay: looping,
-        enlargeCenterPage: false,
-        padEnds: false,
-        enableInfiniteScroll: looping,
-      ),
-    );
-  }
+  State<PromotionBannerSlider> createState() => _PromotionBannerSliderState();
 }
 
-class _PromotionBannerItem extends StatelessWidget {
-  final PromotionSliderEntity slide;
-  final bool isFirst;
-  final bool isLast;
-  final VoidCallback? onTap;
+class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
+  late final ScrollController _scrollController;
+  Timer? _autoScrollTimer;
+  double _cardWidth = 190.0;
 
-  const _PromotionBannerItem({
-    required this.slide,
-    this.isFirst = false,
-    this.isLast = false,
-    this.onTap,
-  });
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    if (widget.slides.length > 1) {
+      _startAutoScroll();
+    }
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      if (Scrollable.recommendDeferredLoadingForContext(context)) return;
+      final step = _cardWidth + AppSpacing.sameGroupItemSpacing.w;
+      _scrollController.animateTo(
+        _scrollController.offset + step,
+        duration: const Duration(milliseconds: 650),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
+    if (widget.slides.isEmpty) return const SizedBox.shrink();
 
-    final imageUrl =
-        slide.mobileImageUrl.isNotEmpty ? slide.mobileImageUrl : slide.imageUrl;
-    final subtitle =
-        slide.subtitle.isNotEmpty ? slide.subtitle : slide.content;
+    // Peeking card width calculation matching Pickaboo-App-UI available offers with larger image
+    final screenWidth = MediaQuery.of(context).size.width;
+    final peekingWidth = (screenWidth - 24.w - 15.w) / 2.0;
+    _cardWidth = peekingWidth > 175.w ? peekingWidth : 190.w;
+    final isInfinite = widget.slides.length > 1;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Card(
-        margin: EdgeInsets.only(
-          left: isFirst ? 12.w : 6.w,
-          right: isLast ? 12.w : 6.w,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        color: colors.white,
-        elevation: 1,
-        child: Padding(
-          padding: EdgeInsets.all(8.w),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
-                child: AppImage(
-                  imageUrl: imageUrl,
-                  width: 62.w,
-                  height: 62.h,
-                  fit: BoxFit.cover,
+    return RepaintBoundary(
+      child: SizedBox(
+        height: 78.h,
+        child: ListView.builder(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
+          addSemanticIndexes: false,
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.sameGroupItemSpacing.w,
+          ),
+          itemCount: isInfinite ? null : widget.slides.length,
+          itemBuilder: (context, index) {
+            final slide = widget.slides[index % widget.slides.length];
+            final imageUrl = slide.mobileImageUrl.isNotEmpty
+                ? slide.mobileImageUrl
+                : slide.imageUrl;
+            final subtitle = slide.subtitle.isNotEmpty
+                ? slide.subtitle
+                : slide.content;
+
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onSlideTap != null
+                  ? () => widget.onSlideTap!(slide)
+                  : null,
+              child: Container(
+                width: _cardWidth,
+                margin: EdgeInsets.only(right: AppSpacing.sameGroupItemSpacing.w),
+                padding: EdgeInsets.all(6.w),
+                decoration: BoxDecoration(
+                  color: AppColors.pageBg,
+                  borderRadius: BorderRadius.circular(AppRadius.card),
+                  border: Border.all(
+                    color: AppColors.border,
+                    width: 1.w,
+                  ),
                 ),
-              ),
-
-              SizedBox(width: 12.w),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                child: Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        slide.title,
-                        style: textStyles.productName.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colors.text,
+                    // ── Promo Thumbnail (Increased 20% to 65x65) ──
+                    if (imageUrl.isNotEmpty) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6.r),
+                        child: AppImage(
+                          imageUrl: imageUrl,
+                          width: 65.w,
+                          height: 65.h,
+                          fit: BoxFit.cover,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(width: 8.w),
+                    ],
+
+                    // ── Title & Subtitle ──
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            slide.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.cardTitle.copyWith(
+                              fontSize: 11.5.sp,
+                            ),
+                          ),
+                          if (subtitle.isNotEmpty) ...[
+                            SizedBox(height: 2.h),
+                            Text(
+                              subtitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.bodyMuted,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-
-                    if (subtitle.isNotEmpty) ...[
-                      SizedBox(height: 2.h),
-                      Text(
-                        subtitle,
-                        style: textStyles.productPrice.copyWith(
-                          color: colors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
                   ],
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

@@ -63,8 +63,6 @@ class _YoutubePlayerDialogState extends State<YoutubePlayerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 12.w),
       backgroundColor: Colors.black,
@@ -79,13 +77,13 @@ class _YoutubePlayerDialogState extends State<YoutubePlayerDialog> {
               alignment: Alignment.centerRight,
               child: IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: Icon(Icons.close, color: colors.white, size: 24.sp),
+                icon: Icon(Icons.close, color: AppColors.white, size: 24.sp),
               ),
             ),
             YoutubePlayer(
               controller: _controller,
               showVideoProgressIndicator: true,
-              progressIndicatorColor: colors.primary,
+              progressIndicatorColor: AppColors.pickabooBlue,
             ),
             SizedBox(height: 12.h),
           ],

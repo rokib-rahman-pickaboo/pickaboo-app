@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/support_category/support_category_entity.dart';
 import 'package:pickaboo/domain/entity/support_category/support_child_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/knowledge_base_page/faq_design.dart';
@@ -42,7 +41,7 @@ class CategoryItem extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 2.h),
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 9.h),
             decoration: BoxDecoration(
-              color: isExpanded ? FaqTheme.primaryTint(colors) : null,
+              color: isExpanded ? FaqTheme.primaryTint : null,
               borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
             ),
             child: Row(
@@ -51,13 +50,13 @@ class CategoryItem extends StatelessWidget {
                   width: 32.w,
                   height: 32.w,
                   decoration: BoxDecoration(
-                    color: isExpanded ? colors.white : colors.whiteSmoke,
+                    color: isExpanded ? AppColors.white : AppColors.pageBg,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
                     size: 16.sp,
-                    color: isExpanded ? colors.primary : colors.gray,
+                    color: isExpanded ? AppColors.pickabooBlue : AppColors.muted,
                   ),
                 ),
                 SizedBox(width: 10.w),
@@ -72,8 +71,8 @@ class CategoryItem extends StatelessWidget {
                           ? FontWeight.w600
                           : FontWeight.w400,
                       color: isExpanded
-                          ? FaqTheme.primaryDeep(colors)
-                          : colors.text,
+                          ? FaqTheme.primaryDeep
+                          : AppColors.text,
                     ),
                   ),
                 ),
@@ -84,11 +83,11 @@ class CategoryItem extends StatelessWidget {
                     child: Icon(
                       Icons.keyboard_arrow_down,
                       size: 18.sp,
-                      color: isExpanded ? colors.primary : colors.gray,
+                      color: isExpanded ? AppColors.pickabooBlue : AppColors.muted,
                     ),
                   )
                 else
-                  Icon(Icons.chevron_right, size: 18.sp, color: colors.gray),
+                  Icon(Icons.chevron_right, size: 18.sp, color: AppColors.muted),
               ],
             ),
           ),
@@ -107,7 +106,7 @@ class CategoryItem extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(
                       left: BorderSide(
-                        color: FaqTheme.hairline(colors),
+                        color: FaqTheme.hairline,
                         width: 1.w,
                       ),
                     ),
@@ -133,7 +132,7 @@ class CategoryItem extends StatelessWidget {
                                   width: 5.w,
                                   height: 5.w,
                                   decoration: BoxDecoration(
-                                    color: colors.gray.withValues(alpha: 0.4),
+                                    color: AppColors.muted.withValues(alpha: 0.4),
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -145,7 +144,7 @@ class CategoryItem extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: context.textStyle.bodySmall.copyWith(
                                       fontSize: 13.sp,
-                                      color: colors.text,
+                                      color: AppColors.text,
                                     ),
                                   ),
                                 ),

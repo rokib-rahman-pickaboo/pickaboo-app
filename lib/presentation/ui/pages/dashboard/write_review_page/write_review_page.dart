@@ -1,19 +1,28 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_bloc.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_event.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_state.dart';
 import 'package:pickaboo/presentation/bloc/write_review_bloc/write_review_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
 import 'package:pickaboo/presentation/ui/widgets/write_review_page/rating_input_row.dart';
-import 'dart:io';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modern WriteReviewPage matching Pickaboo-App-UI design language.
 class WriteReviewPage extends StatefulWidget {
   final String productId;
   final String productName;
@@ -35,6 +44,12 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    context.read<PhotoPickerBloc>().add(const PhotoPickerEvent.clear());
+  }
+
+  @override
   void dispose() {
     _reviewController.dispose();
     super.dispose();
@@ -43,15 +58,15 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
   void _showPhotoPickerOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: context.colors.black.withValues(alpha: 0.0),
+      backgroundColor: Colors.transparent,
       builder: (c) => Container(
-        decoration: BoxDecoration(
-          color: context.colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
         ),
         padding: EdgeInsets.fromLTRB(
           20.w,
-          24.h,
+          16.h,
           20.w,
           24.h + MediaQuery.of(context).padding.bottom,
         ),
@@ -62,18 +77,16 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
               width: 40.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: context.colors.grayLight,
+                color: AppColors.border,
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 16.h),
             Text(
               "Add Photos",
-              style: context.textStyle.headingMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTypography.pageTitle,
             ),
-            SizedBox(height: 32.h),
+            SizedBox(height: 24.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -107,7 +120,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                 ),
               ],
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -127,13 +140,19 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
           Container(
             padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
-              color: context.colors.primary.withValues(alpha: 0.1),
+              color: AppColors.surfaceBlue,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.pickabooBlue.withValues(alpha: 0.3),
+              ),
             ),
-            child: Icon(icon, color: context.colors.primary, size: 32.sp),
+            child: Icon(icon, color: AppColors.pickabooBlue, size: 28.sp),
           ),
           SizedBox(height: 8.h),
-          Text(label, style: context.textStyle.bodyMedium),
+          Text(
+            label,
+            style: AppTypography.inputLabel,
+          ),
         ],
       ),
     );
@@ -141,19 +160,10 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: Text("Write Review", style: context.textStyle.appBarTitle),
+      backgroundColor: AppColors.pageBg,
+      appBar: const PickabooAppBar(
+        title: "Write Review",
       ),
       body: ResponsiveContainer(
         child: BlocListener<PhotoPickerBloc, PhotoPickerState>(
@@ -167,54 +177,54 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                 WriteReviewEvent.updateImages(paths),
               );
             }
-            if (photoState.status == PhotoPickerStatus.error &&
-                photoState.errorMessage != null) {
-              ScaffoldMessenger.of(
+            if (photoState.status == PhotoPickerStatus.error) {
+              SnackBarUtils.showError(
                 context,
-              ).showSnackBar(SnackBar(content: Text(photoState.errorMessage!)));
+                photoState.errorMessage ?? AppStrings.somethingWentWrong,
+              );
             }
           },
           child: BlocConsumer<WriteReviewBloc, WriteReviewState>(
             listener: (context, state) {
               state.mapOrNull(
                 success: (_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Review submitted successfully!"),
-                    ),
+                  SnackBarUtils.showSuccess(
+                    context,
+                    "Review submitted successfully!",
                   );
                   context.pop();
                 },
                 error: (err) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(err.message)));
+                  SnackBarUtils.showError(context, err.message);
                 },
               );
             },
             builder: (context, state) {
               return state.maybeMap(
-                loading: (_) =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: (_) => const AppLoader.fullPage(),
                 initial: (initialData) {
                   return CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
                     slivers: [
-                      SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 12.h)),
 
+                      // ── Product Summary Card ──
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sameGroupItemSpacing.w,
+                          ),
                           child: Container(
                             padding: EdgeInsets.all(12.w),
                             decoration: BoxDecoration(
-                              color: colors.white,
-                              borderRadius: BorderRadius.circular(12.r),
-                              border: Border.all(color: colors.borderColor),
+                              color: AppColors.white,
+                              borderRadius: AppRadius.cardRadius,
+                              border: Border.all(color: AppColors.border),
                               boxShadow: [
                                 BoxShadow(
-                                  color: colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                                  color: AppColors.navy.withValues(alpha: 0.03),
+                                  blurRadius: 8.r,
+                                  offset: Offset(0, 2.h),
                                 ),
                               ],
                             ),
@@ -225,31 +235,30 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                   height: 60.w,
                                   padding: EdgeInsets.all(4.w),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    color: colors.white,
+                                    borderRadius: AppRadius.cardRadius,
+                                    color: AppColors.pageBg,
                                     border: Border.all(
-                                      color: colors.borderColor.withValues(
-                                        alpha: 0.5,
+                                      color: AppColors.border,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: AppRadius.cardRadius,
+                                    child: CachedNetworkImage(
+                                      imageUrl: widget.productImage,
+                                      fit: BoxFit.contain,
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(
+                                        Icons.image_not_supported_outlined,
+                                        color: AppColors.mutedLight,
                                       ),
                                     ),
                                   ),
-                                  child: CachedNetworkImage(
-                                    imageUrl: widget.productImage,
-                                    fit: BoxFit.contain,
-                                    errorWidget: (context, url, error) => Icon(
-                                      Icons.image_not_supported_outlined,
-                                      color: colors.textMedium,
-                                    ),
-                                  ),
                                 ),
-                                SizedBox(width: 16.w),
+                                SizedBox(width: 14.w),
                                 Expanded(
                                   child: Text(
                                     widget.productName,
-                                    style: textStyle.bodyLargeBold.copyWith(
-                                      fontSize: 16.sp,
-                                      height: 1.3.h,
-                                    ),
+                                    style: AppTypography.cardTitle,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -260,32 +269,44 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                         ),
                       ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 16.h)),
 
+                      // ── Ratings Section ──
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sameGroupItemSpacing.w,
+                          ),
                           child: Text(
                             "Rating",
-                            style: textStyle.headingMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.sp,
-                            ),
+                            style: AppTypography.cardTitle,
                           ),
                         ),
                       ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 12.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 8.h)),
 
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sameGroupItemSpacing.w,
+                          ),
                           child: Container(
-                            padding: EdgeInsets.all(16.w),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 12.h,
+                            ),
                             decoration: BoxDecoration(
-                              color: colors.white,
-                              borderRadius: BorderRadius.circular(12.r),
-                              border: Border.all(color: colors.borderColor),
+                              color: AppColors.white,
+                              borderRadius: AppRadius.cardRadius,
+                              border: Border.all(color: AppColors.border),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.navy.withValues(alpha: 0.03),
+                                  blurRadius: 8.r,
+                                  offset: Offset(0, 2.h),
+                                ),
+                              ],
                             ),
                             child: Column(
                               children: [
@@ -294,23 +315,19 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                   rating: initialData.priceRating,
                                   onRatingChanged: (r) =>
                                       context.read<WriteReviewBloc>().add(
-                                        WriteReviewEvent.updateRating(
-                                          'price',
-                                          r,
-                                        ),
+                                        WriteReviewEvent.updateRating('price', r),
                                       ),
                                 ),
+                                const Divider(height: 12, color: AppColors.border),
                                 RatingInputRow(
                                   label: "Value",
                                   rating: initialData.valueRating,
                                   onRatingChanged: (r) =>
                                       context.read<WriteReviewBloc>().add(
-                                        WriteReviewEvent.updateRating(
-                                          'value',
-                                          r,
-                                        ),
+                                        WriteReviewEvent.updateRating('value', r),
                                       ),
                                 ),
+                                const Divider(height: 12, color: AppColors.border),
                                 RatingInputRow(
                                   label: "Quality",
                                   rating: initialData.qualityRating,
@@ -322,6 +339,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                         ),
                                       ),
                                 ),
+                                const Divider(height: 12, color: AppColors.border),
                                 RatingInputRow(
                                   label: "Service",
                                   rating: initialData.serviceRating,
@@ -339,61 +357,66 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                         ),
                       ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 16.h)),
 
+                      // ── Review Text Field ──
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sameGroupItemSpacing.w,
+                          ),
                           child: Text(
                             "Review",
-                            style: textStyle.headingMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.sp,
-                            ),
+                            style: AppTypography.cardTitle,
                           ),
                         ),
                       ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 12.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 8.h)),
 
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sameGroupItemSpacing.w,
+                          ),
                           child: Form(
                             key: _formKey,
                             child: TextFormField(
                               controller: _reviewController,
                               maxLines: 5,
                               maxLength: 500,
-                              style: textStyle.bodyMedium,
+                              style: AppTypography.inputText,
                               decoration: InputDecoration(
                                 hintText: "Enter your message here",
-                                hintStyle: textStyle.bodyMedium.copyWith(
-                                  color: colors.textMedium,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
+                                hintStyle: AppTypography.inputHint,
+                                border: const OutlineInputBorder(
+                                  borderRadius: AppRadius.cardRadius,
                                   borderSide: BorderSide(
-                                    color: colors.borderColor,
+                                    color: AppColors.border,
                                   ),
                                 ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderRadius: AppRadius.cardRadius,
                                   borderSide: BorderSide(
-                                    color: colors.borderColor,
+                                    color: AppColors.border,
                                   ),
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  borderSide: BorderSide(color: colors.primary),
+                                focusedBorder: const OutlineInputBorder(
+                                  borderRadius: AppRadius.cardRadius,
+                                  borderSide: BorderSide(
+                                    color: AppColors.pickabooBlue,
+                                    width: 1.5,
+                                  ),
                                 ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  borderSide: BorderSide(color: colors.red),
+                                errorBorder: const OutlineInputBorder(
+                                  borderRadius: AppRadius.cardRadius,
+                                  borderSide: BorderSide(
+                                    color: AppColors.red,
+                                  ),
                                 ),
-                                contentPadding: EdgeInsets.all(16.w),
+                                contentPadding: EdgeInsets.all(14.w),
                                 filled: true,
-                                fillColor: colors.white,
+                                fillColor: AppColors.white,
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -409,23 +432,26 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                         ),
                       ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 16.h)),
 
+                      // ── Add Photos Button ──
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sameGroupItemSpacing.w,
+                          ),
                           child: GestureDetector(
                             onTap: () => _showPhotoPickerOptions(context),
                             child: Container(
                               width: double.infinity,
-                              padding: EdgeInsets.symmetric(vertical: 20.h),
+                              padding: EdgeInsets.symmetric(vertical: 18.h),
                               decoration: BoxDecoration(
-                                color: colors.primary.withValues(alpha: 0.05),
-                                borderRadius: BorderRadius.circular(12.r),
+                                color: AppColors.surfaceBlue,
+                                borderRadius: AppRadius.cardRadius,
                                 border: Border.all(
-                                  color: colors.primary.withValues(alpha: 0.5),
-                                  style: BorderStyle.solid,
-                                  width: 1.w,
+                                  color: AppColors.pickabooBlue.withValues(
+                                    alpha: 0.4,
+                                  ),
                                 ),
                               ),
                               child: Column(
@@ -433,15 +459,13 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                 children: [
                                   Icon(
                                     Icons.add_a_photo_outlined,
-                                    color: colors.primary,
-                                    size: 28.sp,
+                                    color: AppColors.pickabooBlue,
+                                    size: 26.sp,
                                   ),
-                                  SizedBox(height: 8.h),
+                                  SizedBox(height: 6.h),
                                   Text(
                                     "Add Photos",
-                                    style: textStyle.bodyLargeBold.copyWith(
-                                      color: colors.primary,
-                                    ),
+                                    style: AppTypography.brandActionText,
                                   ),
                                 ],
                               ),
@@ -450,6 +474,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                         ),
                       ),
 
+                      // ── Attached Photos Preview ──
                       SliverToBoxAdapter(
                         child: BlocBuilder<PhotoPickerBloc, PhotoPickerState>(
                           builder: (context, photoState) {
@@ -460,52 +485,47 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
 
                             return Padding(
                               padding: EdgeInsets.only(
-                                top: 16.h,
-                                left: 16.w,
-                                right: 16.w,
+                                top: 12.h,
+                                left: AppSpacing.sameGroupItemSpacing.w,
+                                right: AppSpacing.sameGroupItemSpacing.w,
                               ),
                               child: SizedBox(
-                                height: 80.w,
+                                height: 74.w,
                                 child: ListView.separated(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: images.length,
                                   separatorBuilder: (context, index) =>
-                                      SizedBox(width: 12.w),
+                                      SizedBox(width: 10.w),
                                   itemBuilder: (context, index) {
                                     return Stack(
                                       children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8.r,
+                                        Container(
+                                          width: 74.w,
+                                          height: 74.w,
+                                          decoration: BoxDecoration(
+                                            borderRadius: AppRadius.cardRadius,
+                                            border: Border.all(
+                                              color: AppColors.border,
+                                            ),
                                           ),
-                                          child: Image.file(
-                                            File(images[index].path),
-                                            width: 80.w,
-                                            height: 80.w,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                                  return Container(
-                                                    width: 80.w,
-                                                    height: 80.w,
-                                                    decoration: BoxDecoration(
-                                                      color: colors.grayLight,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            8.r,
-                                                          ),
-                                                      border: Border.all(
-                                                        color:
-                                                            colors.borderColor,
-                                                      ),
+                                          child: ClipRRect(
+                                            borderRadius: AppRadius.cardRadius,
+                                            child: Image.file(
+                                              File(images[index].path),
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Container(
+                                                  color: AppColors.pageBg,
+                                                  child: const Center(
+                                                    child: Icon(
+                                                      Icons.error_outline,
+                                                      color: AppColors.red,
                                                     ),
-                                                    child: Center(
-                                                      child: Icon(
-                                                        Icons.error_outline,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                         Positioned(
@@ -520,17 +540,17 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                                   ),
                                                 ),
                                             child: Container(
-                                              padding: EdgeInsets.all(4.w),
+                                              padding: EdgeInsets.all(3.w),
                                               decoration: BoxDecoration(
-                                                color: colors.black.withValues(
+                                                color: Colors.black.withValues(
                                                   alpha: 0.6,
                                                 ),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
                                                 Icons.close,
-                                                color: colors.white,
-                                                size: 14.sp,
+                                                color: Colors.white,
+                                                size: 12.sp,
                                               ),
                                             ),
                                           ),
@@ -545,19 +565,23 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                         ),
                       ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 40.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 32.h)),
 
+                      // ── Submit Review Button ──
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sameGroupItemSpacing.w,
+                          ),
                           child: SizedBox(
                             width: double.infinity,
                             height: 48.h,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: colors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.r),
+                                backgroundColor: AppColors.pickabooBlue,
+                                foregroundColor: AppColors.white,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: AppRadius.cardRadius,
                                 ),
                                 elevation: 0,
                               ),
@@ -573,10 +597,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                               },
                               child: Text(
                                 "Submit Review",
-                                style: textStyle.buttonLarge.copyWith(
-                                  color: colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppTypography.buttonPrimary,
                               ),
                             ),
                           ),

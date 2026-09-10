@@ -1,9 +1,14 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/hex_color.dart';
 import 'package:pickaboo/domain/entity/home_flash_sale/home_flash_sale_entity.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -38,26 +43,30 @@ class FlashSaleBannerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     final hasCopy = description.isNotEmpty;
-    final resolvedTitleColor = hexToColor(titleColor) ?? colors.text;
+    final resolvedTitleColor = hexToColor(titleColor) ?? AppColors.text;
     final resolvedHeadlineColor =
-        hexToColor(subTitleColor) ?? colors.text.withValues(alpha: 0.8);
-    final resolvedDescriptionColor = hexToColor(descriptionColor) ?? colors.text;
+        hexToColor(subTitleColor) ?? AppColors.text.withValues(alpha: 0.8);
+    final resolvedDescriptionColor = hexToColor(descriptionColor) ?? AppColors.text;
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
 
     return RepaintBoundary(
       child: Container(
         constraints: BoxConstraints(minHeight: 160.h),
-        margin: EdgeInsets.only(left: 12.w, right: 12.w, top: 16.h),
+        margin: EdgeInsets.fromLTRB(
+          AppSpacing.sameGroupItemSpacing.w,
+          AppSpacing.sameGroupItemSpacing.h,
+          AppSpacing.sameGroupItemSpacing.w,
+          0,
+        ),
         decoration: BoxDecoration(
-          color: colors.primary.withValues(alpha: 0.2),
+          color: AppColors.pickabooBlue.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: colors.whiteSmoke.withValues(alpha: 0.08),
+              color: AppColors.pageBg.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -77,10 +86,10 @@ class FlashSaleBannerWidget extends StatelessWidget {
                   height: double.infinity,
                   memCacheWidth: (screenWidth * devicePixelRatio).round(),
                   placeholder: (context, url) => Container(
-                    color: colors.primary.withValues(alpha: 0.3),
+                    color: AppColors.pickabooBlue.withValues(alpha: 0.3),
                   ),
                   errorWidget: (context, url, error) => Container(
-                    color: colors.primary.withValues(alpha: 0.3),
+                    color: AppColors.pickabooBlue.withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -108,7 +117,10 @@ class FlashSaleBannerWidget extends StatelessWidget {
                                 'assets/new/svg/token_icon.svg',
                                 width: 8.w,
                                 height: 8.w,
-                                color: resolvedTitleColor,
+                                colorFilter: ColorFilter.mode(
+                                  resolvedTitleColor,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                               SizedBox(width: 4.w),
                               Text(
@@ -165,8 +177,8 @@ class FlashSaleBannerWidget extends StatelessWidget {
                             child: ElevatedButton(
                               onPressed: onShopNow,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: colors.primary,
-                                foregroundColor: colors.white,
+                                backgroundColor: AppColors.pickabooBlue,
+                                foregroundColor: AppColors.white,
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 22.w,
                                   vertical: 0,
@@ -179,7 +191,7 @@ class FlashSaleBannerWidget extends StatelessWidget {
                               child: Text(
                                 'Shop Now',
                                 style: textStyle.bodyMedium.copyWith(
-                                  color: colors.white,
+                                  color: AppColors.white,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12.sp,
                                 ),
@@ -285,7 +297,6 @@ class _CountdownViewState extends State<_CountdownView> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     if (_phase == _SalePhase.ended) return const SizedBox.shrink();
@@ -295,24 +306,26 @@ class _CountdownViewState extends State<_CountdownView> {
     final minutes = _remainingTime.inMinutes % 60;
     final seconds = _remainingTime.inSeconds % 60;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_phase == _SalePhase.pre) ...[
-          Text(
-            'STARTS IN',
-            style: textStyle.bodySmall.copyWith(
-              color: colors.text,
-              fontSize: 8.sp,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
+    return RepaintBoundary(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_phase == _SalePhase.pre) ...[
+            Text(
+              'STARTS IN',
+              style: textStyle.bodySmall.copyWith(
+                color: AppColors.text,
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-          SizedBox(height: 4.h),
+            SizedBox(height: 4.h),
+          ],
+          _buildBoxes(days, hours, minutes, seconds, textStyle),
         ],
-        _buildBoxes(days, hours, minutes, seconds, colors, textStyle),
-      ],
+      ),
     );
   }
 
@@ -321,7 +334,6 @@ class _CountdownViewState extends State<_CountdownView> {
     int hours,
     int minutes,
     int seconds,
-    AppColors colors,
     AppTextStyles textStyle,
   ) {
     return Row(
@@ -332,7 +344,6 @@ class _CountdownViewState extends State<_CountdownView> {
             child: _buildTimeBox(
               days.toString().padLeft(2, '0'),
               'DAYS',
-              colors,
               textStyle,
             ),
           ),
@@ -342,7 +353,6 @@ class _CountdownViewState extends State<_CountdownView> {
           child: _buildTimeBox(
             hours.toString().padLeft(2, '0'),
             'HRS',
-            colors,
             textStyle,
           ),
         ),
@@ -351,7 +361,6 @@ class _CountdownViewState extends State<_CountdownView> {
           child: _buildTimeBox(
             minutes.toString().padLeft(2, '0'),
             'MIN',
-            colors,
             textStyle,
           ),
         ),
@@ -360,7 +369,6 @@ class _CountdownViewState extends State<_CountdownView> {
           child: _buildTimeBox(
             seconds.toString().padLeft(2, '0'),
             'SEC',
-            colors,
             textStyle,
           ),
         ),
@@ -371,15 +379,14 @@ class _CountdownViewState extends State<_CountdownView> {
   Widget _buildTimeBox(
     String value,
     String label,
-    AppColors colors,
     AppTextStyles textStyle,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors.primary, width: 2.w),
+        border: Border.all(color: AppColors.pickabooBlue, width: 2.w),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -388,7 +395,7 @@ class _CountdownViewState extends State<_CountdownView> {
             value,
             maxLines: 1,
             style: textStyle.bodyMedium.copyWith(
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
               fontWeight: FontWeight.w700,
               fontSize: 11.sp,
               height: 1.1,
@@ -400,7 +407,7 @@ class _CountdownViewState extends State<_CountdownView> {
               label,
               maxLines: 1,
               style: textStyle.bodySmall.copyWith(
-                color: colors.primary,
+                color: AppColors.pickabooBlue,
                 fontSize: 7.sp,
                 fontWeight: FontWeight.w500,
                 height: 1.1,

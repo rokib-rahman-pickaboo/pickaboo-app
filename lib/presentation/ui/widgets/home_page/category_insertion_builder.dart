@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/banner/banner_entity.dart';
 import 'package:pickaboo/domain/entity/home_content/category_insertion_models.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
@@ -13,22 +14,25 @@ class CategoryInsertionBuilder {
     CategoryInsertionItem item, {
     bool isFirst = false,
   }) {
+    final Widget widget;
     switch (item.type) {
       case InsertionWidgetType.banner:
-        return _buildBanner(context, item.data, isFirst: isFirst);
-
+        widget = _buildBanner(context, item.data, isFirst: isFirst);
+        break;
       case InsertionWidgetType.productGrid:
-        return _buildProductGrid(context, item.data);
-
+        widget = _buildProductGrid(context, item.data);
+        break;
       case InsertionWidgetType.flashSale:
-        return _buildFlashSale(context, item.data);
-
+        widget = _buildFlashSale(context, item.data);
+        break;
       case InsertionWidgetType.categoryGrid:
-        return _buildCategoryGrid(context, item.data);
-
+        widget = _buildCategoryGrid(context, item.data);
+        break;
       case InsertionWidgetType.customWidget:
-        return _buildCustomWidget(context, item.data);
+        widget = _buildCustomWidget(context, item.data);
+        break;
     }
+    return RepaintBoundary(child: widget);
   }
 
   static Widget _buildBanner(
@@ -55,20 +59,25 @@ class CategoryInsertionBuilder {
     double bannerHeight;
     switch (bannerType) {
       case 'large_banner':
-        bannerHeight = 200.h;
+        bannerHeight = 150.h;
         break;
       case 'extra_large':
-        bannerHeight = 260.h;
+        bannerHeight = 180.h;
         break;
       default:
-        bannerHeight = 160.h;
+        bannerHeight = 120.h;
     }
 
     return Padding(
-      padding: EdgeInsets.only(top: 16.h, bottom: 8.h, left: 16.w, right: 16.w),
+      padding: EdgeInsets.only(
+        left: AppSpacing.sameGroupItemSpacing.w,
+        right: AppSpacing.sameGroupItemSpacing.w,
+        bottom: AppSpacing.groupToGroupSpacing.h,
+      ),
       child: BannerItemView(
         banner: banner,
         height: bannerHeight,
+        naturalHeight: true,
         onTap: (b) {
           context.handleBannerTap(
             linkType: b.linkType,
@@ -104,14 +113,13 @@ class CategoryInsertionBuilder {
       case BannerDisplayPolicy.full:
         return Padding(
           padding: EdgeInsets.only(
-            top: isFirst ? 16.h : 6.h,
-            bottom: 6.h,
-            left: 16.w,
-            right: 16.w,
+            left: AppSpacing.sameGroupItemSpacing.w,
+            right: AppSpacing.sameGroupItemSpacing.w,
+            bottom: AppSpacing.groupToGroupSpacing.h,
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(AppRadius.card),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.08),
@@ -123,7 +131,7 @@ class CategoryInsertionBuilder {
             child: BannerItemView(
               banner: sliderEntity,
               naturalHeight: true,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(AppRadius.card),
               onTap: handleTap,
             ),
           ),
@@ -133,10 +141,9 @@ class CategoryInsertionBuilder {
       default:
         return Padding(
           padding: EdgeInsets.only(
-            top: 16.h,
-            bottom: 8.h,
-            left: 16.w,
-            right: 16.w,
+            left: AppSpacing.sameGroupItemSpacing.w,
+            right: AppSpacing.sameGroupItemSpacing.w,
+            bottom: AppSpacing.groupToGroupSpacing.h,
           ),
           child: BannerItemView(
             banner: sliderEntity,
@@ -152,7 +159,7 @@ class CategoryInsertionBuilder {
     Map<String, dynamic> data,
   ) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       child: const Center(child: Text('Product Grid - To be implemented')),
     );
   }
@@ -162,7 +169,7 @@ class CategoryInsertionBuilder {
     Map<String, dynamic> data,
   ) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       child: const Center(child: Text('Flash Sale - To be implemented')),
     );
   }
@@ -225,7 +232,7 @@ class CategoryInsertionBuilder {
       final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
       final screenWidth = MediaQuery.sizeOf(context).width;
       final columnWidth =
-          (screenWidth - 32.w - (columnCount - 1) * 8.w) / columnCount;
+          (screenWidth - 2 * AppSpacing.sameGroupItemSpacing.w - (columnCount - 1) * AppSpacing.sameGroupItemSpacing.w) / columnCount;
       final bannerCacheWidth = (columnWidth * devicePixelRatio).round();
 
       final rows = <Widget>[];
@@ -234,7 +241,7 @@ class CategoryInsertionBuilder {
         final rowChildren = <Widget>[];
 
         for (var j = 0; j < chunk.length; j++) {
-          if (j > 0) rowChildren.add(SizedBox(width: 8.w));
+          if (j > 0) rowChildren.add(SizedBox(width: AppSpacing.sameGroupItemSpacing.w));
           final banner = chunk[j];
           rowChildren.add(
             Expanded(
@@ -249,13 +256,13 @@ class CategoryInsertionBuilder {
         }
 
         for (var k = chunk.length; k < columnCount; k++) {
-          rowChildren.add(SizedBox(width: 8.w));
+          rowChildren.add(SizedBox(width: AppSpacing.sameGroupItemSpacing.w));
           rowChildren.add(const Expanded(child: SizedBox.shrink()));
         }
 
         rows.add(
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: rowChildren,
@@ -265,7 +272,10 @@ class CategoryInsertionBuilder {
       }
 
       return Padding(
-        padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.sameGroupItemSpacing.w,
+          vertical: AppSpacing.sameGroupItemSpacing.h,
+        ),
         child: Column(children: rows),
       );
     }
@@ -290,7 +300,7 @@ class CategoryInsertionBuilder {
         final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
         final screenWidth = MediaQuery.sizeOf(context).width;
         final itemWidth =
-            (screenWidth - 32.w - (itemCount - 1) * 8.w) / itemCount;
+            (screenWidth - 2 * AppSpacing.sameGroupItemSpacing.w - (itemCount - 1) * AppSpacing.sameGroupItemSpacing.w) / itemCount;
         final bannerCacheWidth = (itemWidth * devicePixelRatio).round();
 
         final rows = <Widget>[];
@@ -299,12 +309,13 @@ class CategoryInsertionBuilder {
           final rowChildren = <Widget>[];
 
           for (var j = 0; j < chunk.length; j++) {
-            if (j > 0) rowChildren.add(SizedBox(width: 8.w));
+            if (j > 0) rowChildren.add(SizedBox(width: AppSpacing.sameGroupItemSpacing.w));
             rowChildren.add(
               Expanded(
                 child: BannerItemView(
                   banner: chunk[j],
-                  height: 160.h,
+                  height: 120.h,
+                  naturalHeight: true,
                   cacheWidth: bannerCacheWidth,
                   onTap: handleTap(chunk[j]),
                 ),
@@ -314,14 +325,14 @@ class CategoryInsertionBuilder {
 
           if (chunk.length < itemCount) {
             for (var k = chunk.length; k < itemCount; k++) {
-              rowChildren.add(SizedBox(width: 8.w));
+              rowChildren.add(SizedBox(width: AppSpacing.sameGroupItemSpacing.w));
               rowChildren.add(const Expanded(child: SizedBox.shrink()));
             }
           }
 
           rows.add(
             Padding(
-              padding: EdgeInsets.only(bottom: 8.h),
+              padding: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: rowChildren,
@@ -331,24 +342,31 @@ class CategoryInsertionBuilder {
         }
 
         return Padding(
-          padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.sameGroupItemSpacing.w,
+            vertical: AppSpacing.sameGroupItemSpacing.h,
+          ),
           child: Column(children: rows),
         );
       } else {
         final columnChildren = <Widget>[];
         for (var i = 0; i < banners.length; i++) {
-          if (i > 0) columnChildren.add(SizedBox(height: 8.h));
+          if (i > 0) columnChildren.add(SizedBox(height: AppSpacing.sameGroupItemSpacing.h));
           columnChildren.add(
             BannerItemView(
               banner: banners[i],
-              height: 160.h,
+              height: 120.h,
+              naturalHeight: true,
               onTap: handleTap(banners[i]),
             ),
           );
         }
 
         return Padding(
-          padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.sameGroupItemSpacing.w,
+            vertical: AppSpacing.sameGroupItemSpacing.h,
+          ),
           child: Column(children: columnChildren),
         );
       }

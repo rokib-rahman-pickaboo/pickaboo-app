@@ -1,109 +1,164 @@
-import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
-import 'package:pickaboo/domain/entity/common/category/category_entity.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/domain/entity/discover_category/discover_subsection_item_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
-class SubcategoryCard extends StatelessWidget {
-  final CategoryEntity subcategory;
-  final VoidCallback onTap;
+/// ============================================================================
+/// 📦 DISCOVER SECTION CARD
+/// White elevated surface card encapsulating Section Title + 3-Column Item Grid
+/// ============================================================================
+class DiscoverSectionCard extends StatelessWidget {
+  final String title;
+  final List<DiscoverSubsectionItemEntity> items;
+  final void Function(DiscoverSubsectionItemEntity item)? onItemTap;
 
-  const SubcategoryCard({
+  const DiscoverSectionCard({
     super.key,
-    required this.subcategory,
-    required this.onTap,
+    required this.title,
+    required this.items,
+    this.onItemTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
+    if (items.isEmpty) return const SizedBox.shrink();
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: colors.borderColor, width: 1.w),
-          boxShadow: [
-            BoxShadow(
-              color: colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+    return Container(
+      margin: EdgeInsets.only(
+        left: 8.w,
+        right: 8.w,
+        bottom: 10.h,
+      ),
+      padding: EdgeInsets.all(10.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(
+          color: AppColors.border,
+          width: 1.w,
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisSize: MainAxisSize.min,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.02),
+            blurRadius: 6.r,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Header: Section Title ──
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.sectionTitle.copyWith(
+              fontSize: 13.5.sp,
+              fontWeight: FontWeight.w800,
+              color: AppColors.navy,
+            ),
+          ),
+
+          SizedBox(height: 10.h),
+
+          // ── 3-Column Item Grid ──
+          Column(
             children: [
-              if (subcategory.icon.isNotEmpty)
-                Flexible(
-                  child: AppImage(
-                    imageUrl: subcategory.icon,
-                    width: 40.w,
-                    height: 40.h,
-                    fit: BoxFit.cover,
-                    placeholder: SizedBox(
-                      width: 40.w,
-                      height: 40.h,
-                      child: Center(
-                        child: SizedBox(
-                          width: 16.w,
-                          height: 16.h,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colors.primary,
-                          ),
-                        ),
+              for (int i = 0; i < items.length; i += 3) ...[
+                if (i > 0) SizedBox(height: 10.h),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (int j = 0; j < 3; j++) ...[
+                      if (j > 0) SizedBox(width: 8.w),
+                      Expanded(
+                        child: (i + j < items.length)
+                            ? DiscoverItemTile(
+                                item: items[i + j],
+                                onTap: () => onItemTap?.call(items[i + j]),
+                              )
+                            : const SizedBox.shrink(),
                       ),
-                    ),
-                    errorWidget: Icon(
-                      Icons.category_outlined,
-                      size: 30.sp,
-                      color: colors.primary,
-                    ),
-                  ),
-                )
-              else
-                Flexible(
-                  child: Icon(
-                    Icons.category_outlined,
-                    size: 30.sp,
-                    color: colors.primary,
-                  ),
-                ),
-
-              SizedBox(height: 6.h),
-
-              Flexible(
-                child: Text(
-                  subcategory.name,
-                  style: textStyles.bodySmall.withColor(colors.text),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              if (subcategory.children.isNotEmpty) ...[
-                SizedBox(height: 2.h),
-                Text(
-                  'Shop Now',
-                  style: textStyles.caption.copyWith(
-                    color: colors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                    ],
+                  ],
                 ),
               ],
             ],
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+/// ============================================================================
+/// 🏷️ DISCOVER ITEM TILE
+/// Uniform tile with a full-sized square image and 2-line title underneath.
+/// ============================================================================
+class DiscoverItemTile extends StatelessWidget {
+  final DiscoverSubsectionItemEntity item;
+  final VoidCallback? onTap;
+
+  const DiscoverItemTile({
+    super.key,
+    required this.item,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Image Container (Full Sized Square 1:1 Aspect Ratio) ──
+          AspectRatio(
+            aspectRatio: 1.0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.r),
+              child: AppImage(
+                imageUrl: item.imageUrl,
+                fit: BoxFit.cover,
+                errorWidget: Center(
+                  child: Icon(
+                    Icons.category_outlined,
+                    size: 24.sp,
+                    color: AppColors.mutedLight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(height: 6.h),
+
+          // ── Title Label (Max 2 lines, Navy) ──
+          SizedBox(
+            height: 28.h,
+            child: Center(
+              child: Text(
+                item.name,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.bodyTiny,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

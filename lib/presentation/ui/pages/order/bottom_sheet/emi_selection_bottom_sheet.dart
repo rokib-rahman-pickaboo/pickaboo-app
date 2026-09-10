@@ -1,7 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/checkout/checkout_emi_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/emi_picker_sheets.dart';
 
@@ -70,7 +76,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    SnackBarUtils.showRegular(context, message);
   }
 
   Future<void> _pickBank() async {
@@ -89,7 +95,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
 
   Future<void> _pickTenure() async {
     if (localBank == null) {
-      _showMessage('Please select bank');
+      _showMessage(AppStrings.pleaseSelectBank);
       return;
     }
     final result = await showEmiTenurePickerSheet(
@@ -104,11 +110,11 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
 
   void _handleApply() {
     if (localBank == null) {
-      _showMessage('Please select bank');
+      _showMessage(AppStrings.pleaseSelectBank);
       return;
     }
     if (localTenure == null) {
-      _showMessage('Please select tenure');
+      _showMessage(AppStrings.pleaseSelectTenure);
       return;
     }
     widget.onConfirm(localBank!, localTenure!, localMode);
@@ -117,7 +123,6 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     final isDhaka = widget.emiData.isCardOnDeliveryAvailable;
     final tenure = localTenure;
@@ -129,7 +134,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
           maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         decoration: BoxDecoration(
-          color: colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
         ),
         child: Column(
@@ -142,23 +147,23 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                 children: [
                   Text(
                     'EMI Details',
-                    style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                    style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: EdgeInsets.all(4.w),
-                      decoration: BoxDecoration(
-                        color: colors.backgroundGray,
+                      decoration: const BoxDecoration(
+                        color: AppColors.pageBg,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.close, color: colors.text, size: 20.sp),
+                      child: Icon(Icons.close, color: AppColors.text, size: 20.sp),
                     ),
                   ),
                 ],
               ),
             ),
-            Divider(height: 1, color: colors.borderColor),
+            const Divider(height: 1, color: AppColors.border),
 
             Flexible(
               child: SingleChildScrollView(
@@ -168,7 +173,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                   children: [
                     Text(
                       'Payment Mode',
-                      style: textStyle.bodySmall.copyWith(color: colors.textLight),
+                      style: textStyle.bodySmall.copyWith(color: AppColors.mutedLight),
                     ),
                     SizedBox(height: 8.h),
                     _ModeOption(
@@ -190,7 +195,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                     SizedBox(height: 20.h),
                     Text(
                       'Select Bank',
-                      style: textStyle.bodySmall.copyWith(color: colors.textLight),
+                      style: textStyle.bodySmall.copyWith(color: AppColors.mutedLight),
                     ),
                     SizedBox(height: 8.h),
                     _DropdownField(
@@ -201,7 +206,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                     SizedBox(height: 20.h),
                     Text(
                       'Select Tenure',
-                      style: textStyle.bodySmall.copyWith(color: colors.textLight),
+                      style: textStyle.bodySmall.copyWith(color: AppColors.mutedLight),
                     ),
                     SizedBox(height: 8.h),
                     _DropdownField(
@@ -222,7 +227,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: colors.backgroundGray,
+                          color: AppColors.pageBg,
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Column(
@@ -231,31 +236,27 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                             Text(
                               'EMI Summary',
                               style: textStyle.bodyMediumBold.copyWith(
-                                color: colors.text,
+                                color: AppColors.text,
                               ),
                             ),
                             SizedBox(height: 8.h),
                             _summaryRow(
                               textStyle,
-                              colors,
                               'Price',
                               productPrice.toStringAsFixed(2),
                             ),
                             _summaryRow(
                               textStyle,
-                              colors,
                               'Convenience Fee',
                               fee.toStringAsFixed(2),
                             ),
                             _summaryRow(
                               textStyle,
-                              colors,
                               'Shipping',
                               shipping.toStringAsFixed(2),
                             ),
                             _summaryRow(
                               textStyle,
-                              colors,
                               'Total Amount Payable',
                               total.toStringAsFixed(2),
                             ),
@@ -282,8 +283,8 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                 child: ElevatedButton(
                   onPressed: _handleApply,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.white,
+                    backgroundColor: AppColors.pickabooBlue,
+                    foregroundColor: AppColors.white,
                     minimumSize: Size(0, 48.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),
@@ -294,7 +295,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                     localMode == 'Card On Delivery'
                         ? 'Confirm (Card On Delivery)'
                         : 'Confirm & Pay',
-                    style: textStyle.buttonMedium.copyWith(color: colors.white),
+                    style: textStyle.buttonMedium.copyWith(color: AppColors.white),
                   ),
                 ),
               ),
@@ -307,7 +308,6 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
 
   Widget _summaryRow(
     AppTextStyles textStyle,
-    AppColors colors,
     String label,
     String value,
   ) {
@@ -316,9 +316,9 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: textStyle.bodySmall.copyWith(color: colors.text)),
+            child: Text(label, style: textStyle.bodySmall.copyWith(color: AppColors.text)),
           ),
-          Text('৳ $value', style: textStyle.bodySmallBold.copyWith(color: colors.text)),
+          Text('৳ $value', style: textStyle.bodySmallBold.copyWith(color: AppColors.text)),
         ],
       ),
     );
@@ -340,7 +340,6 @@ class _ModeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     final isSelected = value == groupValue;
 
@@ -350,10 +349,10 @@ class _ModeOption extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: isSelected ? colors.primary.withValues(alpha: 0.05) : colors.white,
+          color: isSelected ? AppColors.pickabooBlue.withValues(alpha: 0.05) : AppColors.white,
           borderRadius: BorderRadius.circular(8.r),
           border: Border.all(
-            color: isSelected ? colors.primary : colors.borderColor,
+            color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -362,13 +361,13 @@ class _ModeOption extends StatelessWidget {
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 20.r,
-              color: isSelected ? colors.primary : colors.silverChalice,
+              color: isSelected ? AppColors.pickabooBlue : AppColors.mutedLight,
             ),
             SizedBox(width: 10.w),
             Text(
               label,
               style: textStyle.bodySmall.copyWith(
-                color: colors.text,
+                color: AppColors.text,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
@@ -387,7 +386,6 @@ class _DropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return InkWell(
@@ -397,9 +395,9 @@ class _DropdownField extends StatelessWidget {
         height: 44.h,
         padding: EdgeInsets.symmetric(horizontal: 14.w),
         decoration: BoxDecoration(
-          color: colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: colors.borderColor),
+          border: Border.all(color: AppColors.border),
         ),
         child: Row(
           children: [
@@ -408,10 +406,10 @@ class _DropdownField extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textStyle.bodySmall.copyWith(color: colors.text),
+                style: textStyle.bodySmall.copyWith(color: AppColors.text),
               ),
             ),
-            Icon(Icons.keyboard_arrow_down, size: 20.r, color: colors.textLight),
+            Icon(Icons.keyboard_arrow_down, size: 20.r, color: AppColors.mutedLight),
           ],
         ),
       ),

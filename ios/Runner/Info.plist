@@ -63,6 +63,11 @@
 	<string>Pickaboo</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>tel</string>
+		<string>mailto</string>
+		<string>whatsapp</string>
+		<string>https</string>
+		<string>http</string>
 		<string>fbapi</string>
 		<string>fbapi20130214</string>
 		<string>fbapi20130410</string>
@@ -79,11 +84,17 @@
 		<string>fbauth2</string>
 		<string>fbshareextension</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Take a photo for your profile, a product review, or a support ticket.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Find your delivery address on the map and see delivery time and charges for your area.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Find your delivery address on the map and see delivery time and charges for your area.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Find your delivery address on the map and see delivery time and charges for your area.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Record sound when you add a video to a product review or support ticket.</string>

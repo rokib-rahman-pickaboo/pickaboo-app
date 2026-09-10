@@ -1,28 +1,37 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 
+/// Modern minimal RewardPointsWidget matching base Pickaboo logic:
+/// - Title & available points subtitle
+/// - Optional points to earn indicator
+/// - Points input field with single clean OutlineInputBorder
+/// - "Use maximum X Club Points" toggle
+/// - Full-width Apply Points / Cancel Points button
 class RewardPointsWidget extends StatefulWidget {
+  final int maxPoints;
+  final int minPoints;
+  final int pointsToEarn;
+  final int appliedPoints;
   final Function(int) onApply;
   final VoidCallback? onCancel;
 
-  final int maxPoints;
-  final int minPoints;
-
-  final int appliedPoints;
-
-  final int pointsToEarn;
-
   const RewardPointsWidget({
     super.key,
+    required this.maxPoints,
+    required this.minPoints,
+    required this.pointsToEarn,
+    required this.appliedPoints,
     required this.onApply,
     this.onCancel,
-    this.maxPoints = 0,
-    this.minPoints = 0,
-    this.appliedPoints = 0,
-    this.pointsToEarn = 0,
   });
 
   @override
@@ -34,6 +43,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
   bool _useMaxPoints = false;
 
   bool get _isPointsApplied => widget.appliedPoints > 0;
+  bool get _canRedeem => widget.maxPoints > 0;
 
   @override
   void initState() {
@@ -53,60 +63,50 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
         _controller.clear();
         _useMaxPoints = false;
       }
+    } else if (_useMaxPoints &&
+        widget.maxPoints != oldWidget.maxPoints &&
+        !_isPointsApplied) {
+      _controller.text = widget.maxPoints.toString();
     }
   }
 
-  bool get _canRedeem => widget.maxPoints > 0;
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
-  void _onApplyPressed() {
-    if (!_canRedeem) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No club points can be redeemed on this order'),
-        ),
-      );
+  void _handleApply() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) {
+      SnackBarUtils.showWarning(context, 'Please enter amount of points to spend');
       return;
     }
-
-    if (_controller.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter amount of points to spend'),
-        ),
-      );
-      return;
-    }
-
-    final points = int.tryParse(_controller.text);
+    final points = int.tryParse(text);
     if (points == null || points <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid point amount')),
-      );
+      SnackBarUtils.showWarning(context, 'Please enter a valid point amount');
       return;
     }
-
     if (widget.minPoints > 0 && points < widget.minPoints) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Use minimum ${widget.minPoints} points'),
-        ),
+      SnackBarUtils.showWarning(
+        context,
+        'Use minimum ${widget.minPoints} points',
       );
       return;
     }
-
     if (widget.maxPoints > 0 && points > widget.maxPoints) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Use maximum ${widget.maxPoints} points'),
-        ),
+      SnackBarUtils.showWarning(
+        context,
+        'Use maximum ${widget.maxPoints} points',
       );
       return;
     }
-
+    FocusScope.of(context).unfocus();
     widget.onApply(points);
   }
 
-  void _onCancelPressed() {
+  void _handleCancel() {
+    FocusScope.of(context).unfocus();
     setState(() {
       _useMaxPoints = false;
       _controller.clear();
@@ -116,19 +116,20 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Container(
-      padding: EdgeInsets.all(16.w),
-      margin: EdgeInsets.only(top: 10.h),
+      padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(width: 1.w, color: context.colors.borderColor),
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(
+          color: _isPointsApplied
+              ? AppColors.amber.withValues(alpha: 0.4)
+              : AppColors.border,
+        ),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
+            color: AppColors.navy.withValues(alpha: 0.02),
+            blurRadius: 6.r,
             offset: Offset(0, 2.h),
           ),
         ],
@@ -138,82 +139,98 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
         children: [
           Text(
             'Use Club Points',
-            style: context.textStyle.cardTitle.copyWith(
-              fontWeight: FontWeight.bold,
-              color: colors.text,
+            style: AppTypography.cardTitle.copyWith(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.navy,
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 4.h),
           Text(
             _canRedeem
                 ? 'You can use up to ${widget.maxPoints} Club Points on this order'
                 : 'No Club Points can be used on this order',
-            style: context.textStyle.bodySmall.withColor(colors.text),
+            style: AppTypography.bodyMuted.copyWith(
+              color: AppColors.muted,
+            ),
           ),
           if (widget.pointsToEarn > 0) ...[
             SizedBox(height: 4.h),
             Text(
               "You'll earn ${widget.pointsToEarn} Club Points from this order",
-              style: context.textStyle.bodySmall.withColor(colors.green),
+              style: AppTypography.bodyMuted.copyWith(
+                color: AppColors.green,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
-
-          SizedBox(height: 16.h),
-
-          TextField(
-            controller: _controller,
-            keyboardType: TextInputType.number,
-            enabled: !_isPointsApplied && _canRedeem,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              _MaxPointsInputFormatter(widget.maxPoints),
-            ],
-            onChanged: (value) {
-              if (_useMaxPoints && value != widget.maxPoints.toString()) {
-                setState(() {
-                  _useMaxPoints = false;
-                });
-              }
-            },
-            decoration: InputDecoration(
-              hintText: 'Enter Amount of Points to Spend',
-              hintStyle: context.textStyle.inputPlaceholder.withColor(
-                colors.silverChalice,
+          SizedBox(height: 12.h),
+          SizedBox(
+            height: 44.h,
+            child: TextField(
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              enabled: !_isPointsApplied && _canRedeem,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _MaxPointsInputFormatter(widget.maxPoints),
+              ],
+              onChanged: (value) {
+                if (_useMaxPoints && value != widget.maxPoints.toString()) {
+                  setState(() {
+                    _useMaxPoints = false;
+                  });
+                }
+              },
+              style: AppTypography.cardTitle.copyWith(
+                fontSize: 13.sp,
+                color: AppColors.navy,
               ),
-              filled: true,
-              fillColor:
-                  _isPointsApplied ? colors.whiteSmoke : colors.white,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 12.h,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: colors.borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: colors.borderColor),
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: colors.borderColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: colors.primary, width: 1),
+              decoration: InputDecoration(
+                hintText: 'Enter Amount of Points to Spend',
+                hintStyle: AppTypography.inputHint,
+                filled: true,
+                fillColor: _isPointsApplied
+                    ? AppColors.pageBg
+                    : AppColors.white,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 14.w,
+                  vertical: 12.h,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: AppColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(
+                    color: AppColors.pickabooBlue,
+                    width: 1.2,
+                  ),
+                ),
               ),
             ),
           ),
-
-          SizedBox(height: 12.h),
-
           if (!_isPointsApplied && _canRedeem) ...[
+            SizedBox(height: 10.h),
             InkWell(
               onTap: () {
                 setState(() {
-                  _useMaxPoints = true;
-                  _controller.text = widget.maxPoints.toString();
+                  _useMaxPoints = !_useMaxPoints;
+                  if (_useMaxPoints) {
+                    _controller.text = widget.maxPoints.toString();
+                  } else {
+                    _controller.clear();
+                  }
                 });
               },
               child: Row(
@@ -222,85 +239,58 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                     _useMaxPoints
                         ? Icons.radio_button_checked
                         : Icons.radio_button_unchecked,
-                    size: 20.sp,
+                    size: 18.sp,
                     color: _useMaxPoints
-                        ? const Color(0xFF1B5DD5)
-                        : colors.gray,
+                        ? AppColors.pickabooBlue
+                        : AppColors.mutedLight,
                   ),
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
                       'Use maximum ${widget.maxPoints} Club Points',
-                      style: context.textStyle.bodyMediumMedium.withColor(
-                        colors.gray,
+                      style: AppTypography.bodyMuted.copyWith(
+                        color: AppColors.navy,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16.h),
           ],
-
-          InkWell(
-            onTap: _isPointsApplied
-                ? _onCancelPressed
-                : (_canRedeem ? _onApplyPressed : null),
-            borderRadius: BorderRadius.circular(12.r),
-            child: Opacity(
-              opacity: _isPointsApplied || _canRedeem ? 1 : 0.5,
-              child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 12.h),
-              decoration: BoxDecoration(
-                color: _isPointsApplied
-                    ? const Color(0xFFEFEFEF)
-                    : null,
-                gradient: _isPointsApplied
-                    ? null
-                    : LinearGradient(
-                        colors: [
-                          colors.button,
-                          colors.button.withValues(alpha: 0.85),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                borderRadius: BorderRadius.circular(12.r),
-                border: _isPointsApplied
-                    ? Border.all(color: const Color(0xFFD9D9D9))
-                    : null,
-                boxShadow: _isPointsApplied
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.button.withValues(alpha: 0.3),
-                          blurRadius: 12.r,
-                          offset: Offset(0, 4.h),
-                        ),
-                      ],
-              ),
-              child: Center(
-                child: Text(
-                  _isPointsApplied ? 'Cancel Points' : 'Apply Points',
-                  style: context.textStyle.buttonMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: _isPointsApplied ? colors.text : colors.white,
-                  ),
+          SizedBox(height: 12.h),
+          SizedBox(
+            width: double.infinity,
+            height: 42.h,
+            child: ElevatedButton(
+              onPressed: _isPointsApplied
+                  ? _handleCancel
+                  : (_canRedeem ? _handleApply : null),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isPointsApplied
+                    ? AppColors.pageBg
+                    : AppColors.pickabooBlue,
+                foregroundColor: _isPointsApplied
+                    ? AppColors.navy
+                    : AppColors.white,
+                disabledBackgroundColor: AppColors.pageBg,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  side: _isPointsApplied
+                      ? const BorderSide(color: AppColors.border)
+                      : BorderSide.none,
                 ),
+                elevation: 0,
               ),
+              child: Text(
+                _isPointsApplied ? 'Cancel Points' : 'Apply Points',
+                style: _isPointsApplied ? AppTypography.buttonSecondary.withColor(AppColors.navy) : (_canRedeem ? AppTypography.buttonPrimary : AppTypography.buttonPrimary.withColor(AppColors.mutedLight)),
               ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 

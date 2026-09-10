@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class SearchablePickerSheet<T> extends StatefulWidget {
   final String title;
@@ -54,7 +53,6 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
     final showSearch = widget.items.length > widget.searchThreshold;
     final filtered = _filtered;
@@ -76,23 +74,23 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
         children: [
           Text(
             widget.title,
-            style: textStyle.headingSmall.copyWith(color: colors.text),
+            style: textStyle.headingSmall.copyWith(color: AppColors.text),
           ),
           SizedBox(height: 16.h),
           if (showSearch) ...[
             TextField(
               controller: _searchController,
               onChanged: (v) => setState(() => _query = v.trim()),
-              style: textStyle.inputText.copyWith(color: colors.text),
+              style: textStyle.inputText.copyWith(color: AppColors.text),
               decoration: InputDecoration(
                 hintText: widget.searchHint,
                 hintStyle: textStyle.inputPlaceholder.copyWith(
-                  color: colors.gray.withValues(alpha: 0.5),
+                  color: AppColors.muted.withValues(alpha: 0.5),
                 ),
-                prefixIcon: Icon(Icons.search, color: colors.gray, size: 20.r),
+                prefixIcon: Icon(Icons.search, color: AppColors.muted, size: 20.r),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear, color: colors.gray, size: 18.r),
+                        icon: Icon(Icons.clear, color: AppColors.muted, size: 18.r),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _query = '');
@@ -101,7 +99,7 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                     : null,
                 isDense: true,
                 filled: true,
-                fillColor: colors.whiteSmoke,
+                fillColor: AppColors.pageBg,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 12.w,
                   vertical: 10.h,
@@ -116,7 +114,7 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide(color: colors.primary),
+                  borderSide: const BorderSide(color: AppColors.pickabooBlue),
                 ),
               ),
             ),
@@ -129,7 +127,7 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                     child: Text(
                       'No results for "$_query"',
                       style: textStyle.bodyMedium.copyWith(
-                        color: colors.textMedium,
+                        color: AppColors.muted,
                       ),
                     ),
                   )
@@ -148,12 +146,12 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                             ? Text(
                                 subtitle,
                                 style: textStyle.bodySmall.copyWith(
-                                  color: colors.textMedium,
+                                  color: AppColors.muted,
                                 ),
                               )
                             : null,
                         trailing: widget.isSelected?.call(item) == true
-                            ? Icon(Icons.check, color: colors.primary)
+                            ? const Icon(Icons.check, color: AppColors.pickabooBlue)
                             : null,
                         onTap: () => Navigator.pop(context, item),
                       );

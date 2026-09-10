@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/bloc/promo_bloc/promo_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/free_delivery_coupon_dialog.dart';
 
@@ -16,20 +15,18 @@ class ProductPromotionsSection extends StatelessWidget {
         return state.maybeWhen(
           loaded: (promo) {
             if (!promo.isEligible) return const SizedBox.shrink();
-
-            final colors = context.colors;
             final textStyle = context.textStyle;
 
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              color: colors.white,
+              color: AppColors.white,
               child: Row(
                 children: [
                   Text(
                     'Promotions:',
                     style: textStyle.offerBadge.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: colors.text,
+                      color: AppColors.text,
                     ),
                   ),
                   SizedBox(width: 12.w),
@@ -46,7 +43,7 @@ class ProductPromotionsSection extends StatelessWidget {
                           vertical: 6.h,
                         ),
                         decoration: const BoxDecoration(
-                          color: Color(0xFF0094CF),
+                          color: AppColors.pickabooBlue,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -54,13 +51,13 @@ class ProductPromotionsSection extends StatelessWidget {
                             Text(
                               'Free Delivery',
                               style: textStyle.offerBadge.copyWith(
-                                color: colors.white,
+                                color: AppColors.white,
                               ),
                             ),
                             SizedBox(width: 6.w),
                             Icon(
                               Icons.keyboard_arrow_down,
-                              color: colors.white,
+                              color: AppColors.white,
                               size: 16.sp,
                             ),
                           ],

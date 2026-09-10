@@ -529,8 +529,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     if (_currentCheckout == null) {
       if (kDebugMode) print('❌ CheckoutBloc: Checkout data not loaded');
       emit(
-        CheckoutState.error(
-          error: const AppErrorEntity(message: 'Checkout data not loaded'),
+        const CheckoutState.error(
+          error: AppErrorEntity(message: 'Checkout data not loaded'),
         ),
       );
       return;
@@ -1321,25 +1321,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       return;
     }
 
-    final updateResult = await repository.updateOrderPayment(
-      orderId: event.orderId,
-      paymentMethod: 'emi',
-      paymentGateway: event.paymentGateway,
-    );
-
-    final updateOk = updateResult.fold((_) => false, (_) => true);
-    if (!updateOk) {
-      if (kDebugMode) print('❌ CheckoutBloc: updateOrderPayment failed for EMI');
-      emit(CheckoutState.paymentFailed(
-        orderId: event.orderId,
-        errorMessage: 'Failed to update payment method. Please try again.',
-      ));
-      return;
-    }
-
     if (kDebugMode) {
-      print('✅ CheckoutBloc: EMI order payment updated (gateway=${event.paymentGateway})');
-      print('💳 CheckoutBloc: Creating EMI digital order...');
+      print('💳 CheckoutBloc: Creating EMI digital order (gateway=${event.paymentGateway})...');
     }
 
     final gateway = event.paymentGateway.toLowerCase().trim();

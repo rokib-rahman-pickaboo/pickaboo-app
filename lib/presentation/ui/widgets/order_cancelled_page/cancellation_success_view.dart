@@ -1,12 +1,19 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/order/order_cancel_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
+/// Modernized CancellationSuccessView matching Pickaboo-App-UI design language.
 class CancellationSuccessView extends StatelessWidget {
   final OrderCancelEntity order;
   final VoidCallback onViewDetails;
@@ -19,51 +26,79 @@ class CancellationSuccessView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: AppSpacing.groupToGroupSpacing.h,
+      ),
       child: Column(
         children: [
+          // ── HEADER CARD ──
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.all(20.w),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.cardRadius,
+              border: Border.all(color: AppColors.border),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.navy.withValues(alpha: 0.03),
+                  blurRadius: 8.r,
+                  offset: Offset(0, 2.h),
+                ),
+              ],
+            ),
             child: Column(
               children: [
-                SizedBox(height: 16.h),
-                Icon(Icons.check_circle, color: colors.green, size: 64.w),
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.green,
+                  size: 56.sp,
+                ),
                 SizedBox(height: 12.h),
                 Text(
                   "Cancellation Successful",
-                  style: textStyles.headingSmall.copyWith(
-                    color: colors.text,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTypography.pageTitle,
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 6.h),
                 Text(
                   "Your order has been cancelled successfully",
                   textAlign: TextAlign.center,
-                  style: textStyles.bodyMedium.copyWith(color: colors.gray),
+                  style: AppTypography.bodyMuted,
                 ),
               ],
             ),
           ),
 
-          SizedBox(height: 24.h),
+          SizedBox(height: AppSpacing.groupToGroupSpacing.h),
 
+          // ── TIMELINE ──
           if (order.statusHistories.isNotEmpty)
             Container(
-              color: colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              width: double.infinity,
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: AppRadius.cardRadius,
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.navy.withValues(alpha: 0.03),
+                    blurRadius: 8.r,
+                    offset: Offset(0, 2.h),
+                  ),
+                ],
+              ),
               child: FixedTimeline.tileBuilder(
                 theme: TimelineThemeData(
                   nodePosition: 0,
-                  color: colors.primary,
+                  color: AppColors.pickabooBlue,
                   indicatorTheme: IndicatorThemeData(position: 0, size: 12.w),
                   connectorTheme: ConnectorThemeData(
                     thickness: 2.w,
-                    color: colors.primary,
+                    color: AppColors.pickabooBlue,
                   ),
                 ),
                 builder: TimelineTileBuilder.connected(
@@ -76,41 +111,26 @@ class CancellationSuccessView extends StatelessWidget {
                     final date = DateTime.tryParse(status.createdAt);
 
                     return Padding(
-                      padding: EdgeInsets.only(left: 12.w, bottom: 24.h),
+                      padding: EdgeInsets.only(left: 12.w, bottom: 20.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             _formatStatusText(status.status),
-                            style:
-                                (isLatest
-                                        ? textStyles.bodyMediumBold
-                                        : textStyles.bodyMedium)
-                                    .copyWith(
-                                      color: isLatest
-                                          ? colors.primary
-                                          : colors.text,
-                                    ),
+                            style: isLatest ? AppTypography.brandActionText : AppTypography.cardTitle,
                           ),
                           if (date != null) ...[
-                            SizedBox(height: 4.h),
+                            SizedBox(height: 3.h),
                             Text(
                               DateFormat('MMM dd, yyyy - hh:mm a').format(date),
-                              style: textStyles.bodySmall.copyWith(
-                                color: colors.gray,
-                                fontSize: 11.sp,
-                              ),
+                              style: AppTypography.bodyMutedLight,
                             ),
                           ],
-                          if (status.comment != null &&
-                              status.comment!.isNotEmpty) ...[
-                            SizedBox(height: 6.h),
+                          if (status.comment != null && status.comment!.isNotEmpty) ...[
+                            SizedBox(height: 4.h),
                             Text(
                               status.comment!,
-                              style: textStyles.bodySmall.copyWith(
-                                color: colors.text.withValues(alpha: 0.8),
-                                fontStyle: FontStyle.italic,
-                              ),
+                              style: AppTypography.bodyMuted.italic(),
                             ),
                           ],
                         ],
@@ -120,49 +140,45 @@ class CancellationSuccessView extends StatelessWidget {
                   indicatorBuilder: (_, index) {
                     final isLatest = index == 0;
                     return DotIndicator(
-                      color: isLatest ? colors.primary : colors.grayLight,
+                      color: isLatest ? AppColors.pickabooBlue : AppColors.border,
                       size: 12.w,
                       child: isLatest
-                          ? Icon(Icons.check, size: 8.w, color: colors.white)
+                          ? Icon(Icons.check, size: 8.w, color: AppColors.white)
                           : null,
                     );
                   },
                   connectorBuilder: (_, index, _) {
                     return SolidLineConnector(
-                      color: index == 0 ? colors.primary : colors.grayLight,
+                      color: index == 0 ? AppColors.pickabooBlue : AppColors.border,
                     );
                   },
                 ),
               ),
             ),
 
-          SizedBox(height: 16.h),
+          SizedBox(height: AppSpacing.groupToGroupSpacing.h),
 
-          ...order.items.map(
-            (item) => _buildItemCard(item, colors, textStyles),
-          ),
+          // ── ITEM CARDS ──
+          ...order.items.map((item) => _buildItemCard(item)),
 
-          SizedBox(height: 24.h),
+          SizedBox(height: 12.h),
 
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: SizedBox(
-              width: double.infinity,
-              height: 48.h,
-              child: OutlinedButton(
-                onPressed: onViewDetails,
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: colors.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
+          // ── VIEW DETAILS BUTTON ──
+          SizedBox(
+            width: double.infinity,
+            height: 48.h,
+            child: OutlinedButton(
+              onPressed: onViewDetails,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.pickabooBlue,
+                side: const BorderSide(color: AppColors.pickabooBlue),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.cardRadius,
                 ),
-                child: Text(
-                  "View Details",
-                  style: textStyles.buttonMedium.copyWith(
-                    color: colors.primary,
-                  ),
-                ),
+              ),
+              child: Text(
+                "View Details",
+                style: AppTypography.brandActionText,
               ),
             ),
           ),
@@ -186,111 +202,72 @@ class CancellationSuccessView extends StatelessWidget {
         .join(' ');
   }
 
-  Widget _buildItemCard(
-    OrderCancelItemEntity item,
-    AppColors colors,
-    AppTextStyles textStyles,
-  ) {
+  Widget _buildItemCard(OrderCancelItemEntity item) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h, left: 16.w, right: 16.w),
-      padding: EdgeInsets.all(16.r),
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: colors.borderColor.withValues(alpha: 0.5)),
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 6.r,
+            offset: Offset(0, 1.h),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 80.r,
-                height: 80.r,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.r),
-                  border: Border.all(
-                    color: colors.borderColor.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4.r),
-                  child: AppImage(
-                    imageUrl: item.image,
-                    placeholder: Center(
-                      child: CircularProgressIndicator(
-                        color: colors.primary,
-                        strokeWidth: 2,
+          Container(
+            width: 60.w,
+            height: 60.w,
+            decoration: BoxDecoration(
+              color: AppColors.pageBg,
+              borderRadius: AppRadius.cardRadius,
+              border: Border.all(color: AppColors.border),
+            ),
+            child: ClipRRect(
+              borderRadius: AppRadius.cardRadius,
+              child: item.image != null
+                  ? AppImage(
+                      imageUrl: item.image!,
+                      placeholder: const AppLoader.inline(),
+                      errorWidget: const Icon(
+                        Icons.inventory_2_outlined,
+                        color: AppColors.mutedLight,
                       ),
-                    ),
-                    errorWidget: Icon(
-                      Icons.inventory_2_outlined,
-                      color: colors.graySmallLight,
-                      size: 32.r,
-                    ),
-                  ),
+                    )
+                  : const Icon(Icons.image_outlined, color: AppColors.mutedLight),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.cardTitle,
                 ),
-              ),
-              SizedBox(width: 16.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: 4.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      item.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textStyles.bodyLargeBold.copyWith(
-                        color: colors.text,
-                        fontSize: 15.sp,
-                      ),
+                      "Qty: ${item.qtyOrdered}",
+                      style: AppTypography.bodyMutedLight,
                     ),
-                    SizedBox(height: 8.h),
                     Text(
-                      item.soldBy != null
-                          ? "Sold by: ${item.soldBy}"
-                          : "Sold by: Pickaboo Official",
-                      style: textStyles.bodySmall.copyWith(
-                        color: colors.textLight,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    RichText(
-                      text: TextSpan(
-                        text: "Price: ",
-                        style: textStyles.bodySmall.copyWith(
-                          color: colors.textLight,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: "৳${item.price.toStringAsFixed(0)}",
-                            style: textStyles.bodyMediumBold.copyWith(
-                              color: colors.text,
-                            ),
-                          ),
-                        ],
-                      ),
+                      "৳${item.price.toStringAsFixed(0)}",
+                      style: AppTypography.priceStandard.withColor(AppColors.pickabooBlue),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Container(
-            width: 80.w,
-            padding: EdgeInsets.symmetric(vertical: 8.h),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4.r),
-              border: Border.all(
-                color: colors.borderColor.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Text(
-              "Qty: ${item.qtyOrdered}",
-              textAlign: TextAlign.center,
-              style: textStyles.bodySmallMedium.copyWith(color: colors.text),
+              ],
             ),
           ),
         ],

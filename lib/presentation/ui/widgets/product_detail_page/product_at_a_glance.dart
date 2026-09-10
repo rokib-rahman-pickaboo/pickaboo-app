@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
@@ -14,7 +13,6 @@ class ProductAtAGlance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     if (moreInformationEntity.isEmpty) {
@@ -39,7 +37,7 @@ class ProductAtAGlance extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.all(16.w),
-      color: colors.white,
+      color: AppColors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,7 +45,7 @@ class ProductAtAGlance extends StatelessWidget {
             'At a glance',
             style: textStyle.subheading.copyWith(
               fontWeight: FontWeight.w700,
-              color: colors.text,
+              color: AppColors.text,
             ),
           ),
           SizedBox(height: 16.h),
@@ -67,7 +65,7 @@ class ProductAtAGlance extends StatelessWidget {
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: colors.pattensBlue.withValues(
+                  color: AppColors.surfaceBlue.withValues(
                     alpha: 0.5,
                   ),
                   borderRadius: BorderRadius.circular(12.r),
@@ -91,8 +89,8 @@ class ProductAtAGlance extends StatelessWidget {
                       SvgPicture.asset(
                         icons[index % icons.length],
                         height: 28.h,
-                        colorFilter: ColorFilter.mode(
-                          colors.text,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.text,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -100,7 +98,7 @@ class ProductAtAGlance extends StatelessWidget {
                     Text(
                       attr.label,
                       style: textStyle.bodyMediumBold.copyWith(
-                        color: colors.text,
+                        color: AppColors.text,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -111,7 +109,7 @@ class ProductAtAGlance extends StatelessWidget {
                       attr.value,
                       style: textStyle.productDescription.copyWith(
                         fontWeight: FontWeight.w400,
-                        color: colors.textMedium,
+                        color: AppColors.muted,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,

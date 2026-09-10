@@ -3,7 +3,6 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
 class AppHtml extends StatelessWidget {
@@ -24,7 +23,6 @@ class AppHtml extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Html(
@@ -36,7 +34,7 @@ class AppHtml extends StatelessWidget {
           padding: HtmlPaddings.zero,
           fontSize: FontSize(textStyle.bodySmall.fontSize ?? 12),
           fontFamily: GoogleFonts.roboto().fontFamily,
-          color: colors.text,
+          color: AppColors.text,
           lineHeight: const LineHeight(1.5),
           textAlign: textAlign ?? TextAlign.start,
         ),
@@ -79,7 +77,7 @@ class AppHtml extends StatelessWidget {
           fontFamily: GoogleFonts.roboto().fontFamily,
         ),
         "a": Style(
-          color: colors.primary,
+          color: AppColors.pickabooBlue,
           fontFamily: GoogleFonts.roboto().fontFamily,
           textDecoration: TextDecoration.none,
         ),

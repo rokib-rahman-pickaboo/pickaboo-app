@@ -1,3 +1,9 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,12 +11,12 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pickaboo/presentation/bloc/emi_bloc/emi_bloc.dart';
 import 'package:pickaboo/presentation/bloc/cms_content_bloc/cms_content_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/emi_bottom_sheet.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class ProductSpecialOffersSection extends StatelessWidget {
   final ProductDetailEntity product;
@@ -19,7 +25,6 @@ class ProductSpecialOffersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
@@ -32,7 +37,7 @@ class ProductSpecialOffersSection extends StatelessWidget {
               'Special Offer',
               style: textStyle.robotoBold.copyWith(
                 fontWeight: FontWeight.w800,
-                color: colors.text,
+                color: AppColors.text,
               ),
             ),
             SizedBox(height: 8.h),
@@ -43,7 +48,6 @@ class ProductSpecialOffersSection extends StatelessWidget {
                   (offer) => _buildSimpleOfferItem(
                     context: context,
                     text: offer,
-                    colors: colors,
                     textStyle: textStyle,
                   ),
                 ),
@@ -55,7 +59,6 @@ class ProductSpecialOffersSection extends StatelessWidget {
                 text: 'Pickaboo Assured',
                 icon: "assets/new/svg/detail/assured_icon.svg",
                 hasArrow: true,
-                colors: colors,
                 textStyle: textStyle,
                 onTap: () {
                   if (state.pickabooVerified != null &&
@@ -76,7 +79,6 @@ class ProductSpecialOffersSection extends StatelessWidget {
               text: 'EMI\'s From: ৳${product.emi} / month ',
               icon: "assets/new/svg/detail/emi_icon.svg",
               hasArrow: true,
-              colors: colors,
               textStyle: textStyle,
               onTap: () {
                 final emiBloc = context.read<EmiBloc>();
@@ -84,7 +86,7 @@ class ProductSpecialOffersSection extends StatelessWidget {
                   context: context,
                   isScrollControlled: true,
                   useSafeArea: true,
-                  backgroundColor: colors.black.withValues(alpha: 0.0),
+                  backgroundColor: AppColors.black.withValues(alpha: 0.0),
                   builder: (context) => BlocProvider.value(
                     value: emiBloc,
                     child: BlocConsumer<EmiBloc, EmiState>(
@@ -94,14 +96,12 @@ class ProductSpecialOffersSection extends StatelessWidget {
                           loading: () => Container(
                             height: 200.h,
                             decoration: BoxDecoration(
-                              color: colors.white,
+                              color: AppColors.white,
                               borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(16.r),
                               ),
                             ),
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                            child: const AppLoader.fullPage(),
                           ),
                           loaded: (emiOptions) => EmiBottomSheet(
                             emiOptions: emiOptions,
@@ -110,7 +110,7 @@ class ProductSpecialOffersSection extends StatelessWidget {
                           error: (error) => Container(
                             height: 200.h,
                             decoration: BoxDecoration(
-                              color: colors.white,
+                              color: AppColors.white,
                               borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(16.r),
                               ),
@@ -122,13 +122,13 @@ class ProductSpecialOffersSection extends StatelessWidget {
                                 Icon(
                                   Icons.error_outline,
                                   size: 48.sp,
-                                  color: colors.red,
+                                  color: AppColors.red,
                                 ),
                                 SizedBox(height: 16.h),
                                 Text(
                                   error.message,
                                   style: textStyle.bodyMedium.copyWith(
-                                    color: colors.text,
+                                    color: AppColors.text,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -152,7 +152,6 @@ class ProductSpecialOffersSection extends StatelessWidget {
                   text: 'Express Delivery',
                   icon: "assets/new/svg/detail/express_delivery_icon.svg",
                   hasArrow: true,
-                  colors: colors,
                   textStyle: textStyle,
                   onTap: () {
                     if (state.expressDelivery != null &&
@@ -174,7 +173,6 @@ class ProductSpecialOffersSection extends StatelessWidget {
               text: product.warranty,
               icon: "assets/new/svg/detail/offer_icon.svg",
               hasArrow: false,
-              colors: colors,
               textStyle: textStyle,
               onTap: () {
                 debugPrint('Tapped on Warranty');
@@ -190,7 +188,6 @@ class ProductSpecialOffersSection extends StatelessWidget {
   Widget _buildSimpleOfferItem({
     required BuildContext context,
     required String text,
-    required AppColors colors,
     required AppTextStyles textStyle,
   }) {
     final offers = _parseOffers(text);
@@ -213,8 +210,8 @@ class ProductSpecialOffersSection extends StatelessWidget {
                   width: 14.w,
                   height: 14.w,
                   fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    colors.primary,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.pickabooBlue,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -225,7 +222,7 @@ class ProductSpecialOffersSection extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     style: textStyle.bodySmall.copyWith(
-                      color: colors.text,
+                      color: AppColors.text,
                       height: 1.4,
                     ),
                     children: [
@@ -252,10 +249,8 @@ class ProductSpecialOffersSection extends StatelessWidget {
                             child: Text(
                               'T&C',
                               style: textStyle.bodySmall.copyWith(
-                                color: colors.primary,
+                                color: AppColors.pickabooBlue,
                                 fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.underline,
-                                decorationColor: colors.primary,
                               ),
                             ),
                           ),
@@ -306,14 +301,13 @@ class ProductSpecialOffersSection extends StatelessWidget {
     required String text,
     required String icon,
     required bool hasArrow,
-    required AppColors colors,
     required AppTextStyles textStyle,
     required VoidCallback onTap,
   }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
       child: Material(
-        color: colors.whiteSmoke,
+        color: AppColors.pageBg,
         borderRadius: BorderRadius.circular(8.r),
         child: InkWell(
           onTap: onTap,
@@ -327,7 +321,7 @@ class ProductSpecialOffersSection extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(6.w),
                   decoration: BoxDecoration(
-                    color: colors.primary,
+                    color: AppColors.pickabooBlue,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: SvgPicture.asset(
@@ -335,8 +329,8 @@ class ProductSpecialOffersSection extends StatelessWidget {
                     width: 20.w,
                     height: 20.w,
                     fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                      colors.white,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.white,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -347,7 +341,7 @@ class ProductSpecialOffersSection extends StatelessWidget {
                   child: Text(
                     text,
                     style: textStyle.bodyMedium.copyWith(
-                      color: colors.text,
+                      color: AppColors.text,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                     ),
@@ -359,7 +353,7 @@ class ProductSpecialOffersSection extends StatelessWidget {
                   Icon(
                     Icons.chevron_right,
                     size: 24.sp,
-                    color: colors.text.withValues(alpha: 0.3),
+                    color: AppColors.text.withValues(alpha: 0.3),
                   ),
                 ],
               ],

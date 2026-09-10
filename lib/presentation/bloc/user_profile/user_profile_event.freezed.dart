@@ -31,12 +31,14 @@ mixin _$UserProfileEvent {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -52,12 +54,14 @@ mixin _$UserProfileEvent {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -73,12 +77,14 @@ mixin _$UserProfileEvent {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -89,11 +95,13 @@ mixin _$UserProfileEvent {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -103,11 +111,13 @@ mixin _$UserProfileEvent {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -117,11 +127,13 @@ mixin _$UserProfileEvent {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -203,12 +215,14 @@ class _$StartedImpl implements _Started {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return started();
   }
@@ -228,12 +242,14 @@ class _$StartedImpl implements _Started {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return started?.call();
   }
@@ -253,12 +269,14 @@ class _$StartedImpl implements _Started {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (started != null) {
@@ -276,11 +294,13 @@ class _$StartedImpl implements _Started {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return started(this);
   }
@@ -294,11 +314,13 @@ class _$StartedImpl implements _Started {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return started?.call(this);
   }
@@ -312,11 +334,13 @@ class _$StartedImpl implements _Started {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (started != null) {
@@ -385,12 +409,14 @@ class _$LoadUserProfileImpl implements _LoadUserProfile {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return loadUserProfile();
   }
@@ -410,12 +436,14 @@ class _$LoadUserProfileImpl implements _LoadUserProfile {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return loadUserProfile?.call();
   }
@@ -435,12 +463,14 @@ class _$LoadUserProfileImpl implements _LoadUserProfile {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (loadUserProfile != null) {
@@ -458,11 +488,13 @@ class _$LoadUserProfileImpl implements _LoadUserProfile {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return loadUserProfile(this);
   }
@@ -476,11 +508,13 @@ class _$LoadUserProfileImpl implements _LoadUserProfile {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return loadUserProfile?.call(this);
   }
@@ -494,11 +528,13 @@ class _$LoadUserProfileImpl implements _LoadUserProfile {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (loadUserProfile != null) {
@@ -635,12 +671,14 @@ class _$UpdateBasicInfoImpl implements _UpdateBasicInfo {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return updateBasicInfo(firstName, lastName, gender, dob);
   }
@@ -660,12 +698,14 @@ class _$UpdateBasicInfoImpl implements _UpdateBasicInfo {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return updateBasicInfo?.call(firstName, lastName, gender, dob);
   }
@@ -685,12 +725,14 @@ class _$UpdateBasicInfoImpl implements _UpdateBasicInfo {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (updateBasicInfo != null) {
@@ -708,11 +750,13 @@ class _$UpdateBasicInfoImpl implements _UpdateBasicInfo {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return updateBasicInfo(this);
   }
@@ -726,11 +770,13 @@ class _$UpdateBasicInfoImpl implements _UpdateBasicInfo {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return updateBasicInfo?.call(this);
   }
@@ -744,11 +790,13 @@ class _$UpdateBasicInfoImpl implements _UpdateBasicInfo {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (updateBasicInfo != null) {
@@ -864,12 +912,14 @@ class _$SendPhoneUpdateOtpImpl implements _SendPhoneUpdateOtp {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return sendPhoneUpdateOtp(mobileNumber);
   }
@@ -889,12 +939,14 @@ class _$SendPhoneUpdateOtpImpl implements _SendPhoneUpdateOtp {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return sendPhoneUpdateOtp?.call(mobileNumber);
   }
@@ -914,12 +966,14 @@ class _$SendPhoneUpdateOtpImpl implements _SendPhoneUpdateOtp {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (sendPhoneUpdateOtp != null) {
@@ -937,11 +991,13 @@ class _$SendPhoneUpdateOtpImpl implements _SendPhoneUpdateOtp {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return sendPhoneUpdateOtp(this);
   }
@@ -955,11 +1011,13 @@ class _$SendPhoneUpdateOtpImpl implements _SendPhoneUpdateOtp {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return sendPhoneUpdateOtp?.call(this);
   }
@@ -973,11 +1031,13 @@ class _$SendPhoneUpdateOtpImpl implements _SendPhoneUpdateOtp {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (sendPhoneUpdateOtp != null) {
@@ -1092,12 +1152,14 @@ class _$UpdateMobileImpl implements _UpdateMobile {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return updateMobile(newMobile, otp);
   }
@@ -1117,12 +1179,14 @@ class _$UpdateMobileImpl implements _UpdateMobile {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return updateMobile?.call(newMobile, otp);
   }
@@ -1142,12 +1206,14 @@ class _$UpdateMobileImpl implements _UpdateMobile {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (updateMobile != null) {
@@ -1165,11 +1231,13 @@ class _$UpdateMobileImpl implements _UpdateMobile {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return updateMobile(this);
   }
@@ -1183,11 +1251,13 @@ class _$UpdateMobileImpl implements _UpdateMobile {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return updateMobile?.call(this);
   }
@@ -1201,11 +1271,13 @@ class _$UpdateMobileImpl implements _UpdateMobile {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (updateMobile != null) {
@@ -1317,12 +1389,14 @@ class _$UploadProfileImageImpl implements _UploadProfileImage {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return uploadProfileImage(image);
   }
@@ -1342,12 +1416,14 @@ class _$UploadProfileImageImpl implements _UploadProfileImage {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return uploadProfileImage?.call(image);
   }
@@ -1367,12 +1443,14 @@ class _$UploadProfileImageImpl implements _UploadProfileImage {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (uploadProfileImage != null) {
@@ -1390,11 +1468,13 @@ class _$UploadProfileImageImpl implements _UploadProfileImage {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return uploadProfileImage(this);
   }
@@ -1408,11 +1488,13 @@ class _$UploadProfileImageImpl implements _UploadProfileImage {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return uploadProfileImage?.call(this);
   }
@@ -1426,11 +1508,13 @@ class _$UploadProfileImageImpl implements _UploadProfileImage {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (uploadProfileImage != null) {
@@ -1454,13 +1538,246 @@ abstract class _UploadProfileImage implements UserProfileEvent {
 }
 
 /// @nodoc
+abstract class _$$SendEmailUpdateOtpImplCopyWith<$Res> {
+  factory _$$SendEmailUpdateOtpImplCopyWith(
+    _$SendEmailUpdateOtpImpl value,
+    $Res Function(_$SendEmailUpdateOtpImpl) then,
+  ) = __$$SendEmailUpdateOtpImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String email});
+}
+
+/// @nodoc
+class __$$SendEmailUpdateOtpImplCopyWithImpl<$Res>
+    extends _$UserProfileEventCopyWithImpl<$Res, _$SendEmailUpdateOtpImpl>
+    implements _$$SendEmailUpdateOtpImplCopyWith<$Res> {
+  __$$SendEmailUpdateOtpImplCopyWithImpl(
+    _$SendEmailUpdateOtpImpl _value,
+    $Res Function(_$SendEmailUpdateOtpImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of UserProfileEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? email = null}) {
+    return _then(
+      _$SendEmailUpdateOtpImpl(
+        null == email
+            ? _value.email
+            : email // ignore: cast_nullable_to_non_nullable
+                as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SendEmailUpdateOtpImpl implements _SendEmailUpdateOtp {
+  const _$SendEmailUpdateOtpImpl(this.email);
+
+  @override
+  final String email;
+
+  @override
+  String toString() {
+    return 'UserProfileEvent.sendEmailUpdateOtp(email: $email)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SendEmailUpdateOtpImpl &&
+            (identical(other.email, email) || other.email == email));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, email);
+
+  /// Create a copy of UserProfileEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SendEmailUpdateOtpImplCopyWith<_$SendEmailUpdateOtpImpl> get copyWith =>
+      __$$SendEmailUpdateOtpImplCopyWithImpl<_$SendEmailUpdateOtpImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() started,
+    required TResult Function() loadUserProfile,
+    required TResult Function(
+      String firstName,
+      String lastName,
+      String gender,
+      String dob,
+    )
+    updateBasicInfo,
+    required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
+    required TResult Function(String newMobile, String otp) updateMobile,
+    required TResult Function(File image) uploadProfileImage,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
+    required TResult Function(String currentPassword, String newPassword)
+    changePassword,
+    required TResult Function(Map<String, dynamic> address) addAddress,
+    required TResult Function(Map<String, dynamic> address) updateAddress,
+    required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
+  }) {
+    return sendEmailUpdateOtp(email);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? started,
+    TResult? Function()? loadUserProfile,
+    TResult? Function(
+      String firstName,
+      String lastName,
+      String gender,
+      String dob,
+    )?
+    updateBasicInfo,
+    TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
+    TResult? Function(String newMobile, String otp)? updateMobile,
+    TResult? Function(File image)? uploadProfileImage,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
+    TResult? Function(String currentPassword, String newPassword)?
+    changePassword,
+    TResult? Function(Map<String, dynamic> address)? addAddress,
+    TResult? Function(Map<String, dynamic> address)? updateAddress,
+    TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
+  }) {
+    return sendEmailUpdateOtp?.call(email);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? started,
+    TResult Function()? loadUserProfile,
+    TResult Function(
+      String firstName,
+      String lastName,
+      String gender,
+      String dob,
+    )?
+    updateBasicInfo,
+    TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
+    TResult Function(String newMobile, String otp)? updateMobile,
+    TResult Function(File image)? uploadProfileImage,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
+    TResult Function(String currentPassword, String newPassword)?
+    changePassword,
+    TResult Function(Map<String, dynamic> address)? addAddress,
+    TResult Function(Map<String, dynamic> address)? updateAddress,
+    TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
+    required TResult orElse(),
+  }) {
+    if (sendEmailUpdateOtp != null) {
+      return sendEmailUpdateOtp(email);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Started value) started,
+    required TResult Function(_LoadUserProfile value) loadUserProfile,
+    required TResult Function(_UpdateBasicInfo value) updateBasicInfo,
+    required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
+    required TResult Function(_UpdateMobile value) updateMobile,
+    required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
+    required TResult Function(_UpdateEmail value) updateEmail,
+    required TResult Function(_ChangePassword value) changePassword,
+    required TResult Function(_AddAddress value) addAddress,
+    required TResult Function(_UpdateAddress value) updateAddress,
+    required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
+  }) {
+    return sendEmailUpdateOtp(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Started value)? started,
+    TResult? Function(_LoadUserProfile value)? loadUserProfile,
+    TResult? Function(_UpdateBasicInfo value)? updateBasicInfo,
+    TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
+    TResult? Function(_UpdateMobile value)? updateMobile,
+    TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
+    TResult? Function(_UpdateEmail value)? updateEmail,
+    TResult? Function(_ChangePassword value)? changePassword,
+    TResult? Function(_AddAddress value)? addAddress,
+    TResult? Function(_UpdateAddress value)? updateAddress,
+    TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
+  }) {
+    return sendEmailUpdateOtp?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Started value)? started,
+    TResult Function(_LoadUserProfile value)? loadUserProfile,
+    TResult Function(_UpdateBasicInfo value)? updateBasicInfo,
+    TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
+    TResult Function(_UpdateMobile value)? updateMobile,
+    TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
+    TResult Function(_UpdateEmail value)? updateEmail,
+    TResult Function(_ChangePassword value)? changePassword,
+    TResult Function(_AddAddress value)? addAddress,
+    TResult Function(_UpdateAddress value)? updateAddress,
+    TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
+    required TResult orElse(),
+  }) {
+    if (sendEmailUpdateOtp != null) {
+      return sendEmailUpdateOtp(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SendEmailUpdateOtp implements UserProfileEvent {
+  const factory _SendEmailUpdateOtp(final String email) =
+      _$SendEmailUpdateOtpImpl;
+
+  String get email;
+
+  /// Create a copy of UserProfileEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SendEmailUpdateOtpImplCopyWith<_$SendEmailUpdateOtpImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
 abstract class _$$UpdateEmailImplCopyWith<$Res> {
   factory _$$UpdateEmailImplCopyWith(
     _$UpdateEmailImpl value,
     $Res Function(_$UpdateEmailImpl) then,
   ) = __$$UpdateEmailImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String newEmail});
+  $Res call({String newEmail, String otp});
 }
 
 /// @nodoc
@@ -1476,13 +1793,19 @@ class __$$UpdateEmailImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? newEmail = null}) {
+  $Res call({Object? newEmail = null, Object? otp = null}) {
     return _then(
       _$UpdateEmailImpl(
-        null == newEmail
-            ? _value.newEmail
-            : newEmail // ignore: cast_nullable_to_non_nullable
-                as String,
+        newEmail:
+            null == newEmail
+                ? _value.newEmail
+                : newEmail // ignore: cast_nullable_to_non_nullable
+                    as String,
+        otp:
+            null == otp
+                ? _value.otp
+                : otp // ignore: cast_nullable_to_non_nullable
+                    as String,
       ),
     );
   }
@@ -1491,14 +1814,16 @@ class __$$UpdateEmailImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$UpdateEmailImpl implements _UpdateEmail {
-  const _$UpdateEmailImpl(this.newEmail);
+  const _$UpdateEmailImpl({required this.newEmail, required this.otp});
 
   @override
   final String newEmail;
+  @override
+  final String otp;
 
   @override
   String toString() {
-    return 'UserProfileEvent.updateEmail(newEmail: $newEmail)';
+    return 'UserProfileEvent.updateEmail(newEmail: $newEmail, otp: $otp)';
   }
 
   @override
@@ -1507,11 +1832,12 @@ class _$UpdateEmailImpl implements _UpdateEmail {
         (other.runtimeType == runtimeType &&
             other is _$UpdateEmailImpl &&
             (identical(other.newEmail, newEmail) ||
-                other.newEmail == newEmail));
+                other.newEmail == newEmail) &&
+            (identical(other.otp, otp) || other.otp == otp));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, newEmail);
+  int get hashCode => Object.hash(runtimeType, newEmail, otp);
 
   /// Create a copy of UserProfileEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -1536,14 +1862,16 @@ class _$UpdateEmailImpl implements _UpdateEmail {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
-    return updateEmail(newEmail);
+    return updateEmail(newEmail, otp);
   }
 
   @override
@@ -1561,14 +1889,16 @@ class _$UpdateEmailImpl implements _UpdateEmail {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
-    return updateEmail?.call(newEmail);
+    return updateEmail?.call(newEmail, otp);
   }
 
   @override
@@ -1586,16 +1916,18 @@ class _$UpdateEmailImpl implements _UpdateEmail {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (updateEmail != null) {
-      return updateEmail(newEmail);
+      return updateEmail(newEmail, otp);
     }
     return orElse();
   }
@@ -1609,11 +1941,13 @@ class _$UpdateEmailImpl implements _UpdateEmail {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return updateEmail(this);
   }
@@ -1627,11 +1961,13 @@ class _$UpdateEmailImpl implements _UpdateEmail {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return updateEmail?.call(this);
   }
@@ -1645,11 +1981,13 @@ class _$UpdateEmailImpl implements _UpdateEmail {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (updateEmail != null) {
@@ -1660,9 +1998,13 @@ class _$UpdateEmailImpl implements _UpdateEmail {
 }
 
 abstract class _UpdateEmail implements UserProfileEvent {
-  const factory _UpdateEmail(final String newEmail) = _$UpdateEmailImpl;
+  const factory _UpdateEmail({
+    required final String newEmail,
+    required final String otp,
+  }) = _$UpdateEmailImpl;
 
   String get newEmail;
+  String get otp;
 
   /// Create a copy of UserProfileEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -1770,12 +2112,14 @@ class _$ChangePasswordImpl implements _ChangePassword {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return changePassword(currentPassword, newPassword);
   }
@@ -1795,12 +2139,14 @@ class _$ChangePasswordImpl implements _ChangePassword {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return changePassword?.call(currentPassword, newPassword);
   }
@@ -1820,12 +2166,14 @@ class _$ChangePasswordImpl implements _ChangePassword {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (changePassword != null) {
@@ -1843,11 +2191,13 @@ class _$ChangePasswordImpl implements _ChangePassword {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return changePassword(this);
   }
@@ -1861,11 +2211,13 @@ class _$ChangePasswordImpl implements _ChangePassword {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return changePassword?.call(this);
   }
@@ -1879,11 +2231,13 @@ class _$ChangePasswordImpl implements _ChangePassword {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (changePassword != null) {
@@ -1999,12 +2353,14 @@ class _$AddAddressImpl implements _AddAddress {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return addAddress(address);
   }
@@ -2024,12 +2380,14 @@ class _$AddAddressImpl implements _AddAddress {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return addAddress?.call(address);
   }
@@ -2049,12 +2407,14 @@ class _$AddAddressImpl implements _AddAddress {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (addAddress != null) {
@@ -2072,11 +2432,13 @@ class _$AddAddressImpl implements _AddAddress {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return addAddress(this);
   }
@@ -2090,11 +2452,13 @@ class _$AddAddressImpl implements _AddAddress {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return addAddress?.call(this);
   }
@@ -2108,11 +2472,13 @@ class _$AddAddressImpl implements _AddAddress {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (addAddress != null) {
@@ -2225,12 +2591,14 @@ class _$UpdateAddressImpl implements _UpdateAddress {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return updateAddress(address);
   }
@@ -2250,12 +2618,14 @@ class _$UpdateAddressImpl implements _UpdateAddress {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return updateAddress?.call(address);
   }
@@ -2275,12 +2645,14 @@ class _$UpdateAddressImpl implements _UpdateAddress {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (updateAddress != null) {
@@ -2298,11 +2670,13 @@ class _$UpdateAddressImpl implements _UpdateAddress {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return updateAddress(this);
   }
@@ -2316,11 +2690,13 @@ class _$UpdateAddressImpl implements _UpdateAddress {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return updateAddress?.call(this);
   }
@@ -2334,11 +2710,13 @@ class _$UpdateAddressImpl implements _UpdateAddress {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (updateAddress != null) {
@@ -2445,12 +2823,14 @@ class _$DeleteAddressImpl implements _DeleteAddress {
     required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
     required TResult Function(String newMobile, String otp) updateMobile,
     required TResult Function(File image) uploadProfileImage,
-    required TResult Function(String newEmail) updateEmail,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
     required TResult Function(String currentPassword, String newPassword)
     changePassword,
     required TResult Function(Map<String, dynamic> address) addAddress,
     required TResult Function(Map<String, dynamic> address) updateAddress,
     required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
   }) {
     return deleteAddress(addressId);
   }
@@ -2470,12 +2850,14 @@ class _$DeleteAddressImpl implements _DeleteAddress {
     TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult? Function(String newMobile, String otp)? updateMobile,
     TResult? Function(File image)? uploadProfileImage,
-    TResult? Function(String newEmail)? updateEmail,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
     TResult? Function(String currentPassword, String newPassword)?
     changePassword,
     TResult? Function(Map<String, dynamic> address)? addAddress,
     TResult? Function(Map<String, dynamic> address)? updateAddress,
     TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
   }) {
     return deleteAddress?.call(addressId);
   }
@@ -2495,12 +2877,14 @@ class _$DeleteAddressImpl implements _DeleteAddress {
     TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
     TResult Function(String newMobile, String otp)? updateMobile,
     TResult Function(File image)? uploadProfileImage,
-    TResult Function(String newEmail)? updateEmail,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
     TResult Function(String currentPassword, String newPassword)?
     changePassword,
     TResult Function(Map<String, dynamic> address)? addAddress,
     TResult Function(Map<String, dynamic> address)? updateAddress,
     TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
     required TResult orElse(),
   }) {
     if (deleteAddress != null) {
@@ -2518,11 +2902,13 @@ class _$DeleteAddressImpl implements _DeleteAddress {
     required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
     required TResult Function(_UpdateMobile value) updateMobile,
     required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
     required TResult Function(_UpdateEmail value) updateEmail,
     required TResult Function(_ChangePassword value) changePassword,
     required TResult Function(_AddAddress value) addAddress,
     required TResult Function(_UpdateAddress value) updateAddress,
     required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
   }) {
     return deleteAddress(this);
   }
@@ -2536,11 +2922,13 @@ class _$DeleteAddressImpl implements _DeleteAddress {
     TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult? Function(_UpdateMobile value)? updateMobile,
     TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult? Function(_UpdateEmail value)? updateEmail,
     TResult? Function(_ChangePassword value)? changePassword,
     TResult? Function(_AddAddress value)? addAddress,
     TResult? Function(_UpdateAddress value)? updateAddress,
     TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
   }) {
     return deleteAddress?.call(this);
   }
@@ -2554,11 +2942,13 @@ class _$DeleteAddressImpl implements _DeleteAddress {
     TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
     TResult Function(_UpdateMobile value)? updateMobile,
     TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
     TResult Function(_UpdateEmail value)? updateEmail,
     TResult Function(_ChangePassword value)? changePassword,
     TResult Function(_AddAddress value)? addAddress,
     TResult Function(_UpdateAddress value)? updateAddress,
     TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
     required TResult orElse(),
   }) {
     if (deleteAddress != null) {
@@ -2579,4 +2969,198 @@ abstract class _DeleteAddress implements UserProfileEvent {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$DeleteAddressImplCopyWith<_$DeleteAddressImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$ClearImplCopyWith<$Res> {
+  factory _$$ClearImplCopyWith(
+    _$ClearImpl value,
+    $Res Function(_$ClearImpl) then,
+  ) = __$$ClearImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ClearImplCopyWithImpl<$Res>
+    extends _$UserProfileEventCopyWithImpl<$Res, _$ClearImpl>
+    implements _$$ClearImplCopyWith<$Res> {
+  __$$ClearImplCopyWithImpl(
+    _$ClearImpl _value,
+    $Res Function(_$ClearImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of UserProfileEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ClearImpl implements _Clear {
+  const _$ClearImpl();
+
+  @override
+  String toString() {
+    return 'UserProfileEvent.clear()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ClearImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() started,
+    required TResult Function() loadUserProfile,
+    required TResult Function(
+      String firstName,
+      String lastName,
+      String gender,
+      String dob,
+    )
+    updateBasicInfo,
+    required TResult Function(String mobileNumber) sendPhoneUpdateOtp,
+    required TResult Function(String newMobile, String otp) updateMobile,
+    required TResult Function(File image) uploadProfileImage,
+    required TResult Function(String email) sendEmailUpdateOtp,
+    required TResult Function(String newEmail, String otp) updateEmail,
+    required TResult Function(String currentPassword, String newPassword)
+    changePassword,
+    required TResult Function(Map<String, dynamic> address) addAddress,
+    required TResult Function(Map<String, dynamic> address) updateAddress,
+    required TResult Function(int addressId) deleteAddress,
+    required TResult Function() clear,
+  }) {
+    return clear();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? started,
+    TResult? Function()? loadUserProfile,
+    TResult? Function(
+      String firstName,
+      String lastName,
+      String gender,
+      String dob,
+    )?
+    updateBasicInfo,
+    TResult? Function(String mobileNumber)? sendPhoneUpdateOtp,
+    TResult? Function(String newMobile, String otp)? updateMobile,
+    TResult? Function(File image)? uploadProfileImage,
+    TResult? Function(String email)? sendEmailUpdateOtp,
+    TResult? Function(String newEmail, String otp)? updateEmail,
+    TResult? Function(String currentPassword, String newPassword)?
+    changePassword,
+    TResult? Function(Map<String, dynamic> address)? addAddress,
+    TResult? Function(Map<String, dynamic> address)? updateAddress,
+    TResult? Function(int addressId)? deleteAddress,
+    TResult? Function()? clear,
+  }) {
+    return clear?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? started,
+    TResult Function()? loadUserProfile,
+    TResult Function(
+      String firstName,
+      String lastName,
+      String gender,
+      String dob,
+    )?
+    updateBasicInfo,
+    TResult Function(String mobileNumber)? sendPhoneUpdateOtp,
+    TResult Function(String newMobile, String otp)? updateMobile,
+    TResult Function(File image)? uploadProfileImage,
+    TResult Function(String email)? sendEmailUpdateOtp,
+    TResult Function(String newEmail, String otp)? updateEmail,
+    TResult Function(String currentPassword, String newPassword)?
+    changePassword,
+    TResult Function(Map<String, dynamic> address)? addAddress,
+    TResult Function(Map<String, dynamic> address)? updateAddress,
+    TResult Function(int addressId)? deleteAddress,
+    TResult Function()? clear,
+    required TResult orElse(),
+  }) {
+    if (clear != null) {
+      return clear();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Started value) started,
+    required TResult Function(_LoadUserProfile value) loadUserProfile,
+    required TResult Function(_UpdateBasicInfo value) updateBasicInfo,
+    required TResult Function(_SendPhoneUpdateOtp value) sendPhoneUpdateOtp,
+    required TResult Function(_UpdateMobile value) updateMobile,
+    required TResult Function(_UploadProfileImage value) uploadProfileImage,
+    required TResult Function(_SendEmailUpdateOtp value) sendEmailUpdateOtp,
+    required TResult Function(_UpdateEmail value) updateEmail,
+    required TResult Function(_ChangePassword value) changePassword,
+    required TResult Function(_AddAddress value) addAddress,
+    required TResult Function(_UpdateAddress value) updateAddress,
+    required TResult Function(_DeleteAddress value) deleteAddress,
+    required TResult Function(_Clear value) clear,
+  }) {
+    return clear(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Started value)? started,
+    TResult? Function(_LoadUserProfile value)? loadUserProfile,
+    TResult? Function(_UpdateBasicInfo value)? updateBasicInfo,
+    TResult? Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
+    TResult? Function(_UpdateMobile value)? updateMobile,
+    TResult? Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult? Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
+    TResult? Function(_UpdateEmail value)? updateEmail,
+    TResult? Function(_ChangePassword value)? changePassword,
+    TResult? Function(_AddAddress value)? addAddress,
+    TResult? Function(_UpdateAddress value)? updateAddress,
+    TResult? Function(_DeleteAddress value)? deleteAddress,
+    TResult? Function(_Clear value)? clear,
+  }) {
+    return clear?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Started value)? started,
+    TResult Function(_LoadUserProfile value)? loadUserProfile,
+    TResult Function(_UpdateBasicInfo value)? updateBasicInfo,
+    TResult Function(_SendPhoneUpdateOtp value)? sendPhoneUpdateOtp,
+    TResult Function(_UpdateMobile value)? updateMobile,
+    TResult Function(_UploadProfileImage value)? uploadProfileImage,
+    TResult Function(_SendEmailUpdateOtp value)? sendEmailUpdateOtp,
+    TResult Function(_UpdateEmail value)? updateEmail,
+    TResult Function(_ChangePassword value)? changePassword,
+    TResult Function(_AddAddress value)? addAddress,
+    TResult Function(_UpdateAddress value)? updateAddress,
+    TResult Function(_DeleteAddress value)? deleteAddress,
+    TResult Function(_Clear value)? clear,
+    required TResult orElse(),
+  }) {
+    if (clear != null) {
+      return clear(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _Clear implements UserProfileEvent {
+  const factory _Clear() = _$ClearImpl;
 }

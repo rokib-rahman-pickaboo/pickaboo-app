@@ -1,10 +1,17 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modern OrderFailedPage matching Pickaboo-App-UI design language.
 class OrderFailedPage extends StatefulWidget {
   final String? orderNumber;
   final VoidCallback onContinueShopping;
@@ -37,34 +44,48 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
     final hasOrderId =
         widget.orderNumber != null && widget.orderNumber!.isNotEmpty;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) widget.onContinueShopping();
+      },
+      child: Scaffold(
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+                  vertical: 24.h,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 120.sp,
-                      color: colors.salmon,
+                    SizedBox(height: 40.h),
+                    Container(
+                      width: 100.w,
+                      height: 100.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.red.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.error_outline_rounded,
+                        size: 60.sp,
+                        color: AppColors.red,
+                      ),
                     ),
-                    SizedBox(height: 30.h),
+                    SizedBox(height: 24.h),
 
                     Text(
                       "We couldn't process your payment.",
-                      style: textTheme.headingMedium.copyWith(
-                        fontWeight: FontWeight.w400,
-                        color: colors.primary,
-                      ),
+                      style: AppTypography.heroTitle.size(18.sp),
                       textAlign: TextAlign.center,
                     ),
 
@@ -80,14 +101,7 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
                               orderState.errorMessage != null;
 
                           if (orderState.isLoading && orderDetails == null) {
-                            return SizedBox(
-                              height: 20.h,
-                              width: 20.w,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colors.primary,
-                              ),
-                            );
+                            return const AppLoader.inline(size: 20);
                           }
 
                           if (failedToLoad) {
@@ -95,53 +109,61 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
                               children: [
                                 Text(
                                   "We couldn't load your order number right now.",
-                                  style: textTheme.bodyMedium.copyWith(
-                                    color: colors.textLight,
-                                  ),
+                                  style: AppTypography.bodyMuted,
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(height: 8.h),
+                                SizedBox(height: 6.h),
                                 TextButton(
                                   onPressed: _loadOrderDetails,
                                   child: Text(
                                     "Retry",
-                                    style: textTheme.bodyMedium.copyWith(
-                                      color: colors.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: AppTypography.brandActionText,
                                   ),
                                 ),
                               ],
                             );
                           }
 
-                          return RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              style: textTheme.bodyLarge.copyWith(
-                                color: colors.text,
-                              ),
-                              children: [
-                                const TextSpan(text: "Your order number is: "),
-                                TextSpan(
-                                  text: displayOrderNumber ?? '',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          return Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 14.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: AppRadius.cardRadius,
+                              border: Border.all(color: AppColors.border),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.navy.withValues(alpha: 0.03),
+                                  blurRadius: 8.r,
+                                  offset: Offset(0, 2.h),
                                 ),
                               ],
+                            ),
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                style: AppTypography.bodyLarge,
+                                children: [
+                                  const TextSpan(text: "Your order number is: "),
+                                  TextSpan(
+                                    text: displayOrderNumber ?? '',
+                                    style: AppTypography.brandActionText,
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
                       ),
                     ],
 
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 16.h),
                     Text(
                       "We'll email you an order confirmation with the order details.",
-                      style: textTheme.bodyMedium.copyWith(
-                        color: colors.gray,
-                      ),
+                      style: AppTypography.bodyMutedLight,
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -150,25 +172,32 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
             ),
 
             Container(
-              padding: EdgeInsets.all(16.w),
-              color: colors.white,
-              child: SizedBox(
-                width: double.infinity,
-                height: 48.h,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.button,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.r),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+                vertical: 12.h,
+              ),
+              decoration: const BoxDecoration(
+                color: AppColors.white,
+                border: Border(top: BorderSide(color: AppColors.border)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48.h,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.navy,
+                      foregroundColor: AppColors.white,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadius.cardRadius,
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  onPressed: widget.onContinueShopping,
-                  child: Text(
-                    "Continue Shopping",
-                    style: textTheme.buttonMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colors.white,
+                    onPressed: widget.onContinueShopping,
+                    child: Text(
+                      "Continue Shopping",
+                      style: AppTypography.buttonPrimary,
                     ),
                   ),
                 ),
@@ -177,6 +206,7 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
           ],
         ),
       ),
+    ),
     );
   }
 }

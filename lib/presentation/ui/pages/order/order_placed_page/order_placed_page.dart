@@ -1,16 +1,23 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modern OrderPlacedPage matching Pickaboo-App-UI design language.
 class OrderPlacedPage extends StatefulWidget {
   final String orderNumber;
   final int earnedPoints;
@@ -33,7 +40,6 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
   Timer? _retryTimer;
 
   bool _listFallbackRequested = false;
-
   bool _successLogged = false;
 
   @override
@@ -41,7 +47,6 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CartBloc>().add(const CartEvent.refreshCart());
-
       _loadOrderDetails();
     });
   }
@@ -103,16 +108,13 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) widget.onContinueShopping();
       },
       child: Scaffold(
-        backgroundColor: colors.whiteSmoke,
+        backgroundColor: AppColors.pageBg,
         body: SafeArea(
           child: BlocConsumer<OrderBloc, OrderState>(
             listener: (context, orderState) {
@@ -174,79 +176,147 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
               return Column(
                 children: [
                   Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+                        vertical: 24.h,
+                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          SizedBox(height: 20.h),
+                          // ── Success Image / Graphic ──
                           Image.asset(
                             'assets/images/success_cart.png',
-                            height: 150.h,
-                            width: 150.w,
+                            height: 140.h,
+                            width: 140.w,
+                            errorBuilder: (_, __, ___) => Container(
+                              height: 120.w,
+                              width: 120.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.green.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.check_circle_rounded,
+                                size: 80.sp,
+                                color: AppColors.green,
+                              ),
+                            ),
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 24.h),
 
+                          // ── Title & Status ──
                           Text(
                             "Thank you for shopping with Pickaboo!",
-                            style: textTheme.headingMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colors.darkBlueBg,
-                            ),
+                            style: AppTypography.heroTitle.size(18.sp),
                             textAlign: TextAlign.center,
                           ),
-                          SizedBox(height: 10.h),
-                          Text(
-                            "Order placed successfully",
-                            style: textTheme.bodyLarge.copyWith(
-                              color: colors.green,
+                          SizedBox(height: 8.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                size: 16.sp,
+                                color: AppColors.green,
+                              ),
+                              SizedBox(width: 6.w),
+                              Text(
+                                "Order placed successfully",
+                                style: AppTypography.badgeInStock,
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 20.h),
+
+                          // ── Order Number Card ──
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 14.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: AppRadius.cardRadius,
+                              border: Border.all(color: AppColors.border),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.navy.withValues(alpha: 0.03),
+                                  blurRadius: 8.r,
+                                  offset: Offset(0, 2.h),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                if (retrying) ...[
+                                  const AppLoader.inline(size: 20),
+                                ] else if (failedToLoad) ...[
+                                  Text(
+                                    "We couldn't load your order number right now.",
+                                    style: AppTypography.bodyMuted,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(height: 6.h),
+                                  TextButton(
+                                    onPressed: _onManualRetry,
+                                    child: Text(
+                                      "Retry",
+                                      style: AppTypography.brandActionText,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  RichText(
+                                    textAlign: TextAlign.center,
+                                    text: TextSpan(
+                                      style: AppTypography.bodyLarge,
+                                      children: [
+                                        const TextSpan(
+                                          text: "Your order number is: ",
+                                        ),
+                                        TextSpan(
+                                          text: displayOrderNumber ?? '',
+                                          style: AppTypography.brandActionText,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
 
-                          SizedBox(height: 10.h),
-
-                          if (retrying) ...[
-                            SizedBox(
-                              height: 20.h,
-                              width: 20.w,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colors.primary,
-                              ),
-                            ),
-                          ] else if (failedToLoad) ...[
-                            Text(
-                              "We couldn't load your order number right now.",
-                              style: textTheme.bodyMedium.copyWith(
-                                color: colors.textLight,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 8.h),
-                            TextButton(
-                              onPressed: _onManualRetry,
-                              child: Text(
-                                "Retry",
-                                style: textTheme.bodyMedium.copyWith(
-                                  color: colors.primary,
-                                  fontWeight: FontWeight.bold,
+                          // ── Club Points Banner ──
+                          if (earnedPoints > 0) ...[
+                            SizedBox(height: 14.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(14.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceBlue,
+                                borderRadius: AppRadius.cardRadius,
+                                border: Border.all(
+                                  color: AppColors.pickabooBlue.withValues(alpha: 0.3),
                                 ),
                               ),
-                            ),
-                          ] else ...[
-                            RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                style: textTheme.bodyLarge.copyWith(
-                                  color: colors.text,
-                                ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const TextSpan(
-                                    text: "Your order number is: ",
+                                  Icon(
+                                    Icons.stars_rounded,
+                                    size: 22.sp,
+                                    color: AppColors.pickabooBlue,
                                   ),
-                                  TextSpan(
-                                    text: displayOrderNumber ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  SizedBox(width: 10.w),
+                                  Expanded(
+                                    child: Text(
+                                      "You earned $earnedPoints Club Points for this order.\n"
+                                      "Earned points will be enrolled to your account after we finish processing your order.",
+                                      style: AppTypography.bodyRegular,
                                     ),
                                   ),
                                 ],
@@ -254,24 +324,11 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                             ),
                           ],
 
-                          if (earnedPoints > 0) ...[
-                            SizedBox(height: 20.h),
-                            Text(
-                              "You earned $earnedPoints Club Points for this order.\n"
-                              "Earned points will be enrolled to your account after we finish processing your order.",
-                              style: textTheme.bodyMedium.copyWith(
-                                color: colors.text,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 16.h),
+                          // ── Email confirmation note ──
                           Text(
                             "We'll email you an order confirmation with the order details.",
-                            style: textTheme.bodySmall.copyWith(
-                              color: colors.gray,
-                            ),
+                            style: AppTypography.bodyMutedLight,
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -279,29 +336,34 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                     ),
                   ),
 
+                  // ── Bottom Sticky Bar ──
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 15.w,
-                      vertical: 10.h,
+                      horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+                      vertical: 12.h,
                     ),
-                    height: 70.h,
-                    color: colors.white,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.darkBlueBg,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.r),
+                    decoration: const BoxDecoration(
+                      color: AppColors.white,
+                      border: Border(top: BorderSide(color: AppColors.border)),
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48.h,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.pickabooBlue,
+                            foregroundColor: AppColors.white,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: AppRadius.cardRadius,
+                            ),
+                            elevation: 0,
                           ),
-                          elevation: 0,
-                        ),
-                        onPressed: widget.onContinueShopping,
-                        child: Text(
-                          "Continue Shopping",
-                          style: textTheme.buttonMedium.copyWith(
-                            color: colors.white,
-                            fontWeight: FontWeight.bold,
+                          onPressed: widget.onContinueShopping,
+                          child: Text(
+                            "Continue Shopping",
+                            style: AppTypography.buttonPrimary,
                           ),
                         ),
                       ),

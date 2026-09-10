@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/domain/repository/product_repository.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class DeepLinkResolverPage extends StatefulWidget {
   final String slug;
@@ -29,9 +30,21 @@ class _DeepLinkResolverPageState extends State<DeepLinkResolverPage> {
   }
 
   Future<void> _resolve() async {
+    String cleanSlug = Uri.decodeComponent(widget.slug).trim();
+    if (cleanSlug.endsWith('.html')) {
+      cleanSlug = cleanSlug.replaceAll('.html', '');
+    }
+
+    // Fast-path: If it's already a numeric product ID, navigate directly
+    if (widget.type == 'product' && int.tryParse(cleanSlug) != null) {
+      if (!mounted) return;
+      _navigateToTarget(Routes.productDetail.replaceFirst(':id', cleanSlug));
+      return;
+    }
+
     final repository = getIt<ProductRepository>();
     final result = await repository.resolveSlug(
-      slug: widget.slug,
+      slug: cleanSlug,
       type: widget.type,
     );
 
@@ -65,24 +78,29 @@ class _DeepLinkResolverPageState extends State<DeepLinkResolverPage> {
           return;
         }
 
-        if (!context.canPop()) {
-          debugPrint(
-            'DeepLinkResolverPage: Cold start detected, establishing home stack',
-          );
-          context.go(Routes.home);
-          context.push(target);
-        } else {
-          debugPrint(
-            'DeepLinkResolverPage: Warm start detected, replacing resolver with target',
-          );
-          context.pushReplacement(target);
-        }
+        _navigateToTarget(target);
       },
     );
   }
 
+  void _navigateToTarget(String target) {
+    if (!mounted) return;
+    if (!context.canPop()) {
+      debugPrint(
+        'DeepLinkResolverPage: Cold start detected, establishing home stack',
+      );
+      context.go(Routes.home);
+      context.push(target);
+    } else {
+      debugPrint(
+        'DeepLinkResolverPage: Warm start detected, replacing resolver with target',
+      );
+      context.pushReplacement(target);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return const Scaffold(body: AppLoader.fullPage());
   }
 }

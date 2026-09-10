@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,7 +23,7 @@ class ProductDescriptionSection extends StatefulWidget {
 }
 
 class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
-  bool _expanded = false;
+  final bool _expanded = false;
 
   ProductDetailEntity get product => widget.product;
 
@@ -53,7 +52,6 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     final fullHtml = product.productDetails;
@@ -64,7 +62,7 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
         : fullHtml;
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +71,7 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
             'Product Description',
             style: textStyle.headingSmall.copyWith(
               fontWeight: FontWeight.w700,
-              color: colors.text,
+              color: AppColors.text,
             ),
           ),
           SizedBox(height: 16.h),
@@ -112,9 +110,9 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
                         extensions: const [TableHtmlExtension()],
                         style: {
                           "table": Style(
-                            backgroundColor: colors.white,
+                            backgroundColor: AppColors.white,
                             border: Border.all(
-                              color: colors.borderColor,
+                              color: AppColors.border,
                               width: 0.5.w,
                             ),
                             margin: Margins.only(top: 8.h, bottom: 8.h),
@@ -122,7 +120,7 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
                           ),
                           "th": Style(
                             padding: HtmlPaddings.all(8.w),
-                            backgroundColor: colors.silverChalice.withValues(
+                            backgroundColor: AppColors.mutedLight.withValues(
                               alpha: 0.1,
                             ),
                             fontWeight: FontWeight.bold,
@@ -130,20 +128,20 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
                             textAlign: TextAlign.center,
                             verticalAlign: VerticalAlign.top,
                             border: Border.all(
-                              color: colors.borderColor,
+                              color: AppColors.border,
                               width: 0.5.w,
                             ),
-                            color: colors.text,
+                            color: AppColors.text,
                           ),
                           "td": Style(
                             padding: HtmlPaddings.all(8.w),
                             textAlign: TextAlign.start,
                             verticalAlign: VerticalAlign.top,
                             border: Border.all(
-                              color: colors.borderColor,
+                              color: AppColors.border,
                               width: 0.5.w,
                             ),
-                            color: colors.text,
+                            color: AppColors.text,
                           ),
                           "td p": Style(
                             margin: Margins.zero,
@@ -170,7 +168,7 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
+                backgroundColor: AppColors.pickabooBlue,
                 padding: EdgeInsets.symmetric(vertical: 12.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4.r),
@@ -178,7 +176,7 @@ class _ProductDescriptionSectionState extends State<ProductDescriptionSection> {
               ),
               child: Text(
                 'View Full Description',
-                style: textStyle.buttonMedium.copyWith(color: colors.white),
+                style: textStyle.buttonMedium.copyWith(color: AppColors.white),
               ),
             ),
           ),

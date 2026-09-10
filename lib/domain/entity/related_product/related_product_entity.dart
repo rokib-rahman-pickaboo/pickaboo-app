@@ -10,4 +10,16 @@ class RelatedProductEntity {
     required this.productName,
     required this.relatedProducts,
   });
+
+  RelatedProductEntity copyWith({
+    int? productId,
+    String? productName,
+    List<ProductEntity>? relatedProducts,
+  }) {
+    return RelatedProductEntity(
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      relatedProducts: relatedProducts ?? this.relatedProducts,
+    );
+  }
 }

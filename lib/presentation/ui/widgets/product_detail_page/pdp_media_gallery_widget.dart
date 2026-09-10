@@ -8,7 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/product_media_dialog.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+
+enum PdpMediaTab { videos, images, customer }
 
 /// 1. HERO MEDIA GALLERY WITH FLOATING TOP BAR (Back, Search, Cart) AND RIGHT-SIDE BUTTONS (Wishlist, Compare, Share)
 class PdpMediaGalleryWidget extends StatefulWidget {
@@ -24,6 +27,7 @@ class PdpMediaGalleryWidget extends StatefulWidget {
   final VoidCallback onShare;
   final VoidCallback onCompare;
   final ValueChanged<String>? onMediaFilterSelected;
+  final void Function(ProductMediaType type, int index)? onMediaTap;
   final Function(int imageIndex)? onImageTap;
   final bool showTopBar;
   final bool showCompareButton;
@@ -42,9 +46,10 @@ class PdpMediaGalleryWidget extends StatefulWidget {
     required this.onShare,
     required this.onCompare,
     this.onMediaFilterSelected,
+    this.onMediaTap,
     this.onImageTap,
     this.showTopBar = false,
-    this.showCompareButton = false,
+    this.showCompareButton = false, // CompareIsHiddenForNow
   });
 
   @override
@@ -52,14 +57,69 @@ class PdpMediaGalleryWidget extends StatefulWidget {
 }
 
 class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
-  final PageController _pageController = PageController();
-  int _currentIndex = 0;
-  String _selectedFilter = 'Images';
+  late PageController _imagePageController;
+  late PageController _videoPageController;
+  late PageController _customerPageController;
+
+  int _currentImageIndex = 0;
+  int _currentVideoIndex = 0;
+  int _currentCustomerIndex = 0;
+
+  late PdpMediaTab _selectedTab;
+
+  @override
+  void initState() {
+    super.initState();
+    _imagePageController = PageController();
+    _videoPageController = PageController();
+    _customerPageController = PageController();
+
+    // Default to Videos first if video available, otherwise Product Images
+    final hasVideos = widget.product.youtubeVideos.isNotEmpty;
+    _selectedTab = hasVideos ? PdpMediaTab.videos : PdpMediaTab.images;
+  }
+
+  @override
+  void didUpdateWidget(covariant PdpMediaGalleryWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_selectedTab == PdpMediaTab.videos && widget.product.youtubeVideos.isEmpty) {
+      _selectedTab = PdpMediaTab.images;
+    } else if (_selectedTab == PdpMediaTab.customer && widget.product.allReviewImages.isEmpty) {
+      _selectedTab = PdpMediaTab.images;
+    }
+  }
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _imagePageController.dispose();
+    _videoPageController.dispose();
+    _customerPageController.dispose();
     super.dispose();
+  }
+
+  String _getVideoThumbnail(YoutubeVideoEntity video) {
+    final idRegex = RegExp(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})');
+    final id = idRegex.firstMatch(video.url)?.group(1);
+    if (id != null && id.isNotEmpty) {
+      return 'https://img.youtube.com/vi/$id/hqdefault.jpg';
+    }
+    return '';
+  }
+
+  String _getIndicatorText(int imageCount, int videoCount, int customerCount) {
+    return switch (_selectedTab) {
+      PdpMediaTab.videos => '${_currentVideoIndex + 1}/$videoCount',
+      PdpMediaTab.customer => '${_currentCustomerIndex + 1}/$customerCount',
+      PdpMediaTab.images => '${_currentImageIndex + 1}/$imageCount',
+    };
+  }
+
+  void _handleMediaTap(ProductMediaType type, int index) {
+    if (widget.onMediaTap != null) {
+      widget.onMediaTap!(type, index);
+    } else if (type == ProductMediaType.productImages) {
+      widget.onImageTap?.call(index);
+    }
   }
 
   @override
@@ -77,32 +137,100 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
       color: AppColors.white,
       child: Column(
         children: [
-          // ── HERO 1:1 IMAGE CAROUSEL WITH OVERLAY CONTROLS ──
+          // ── HERO 1:1 IMAGE/VIDEO CAROUSEL WITH OVERLAY CONTROLS ──
           AspectRatio(
             aspectRatio: 1.0,
             child: Stack(
               children: [
-                // ── Swipeable PageView ──
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: images.length,
-                  onPageChanged: (index) {
-                    setState(() => _currentIndex = index);
-                  },
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () => widget.onImageTap?.call(index),
-                      child: Container(
-                        color: AppColors.white,
-                        padding: EdgeInsets.zero,
-                        child: AppImage(
-                          imageUrl: images[index],
-                          fit: BoxFit.cover,
+                // ── Swipeable PageView for Active Tab ──
+                if (_selectedTab == PdpMediaTab.videos && videoCount > 0)
+                  PageView.builder(
+                    key: const ValueKey('pdp_videos_page_view'),
+                    controller: _videoPageController,
+                    itemCount: videoCount,
+                    onPageChanged: (index) {
+                      setState(() => _currentVideoIndex = index);
+                    },
+                    itemBuilder: (context, index) {
+                      final video = widget.product.youtubeVideos[index];
+                      final thumbnail = _getVideoThumbnail(video);
+                      return GestureDetector(
+                        onTap: () => _handleMediaTap(ProductMediaType.videos, index),
+                        child: Container(
+                          color: AppColors.black,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              if (thumbnail.isNotEmpty)
+                                AppImage(
+                                  imageUrl: thumbnail,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                              else
+                                Container(color: AppColors.surfaceBlue),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.black.withValues(alpha: 0.45),
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: EdgeInsets.all(16.w),
+                                child: Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: AppColors.white,
+                                  size: 48.sp,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  )
+                else if (_selectedTab == PdpMediaTab.customer && customerPhotoCount > 0)
+                  PageView.builder(
+                    key: const ValueKey('pdp_customer_page_view'),
+                    controller: _customerPageController,
+                    itemCount: customerPhotoCount,
+                    onPageChanged: (index) {
+                      setState(() => _currentCustomerIndex = index);
+                    },
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () => _handleMediaTap(ProductMediaType.customerImages, index),
+                        child: Container(
+                          color: AppColors.white,
+                          child: AppImage(
+                            imageUrl: widget.product.allReviewImages[index],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                else
+                  PageView.builder(
+                    key: const ValueKey('pdp_images_page_view'),
+                    controller: _imagePageController,
+                    itemCount: images.length,
+                    onPageChanged: (index) {
+                      setState(() => _currentImageIndex = index);
+                    },
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () => _handleMediaTap(ProductMediaType.productImages, index),
+                        child: Container(
+                          color: AppColors.white,
+                          padding: EdgeInsets.zero,
+                          child: AppImage(
+                            imageUrl: images[index],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
 
                 // ── Floating Top Bar: Back Button (Left), Search & Cart (Right) ──
                 if (widget.showTopBar && widget.onBack != null)
@@ -209,7 +337,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                   ),
                 ),
 
-                // ── Image Index Indicator Badge (Bottom Right) ──
+                // ── Image / Media Index Indicator Badge (Bottom Right) ──
                 Positioned(
                   bottom: AppSpacing.sameGroupItemSpacing.h,
                   right: AppSpacing.sameGroupItemSpacing.w,
@@ -220,7 +348,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                       borderRadius: BorderRadius.circular(AppRadius.card),
                     ),
                     child: Text(
-                      '${_currentIndex + 1}/${images.length}',
+                      _getIndicatorText(images.length, videoCount, customerPhotoCount),
                       style: AppTypography.buttonPrimary,
                     ),
                   ),
@@ -229,7 +357,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
             ),
           ),
 
-          // ── BOTTOM MEDIA PILL FILTERS (Horizontally scrollable if more than 2 types or needs space) ──
+          // ── BOTTOM MEDIA PILL FILTERS (Horizontally scrollable if needed) ──
           LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
@@ -244,35 +372,40 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _MediaPill(
-                        label: 'Product Images (${images.length})',
-                        icon: Icons.photo_library_outlined,
-                        isSelected: _selectedFilter == 'Images',
-                        onTap: () {
-                          setState(() => _selectedFilter = 'Images');
-                          widget.onMediaFilterSelected?.call('Product Images');
-                        },
-                      ),
+                      // 1. Videos (Shown first and selected by default if available)
                       if (videoCount > 0) ...[
-                        SizedBox(width: 8.w),
                         _MediaPill(
                           label: 'Videos ($videoCount)',
                           icon: Icons.play_circle_outline_rounded,
-                          isSelected: _selectedFilter == 'Videos',
+                          isSelected: _selectedTab == PdpMediaTab.videos,
                           onTap: () {
-                            setState(() => _selectedFilter = 'Videos');
+                            setState(() => _selectedTab = PdpMediaTab.videos);
                             widget.onMediaFilterSelected?.call('Videos');
                           },
                         ),
+                        SizedBox(width: 8.w),
                       ],
+
+                      // 2. Product Images
+                      _MediaPill(
+                        label: 'Product Images (${images.length})',
+                        icon: Icons.photo_library_outlined,
+                        isSelected: _selectedTab == PdpMediaTab.images,
+                        onTap: () {
+                          setState(() => _selectedTab = PdpMediaTab.images);
+                          widget.onMediaFilterSelected?.call('Product Images');
+                        },
+                      ),
+
+                      // 3. Customer Images (if available)
                       if (customerPhotoCount > 0) ...[
                         SizedBox(width: 8.w),
                         _MediaPill(
                           label: 'Customer Images ($customerPhotoCount)',
                           icon: Icons.camera_alt_outlined,
-                          isSelected: _selectedFilter == 'Customer',
+                          isSelected: _selectedTab == PdpMediaTab.customer,
                           onTap: () {
-                            setState(() => _selectedFilter = 'Customer');
+                            setState(() => _selectedTab = PdpMediaTab.customer);
                             widget.onMediaFilterSelected?.call('Customer Images');
                           },
                         ),
@@ -366,7 +499,10 @@ class _MediaPill extends StatelessWidget {
             SizedBox(width: 4.w),
             Text(
               label,
-              style: AppTypography.brandActionText,
+              style: AppTypography.brandActionText.copyWith(
+                color: isSelected ? AppColors.pickabooBlue : AppColors.navy,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
             ),
           ],
         ),

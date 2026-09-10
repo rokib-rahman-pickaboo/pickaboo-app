@@ -1,11 +1,18 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/user_review/user_review_entity.dart';
-import 'package:pickaboo/presentation/ui/widgets/dashboard/your_review_page/star_rating.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modern Review Row Item matching Pickaboo-App-UI prototype.
 class ReviewRowItem extends StatelessWidget {
   final UserReviewEntity review;
   final bool isLast;
@@ -14,33 +21,50 @@ class ReviewRowItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ── Product Header Row: Thumbnail + Details ──
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 80.w,
-              width: 80.w,
-              padding: EdgeInsets.all(5.w),
-              decoration: BoxDecoration(
-                border: Border.all(color: colors.borderColor),
-                borderRadius: BorderRadius.circular(8.r),
+            // ── Product Thumbnail Container ──
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.r),
+              child: Container(
+                width: 64.w,
+                height: 64.h,
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: review.productImage.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: review.productImage,
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) =>
+                            const AppLoader.inline(size: 20),
+                        errorWidget: (context, url, error) => Center(
+                          child: Icon(
+                            Icons.shopping_bag_outlined,
+                            color: AppColors.pickabooBlue,
+                            size: 28.sp,
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.shopping_bag_outlined,
+                          color: AppColors.pickabooBlue,
+                          size: 28.sp,
+                        ),
+                      ),
               ),
-              child: review.productImage.isNotEmpty
-                  ? Image.network(
-                      review.productImage,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Icon(Icons.image_not_supported, color: colors.gray),
-                    )
-                  : Icon(Icons.image, color: colors.gray),
             ),
             SizedBox(width: 12.w),
+
+            // ── Product Info & Rating ──
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,52 +73,71 @@ class ReviewRowItem extends StatelessWidget {
                     review.productName,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: textStyle.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: colors.text,
+                    style: AppTypography.cardTitle,
+                  ),
+                  SizedBox(height: 4.h),
+
+                  // ── Star Rating Row ──
+                  Row(
+                    children: List.generate(
+                      5,
+                      (starIndex) => Icon(
+                        Icons.star_rounded,
+                        size: 15.sp,
+                        color: starIndex < review.reviwerRating
+                            ? AppColors.amber
+                            : AppColors.border,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 8.h),
-                  StarRating(score: review.reviwerRating.toDouble(), size: 12.sp),
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 4.h),
+
+                  // ── Posted Date ──
                   Text(
                     'Posted on ${_formatDate(review.postedOn)}',
-                    style: textStyle.caption.copyWith(
-                      color: colors.gray,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: AppTypography.bodyTiny,
                   ),
                 ],
               ),
             ),
           ],
         ),
+
+        // ── Review Comment Box ──
         if (review.detail.isNotEmpty) ...[
-          SizedBox(height: 12.h),
-          Text(
-            review.detail,
-            style: textStyle.bodySmall.copyWith(
-              color: colors.text.withValues(alpha: 0.8),
-              height: 1.4.h,
+          SizedBox(height: 10.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(10.w),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Text(
+              review.detail,
+              style: AppTypography.bodyRegular,
             ),
           ),
         ],
+
+        // ── Review Images ──
         if (review.images.isNotEmpty) ...[
-          SizedBox(height: 15.h),
+          SizedBox(height: 10.h),
           SizedBox(
-            height: 65.w,
+            height: 60.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: review.images.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: EdgeInsets.only(right: 10.w),
+                  padding: EdgeInsets.only(right: 8.w),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
-                    child: Image.network(
-                      review.images[index],
-                      height: 65.w,
-                      width: 65.w,
+                    child: CachedNetworkImage(
+                      imageUrl: review.images[index],
+                      height: 60.h,
+                      width: 60.w,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -103,17 +146,23 @@ class ReviewRowItem extends StatelessWidget {
             ),
           ),
         ],
-        if (!isLast)
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20.h),
-            height: 1.h,
-            color: colors.borderColor.withValues(alpha: 0.5),
+
+        // ── Divider ──
+        if (!isLast) ...[
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 14.h),
+            child: Divider(
+              height: 1.h,
+              thickness: 1.h,
+              color: AppColors.border,
+            ),
           ),
+        ],
       ],
     );
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('d MMMM yyyy').format(date.toLocal());
+    return DateFormat('d MMM yyyy').format(date.toLocal());
   }
 }

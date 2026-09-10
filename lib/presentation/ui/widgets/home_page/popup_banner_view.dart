@@ -59,7 +59,7 @@ class PopupBannerView extends StatelessWidget {
             width: width * 0.9,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.r),
-              color: context.colors.black.withValues(alpha: 0.0),
+              color: AppColors.transparent,
             ),
             clipBehavior: Clip.antiAlias,
             child: AppHtml(

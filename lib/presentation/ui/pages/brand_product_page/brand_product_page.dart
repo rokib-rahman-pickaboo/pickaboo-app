@@ -1,10 +1,15 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/injection.dart';
@@ -24,12 +29,16 @@ import 'package:pickaboo/presentation/bloc/place_picker_bloc/place_picker_bloc.d
 import 'package:pickaboo/presentation/bloc/promo_bloc/promo_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/product_detail_page.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/brand_product_page/brand_filter_button.dart';
 import 'package:pickaboo/presentation/ui/pages/brand_product_page/bottom_sheet/brand_filter_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/brand_product_page/brand_product_results.dart';
 import 'package:pickaboo/presentation/ui/widgets/brand_product_page/brand_filter_chips.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
 
 class BrandProductPage extends StatefulWidget {
@@ -98,35 +107,28 @@ class _BrandProductPageState extends State<BrandProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: BlocBuilder<BrandProductsBloc, BrandProductsState>(
+      backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        titleWidget: BlocBuilder<BrandProductsBloc, BrandProductsState>(
           builder: (context, state) {
             return Text(
               (state.brandData?.brandName ?? widget.brandName).removeHtmlTags,
+              style: AppTypography.pageTitle.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             );
           },
         ),
         actions: [
-          AppBarButton(
-            onPressed: () {
-              context.push(Routes.search);
-            },
-            iconPath: 'assets/new/svg/search_icon.svg',
-            width: 22.w,
-            height: 20.h,
-            iconColor: colors.primary,
+          IconButton(
+            icon: Icon(Icons.search_rounded, color: AppColors.navy, size: 22.sp),
+            onPressed: () => context.push(Routes.search),
           ),
-          AppBarButton(
+          IconButton(
+            icon: Icon(Icons.favorite_border_rounded, color: AppColors.navy, size: 22.sp),
             onPressed: () {
               if (_isLoggedIn(context)) {
                 context.push(Routes.wishlist);
@@ -134,10 +136,6 @@ class _BrandProductPageState extends State<BrandProductPage> {
                 context.push(Routes.login);
               }
             },
-            iconPath: 'assets/new/svg/favorite_icon.svg',
-            width: 22.w,
-            height: 20.h,
-            iconColor: colors.primary,
           ),
           BlocBuilder<CartBloc, CartState>(
             builder: (context, cartState) {
@@ -150,20 +148,21 @@ class _BrandProductPageState extends State<BrandProductPage> {
                 orElse: () => 0,
               );
 
-              return AppBarButton(
-                onPressed: () {
-                  context.push(Routes.cart);
-                },
-                iconPath: 'assets/new/svg/cart_icon.svg',
-                width: 22.w,
-                height: 20.h,
-                iconColor: colors.primary,
-                showBadge: cartCount > 0,
-                badgeCount: cartCount,
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: cartCount > 0,
+                  label: Text(
+                    '$cartCount',
+                    style: AppTypography.bodyTiny.bold().withColor(AppColors.white),
+                  ),
+                  backgroundColor: AppColors.pickabooBlue,
+                  child: Icon(Icons.shopping_bag_outlined, color: AppColors.navy, size: 22.sp),
+                ),
+                onPressed: () => context.push(Routes.cart),
               );
             },
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 4.w),
         ],
       ),
       body: _wrapTwoPane(
@@ -204,24 +203,25 @@ class _BrandProductPageState extends State<BrandProductPage> {
                 if (!hasFacets &&
                     (state.pagingState.isLoading ||
                         state.pagingState.pages == null)) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: colors.primary,
-                      strokeWidth: 2.w,
-                    ),
-                  );
+                  return const AppLoader.fullPage();
                 }
 
                 if (state.pagingState.error != null &&
                     !hasProducts &&
                     !hasFacets) {
-                  return AppErrorView(
-                    type: AppErrorType.generic,
-                    title: "Couldn't load products",
-                    message:
-                    'Something went wrong while loading this page. '
-                        'Please try again in a moment.',
-                    retryLabel: 'Try Again',
+                  final isOffline = ConnectivityUtils.isNoInternet(
+                    state.pagingState.error,
+                    context,
+                  );
+                  return NoInternetPage(
+                    type: isOffline
+                        ? AppErrorType.noInternet
+                        : AppErrorType.generic,
+                    title: widget.brandKey,
+                    message: isOffline
+                        ? null
+                        : 'Something went wrong while loading this page. '
+                            'Please try again in a moment.',
                     onRetry: () {
                       context.read<BrandProductsBloc>().add(
                         BrandProductsEvent.refresh(
@@ -229,6 +229,9 @@ class _BrandProductPageState extends State<BrandProductPage> {
                         ),
                       );
                     },
+                    onBack: Navigator.of(context).canPop()
+                        ? () => Navigator.of(context).pop()
+                        : null,
                   );
                 }
 
@@ -272,7 +275,7 @@ class _BrandProductPageState extends State<BrandProductPage> {
                                 context: context,
                                 isScrollControlled: true,
                                 useSafeArea: true,
-                                backgroundColor: colors.black.withValues(
+                                backgroundColor: AppColors.black.withValues(
                                   alpha: 0.0,
                                 ),
                                 builder: (_) => BrandFilterBottomSheet(
@@ -300,6 +303,8 @@ class _BrandProductPageState extends State<BrandProductPage> {
 
                     BrandProductResults(
                       isGridView: _isGridView,
+                      brandKey: widget.brandKey,
+                      brandName: widget.brandName,
                       onProductSelected: (p) =>
                           setState(() => _selectedProduct = p),
                     ),
@@ -310,11 +315,25 @@ class _BrandProductPageState extends State<BrandProductPage> {
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 32.h),
                           child: AppErrorView(
-                            type: AppErrorType.generic,
-                            title: "Couldn't load products",
-                            message:
-                            'Something went wrong while loading these '
-                                'products. Please try again in a moment.',
+                            type: ConnectivityUtils.isNoInternet(
+                              state.pagingState.error,
+                              context,
+                            )
+                                ? AppErrorType.noInternet
+                                : AppErrorType.generic,
+                            title: ConnectivityUtils.isNoInternet(
+                              state.pagingState.error,
+                              context,
+                            )
+                                ? 'No Internet Connection'
+                                : "Couldn't load products",
+                            message: ConnectivityUtils.isNoInternet(
+                              state.pagingState.error,
+                              context,
+                            )
+                                ? 'Please check your network and try again.'
+                                : 'Something went wrong while loading these '
+                                    'products. Please try again in a moment.',
                             retryLabel: 'Try Again',
                             onRetry: () {
                               context.read<BrandProductsBloc>().add(
@@ -331,82 +350,37 @@ class _BrandProductPageState extends State<BrandProductPage> {
                         state.pagingState.error == null &&
                         (state.pagingState.isLoading ||
                             state.pagingState.pages == null))
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 48.h),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: colors.primary,
-                              strokeWidth: 2.w,
-                            ),
-                          ),
-                        ),
+                      AppLoader.sliver(
+                        padding: EdgeInsets.symmetric(vertical: 48.h),
                       ),
 
                     if (!hasProducts &&
                         state.pagingState.error == null &&
                         !state.pagingState.isLoading &&
                         state.pagingState.pages != null)
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24.w,
-                            vertical: 48.h,
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.inventory_2_outlined,
-                                size: 64.sp,
-                                color: colors.gray,
-                              ),
-                              SizedBox(height: 16.h),
-                              Text(
-                                hasActiveFilters
-                                    ? 'No products match your filters'
-                                    : 'No products found',
-                                textAlign: TextAlign.center,
-                                style: context.textStyle.bodyLarge
-                                    .withColor(colors.text),
-                              ),
-                              if (hasActiveFilters) ...[
-                                SizedBox(height: 8.h),
-                                Text(
-                                  'Try removing a filter to see more.',
-                                  textAlign: TextAlign.center,
-                                  style: context.textStyle.bodySmall
-                                      .withColor(colors.gray),
-                                ),
-                                SizedBox(height: 16.h),
-                                OutlinedButton(
-                                  onPressed: () {
-                                    context
-                                        .read<BrandProductsBloc>()
-                                        .add(
-                                      BrandProductsEvent.applyFilters(
-                                        brandKey: widget.brandKey,
-                                        filters: const {},
-                                      ),
-                                    );
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: colors.primary,
-                                    side: BorderSide(color: colors.primary),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        8.r,
-                                      ),
-                                    ),
+                      AppEmptyView.sliver(
+                        fillRemaining: true,
+                        icon: hasActiveFilters
+                            ? Icons.search_off_rounded
+                            : Icons.inventory_2_outlined,
+                        title: hasActiveFilters
+                            ? 'No products match your filters'
+                            : 'No Products in ${widget.brandName}',
+                        subtitle: hasActiveFilters
+                            ? 'Try removing a filter to see more.'
+                            : 'There are currently no products available for ${widget.brandName}.',
+                        primaryButtonText: hasActiveFilters ? 'Clear all filters' : null,
+                        primaryButtonIcon: hasActiveFilters ? Icons.filter_alt_off_rounded : null,
+                        onPrimaryAction: hasActiveFilters
+                            ? () {
+                                context.read<BrandProductsBloc>().add(
+                                  BrandProductsEvent.applyFilters(
+                                    brandKey: widget.brandKey,
+                                    filters: const {},
                                   ),
-                                  child: const Text('Clear all filters'),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
+                                );
+                              }
+                            : null,
                       ),
 
                     SliverToBoxAdapter(child: SizedBox(height: 24.h)),
@@ -446,7 +420,7 @@ class _BrandProductPageState extends State<BrandProductPage> {
         child: Text(
           'Select a product to see its details',
           style: context.textStyle.bodyMedium.copyWith(
-            color: context.colors.gray,
+            color: AppColors.muted,
           ),
         ),
       );

@@ -112,8 +112,8 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
         }
         _analytics.logEvent(name: 'sign_up', parameters: {'method': 'email'});
         emit(
-          RegistrationState.registrationSuccess(
-            'User creation successfully, please login',
+          const RegistrationState.registrationSuccess(
+            'Registration successful! Welcome to Pickaboo.',
           ),
         );
       },

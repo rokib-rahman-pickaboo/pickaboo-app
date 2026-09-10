@@ -56,7 +56,7 @@ class _AnimatedPinState extends State<AnimatedPin>
             width: widget.isDragging ? 10 : 6,
             height: widget.isDragging ? 4 : 4,
             decoration: BoxDecoration(
-              color: context.colors.black.withValues(alpha: 0.26),
+              color: AppColors.black.withValues(alpha: 0.26),
               borderRadius: BorderRadius.circular(4),
             ),
           ),

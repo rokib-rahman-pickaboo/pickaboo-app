@@ -11,8 +11,6 @@ class StarRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
@@ -31,7 +29,7 @@ class StarRating extends StatelessWidget {
             padding: EdgeInsets.only(right: 2.w),
             child: Icon(
               Icons.star_half,
-              color: const Color(0xFFFFB800),
+              color: AppColors.amber,
               size: (size + 2).sp,
             ),
           );
@@ -40,7 +38,7 @@ class StarRating extends StatelessWidget {
             padding: EdgeInsets.only(right: 2.w),
             child: Icon(
               Icons.star_outline,
-              color: colors.gray.withValues(alpha: 0.3),
+              color: AppColors.muted.withValues(alpha: 0.3),
               size: (size + 2).sp,
             ),
           );

@@ -22,9 +22,71 @@ class RecommendedProductsBloc extends Bloc<RecommendedProductsEvent, Recommended
 
     final result = await repository.getRecommendedProducts(slug: event.slug);
 
-    result.fold(
-      (error) => emit(RecommendedProductsState.error(error)),
-      (recommendedProducts) => emit(RecommendedProductsState.loaded(recommendedProducts)),
+    await result.fold(
+      (error) async => emit(RecommendedProductsState.error(error)),
+      (recommendedProducts) async {
+        emit(RecommendedProductsState.loaded(recommendedProducts));
+
+        final hasZeroPrice = recommendedProducts.sellerRecommendedProducts.any(
+          (p) => p.finalPrice <= 0 && p.id.isNotEmpty,
+        );
+
+        if (hasZeroPrice) {
+          final updatedList = await Future.wait(
+            recommendedProducts.sellerRecommendedProducts.map((p) async {
+              if (p.finalPrice <= 0 && p.id.isNotEmpty) {
+                final detailResult =
+                    await repository.getProductDetail(productId: p.id);
+                return detailResult.fold(
+                  (_) => p,
+                  (detail) {
+                    int regular = detail.regularPrice;
+                    int special = detail.spacialPrice;
+                    int discount = detail.discount;
+
+                    if (regular <= 0 && detail.varient.isNotEmpty) {
+                      for (final v in detail.varient) {
+                        for (final opt in v.options) {
+                          final cp = opt.configurableProduct;
+                          if (cp != null && cp.productPrice > 0) {
+                            regular = cp.productPrice;
+                            if (cp.productSpecialPrice > 0) {
+                              special = cp.productSpecialPrice;
+                            }
+                            if (cp.productDiscount > 0) {
+                              discount = cp.productDiscount;
+                            }
+                            break;
+                          }
+                        }
+                        if (regular > 0) break;
+                      }
+                    }
+
+                    if (regular > 0) {
+                      return p.copyWith(
+                        productPrice: regular,
+                        productSpecialPrice: special,
+                        productDiscount: discount,
+                      );
+                    }
+                    return p;
+                  },
+                );
+              }
+              return p;
+            }),
+          );
+
+          if (!isClosed) {
+            emit(RecommendedProductsState.loaded(
+              recommendedProducts.copyWith(
+                sellerRecommendedProducts: updatedList,
+              ),
+            ));
+          }
+        }
+      },
     );
   }
 }

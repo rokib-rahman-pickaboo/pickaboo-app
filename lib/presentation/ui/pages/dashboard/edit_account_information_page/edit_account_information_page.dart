@@ -1,28 +1,34 @@
-import 'dart:io';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
 
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/enums/gender_enum.dart';
+import 'package:image_cropper/image_cropper.dart';
 
-import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
-import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
-import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
+import 'package:pickaboo/core/enums/gender_enum.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_bloc.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_event.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_state.dart';
-import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
-import 'package:pickaboo/core/validatator/validator.dart';
+import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
+import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
+import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/phone_text_field.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/pages/dashboard/account_information_page/widgets/change_phone_number_bottom_sheet.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
 
+/// Modernized Pickaboo Edit Account Information Page
+/// Form for updating profile avatar, name, gender, date of birth, and contact number.
 class EditAccountInformationPage extends StatefulWidget {
   const EditAccountInformationPage({super.key});
 
@@ -37,12 +43,10 @@ class _EditAccountInformationPageState
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _contactNumberController =
       TextEditingController();
-  final TextEditingController _otpController = TextEditingController();
 
   Gender? _selectedGender;
   DateTime? _selectedDate;
 
-  bool _isOtpMode = false;
   bool _hasExistingNumber = false;
   late PhotoPickerBloc _photoPickerBloc;
 
@@ -85,7 +89,6 @@ class _EditAccountInformationPageState
     _firstNameController.dispose();
     _lastNameController.dispose();
     _contactNumberController.dispose();
-    _otpController.dispose();
     super.dispose();
   }
 
@@ -94,8 +97,6 @@ class _EditAccountInformationPageState
   }
 
   Future<void> _cropAndUpload(String sourcePath) async {
-    final colors = context.colors;
-
     final cropped = await ImageCropper().cropImage(
       sourcePath: sourcePath,
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
@@ -106,9 +107,9 @@ class _EditAccountInformationPageState
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Crop Photo',
-          toolbarColor: colors.primary,
-          toolbarWidgetColor: colors.white,
-          activeControlsWidgetColor: colors.primary,
+          toolbarColor: AppColors.pickabooBlue,
+          toolbarWidgetColor: AppColors.white,
+          activeControlsWidgetColor: AppColors.pickabooBlue,
           lockAspectRatio: true,
           hideBottomControls: false,
           initAspectRatio: CropAspectRatioPreset.square,
@@ -129,8 +130,6 @@ class _EditAccountInformationPageState
   }
 
   Future<void> _selectDate() async {
-    final colors = context.colors;
-
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
@@ -139,10 +138,10 @@ class _EditAccountInformationPageState
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: colors.primary,
-              onPrimary: colors.white,
-              onSurface: colors.text,
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.pickabooBlue,
+              onPrimary: AppColors.white,
+              onSurface: AppColors.navy,
             ),
           ),
           child: child!,
@@ -156,47 +155,41 @@ class _EditAccountInformationPageState
   }
 
   Future<void> _selectGender() async {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     await showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
       ),
       builder: (context) => Container(
         padding: EdgeInsets.fromLTRB(
+          16.w,
           20.w,
-          20.w,
-          20.w,
-          20.w + MediaQuery.of(context).padding.bottom,
+          16.w,
+          16.w + MediaQuery.of(context).padding.bottom,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Select Gender',
-              style: textTheme.bodyLargeMedium.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colors.text,
-              ),
+              style: AppTypography.pageTitle,
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
             ...Gender.values.map((gender) {
               final isSelected = gender == _selectedGender;
               return ListTile(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.cardRadius,
+                ),
+                tileColor: isSelected ? AppColors.surfaceBlue : null,
                 title: Text(
                   gender.label,
-                  style: textTheme.bodyMedium.copyWith(
-                    color: isSelected ? colors.primary : colors.text,
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
+                  style: isSelected ? AppTypography.brandActionText : AppTypography.bodyRegular,
                 ),
                 trailing: isSelected
-                    ? Icon(Icons.check, color: colors.primary)
-                    : null,
+                    ? Icon(Icons.check_circle, color: AppColors.pickabooBlue, size: 20.sp)
+                    : Icon(Icons.radio_button_unchecked, color: AppColors.mutedLight, size: 20.sp),
                 onTap: () {
                   setState(() => _selectedGender = gender);
                   context.pop();
@@ -210,45 +203,21 @@ class _EditAccountInformationPageState
   }
 
   void _handleNumberChange() {
-    setState(() => _isOtpMode = true);
+    ChangePhoneNumberBottomSheet.show(
+      context,
+      onSuccess: (newMobile) {
+        setState(() {
+          _contactNumberController.text = newMobile;
+          _hasExistingNumber = true;
+        });
+      },
+    );
   }
 
   bool _isValidImageUrl(String? url) {
     if (url == null || url.isEmpty) return false;
     final uri = Uri.tryParse(url);
     return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
-  }
-
-  Future<void> _sendOtp() async {
-    if (!_isValidMobileNumber(_contactNumberController.text)) {
-      SnackBarUtils.showError(context, 'Please enter valid mobile number');
-      return;
-    }
-
-    context.read<UserProfileBloc>().add(
-      UserProfileEvent.sendPhoneUpdateOtp(_contactNumberController.text),
-    );
-  }
-
-  Future<void> _verifyOtp() async {
-    final mobileErr = validateMobileNumber(_contactNumberController.text);
-    if (mobileErr != null) {
-      SnackBarUtils.showError(context, mobileErr);
-      return;
-    }
-
-    final otp = _otpController.text.trim();
-    if (!RegExp(r'^\d{4,6}$').hasMatch(otp)) {
-      SnackBarUtils.showError(context, 'Please enter a valid OTP');
-      return;
-    }
-
-    context.read<UserProfileBloc>().add(
-      UserProfileEvent.updateMobile(
-        newMobile: _contactNumberController.text,
-        otp: otp,
-      ),
-    );
   }
 
   Future<void> _saveProfile() async {
@@ -264,20 +233,16 @@ class _EditAccountInformationPageState
 
     context.read<UserProfileBloc>().add(
       UserProfileEvent.updateBasicInfo(
-        firstName: _firstNameController.text,
-        lastName: _lastNameController.text,
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
         gender: _selectedGender?.value.toString() ?? '',
         dob: _formatDateForApi(_selectedDate),
       ),
     );
   }
 
-  bool _isValidMobileNumber(String number) {
-    return validateMobileNumber(number) == null;
-  }
-
   String _formatDate(DateTime? date) {
-    if (date == null) return 'Date of Birth';
+    if (date == null) return 'Date of birth';
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
@@ -288,8 +253,6 @@ class _EditAccountInformationPageState
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return BlocListener<PhotoPickerBloc, PhotoPickerState>(
       bloc: _photoPickerBloc,
       listener: (context, state) {
@@ -315,23 +278,15 @@ class _EditAccountInformationPageState
             },
             mobileUpdateSuccess: (s) {
               SnackBarUtils.showSuccess(context, s.message);
-              setState(() => _isOtpMode = false);
               if (s.mobileNumber != null && s.mobileNumber!.isNotEmpty) {
-                _contactNumberController.text = s.mobileNumber!;
-                _hasExistingNumber = true;
+                setState(() {
+                  _contactNumberController.text = s.mobileNumber!;
+                  _hasExistingNumber = true;
+                });
               }
             },
             imageUploadSuccess: (s) {
               SnackBarUtils.showSuccess(context, s.message);
-            },
-            phoneUpdateOtpSent: (s) {
-              SnackBarUtils.showInfo(
-                context,
-                'OTP sent to ${s.mobileNumber}. Please check your messages.',
-              );
-              if (!_isOtpMode) {
-                setState(() => _isOtpMode = true);
-              }
             },
             updateRequiresLogout: (s) {
               SnackBarUtils.showSuccess(context, s.message);
@@ -359,23 +314,20 @@ class _EditAccountInformationPageState
           );
 
           return Scaffold(
-            appBar: AppBar(
-              leading: AppBarButton(
-                iconPath: 'assets/new/svg/back_nav_icon.svg',
-                width: 7.w,
-                height: 14.h,
-                onPressed: () => Navigator.of(context).pop(),
-                iconColor: colors.text,
-              ),
-              title: Text('Edit Profile', style: context.textStyle.appBarTitle),
+            backgroundColor: AppColors.pageBg,
+            appBar: const PickabooAppBar(
+              title: 'Edit Profile',
             ),
             bottomNavigationBar: Container(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+                vertical: 14.h,
+              ),
               decoration: BoxDecoration(
-                color: colors.white,
+                color: AppColors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: colors.black.withValues(alpha: 0.05),
+                    color: AppColors.navy.withValues(alpha: 0.05),
                     blurRadius: 10.r,
                     offset: Offset(0, -2.h),
                   ),
@@ -383,27 +335,26 @@ class _EditAccountInformationPageState
               ),
               child: SafeArea(
                 top: false,
-                child: ElevatedButton(
-                  onPressed: _isOtpMode ? _verifyOtp : _saveProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.button,
-                    minimumSize: Size(double.infinity, 48.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50.h,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.pickabooBlue,
+                      foregroundColor: AppColors.white,
+                      elevation: 0,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadius.cardRadius,
+                      ),
                     ),
-                  ),
-                  child: isLoading
-                      ? SizedBox(
-                          height: 20.h,
-                          width: 20.h,
-                          child: CircularProgressIndicator(color: colors.white),
-                        )
-                      : Text(
-                          _isOtpMode ? 'Verify OTP' : 'Save Changes',
-                          style: context.textStyle.buttonMedium.copyWith(
-                            color: colors.white,
+                    child: isLoading
+                        ? const AppLoader.button()
+                        : Text(
+                            'Save Changes',
+                            style: AppTypography.buttonPrimary,
                           ),
-                        ),
+                  ),
                 ),
               ),
             ),
@@ -413,15 +364,23 @@ class _EditAccountInformationPageState
                     ScrollViewKeyboardDismissBehavior.onDrag,
                 slivers: [
                   SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.groupToGroupSpacing.h),
+                  ),
+
+                  // ── AVATAR PROFILE PHOTO CARD ──
+                  SliverToBoxAdapter(
                     child: Container(
-                      margin: EdgeInsets.all(16.w),
-                      padding: EdgeInsets.all(20.w),
+                      margin: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sameGroupItemSpacing.w,
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 20.h),
                       decoration: BoxDecoration(
-                        color: colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
+                        color: AppColors.white,
+                        borderRadius: AppRadius.cardRadius,
+                        border: Border.all(color: AppColors.border),
                         boxShadow: [
                           BoxShadow(
-                            color: colors.black.withValues(alpha: 0.04),
+                            color: AppColors.navy.withValues(alpha: 0.03),
                             blurRadius: 8.r,
                             offset: Offset(0, 2.h),
                           ),
@@ -434,17 +393,18 @@ class _EditAccountInformationPageState
                             child: Stack(
                               children: [
                                 Container(
-                                  width: 100.w,
-                                  height: 100.h,
+                                  width: 96.w,
+                                  height: 96.h,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: colors.primary.withAlpha(25),
-                                    image:
-                                        imageUrl != null && imageUrl.isNotEmpty
+                                    color: AppColors.surfaceBlue,
+                                    border: Border.all(
+                                      color: AppColors.pickabooBlue,
+                                      width: 2.w,
+                                    ),
+                                    image: imageUrl != null && imageUrl.isNotEmpty
                                         ? DecorationImage(
-                                            image: CachedNetworkImageProvider(
-                                              imageUrl,
-                                            ),
+                                            image: CachedNetworkImageProvider(imageUrl),
                                             fit: BoxFit.cover,
                                           )
                                         : null,
@@ -452,8 +412,8 @@ class _EditAccountInformationPageState
                                   child: imageUrl == null || imageUrl.isEmpty
                                       ? Icon(
                                           Icons.person,
-                                          size: 50.sp,
-                                          color: colors.primary,
+                                          size: 48.sp,
+                                          color: AppColors.pickabooBlue,
                                         )
                                       : null,
                                 ),
@@ -462,30 +422,28 @@ class _EditAccountInformationPageState
                                   right: 0,
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: colors.primary,
+                                      color: AppColors.pickabooBlue,
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: colors.white,
+                                        color: AppColors.white,
                                         width: 2.w,
                                       ),
                                     ),
-                                    padding: EdgeInsets.all(8.w),
+                                    padding: EdgeInsets.all(7.w),
                                     child: Icon(
                                       Icons.camera_alt,
-                                      size: 18.sp,
-                                      color: colors.white,
+                                      size: 16.sp,
+                                      color: AppColors.white,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 12.h),
+                          SizedBox(height: 10.h),
                           Text(
                             'Tap to change photo',
-                            style: context.textStyle.bodySmall.copyWith(
-                              color: colors.gray,
-                            ),
+                            style: AppTypography.bodyMutedLight,
                           ),
                         ],
                       ),
@@ -493,26 +451,35 @@ class _EditAccountInformationPageState
                   ),
 
                   SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.groupToGroupSpacing.h),
+                  ),
+
+                  // ── PERSONAL DETAILS FORM CARD ──
+                  SliverToBoxAdapter(
                     child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 16.w),
-                      padding: EdgeInsets.all(20.w),
+                      margin: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sameGroupItemSpacing.w,
+                      ),
+                      padding: EdgeInsets.all(16.w),
                       decoration: BoxDecoration(
-                        color: colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
+                        color: AppColors.white,
+                        borderRadius: AppRadius.cardRadius,
+                        border: Border.all(color: AppColors.border),
                         boxShadow: [
                           BoxShadow(
-                            color: colors.black.withValues(alpha: 0.04),
+                            color: AppColors.navy.withValues(alpha: 0.03),
                             blurRadius: 8.r,
                             offset: Offset(0, 2.h),
                           ),
                         ],
                       ),
-                      child: _isOtpMode
-                          ? _buildOtpVerificationForm()
-                          : _buildEditForm(),
+                      child: _buildEditForm(),
                     ),
                   ),
 
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.groupToGroupSpacing.h * 2),
+                  ),
                 ],
               ),
             ),
@@ -545,7 +512,7 @@ class _EditAccountInformationPageState
                 onTap: _selectGender,
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
             Expanded(
               child: _buildDropdownField(
                 label: 'Date of Birth',
@@ -565,53 +532,8 @@ class _EditAccountInformationPageState
           onTap: _handleNumberChange,
           child: Text(
             _hasExistingNumber ? 'Change mobile number' : 'Add mobile number',
-            style: context.textStyle.bodyMediumMedium
-                .withColor(context.colors.primary)
-                .copyWith(decoration: TextDecoration.underline),
+            style: AppTypography.linkText,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOtpVerificationForm() {
-    final colors = context.colors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 5,
-              child: PhoneTextField(controller: _contactNumberController),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton(
-                onPressed: _sendOtp,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
-                child: Text(
-                  'Send',
-                  style: context.textStyle.buttonMedium.withColor(colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-        _buildTextField(
-          controller: _otpController,
-          label: 'OTP',
-          placeholder: 'Enter OTP',
-          keyboardType: TextInputType.number,
         ),
       ],
     );
@@ -624,53 +546,47 @@ class _EditAccountInformationPageState
     bool enabled = true,
     TextInputType? keyboardType,
   }) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: textTheme.bodyMedium.copyWith(
-            color: colors.text,
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTypography.inputLabel,
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 6.h),
         TextField(
           controller: controller,
           enabled: enabled,
           keyboardType: keyboardType,
-          style: textTheme.bodyMedium.copyWith(color: colors.text),
+          style: AppTypography.inputText,
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: textTheme.bodyMedium.copyWith(color: colors.gray),
+            hintStyle: AppTypography.inputHint,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 16.w,
-              vertical: 10.w,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(color: colors.borderColor.withAlpha(128)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(color: colors.borderColor.withAlpha(128)),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(color: colors.borderColor.withAlpha(76)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(color: colors.primary, width: 1.5),
+              vertical: 14.h,
             ),
             filled: !enabled,
-            fillColor: enabled ? null : colors.background,
+            fillColor: enabled ? AppColors.white : AppColors.pageBg,
+            border: const OutlineInputBorder(
+              borderRadius: AppRadius.cardRadius,
+              borderSide: BorderSide(color: AppColors.border),
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: AppRadius.cardRadius,
+              borderSide: BorderSide(color: AppColors.border),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: AppRadius.cardRadius,
+              borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.6)),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: AppRadius.cardRadius,
+              borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
+            ),
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 14.h),
       ],
     );
   }
@@ -680,47 +596,47 @@ class _EditAccountInformationPageState
     required String value,
     required VoidCallback onTap,
   }) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
+    final bool isPlaceholder = value.startsWith('Select');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: textTheme.bodyMedium.copyWith(
-            color: colors.text,
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTypography.inputLabel,
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 6.h),
         InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: AppRadius.cardRadius,
           child: Container(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 14.h,
+            ),
             decoration: BoxDecoration(
-              border: Border.all(color: colors.borderColor.withAlpha(128)),
-              borderRadius: BorderRadius.circular(12.r),
+              color: AppColors.white,
+              border: Border.all(color: AppColors.border),
+              borderRadius: AppRadius.cardRadius,
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     value,
-                    style: textTheme.bodyMedium.copyWith(
-                      color: value.startsWith('Select')
-                          ? colors.gray
-                          : colors.text,
-                    ),
+                    style: isPlaceholder ? AppTypography.inputHint : AppTypography.inputText,
                   ),
                 ),
-                Icon(Icons.arrow_drop_down, color: colors.gray, size: 24.sp),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: AppColors.mutedLight,
+                  size: 22.sp,
+                ),
               ],
             ),
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 14.h),
       ],
     );
   }

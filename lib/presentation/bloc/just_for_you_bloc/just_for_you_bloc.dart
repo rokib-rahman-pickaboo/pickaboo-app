@@ -85,6 +85,6 @@ class JustForYouBloc extends Bloc<JustForYouEvent, JustForYouState> {
 
   Future<void> _onRefresh(_Refresh event, Emitter<JustForYouState> emit) async {
     emit(state.copyWith(pagingState: PagingState()));
-    add(JustForYouEvent.getProducts());
+    add(const JustForYouEvent.getProducts());
   }
 }

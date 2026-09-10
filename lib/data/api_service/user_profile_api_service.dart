@@ -28,18 +28,27 @@ abstract class UserProfileApiService {
     required String dob,
   });
 
-  Future<Either<ErrorResponse, UserResponse>> updateEmail({
-    required Map<String, dynamic> userMap,
-    required String newEmail,
+  Future<Either<ErrorResponse, OtpResponse>> sendEmailUpdateOtp({
+    required String email,
+  });
+
+  Future<Either<ErrorResponse, String>> updateEmail({
+    required String email,
+    required String otp,
   });
 
   Future<Either<ErrorResponse, OtpResponse>> sendPhoneUpdateOtp({
     required String mobile,
+    bool resend = false,
     String? recaptchaToken,
   });
 
-  Future<Either<ErrorResponse, UserResponse>> updatePhoneNumber({
-    required Map<String, dynamic> userMap,
+  Future<Either<ErrorResponse, String>> validateOtp({
+    required String mobile,
+    required String otp,
+  });
+
+  Future<Either<ErrorResponse, String>> updatePhoneNumber({
     required String mobile,
     required String otp,
   });
@@ -84,6 +93,12 @@ abstract class UserProfileApiService {
   Future<Either<ErrorResponse, bool>> updateAddressList(
     Map<String, dynamic> body,
   );
+
+  Future<Either<ErrorResponse, String>> addAddress(Map<String, dynamic> body);
+
+  Future<Either<ErrorResponse, String>> updateAddress(Map<String, dynamic> body);
+
+  Future<Either<ErrorResponse, String>> deleteAddress(int addressId);
 
   Future<Either<ErrorResponse, List<CityResponse>>> getCities(String division);
 

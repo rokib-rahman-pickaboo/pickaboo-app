@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/core/constants/app_recaptcha_actions.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/auth_api_service.dart';
 import 'package:pickaboo/data/services/recaptcha_service.dart';
 import 'package:pickaboo/data/mapper/auth_mapper/check_user_mapper.dart';
@@ -69,8 +70,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> saveToken(String token) async {
+  Future<void> saveToken(String token, {bool isProd = false}) async {
     await _cacheManager.setToken(token: token);
+    await _cacheManager.setProdToken(isProd);
   }
 
   @override
@@ -114,7 +116,10 @@ class AuthRepositoryImpl implements AuthRepository {
       token = await _recaptcha.executeAction(recaptchaAction);
     } catch (e) {
       return left(
-        AppErrorEntity(message: 'Verification failed. Please try again.'),
+        const AppErrorEntity(
+          message:
+              'Security verification failed. Please wait a moment and try again.',
+        ),
       );
     }
 
@@ -129,7 +134,14 @@ class AuthRepositoryImpl implements AuthRepository {
       (l) => left(l.toEntity()),
       (r) {
         if (r.status != null && r.status != 200) {
-          return left(AppErrorEntity(message: r.message ?? 'Failed to send OTP'));
+          return left(
+            AppErrorEntity(
+              message: ApiErrorParser.sanitize(
+                r.message,
+                fallback: 'Failed to send OTP',
+              ),
+            ),
+          );
         }
         return right(r.message ?? 'OTP sent');
       },
@@ -169,7 +181,23 @@ class AuthRepositoryImpl implements AuthRepository {
 
     final result = await apiService.registerUser(request);
 
-    return result.fold((l) => left(l.toEntity()), (r) => right(r.toEntity()));
+    return result.fold(
+      (l) => left(l.toEntity()),
+      (r) async {
+        // Auto-login so token and userId are stored in cache
+        try {
+          final loginResult = await login(mobile: mobile, password: password);
+          if (loginResult.isLeft() && email.isNotEmpty && email != mobile) {
+            await login(mobile: email, password: password);
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('[AuthRepository] ⚠️ Auto-login after registration error: $e');
+          }
+        }
+        return right(r.toEntity());
+      },
+    );
   }
 
   @override
@@ -182,7 +210,10 @@ class AuthRepositoryImpl implements AuthRepository {
       token = await _recaptcha.executeAction(recaptchaAction);
     } catch (e) {
       return left(
-        AppErrorEntity(message: 'Verification failed. Please try again.'),
+        const AppErrorEntity(
+          message:
+              'Security verification failed. Please wait a moment and try again.',
+        ),
       );
     }
 
@@ -191,7 +222,14 @@ class AuthRepositoryImpl implements AuthRepository {
       (l) => left(l.toEntity()),
       (r) {
         if (r.status != null && r.status != 200) {
-          return left(AppErrorEntity(message: r.message ?? 'Failed to send Email OTP'));
+          return left(
+            AppErrorEntity(
+              message: ApiErrorParser.sanitize(
+                r.message,
+                fallback: 'Failed to send Email OTP',
+              ),
+            ),
+          );
         }
         return right(r.message ?? 'Email OTP sent');
       },
@@ -219,7 +257,10 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     } catch (e) {
       return left(
-        AppErrorEntity(message: 'Verification failed. Please try again.'),
+        const AppErrorEntity(
+          message:
+              'Security verification failed. Please wait a moment and try again.',
+        ),
       );
     }
 
@@ -233,7 +274,14 @@ class AuthRepositoryImpl implements AuthRepository {
       (l) => left(l.toEntity()),
       (r) {
         if (r.status != null && r.status != 200) {
-          return left(AppErrorEntity(message: r.message ?? 'Failed to send OTP'));
+          return left(
+            AppErrorEntity(
+              message: ApiErrorParser.sanitize(
+                r.message,
+                fallback: 'Failed to send OTP',
+              ),
+            ),
+          );
         }
         return right(r.message ?? 'OTP sent');
       },
@@ -246,12 +294,24 @@ class AuthRepositoryImpl implements AuthRepository {
     String? email,
     required String otp,
     required String newPassword,
+    String? confirmPassword,
   }) async {
+    String? token;
+    try {
+      token = await _recaptcha.executeAction(
+        AppRecaptchaActions.forgotPasswordSubmit,
+      );
+    } catch (_) {
+      // Allow proceeding even if token generation fails on some devices
+    }
+
     final result = await apiService.resetPassword(
       mobile: mobile,
       email: email,
       otp: otp,
       newPassword: newPassword,
+      confirmPassword: confirmPassword ?? newPassword,
+      recaptchaToken: token,
     );
 
     return result.fold((l) => left(l.toEntity()), (r) => right(r));
@@ -274,7 +334,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final result = await apiService.socialLogin(request);
 
     return result.fold((l) => left(l.toEntity()), (r) async {
-      await saveToken(r);
+      await saveToken(r, isProd: provider.toLowerCase() == 'facebook');
       await _saveUserId();
       return right(r);
     });
@@ -340,7 +400,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<AppErrorEntity, String>> loginWithFacebook() async {
     final result = await apiService.loginWithFacebook();
     return result.fold((l) => left(l.toEntity()), (r) async {
-      await saveToken(r);
+      await saveToken(r, isProd: true);
       await _saveUserId();
       return right(r);
     });

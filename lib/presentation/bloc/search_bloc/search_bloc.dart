@@ -46,7 +46,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     _currentQuery = query;
 
-    if (query.trim().length <= _minQueryLength) {
+    if (query.trim().length < _minQueryLength) {
       emit(state.copyWith(suggestions: const [], pagingState: PagingState()));
       return;
     }

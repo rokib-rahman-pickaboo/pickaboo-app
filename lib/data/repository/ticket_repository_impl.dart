@@ -10,7 +10,7 @@ import 'package:pickaboo/data/model/ticket/create_ticket_model.dart';
 import 'package:pickaboo/data/local_data_source/ticket_local_data_source.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
-import 'package:pickaboo/domain/entity/ticket/ticket_order_entity.dart';
+import 'package:pickaboo/domain/entity/ticket/ticket_order_info_entity.dart';
 import 'package:pickaboo/domain/repository/ticket_repository.dart';
 
 @LazySingleton(as: TicketRepository)
@@ -99,14 +99,12 @@ class TicketRepositoryImpl implements TicketRepository {
   }
 
   @override
-  Future<Either<AppErrorEntity, List<TicketOrderEntity>>>
+  Future<Either<AppErrorEntity, TicketOrderInfoEntity>>
   getTicketOrders() async {
     final result = await _apiService.getTicketOrders();
-    return result.fold((error) => Left(error.toEntity()), (models) {
-      final entities = models
-          .map((e) => _mapper.mapTicketOrderModelToEntity(e))
-          .toList();
-      return Right(entities);
-    });
+    return result.fold(
+      (error) => Left(error.toEntity()),
+      (response) => Right(_mapper.mapTicketOrderInfoResponseToEntity(response)),
+    );
   }
 }

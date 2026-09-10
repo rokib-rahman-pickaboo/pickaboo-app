@@ -1384,6 +1384,8 @@ mixin _$TicketState {
   List<TicketEntity> get tickets => throw _privateConstructorUsedError;
   TicketDetailEntity? get ticketDetails => throw _privateConstructorUsedError;
   List<TicketOrderEntity> get orders => throw _privateConstructorUsedError;
+  List<TicketIssueTypeEntity> get issueTypes =>
+      throw _privateConstructorUsedError;
   String? get successMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of TicketState
@@ -1406,6 +1408,7 @@ abstract class $TicketStateCopyWith<$Res> {
     List<TicketEntity> tickets,
     TicketDetailEntity? ticketDetails,
     List<TicketOrderEntity> orders,
+    List<TicketIssueTypeEntity> issueTypes,
     String? successMessage,
   });
 }
@@ -1430,6 +1433,7 @@ class _$TicketStateCopyWithImpl<$Res, $Val extends TicketState>
     Object? tickets = null,
     Object? ticketDetails = freezed,
     Object? orders = null,
+    Object? issueTypes = null,
     Object? successMessage = freezed,
   }) {
     return _then(
@@ -1459,6 +1463,11 @@ class _$TicketStateCopyWithImpl<$Res, $Val extends TicketState>
                     ? _value.orders
                     : orders // ignore: cast_nullable_to_non_nullable
                         as List<TicketOrderEntity>,
+            issueTypes:
+                null == issueTypes
+                    ? _value.issueTypes
+                    : issueTypes // ignore: cast_nullable_to_non_nullable
+                        as List<TicketIssueTypeEntity>,
             successMessage:
                 freezed == successMessage
                     ? _value.successMessage
@@ -1485,6 +1494,7 @@ abstract class _$$TicketStateImplCopyWith<$Res>
     List<TicketEntity> tickets,
     TicketDetailEntity? ticketDetails,
     List<TicketOrderEntity> orders,
+    List<TicketIssueTypeEntity> issueTypes,
     String? successMessage,
   });
 }
@@ -1508,6 +1518,7 @@ class __$$TicketStateImplCopyWithImpl<$Res>
     Object? tickets = null,
     Object? ticketDetails = freezed,
     Object? orders = null,
+    Object? issueTypes = null,
     Object? successMessage = freezed,
   }) {
     return _then(
@@ -1537,6 +1548,11 @@ class __$$TicketStateImplCopyWithImpl<$Res>
                 ? _value._orders
                 : orders // ignore: cast_nullable_to_non_nullable
                     as List<TicketOrderEntity>,
+        issueTypes:
+            null == issueTypes
+                ? _value._issueTypes
+                : issueTypes // ignore: cast_nullable_to_non_nullable
+                    as List<TicketIssueTypeEntity>,
         successMessage:
             freezed == successMessage
                 ? _value.successMessage
@@ -1556,9 +1572,11 @@ class _$TicketStateImpl implements _TicketState {
     final List<TicketEntity> tickets = const [],
     this.ticketDetails,
     final List<TicketOrderEntity> orders = const [],
+    final List<TicketIssueTypeEntity> issueTypes = const [],
     this.successMessage,
   }) : _tickets = tickets,
-       _orders = orders;
+       _orders = orders,
+       _issueTypes = issueTypes;
 
   @override
   @JsonKey()
@@ -1585,12 +1603,21 @@ class _$TicketStateImpl implements _TicketState {
     return EqualUnmodifiableListView(_orders);
   }
 
+  final List<TicketIssueTypeEntity> _issueTypes;
+  @override
+  @JsonKey()
+  List<TicketIssueTypeEntity> get issueTypes {
+    if (_issueTypes is EqualUnmodifiableListView) return _issueTypes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_issueTypes);
+  }
+
   @override
   final String? successMessage;
 
   @override
   String toString() {
-    return 'TicketState(status: $status, error: $error, tickets: $tickets, ticketDetails: $ticketDetails, orders: $orders, successMessage: $successMessage)';
+    return 'TicketState(status: $status, error: $error, tickets: $tickets, ticketDetails: $ticketDetails, orders: $orders, issueTypes: $issueTypes, successMessage: $successMessage)';
   }
 
   @override
@@ -1604,6 +1631,10 @@ class _$TicketStateImpl implements _TicketState {
             (identical(other.ticketDetails, ticketDetails) ||
                 other.ticketDetails == ticketDetails) &&
             const DeepCollectionEquality().equals(other._orders, _orders) &&
+            const DeepCollectionEquality().equals(
+              other._issueTypes,
+              _issueTypes,
+            ) &&
             (identical(other.successMessage, successMessage) ||
                 other.successMessage == successMessage));
   }
@@ -1616,6 +1647,7 @@ class _$TicketStateImpl implements _TicketState {
     const DeepCollectionEquality().hash(_tickets),
     ticketDetails,
     const DeepCollectionEquality().hash(_orders),
+    const DeepCollectionEquality().hash(_issueTypes),
     successMessage,
   );
 
@@ -1635,6 +1667,7 @@ abstract class _TicketState implements TicketState {
     final List<TicketEntity> tickets,
     final TicketDetailEntity? ticketDetails,
     final List<TicketOrderEntity> orders,
+    final List<TicketIssueTypeEntity> issueTypes,
     final String? successMessage,
   }) = _$TicketStateImpl;
 
@@ -1648,6 +1681,8 @@ abstract class _TicketState implements TicketState {
   TicketDetailEntity? get ticketDetails;
   @override
   List<TicketOrderEntity> get orders;
+  @override
+  List<TicketIssueTypeEntity> get issueTypes;
   @override
   String? get successMessage;
 

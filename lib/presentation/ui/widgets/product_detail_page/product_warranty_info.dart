@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ProductWarrantyInfo extends StatelessWidget {
   final String warranty;
@@ -14,8 +13,6 @@ class ProductWarrantyInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (warranty.isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
@@ -29,12 +26,12 @@ class ProductWarrantyInfo extends StatelessWidget {
               children: [
                 Text(
                   'Warranty',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
                 ),
                 SizedBox(width: 8.w),
                 Text(
                   ':',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
                 ),
               ],
             ),
@@ -44,7 +41,7 @@ class ProductWarrantyInfo extends StatelessWidget {
             child: Text(
               warranty,
               style: textStyle.bodyMediumMedium.copyWith(
-                color: colors.text,
+                color: AppColors.text,
               ),
             ),
           ),

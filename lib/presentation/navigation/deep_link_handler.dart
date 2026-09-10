@@ -170,17 +170,28 @@ class DeepLinkHandler {
   }
 
   void _navigate(GoRouter router, String target) {
+    try {
+      final currentUri =
+          router.routerDelegate.currentConfiguration.uri.toString();
+      if (currentUri == target) {
+        if (kDebugMode) {
+          print('🔗 [DeepLink] Already at target: $target. Skipping redundant navigation.');
+        }
+        return;
+      }
+    } catch (_) {}
+
     if (!router.canPop()) {
       if (kDebugMode) {
         print(
-          '\ud83d\udd17 [DeepLink] No back stack (Root). Routing to Home then pushing Target.',
+          '🔗 [DeepLink] No back stack (Root). Routing to Home then pushing Target.',
         );
       }
       router.go(Routes.home);
       router.push(target);
     } else {
       if (kDebugMode) {
-        print('\ud83d\udd17 [DeepLink] App already open. Pushing Target.');
+        print('🔗 [DeepLink] App already open. Pushing Target.');
       }
       router.push(target);
     }

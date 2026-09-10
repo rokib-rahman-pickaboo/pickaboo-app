@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_bloc.dart';
 import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_state.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class TicketReplySection extends StatelessWidget {
   final TextEditingController replyController;
@@ -29,17 +29,15 @@ class TicketReplySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
+            color: AppColors.black.withValues(alpha: 0.04),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
@@ -50,7 +48,7 @@ class TicketReplySection extends StatelessWidget {
         children: [
           Text(
             'Post a Reply',
-            style: context.textStyle.bodyMedium.copyWith(color: colors.text),
+            style: context.textStyle.bodyMedium.copyWith(color: AppColors.text),
           ),
           SizedBox(height: 16.h),
 
@@ -58,27 +56,27 @@ class TicketReplySection extends StatelessWidget {
             controller: replyController,
             focusNode: replyFocusNode,
             maxLines: 5,
-            style: context.textStyle.bodyMedium.copyWith(color: colors.text),
+            style: context.textStyle.bodyMedium.copyWith(color: AppColors.text),
             decoration: InputDecoration(
               hintText: 'Enter your message here',
               hintStyle: context.textStyle.bodyMedium.copyWith(
-                color: colors.gray,
+                color: AppColors.muted,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
-                  color: colors.borderColor.withAlpha(128),
+                  color: AppColors.border.withAlpha(128),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
-                  color: colors.borderColor.withAlpha(128),
+                  color: AppColors.border.withAlpha(128),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: colors.primary, width: 1.5),
+                borderSide: const BorderSide(color: AppColors.pickabooBlue, width: 1.5),
               ),
               contentPadding: EdgeInsets.all(16.w),
             ),
@@ -88,7 +86,7 @@ class TicketReplySection extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onAddPhotos,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: colors.primary, width: 1.5),
+              side: const BorderSide(color: AppColors.pickabooBlue, width: 1.5),
               minimumSize: Size(double.infinity, 48.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.r),
@@ -96,13 +94,13 @@ class TicketReplySection extends StatelessWidget {
             ),
             icon: Icon(
               Icons.add_photo_alternate_outlined,
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
               size: 22.sp,
             ),
             label: Text(
               'Add Photos',
               style: context.textStyle.buttonMedium.copyWith(
-                color: colors.primary,
+                color: AppColors.pickabooBlue,
               ),
             ),
           ),
@@ -142,13 +140,13 @@ class TicketReplySection extends StatelessWidget {
                                 onTap: () => onDeletePhoto(index),
                                 child: Container(
                                   padding: EdgeInsets.all(4.w),
-                                  decoration: BoxDecoration(
-                                    color: colors.salmon,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.orange,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
                                     Icons.close,
-                                    color: colors.white,
+                                    color: AppColors.white,
                                     size: 14.sp,
                                   ),
                                 ),
@@ -172,28 +170,19 @@ class TicketReplySection extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: isSubmitting ? null : onPostReply,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.button,
+                    backgroundColor: AppColors.pickabooBlue,
                     minimumSize: Size(0, 48.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),
                     ),
-                    disabledBackgroundColor: colors.grayLight,
+                    disabledBackgroundColor: AppColors.pageBg,
                   ),
                   child: isSubmitting
-                      ? SizedBox(
-                          height: 20.h,
-                          width: 20.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.w,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              colors.white,
-                            ),
-                          ),
-                        )
+                      ? const AppLoader.button()
                       : Text(
                           'Submit Reply',
                           style: context.textStyle.buttonMedium.copyWith(
-                            color: colors.white,
+                            color: AppColors.white,
                           ),
                         ),
                 ),

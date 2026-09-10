@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class UserInfoItem extends StatelessWidget {
   final IconData icon;
@@ -19,7 +18,6 @@ class UserInfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return Column(
@@ -27,7 +25,7 @@ class UserInfoItem extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 20.sp, color: colors.primary),
+            Icon(icon, size: 20.sp, color: AppColors.pickabooBlue),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(
@@ -35,14 +33,14 @@ class UserInfoItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: textTheme.bodySmall.copyWith(color: colors.gray),
+                    style: textTheme.bodySmall.copyWith(color: AppColors.muted),
                   ),
                   SizedBox(height: 4.h),
                   Text(
                     value,
                     style: textTheme.bodyMedium.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: colors.text,
+                      color: AppColors.text,
                     ),
                   ),
                 ],
@@ -54,7 +52,7 @@ class UserInfoItem extends StatelessWidget {
           Container(
             height: 1.h,
             margin: EdgeInsets.symmetric(vertical: 16.h),
-            color: colors.borderColor.withAlpha(76),
+            color: AppColors.border.withAlpha(76),
           ),
       ],
     );

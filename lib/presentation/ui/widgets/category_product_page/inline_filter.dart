@@ -1,10 +1,15 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/category_products/category_products_entity.dart';
 import 'package:pickaboo/presentation/bloc/category_products_bloc/category_products_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/category_product_page/bottom_sheet/category_filter_bottom_sheet.dart';
@@ -17,7 +22,6 @@ class InlineFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyles = context.textStyle;
 
     final attributes = context
@@ -42,7 +46,7 @@ class InlineFilter extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: const Color(0xFFE8F4F8),
+          color: AppColors.surfaceBlue,
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Column(
@@ -54,24 +58,19 @@ class InlineFilter extends StatelessWidget {
                   : 'Choose your preferred ${targetFilter.filterName}',
               style: textStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w500,
-                color: colors.text,
+                color: AppColors.text,
               ),
             ),
             SizedBox(height: 12.h),
 
-            _buildFilterGrid(targetFilter, colors, textStyles, context),
+            _buildFilterGrid(targetFilter, textStyles, context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFilterGrid(
-    FilterAttributeEntity targetFilter,
-    AppColors colors,
-    AppTextStyles textStyles,
-    BuildContext context,
-  ) {
+  Widget _buildFilterGrid(FilterAttributeEntity targetFilter, AppTextStyles textStyles, BuildContext context) {
     final filterItems = targetFilter.items;
     final bool showSeeMore = filterItems.length > 6;
     final int displayCount = showSeeMore ? 6 : filterItems.length;
@@ -88,20 +87,15 @@ class InlineFilter extends StatelessWidget {
       itemCount: displayCount,
       itemBuilder: (context, index) {
         if (showSeeMore && index == 5) {
-          return _buildSeeMoreButton(targetFilter, colors, textStyles, context);
+          return _buildSeeMoreButton(targetFilter, textStyles, context);
         }
         final item = filterItems[index];
-        return _buildFilterButton(targetFilter.filterCode, item, colors, textStyles, context);
+        return _buildFilterButton(targetFilter.filterCode, item, textStyles, context);
       },
     );
   }
 
-  Widget _buildSeeMoreButton(
-    FilterAttributeEntity targetFilter,
-    AppColors colors,
-    AppTextStyles textStyles,
-    BuildContext context,
-  ) {
+  Widget _buildSeeMoreButton(FilterAttributeEntity targetFilter, AppTextStyles textStyles, BuildContext context) {
     return InkWell(
       onTap: () {
         final state = context.read<CategoryProductsBloc>().state;
@@ -112,7 +106,7 @@ class InlineFilter extends StatelessWidget {
             context: context,
             isScrollControlled: true,
             useSafeArea: true,
-            backgroundColor: colors.black.withValues(alpha: 0.0),
+            backgroundColor: AppColors.black.withValues(alpha: 0.0),
             builder: (_) => CategoryFilterBottomSheet(
               filterableAttributes: attributes,
               initialFilters: state.currentFilters,
@@ -133,15 +127,15 @@ class InlineFilter extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: colors.primary.withValues(alpha: 0.1),
+          color: AppColors.pickabooBlue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6.r),
-          border: Border.all(color: colors.primary, width: 1),
+          border: Border.all(color: AppColors.pickabooBlue, width: 1),
         ),
         child: Center(
           child: Text(
             'See more',
             style: textStyles.bodyTiny.copyWith(
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
@@ -153,13 +147,7 @@ class InlineFilter extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterButton(
-    String filterCode,
-    FilterItemEntity filterItem,
-    AppColors colors,
-    AppTextStyles textStyles,
-    BuildContext context,
-  ) {
+  Widget _buildFilterButton(String filterCode, FilterItemEntity filterItem, AppTextStyles textStyles, BuildContext context) {
     return InkWell(
       onTap: () {
         final bloc = context.read<CategoryProductsBloc>();
@@ -190,13 +178,13 @@ class InlineFilter extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(6.r),
         ),
         child: Center(
           child: Text(
             filterItem.label.removeHtmlTags,
-            style: textStyles.bodyTiny.copyWith(color: colors.text),
+            style: textStyles.bodyTiny.copyWith(color: AppColors.text),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

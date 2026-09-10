@@ -1,13 +1,24 @@
+import 'package:pickaboo/core/color/app_colors.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
-import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
+import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 
+/// ============================================================================
+/// 🏷️ BRAND FILTER BOTTOM SHEET
+/// 2-Column split layout:
+/// - Header: "Filters" title (left) & "Clear All" action (right)
+/// - Left Sidebar: Filter Attribute Categories (strict itemExtent: 48.h)
+/// - Middle Section Height = Attributes Count * 48.h (zero clipping & zero extra whitespace)
+/// - Right Pane: Options Checkbox list with persistent visible scrollbar
+/// - Bottom Bar: Full-width "Apply Filters" button directly below middle section
+/// ============================================================================
 class BrandFilterBottomSheet extends StatefulWidget {
   final List<FilterAttributeEntity> filterableAttributes;
   final Function(Map<String, List<String>>) onApply;
@@ -27,17 +38,46 @@ class BrandFilterBottomSheet extends StatefulWidget {
 }
 
 class _BrandFilterBottomSheetState extends State<BrandFilterBottomSheet> {
-  static const double _fallbackMinPrice = 0.0;
-  static const double _fallbackMaxPrice = 500000.0;
-
   late final Map<String, List<String>> _selectedFilters;
+  int _selectedTabIndex = 0;
 
-  late final double _minPrice;
-  late final double _maxPrice;
+  late final List<FilterAttributeEntity> _validAttributes;
+  final ScrollController _optionsScrollController = ScrollController();
+  final ScrollController _categoryScrollController = ScrollController();
 
-  late SfRangeValues _priceRange;
+  @override
+  void initState() {
+    super.initState();
 
-  late final Set<String> _initiallySelectedCodes;
+    _validAttributes = widget.filterableAttributes
+        .where((a) => a.items.isNotEmpty && a.filterCode.trim().isNotEmpty)
+        .toList();
+
+    _selectedFilters = {};
+    if (widget.initialFilters != null) {
+      widget.initialFilters!.forEach((key, value) {
+        if (value.isNotEmpty) {
+          _selectedFilters[key] = List.from(value);
+        }
+      });
+    }
+
+    if (widget.initialExpandedFilterCode != null) {
+      final index = _validAttributes.indexWhere(
+        (a) => a.filterCode == widget.initialExpandedFilterCode,
+      );
+      if (index != -1) {
+        _selectedTabIndex = index;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _optionsScrollController.dispose();
+    _categoryScrollController.dispose();
+    super.dispose();
+  }
 
   void _apply() {
     widget.onApply({
@@ -47,416 +87,342 @@ class _BrandFilterBottomSheetState extends State<BrandFilterBottomSheet> {
     Navigator.of(context).pop();
   }
 
-  void _resolvePriceBounds() {
-    var min = _fallbackMinPrice;
-    var max = _fallbackMaxPrice;
-
-    for (final attribute in widget.filterableAttributes) {
-      if (attribute.filterCode.toLowerCase() != 'price') continue;
-
-      final ranges = attribute.items
-          .map((item) => item.rangeBounds)
-          .nonNulls
-          .toList();
-      if (ranges.isEmpty) break;
-
-      min = ranges.first.min;
-      max = ranges.last.max;
-      break;
-    }
-
-    if (max <= min) {
-      min = _fallbackMinPrice;
-      max = _fallbackMaxPrice;
-    }
-
-    _minPrice = min;
-    _maxPrice = max;
+  void _clearAll() {
+    setState(() {
+      _selectedFilters.clear();
+    });
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    _resolvePriceBounds();
-    _priceRange = SfRangeValues(_minPrice, _maxPrice);
-
-    _selectedFilters = {};
-    if (widget.initialFilters != null) {
-      widget.initialFilters!.forEach((key, value) {
-        _selectedFilters[key] = List.from(value);
-        if (key.toLowerCase() == 'price' && value.isNotEmpty) {
-          final parts = value.first.split('-');
-          if (parts.length == 2) {
-            _priceRange = SfRangeValues(
-              (double.tryParse(parts[0]) ?? _minPrice).clamp(
-                _minPrice,
-                _maxPrice,
-              ),
-              (double.tryParse(parts[1]) ?? _maxPrice).clamp(
-                _minPrice,
-                _maxPrice,
-              ),
-            );
-          }
+  void _toggleOption(String filterCode, String value) {
+    setState(() {
+      final list = _selectedFilters.putIfAbsent(filterCode, () => []);
+      if (list.contains(value)) {
+        list.remove(value);
+        if (list.isEmpty) {
+          _selectedFilters.remove(filterCode);
         }
-      });
-    }
-
-    _initiallySelectedCodes = {
-      for (final entry in _selectedFilters.entries)
-        if (entry.value.isNotEmpty) entry.key,
-    };
+      } else {
+        list.add(value);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
-    return Material(
-      color: colors.white,
-      clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(20.r),
-        topRight: Radius.circular(20.r),
-      ),
-      child: SizedBox(
-      height: MediaQuery.of(context).size.height * 0.85,
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: colors.gray.withValues(alpha: 0.2)),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Filters',
-                  style: textStyles.appBarTitle.copyWith(color: colors.text),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedFilters.clear();
-                      _priceRange = SfRangeValues(_minPrice, _maxPrice);
-                    });
-                    _apply();
-                  },
-                  child: Text(
-                    'Clear All',
-                    style: textStyles.bodyMedium.copyWith(
-                      color: colors.primary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: widget.filterableAttributes.length,
-              itemBuilder: (context, index) {
-                final attribute = widget.filterableAttributes[index];
-                if (attribute.filterCode.toLowerCase() == 'price') {
-                  return _buildPriceSlider(attribute, colors, textStyles);
-                }
-                return _buildFilterCategory(attribute, colors, textStyles);
-              },
-            ),
-          ),
-
-          Container(
-            padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              color: colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(child: _buildApplyButton(colors, textStyles)),
-          ),
-        ],
-      ),
-      ),
-    );
-  }
-
-  Widget _buildPriceSlider(
-    FilterAttributeEntity attribute,
-    AppColors colors,
-    AppTextStyles textStyles,
-  ) {
-    final double minPrice = _minPrice;
-    final double maxPrice = _maxPrice;
-
-    final bool expand =
-        widget.initialExpandedFilterCode == attribute.filterCode ||
-        _initiallySelectedCodes.contains(attribute.filterCode) ||
-        (widget.initialExpandedFilterCode == null &&
-            _initiallySelectedCodes.isEmpty);
-
-    return ExpansionTile(
-      key: PageStorageKey<String>('filter_${attribute.filterCode}'),
-      initiallyExpanded: expand,
-      tilePadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.w),
-      childrenPadding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-      leading: _getFilterIcon(attribute.filterCode, colors),
-      title: Text(
-        attribute.filterName,
-        style: textStyles.bodyMediumBold.copyWith(color: colors.text),
-      ),
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildPriceValueChip(
-                value: (_priceRange.start as num).toDouble(),
-                colors: colors,
-                textStyles: textStyles,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                child: Text(
-                  '—',
-                  style: textStyles.bodyMedium.copyWith(color: colors.gray),
-                ),
-              ),
-              _buildPriceValueChip(
-                value: (_priceRange.end as num).toDouble(),
-                colors: colors,
-                textStyles: textStyles,
-              ),
-            ],
+    if (_validAttributes.isEmpty) {
+      return Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+        child: SizedBox(
+          height: 180.h,
+          child: Center(
+            child: Text('No filters available', style: AppTypography.cardTitle),
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(top: 8.h),
-          child: SfRangeSliderTheme(
-            data: SfRangeSliderThemeData(
-              thumbColor: colors.white,
-              thumbStrokeWidth: 2,
-              thumbStrokeColor: colors.primary,
-              tooltipBackgroundColor: colors.white,
-              tooltipTextStyle: textStyles.caption.copyWith(
-                color: colors.text,
-                fontWeight: FontWeight.bold,
-              ),
-              activeTrackColor: colors.primary,
-              inactiveTrackColor: colors.gray.withValues(alpha: 0.2),
-            ),
-            child: SfRangeSlider(
-              min: minPrice,
-              max: maxPrice,
-              values: _priceRange,
-              showTicks: false,
-              showLabels: false,
-              enableTooltip: true,
-              tooltipShape: const SfRectangularTooltipShape(),
-              tooltipTextFormatterCallback: (
-                dynamic actualValue,
-                String formattedText,
-              ) {
-                return 'TK ${NumberFormat('#,##0').format(actualValue)}';
-              },
-              onChanged: (SfRangeValues newValues) {
-                setState(() {
-                  _priceRange = newValues;
-                  final minStr = newValues.start.toInt().toString();
-                  final maxStr = newValues.end.toInt().toString();
-
-                  if (newValues.start > minPrice || newValues.end < maxPrice) {
-                    _selectedFilters[attribute.filterCode] = ['$minStr-$maxStr'];
-                  } else {
-                    _selectedFilters.remove(attribute.filterCode);
-                  }
-                });
-              },
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '৳ ${NumberFormat('#,##0').format(minPrice)}',
-                style: textStyles.caption.copyWith(color: colors.gray),
-              ),
-              Text(
-                '৳ ${NumberFormat('#,##0').format(maxPrice)}',
-                style: textStyles.caption.copyWith(color: colors.gray),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPriceValueChip({
-    required double value,
-    required AppColors colors,
-    required AppTextStyles textStyles,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: 0.06),
-        border: Border.all(color: colors.primary.withValues(alpha: 0.4)),
-        borderRadius: BorderRadius.circular(6.r),
-      ),
-      child: Text(
-        '৳ ${NumberFormat('#,##0').format(value)}',
-        style: textStyles.caption.copyWith(
-          color: colors.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 11.sp,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterCategory(
-    FilterAttributeEntity attribute,
-    AppColors colors,
-    AppTextStyles textStyles,
-  ) {
-    final selectedCount = _selectedFilters[attribute.filterCode]?.length ?? 0;
-
-    final isExpanded =
-        widget.initialExpandedFilterCode == attribute.filterCode ||
-        _initiallySelectedCodes.contains(attribute.filterCode);
-
-    return ExpansionTile(
-      key: PageStorageKey<String>('filter_${attribute.filterCode}'),
-      initiallyExpanded: isExpanded,
-      tilePadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.w),
-      childrenPadding: EdgeInsets.symmetric(horizontal: 20.w),
-      leading: _getFilterIcon(attribute.filterCode, colors),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              attribute.filterName,
-              style: textStyles.bodyMediumBold.copyWith(color: colors.text),
-            ),
-          ),
-          if (selectedCount > 0)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: colors.primary,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Text(
-                '$selectedCount',
-                style: textStyles.caption.copyWith(
-                  color: colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11.sp,
-                ),
-              ),
-            ),
-        ],
-      ),
-      children: attribute.items.map((item) {
-        final isSelected =
-            _selectedFilters[attribute.filterCode]?.contains(item.value.toString()) ??
-            false;
-
-        return CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          activeColor: colors.primary,
-          value: isSelected,
-          onChanged: (bool? value) {
-            setState(() {
-              if (value == true) {
-                _selectedFilters.putIfAbsent(attribute.filterCode, () => []);
-                _selectedFilters[attribute.filterCode]!.add(item.value.toString());
-              } else {
-                _selectedFilters[attribute.filterCode]?.remove(item.value.toString());
-                if (_selectedFilters[attribute.filterCode]?.isEmpty ?? false) {
-                  _selectedFilters.remove(attribute.filterCode);
-                }
-              }
-            });
-          },
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  item.label.removeHtmlTags,
-                  style: textStyles.bodyMedium.copyWith(color: colors.text),
-                ),
-              ),
-              Text(
-                '(${item.count})',
-                style: textStyles.caption.copyWith(color: colors.gray),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _getFilterIcon(String filterCode, AppColors colors) {
-    IconData icon;
-    switch (filterCode.toLowerCase()) {
-      case 'brand':
-      case 'manufacturer':
-        icon = Icons.business;
-        break;
-      case 'price':
-        icon = Icons.attach_money;
-        break;
-      case 'color':
-      case 'colour':
-        icon = Icons.palette;
-        break;
-      case 'size':
-        icon = Icons.straighten;
-        break;
-      default:
-        icon = Icons.filter_list;
+      );
     }
 
-    return Icon(icon, color: colors.primary, size: 24.sp);
-  }
+    if (_selectedTabIndex >= _validAttributes.length) {
+      _selectedTabIndex = 0;
+    }
 
-  Widget _buildApplyButton(AppColors colors, AppTextStyles textStyles) {
+    final activeAttribute = _validAttributes[_selectedTabIndex];
+    final activeSelectedValues =
+        _selectedFilters[activeAttribute.filterCode] ?? const [];
+
+    final int attributesCount = _validAttributes.length;
+    final double itemHeight = 48.h;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double nonMiddleHeight = 118.h;
+    final double minMiddleHeight =
+        (screenHeight * 0.40 - nonMiddleHeight)
+            .clamp(itemHeight, screenHeight * 0.40);
+    final double maxMiddleHeight =
+        (screenHeight * 0.80 - nonMiddleHeight)
+            .clamp(minMiddleHeight, screenHeight * 0.80);
+    final double computedMiddleHeight = attributesCount * itemHeight;
+    final double middleSectionHeight =
+        computedMiddleHeight.clamp(minMiddleHeight, maxMiddleHeight);
+    final bool isClamped = computedMiddleHeight > maxMiddleHeight;
+
     final totalSelected = _selectedFilters.values.fold<int>(
       0,
       (sum, list) => sum + list.length,
     );
 
-    return ElevatedButton(
-      onPressed: _apply,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colors.primary,
-        elevation: 2,
-        shadowColor: colors.primary.withValues(alpha: 0.3),
-        minimumSize: Size(double.infinity, 48.h),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+    return Material(
+      color: Colors.white,
+      clipBehavior: Clip.antiAlias,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── 1. HEADER (Filters / Clear All) ──
+            _buildHeader(context, totalSelected),
+
+            // ── 2. MIDDLE TWO-COLUMN SECTION (Attributes Count * 48.h) ──
+            SizedBox(
+              height: middleSectionHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── LEFT SIDEBAR (Tabs with itemExtent: 48.h) ──
+                  _buildLeftSidebar(context, isClamped),
+
+                  // Divider between columns
+                  Container(
+                    width: 1.w,
+                    color: AppColors.border,
+                  ),
+
+                  // ── RIGHT PANE (Checkboxes with persistent visible scrollbar) ──
+                  Expanded(
+                    child: _buildRightOptionsPane(
+                      activeAttribute,
+                      activeSelectedValues,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── 3. BOTTOM BAR (Apply Filters Button) ──
+            _buildBottomBar(context, totalSelected),
+          ],
+        ),
       ),
-      child: Text(
-        totalSelected > 0 ? 'Apply Filters ($totalSelected)' : 'Apply Filters',
-        style: textStyles.buttonMedium.copyWith(color: colors.white),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, int totalSelected) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: AppColors.border, width: 1),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('Filters', style: AppTypography.pageTitle),
+          if (totalSelected > 0)
+            GestureDetector(
+              onTap: _clearAll,
+              behavior: HitTestBehavior.opaque,
+              child: Text('Clear All', style: AppTypography.brandActionText),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeftSidebar(BuildContext context, bool isClamped) {
+    return Container(
+      width: 125.w,
+      color: AppColors.white,
+      child: ListView.builder(
+        controller: _categoryScrollController,
+        padding: EdgeInsets.zero,
+        itemExtent: 48.h,
+        itemCount: _validAttributes.length,
+        physics: isClamped
+            ? const ClampingScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          final attr = _validAttributes[index];
+          final isSelected = index == _selectedTabIndex;
+          final count = _selectedFilters[attr.filterCode]?.length ?? 0;
+
+          final bool isWhite = (_validAttributes.length - 1 - index).isEven;
+          final Color backgroundColor = isSelected
+              ? AppColors.surfaceBlue
+              : (isWhite ? AppColors.white : AppColors.pageBg);
+
+          return InkWell(
+            onTap: () {
+              setState(() {
+                _selectedTabIndex = index;
+              });
+              if (_optionsScrollController.hasClients) {
+                _optionsScrollController.jumpTo(0);
+              }
+            },
+            child: Container(
+              height: 48.h,
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                border: Border(
+                  left: BorderSide(
+                    color: isSelected
+                        ? AppColors.pickabooBlue
+                        : Colors.transparent,
+                    width: 3.5.w,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      attr.filterName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: isSelected
+                          ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
+                          : AppTypography.bodyRegular.withColor(AppColors.navy),
+                    ),
+                  ),
+                  if (count > 0)
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 5.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.pickabooBlue,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: AppTypography.buttonPrimary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildRightOptionsPane(
+    FilterAttributeEntity activeAttribute,
+    List<String> activeSelectedValues,
+  ) {
+    return Container(
+      color: Colors.white,
+      child: RawScrollbar(
+        controller: _optionsScrollController,
+        thumbVisibility: true,
+        trackVisibility: false,
+        thickness: 4.w,
+        radius: Radius.circular(3.r),
+        thumbColor: AppColors.pickabooBlue,
+        child: ListView.builder(
+          controller: _optionsScrollController,
+          padding: EdgeInsets.zero,
+          itemCount: activeAttribute.items.length,
+          itemBuilder: (context, index) {
+            final item = activeAttribute.items[index];
+            final isChecked =
+                activeSelectedValues.contains(item.value.toString());
+            final bool isWhite =
+                (activeAttribute.items.length - 1 - index).isEven;
+            final Color itemBg =
+                isWhite ? AppColors.white : AppColors.pageBg;
+
+            return InkWell(
+              onTap: () => _toggleOption(
+                activeAttribute.filterCode,
+                item.value.toString(),
+              ),
+              child: Container(
+                color: itemBg,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14.w,
+                  vertical: 12.h,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Checkbox
+                    Container(
+                      width: 18.w,
+                      height: 18.w,
+                      decoration: BoxDecoration(
+                        color: isChecked
+                            ? AppColors.pickabooBlue
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(3.r),
+                        border: Border.all(
+                          color: isChecked
+                              ? AppColors.pickabooBlue
+                              : AppColors.border,
+                          width: 1.4.w,
+                        ),
+                      ),
+                      child: isChecked
+                          ? Icon(
+                              Icons.check,
+                              size: 13.sp,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                    SizedBox(width: 12.w),
+                    // Option label
+                    Expanded(
+                      child: Text(
+                        item.label.removeHtmlTags,
+                        style: isChecked
+                            ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
+                            : AppTypography.bodyRegular.withColor(AppColors.navy),
+                      ),
+                    ),
+                    if (item.count.toString().isNotEmpty &&
+                        item.count.toString() != '0')
+                      Text(
+                        '(${item.count})',
+                        style: AppTypography.bodyTiny,
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context, int totalSelected) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.border,
+            width: 1,
+          ),
+        ),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 46.h,
+        child: ElevatedButton(
+          onPressed: _apply,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.pickabooBlue,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          child: Text(
+            totalSelected > 0
+                ? 'Apply Filters ($totalSelected)'
+                : 'Apply Filters',
+            style: AppTypography.buttonPrimary,
+          ),
+        ),
       ),
     );
   }

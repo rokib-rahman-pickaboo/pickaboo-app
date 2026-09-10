@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
 
 class StarRatingBar extends StatelessWidget {
   final double rating;
@@ -18,8 +19,8 @@ class StarRatingBar extends StatelessWidget {
     required this.rating,
     this.starSize = 12,
     this.starCount = 5,
-    this.filledColor = const Color(0xFFFF5722),
-    this.emptyColor = const Color(0xFFD5D5D5),
+    this.filledColor = AppColors.amber,
+    this.emptyColor = AppColors.border,
   });
 
   @override

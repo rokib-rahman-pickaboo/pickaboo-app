@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ProductDeliveryInfo extends StatelessWidget {
   final String? title;
@@ -41,8 +40,9 @@ class ProductDeliveryInfo extends StatelessWidget {
 
   String get _resolvedSubtitle {
     if (!_isLocationMode) return subtitle;
-    if (_noPermission)
+    if (_noPermission) {
       return 'Enable location to see estimated delivery charge';
+    }
     if (_noLocation) return 'Tap to set your delivery location';
     return selectedAddress!;
   }
@@ -54,38 +54,37 @@ class ProductDeliveryInfo extends StatelessWidget {
     return iconPath;
   }
 
-  Color _resolvedIconBg(AppColors colors) {
+  Color get _resolvedIconBg {
     if (_isLocationMode && (_noPermission || _noLocation)) {
-      return colors.textMedium;
+      return AppColors.muted;
     }
     return iconBackgroundColor;
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.w),
       decoration: BoxDecoration(
-        color: colors.whiteSmoke,
+        color: AppColors.pageBg,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: colors.borderColor, width: 0.5),
+        border: Border.all(color: AppColors.border, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null) ...[
             Text(
-              title ?? "",
+              title!,
               style: textStyle.bodyMediumBold.copyWith(
                 fontWeight: FontWeight.w600,
-                color: colors.text,
+                color: AppColors.text,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: 8.h),
           ],
 
           InkWell(
@@ -93,24 +92,24 @@ class ProductDeliveryInfo extends StatelessWidget {
             borderRadius: BorderRadius.circular(8.r),
             child: Container(
               decoration: BoxDecoration(
-                color: colors.whiteSmoke,
+                color: AppColors.pageBg,
                 borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: colors.whiteSmoke, width: 1.w),
+                border: Border.all(color: AppColors.pageBg, width: 1.w),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: EdgeInsets.all(10.w),
                     decoration: BoxDecoration(
-                      color: _resolvedIconBg(colors),
+                      color: _resolvedIconBg,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: SvgPicture.asset(
                       _resolvedIconPath,
                       width: 20.w,
                       height: 20.w,
-                      colorFilter: ColorFilter.mode(
-                        colors.white,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.white,
                         BlendMode.srcIn,
                       ),
                     ),
@@ -125,14 +124,14 @@ class ProductDeliveryInfo extends StatelessWidget {
                           mainText,
                           style: textStyle.bodyMediumBold.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: colors.text,
+                            color: AppColors.text,
                           ),
                         ),
                         SizedBox(height: 2.h),
                         Text(
                           _resolvedSubtitle,
                           style: textStyle.bodySmall.copyWith(
-                            color: colors.textMedium,
+                            color: AppColors.muted,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -147,7 +146,7 @@ class ProductDeliveryInfo extends StatelessWidget {
                       trailingText!,
                       style: textStyle.bodyMediumBold.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: colors.primary,
+                        color: AppColors.pickabooBlue,
                       ),
                     ),
                   ],
@@ -155,7 +154,7 @@ class ProductDeliveryInfo extends StatelessWidget {
                   Icon(
                     Icons.chevron_right,
                     size: 24.sp,
-                    color: colors.textMedium,
+                    color: AppColors.muted,
                   ),
                 ],
               ),

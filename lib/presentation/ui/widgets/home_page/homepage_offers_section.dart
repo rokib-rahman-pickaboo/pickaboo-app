@@ -1,39 +1,36 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/utils/responsive.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/domain/entity/homepage_offers/homepage_offers_entity.dart';
 import 'package:pickaboo/presentation/bloc/homepage_offers_bloc/homepage_offers_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_section_header.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// ============================================================================
+/// 🏷️ HOMEPAGE OFFERS SECTION (Campaign Deals Grid)
+/// Standardized with universal 8.w sameGroupItemSpacing and 12.h groupToGroupSpacing.
+/// ============================================================================
 class HomepageOffersSection extends StatelessWidget {
   const HomepageOffersSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return BlocBuilder<HomepageOffersBloc, HomepageOffersState>(
       builder: (context, state) {
         if (state.status == HomepageOffersStatus.loading) {
-          return SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
-              child: Center(
-                child: SizedBox(
-                  width: 28.w,
-                  height: 28.w,
-                  child: CircularProgressIndicator(
-                    color: colors.primary,
-                    strokeWidth: 2,
-                  ),
-                ),
-              ),
-            ),
+          return AppLoader.sliver(
+            padding: EdgeInsets.symmetric(vertical: 24.h),
           );
         }
 
@@ -53,14 +50,22 @@ class HomepageOffersSection extends StatelessWidget {
           }
 
           return SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final entry = entries[index];
-              return OfferDealsGrid(
-                subsection: entry.subsection,
-                onDealTap: (item) => _handleDealTap(context, item),
-                onViewAll: () => _handleViewAll(context, entry),
-              );
-            }, childCount: entries.length),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final entry = entries[index];
+                return RepaintBoundary(
+                  child: OfferDealsGrid(
+                    subsection: entry.subsection,
+                    onDealTap: (item) => _handleDealTap(context, item),
+                    onViewAll: () => _handleViewAll(context, entry),
+                  ),
+                );
+              },
+              childCount: entries.length,
+              addAutomaticKeepAlives: false,
+              addRepaintBoundaries: true,
+              addSemanticIndexes: false,
+            ),
           );
         }
 
@@ -100,7 +105,6 @@ class HomepageOffersSection extends StatelessWidget {
       categoryName: item.name,
     );
   }
-
 }
 
 class _OfferEntry {
@@ -124,9 +128,6 @@ class OfferDealsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     final deals = subsection.items.take(4).toList();
 
     if (deals.isEmpty) {
@@ -134,81 +135,62 @@ class OfferDealsGrid extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.only(
+        left: AppSpacing.sameGroupItemSpacing.w,
+        right: AppSpacing.sameGroupItemSpacing.w,
+        bottom: AppSpacing.groupToGroupSpacing.h,
+      ),
+      padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       decoration: BoxDecoration(
-        color: colors.whiteSmoke,
-        borderRadius: BorderRadius.circular(8.r),
+        color: AppColors.surfaceBlue,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(
+          color: AppColors.border,
+          width: 1.w,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
+          AppSectionHeader(
+            title: subsection.title,
+            onViewAll: onViewAll,
+            padding: EdgeInsets.zero,
+          ),
+
+          SizedBox(height: AppSpacing.sameGroupItemSpacing.h),
+
+          Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: Text(
-                  subsection.title,
-                  maxLines: 2,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis,
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
-                ),
-              ),
-              if (onViewAll != null) ...[
-                SizedBox(width: 8.w),
-                GestureDetector(
-                  onTap: onViewAll,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 7.w,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.primary,
-                      borderRadius: BorderRadius.circular(12.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colors.primary.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: SvgPicture.asset(
-                      "assets/new/svg/forward_icon.svg",
-                      width: 7.w,
-                      height: 14.h,
-                      colorFilter: ColorFilter.mode(
-                        colors.white,
-                        BlendMode.srcIn,
+              for (int rowStart = 0;
+                  rowStart < deals.length;
+                  rowStart += gridColumnsFor(context)) ...[
+                if (rowStart > 0)
+                  SizedBox(height: AppSpacing.sameGroupItemSpacing.h),
+                Row(
+                  children: [
+                    for (int i = 0; i < gridColumnsFor(context); i++) ...[
+                      if (i > 0)
+                        SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
+                      Expanded(
+                        child: (rowStart + i < deals.length)
+                            ? AspectRatio(
+                                aspectRatio: 0.92,
+                                child: _OfferDealCard(
+                                  deal: deals[rowStart + i],
+                                  onTap: () =>
+                                      onDealTap?.call(deals[rowStart + i]),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ),
-                    ),
-                  ),
+                    ],
+                  ],
                 ),
               ],
             ],
-          ),
-
-          SizedBox(height: 12.h),
-
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: gridColumnsFor(context),
-              crossAxisSpacing: 18.w,
-              mainAxisSpacing: 18.w,
-              childAspectRatio: 0.95,
-            ),
-            itemCount: deals.length,
-            itemBuilder: (context, index) {
-              return _OfferDealCard(
-                deal: deals[index],
-                onTap: () => onDealTap?.call(deals[index]),
-              );
-            },
           ),
         ],
       ),
@@ -237,8 +219,6 @@ class _OfferDealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
     final discount = _discountLabel;
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -249,13 +229,17 @@ class _OfferDealCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(6.r),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: AppColors.border,
+            width: 1.w,
+          ),
           boxShadow: [
             BoxShadow(
-              color: colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: AppColors.navy.withValues(alpha: 0.03),
+              blurRadius: 4.r,
+              offset: Offset(0, 2.h),
             ),
           ],
         ),
@@ -264,67 +248,42 @@ class _OfferDealCard extends StatelessWidget {
           children: [
             Expanded(
               flex: 2,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(6.r),
-                    ),
-                    child: AppImage(
-                      imageUrl: deal.imageUrl,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      cacheWidth: imageCacheWidth,
-                      placeholder: Container(
-                        color: colors.whiteSmoke,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: colors.primary,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      ),
-                      errorWidget: Container(
-                        color: colors.whiteSmoke,
-                        child: Center(
-                          child: Icon(
-                            Icons.image_not_supported_outlined,
-                            color: colors.gray,
-                            size: 28.sp,
-                          ),
-                        ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(7.r),
+                ),
+                child: AppImage(
+                  imageUrl: deal.imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  cacheWidth: imageCacheWidth,
+                  placeholder: Container(
+                    color: AppColors.pageBg,
+                    child: const AppLoader.inline(),
+                  ),
+                  errorWidget: Container(
+                    color: AppColors.pageBg,
+                    child: Center(
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: AppColors.muted,
+                        size: 24.sp,
                       ),
                     ),
                   ),
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(12.r),
-                        ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            colors.black.withValues(alpha: 0.0),
-                            colors.black.withValues(alpha: 0.1),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
 
             Container(
-              height: 46.h,
-              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+              height: 44.h,
+              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(12.r),
+                  bottom: Radius.circular(7.r),
                 ),
               ),
               child: Column(
@@ -337,26 +296,16 @@ class _OfferDealCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: textStyle.bodySmall.copyWith(
-                      color: colors.text,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 11.sp,
-                      height: 1.2.h,
-                    ),
+                    style: AppTypography.bodyTiny,
                   ),
-                  if (discount != null) ...[
+                  if (discount != null && discount.trim().isNotEmpty) ...[
                     SizedBox(height: 2.h),
                     Text(
                       discount,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: textStyle.bodySmall.copyWith(
-                        color: colors.primary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11.sp,
-                        height: 1.2.h,
-                      ),
+                      style: AppTypography.brandActionText,
                     ),
                   ],
                 ],

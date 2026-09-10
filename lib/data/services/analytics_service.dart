@@ -6,6 +6,9 @@ abstract class AnalyticsService {
     required String name,
     required double price,
     String? category,
+    String? categoryId,
+    String? brand,
+    String? brandId,
   });
 
   Future<void> logAddToCart({
@@ -13,6 +16,9 @@ abstract class AnalyticsService {
     required String name,
     required double price,
     int quantity = 1,
+    String? categoryId,
+    String? brand,
+    String? brandId,
   });
 
   Future<void> logAddToWishlist({

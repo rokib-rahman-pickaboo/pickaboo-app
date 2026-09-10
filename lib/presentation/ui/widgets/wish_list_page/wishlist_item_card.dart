@@ -1,10 +1,16 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/wishlist/wishlist_entity.dart';
 
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class WishlistItemCard extends StatelessWidget {
   final WishlistEntity item;
@@ -27,20 +33,19 @@ class WishlistItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 12.h),
+        margin: EdgeInsets.only(bottom: AppSpacing.groupToGroupSpacing.h),
         decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(width: 1.w, color: context.colors.borderColor),
+          color: AppColors.white,
+          borderRadius: AppRadius.cardRadius,
+          border: Border.all(width: 1.w, color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: colors.black.withValues(alpha: 0.05),
+              color: AppColors.black.withValues(alpha: 0.05),
               blurRadius: 5.r,
               offset: const Offset(0, 2),
             ),
@@ -49,10 +54,7 @@ class WishlistItemCard extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: 12.h,
-                horizontal: 12.w,
-              ),
+              padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -66,7 +68,7 @@ class WishlistItemCard extends StatelessWidget {
                         ? Icon(
                             Icons.image,
                             size: 40.sp,
-                            color: colors.gray,
+                            color: AppColors.muted,
                           )
                         : AppImage(
                             imageUrl: item.thumbnail,
@@ -81,14 +83,14 @@ class WishlistItemCard extends StatelessWidget {
                       children: [
                         Text(
                           item.name,
-                          style: textStyle.productName.withColor(colors.text),
+                          style: textStyle.productName.withColor(AppColors.text),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 4.h),
                         Text(
                           "Sold by: ${item.soldBy ?? 'Pickaboo'}",
-                          style: textStyle.caption.withColor(colors.gray),
+                          style: textStyle.caption.withColor(AppColors.muted),
                         ),
                         SizedBox(height: 8.h),
 
@@ -98,7 +100,7 @@ class WishlistItemCard extends StatelessWidget {
                               Text(
                                 "৳${_formatPrice(item.price)}",
                                 style: textStyle.productPrice.withColor(
-                                  colors.text,
+                                  AppColors.text,
                                 ),
                               ),
                               if ((item.regularPrice ?? 0) > item.price) ...[
@@ -106,7 +108,7 @@ class WishlistItemCard extends StatelessWidget {
                                 Text(
                                   "৳${_formatPrice(item.regularPrice ?? 0)}",
                                   style: textStyle.productPriceStrike.withColor(
-                                    colors.gray,
+                                    AppColors.muted,
                                   ),
                                 ),
                               ],
@@ -118,13 +120,13 @@ class WishlistItemCard extends StatelessWidget {
                                     vertical: 2.h,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: colors.orange.withValues(alpha: 0.1),
+                                    color: AppColors.orange.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(4.r),
                                   ),
                                   child: Text(
                                     "-${item.discount}%",
                                     style: textStyle.productDiscount.withColor(
-                                      colors.orange,
+                                      AppColors.orange,
                                     ),
                                   ),
                                 ),
@@ -138,12 +140,12 @@ class WishlistItemCard extends StatelessWidget {
                               vertical: 4.h,
                             ),
                             decoration: BoxDecoration(
-                              color: colors.red.withValues(alpha: 0.1),
+                              color: AppColors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4.r),
                             ),
                             child: Text(
                               "Out of Stock",
-                              style: textStyle.tag.withColor(colors.red),
+                              style: textStyle.tag.withColor(AppColors.red),
                             ),
                           ),
                         ],
@@ -154,25 +156,25 @@ class WishlistItemCard extends StatelessWidget {
               ),
             ),
 
-            Divider(height: 1.h, color: colors.borderColor),
+            Divider(height: 1.h, color: AppColors.border),
             Row(
               children: [
-                Expanded(child: _buildPrimaryAction(colors, textStyle)),
+                Expanded(child: _buildPrimaryAction(textStyle)),
                 Container(
                   width: 1.w,
                   height: 24.h,
-                  color: colors.borderColor,
+                  color: AppColors.border,
                 ),
                 Expanded(
                   child: Material(
-                    color: colors.black.withValues(alpha: 0.0),
+                    color: AppColors.black.withValues(alpha: 0.0),
                     child: InkWell(
                       onTap: onRemove,
                       borderRadius: BorderRadius.only(
                         bottomRight: Radius.circular(8.r),
                       ),
-                      splashColor: colors.red.withAlpha(20),
-                      highlightColor: colors.red.withAlpha(10),
+                      splashColor: AppColors.red.withAlpha(20),
+                      highlightColor: AppColors.red.withAlpha(10),
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         child: Row(
@@ -181,13 +183,13 @@ class WishlistItemCard extends StatelessWidget {
                             Icon(
                               Icons.delete_outline,
                               size: 18.sp,
-                              color: colors.gray,
+                              color: AppColors.muted,
                             ),
                             SizedBox(width: 6.w),
                             Text(
                               'Remove',
                               style: textStyle.buttonLink.withColor(
-                                colors.black,
+                                AppColors.black,
                               ),
                             ),
                           ],
@@ -204,10 +206,9 @@ class WishlistItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPrimaryAction(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildPrimaryAction(AppTextStyles textStyle) {
     if (item.isConfigurable) {
       return _actionButton(
-        colors: colors,
         textStyle: textStyle,
         icon: Icons.tune_rounded,
         label: 'View Details',
@@ -218,7 +219,6 @@ class WishlistItemCard extends StatelessWidget {
     final canAdd = item.inStock && !isAddingToCart;
 
     return _actionButton(
-      colors: colors,
       textStyle: textStyle,
       icon: Icons.shopping_cart_outlined,
       label: 'Add to Cart',
@@ -228,7 +228,6 @@ class WishlistItemCard extends StatelessWidget {
   }
 
   Widget _actionButton({
-    required AppColors colors,
     required AppTextStyles textStyle,
     required IconData icon,
     required String label,
@@ -236,29 +235,22 @@ class WishlistItemCard extends StatelessWidget {
     bool busy = false,
   }) {
     final enabled = onTap != null;
-    final foreground = enabled ? colors.primary : colors.gray;
+    final foreground = enabled ? AppColors.pickabooBlue : AppColors.muted;
 
     return Material(
-      color: colors.black.withValues(alpha: 0.0),
+      color: AppColors.black.withValues(alpha: 0.0),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(8.r)),
-        splashColor: colors.primary.withAlpha(20),
-        highlightColor: colors.primary.withAlpha(10),
+        splashColor: AppColors.pickabooBlue.withAlpha(20),
+        highlightColor: AppColors.pickabooBlue.withAlpha(10),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 12.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (busy)
-                SizedBox(
-                  width: 18.sp,
-                  height: 18.sp,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.w,
-                    color: colors.primary,
-                  ),
-                )
+                const AppLoader.button(size: 18, color: AppColors.pickabooBlue)
               else
                 Icon(icon, size: 18.sp, color: foreground),
               SizedBox(width: 6.w),

@@ -32,18 +32,10 @@ class CompareBloc extends Bloc<CompareEvent, CompareState> {
 
   Future<void> _onAdd(_Add event, Emitter<CompareState> emit) async {
     final products = List<ProductDetailEntity>.from(state.products);
-    if (products.length >= 2) {
-      emit(CompareState.error(
-        error: const AppErrorEntity(message: 'You can only compare up to 2 products at a time.'),
-        products: products,
-      ));
-      emit(CompareState.updated(products: products));
-      return;
-    }
 
     if (products.any((p) => p.id == event.product.id)) {
       emit(CompareState.error(
-        error: const AppErrorEntity(message: 'Product is already added to compare list.'),
+        error: const AppErrorEntity(message: 'Product is already in the comparison list.'),
         products: products,
       ));
       emit(CompareState.updated(products: products));
@@ -77,34 +69,40 @@ class CompareBloc extends Bloc<CompareEvent, CompareState> {
       }
     }
 
-    products.insert(0, event.product);
+    if (products.length >= 2) {
+      // Replace the 2nd slot product with the new item
+      products[1] = event.product;
+    } else {
+      // Append to the list so initial product stays as slot 0
+      products.add(event.product);
+    }
+
     emit(CompareState.updated(products: products));
 
     await repository.saveProductDetailsForCache(entity: event.product);
   }
 
   Future<void> _onRemove(_Remove event, Emitter<CompareState> emit) async {
-    emit(CompareState.loading(products: state.products));
+    final updated = state.products
+        .where((p) => p.id.toString() != event.productId)
+        .toList();
+
+    emit(CompareState.updated(products: updated));
+
     await repository.removeProductDetails(productId: event.productId);
-    final result = await repository.getAllSavedProductDetails();
-    result.fold(
-      (error) => emit(CompareState.error(error: error, products: state.products)),
-      (products) => emit(CompareState.updated(products: products)),
-    );
   }
 
   Future<void> _onClear(_Clear event, Emitter<CompareState> emit) async {
-    emit(CompareState.loading(products: state.products));
-    await repository.clearProductDetailsCache();
     emit(const CompareState.updated(products: []));
+    await repository.clearProductDetailsCache();
   }
 
   void _onCompare(_Compare event, Emitter<CompareState> emit) {
     final products = state.products;
 
-    if (products.length < 2) {
+    if (products.isEmpty) {
       emit(CompareState.error(
-        error: const AppErrorEntity(message: 'Please add at least 2 products to compare.'),
+        error: const AppErrorEntity(message: 'Please add at least 1 product to compare.'),
         products: products,
       ));
       return;

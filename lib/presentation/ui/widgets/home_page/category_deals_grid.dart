@@ -1,12 +1,22 @@
-import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/utils/responsive.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// ============================================================================
+/// 📦 CATEGORY DEALS GRID
+/// Standardized with universal 8.w sameGroupItemSpacing and 12.h groupToGroupSpacing.
+/// ============================================================================
 class CategoryDealsGrid extends StatelessWidget {
   final CategorySliderEntity categorySlider;
   final Function(SliderEntity)? onDealTap;
@@ -21,9 +31,6 @@ class CategoryDealsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     final deals = categorySlider.slides.take(4).toList();
 
     if (deals.isEmpty) {
@@ -31,11 +38,19 @@ class CategoryDealsGrid extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.only(
+        left: AppSpacing.sameGroupItemSpacing.w,
+        right: AppSpacing.sameGroupItemSpacing.w,
+        bottom: AppSpacing.groupToGroupSpacing.h,
+      ),
+      padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       decoration: BoxDecoration(
-        color: colors.whiteSmoke,
-        borderRadius: BorderRadius.circular(8.r),
+        color: AppColors.surfaceBlue,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(
+          color: AppColors.border,
+          width: 1.w,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,64 +61,72 @@ class CategoryDealsGrid extends StatelessWidget {
               Expanded(
                 child: Text(
                   categorySlider.name,
-                  maxLines: 2,
+                  maxLines: 1,
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: AppTypography.sectionTitle,
                 ),
               ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: onViewAll,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 7.w,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.primary,
-                    borderRadius: BorderRadius.circular(12.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.primary.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: SvgPicture.asset(
-                    "assets/new/svg/forward_icon.svg",
-                    width: 7.w,
-                    height: 14.h,
-                    colorFilter: ColorFilter.mode(
-                      colors.white,
-                      BlendMode.srcIn,
+              if (onViewAll != null) ...[
+                SizedBox(width: 8.w),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onViewAll,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'View All',
+                          style: AppTypography.cardTitle,
+                        ),
+                        SizedBox(width: 2.w),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16.sp,
+                          color: AppColors.pickabooBlue,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
 
-          SizedBox(height: 12.h),
+          SizedBox(height: AppSpacing.sameGroupItemSpacing.h),
 
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: gridColumnsFor(context),
-              crossAxisSpacing: 18.w,
-              mainAxisSpacing: 18.w,
-              childAspectRatio: 0.95,
-            ),
-            itemCount: deals.length,
-            itemBuilder: (context, index) {
-              return _DealCard(
-                deal: deals[index],
-                onTap: () => onDealTap?.call(deals[index]),
-              );
-            },
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int rowStart = 0;
+                  rowStart < deals.length;
+                  rowStart += gridColumnsFor(context)) ...[
+                if (rowStart > 0)
+                  SizedBox(height: AppSpacing.sameGroupItemSpacing.h),
+                Row(
+                  children: [
+                    for (int i = 0; i < gridColumnsFor(context); i++) ...[
+                      if (i > 0)
+                        SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
+                      Expanded(
+                        child: (rowStart + i < deals.length)
+                            ? AspectRatio(
+                                aspectRatio: 0.92,
+                                child: _DealCard(
+                                  deal: deals[rowStart + i],
+                                  onTap: () =>
+                                      onDealTap?.call(deals[rowStart + i]),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ],
           ),
         ],
       ),
@@ -119,8 +142,6 @@ class _DealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final imageCacheWidth =
@@ -130,13 +151,17 @@ class _DealCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(6.r),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: AppColors.border,
+            width: 1.w,
+          ),
           boxShadow: [
             BoxShadow(
-              color: colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: AppColors.navy.withValues(alpha: 0.03),
+              blurRadius: 4.r,
+              offset: Offset(0, 2.h),
             ),
           ],
         ),
@@ -145,70 +170,47 @@ class _DealCard extends StatelessWidget {
           children: [
             Expanded(
               flex: 2,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(6.r),
-                    ),
-                    child: AppImage(
-                      imageUrl: deal.mobileImage,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      cacheWidth: imageCacheWidth,
-                      placeholder: Container(
-                        color: colors.whiteSmoke,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: colors.primary,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      ),
-                      errorWidget: Container(
-                        color: colors.whiteSmoke,
-                        child: Center(
-                          child: Icon(
-                            Icons.image_not_supported_outlined,
-                            color: colors.gray,
-                            size: 28.sp,
-                          ),
-                        ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(7.r),
+                ),
+                child: AppImage(
+                  imageUrl: deal.mobileImage,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  cacheWidth: imageCacheWidth,
+                  placeholder: Container(
+                    color: AppColors.pageBg,
+                    child: const AppLoader.inline(),
+                  ),
+                  errorWidget: Container(
+                    color: AppColors.pageBg,
+                    child: Center(
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: AppColors.muted,
+                        size: 24.sp,
                       ),
                     ),
                   ),
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(12.r),
-                        ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            colors.black.withValues(alpha: 0.0),
-                            colors.black.withValues(alpha: 0.1),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
 
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
+              height: 44.h,
+              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(12.r),
+                  bottom: Radius.circular(7.r),
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
@@ -216,12 +218,7 @@ class _DealCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: textStyle.bodySmall.copyWith(
-                      color: colors.text,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13.sp,
-                      height: 1.2.h,
-                    ),
+                    style: AppTypography.cardTitle,
                   ),
                 ],
               ),

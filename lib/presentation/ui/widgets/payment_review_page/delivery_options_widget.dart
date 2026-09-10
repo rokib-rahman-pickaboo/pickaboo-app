@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/demo/payment_models.dart';
 
+/// ============================================================================
+/// 🚚 DELIVERY OPTIONS WIDGET (Matching img1 specification)
+/// ============================================================================
 class DeliveryOptionsWidget extends StatelessWidget {
   final List<DeliveryMethod> methods;
   final Function(DeliveryMethod) onSameMethodSelected;
@@ -16,50 +18,48 @@ class DeliveryOptionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+      margin: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(width: 1.w, color: context.colors.borderColor),
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(
+          color: AppColors.border.withValues(alpha: 0.8),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 6.r,
             offset: Offset(0, 2.h),
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(12.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Delivery Options", style: context.textStyle.bodyMediumBold),
-            SizedBox(height: 8.h),
-            if (methods.isNotEmpty)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.zero,
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (var i = 0; i < methods.length; i++) ...[
-                        if (i > 0) SizedBox(width: 10.w),
-                        _DeliveryOptionCard(
-                          method: methods[i],
-                          onTap: () => onSameMethodSelected(methods[i]),
-                        ),
-                      ],
-                    ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Delivery Options",
+            style: AppTypography.sectionTitle,
+          ),
+          SizedBox(height: 8.h),
+          if (methods.isNotEmpty)
+            Column(
+              children: [
+                for (var i = 0; i < methods.length; i++) ...[
+                  if (i > 0) SizedBox(height: 8.h),
+                  _DeliveryOptionCard(
+                    method: methods[i],
+                    onTap: () => onSameMethodSelected(methods[i]),
                   ),
-                ),
-              ),
-          ],
-        ),
+                ],
+              ],
+            ),
+        ],
       ),
     );
   }
@@ -71,31 +71,33 @@ class _DeliveryOptionCard extends StatelessWidget {
 
   const _DeliveryOptionCard({required this.method, required this.onTap});
 
-  String get _amount => method.amount.toStringAsFixed(0);
+  String get _amount => method.amount > 0
+      ? '৳ ${method.amount.toStringAsFixed(0)}'
+      : '৳ 0';
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final selected = method.isSelected;
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 250.w,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: colors.white,
+          color: selected ? AppColors.surfaceBlue : AppColors.white,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: selected ? colors.primary : colors.borderColor,
-            width: selected ? 2 : 1,
+            color: selected ? AppColors.pickabooBlue : AppColors.border,
+            width: selected ? 1.5 : 1,
           ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _RadioDot(selected: selected, color: colors.primary),
+            _RadioDot(selected: selected),
             SizedBox(width: 10.w),
             Expanded(
               child: Column(
@@ -104,16 +106,14 @@ class _DeliveryOptionCard extends StatelessWidget {
                 children: [
                   Text(
                     method.carrierTitle,
-                    style: context.textStyle.bodyMediumBold.withColor(
-                      colors.text,
-                    ),
+                    style: AppTypography.cardTitle,
                   ),
-                  if (method.carrierTitle.isNotEmpty) ...[
+                  if (method.methodTitle.isNotEmpty) ...[
                     SizedBox(height: 2.h),
                     Text(
                       method.methodTitle,
-                      style: context.textStyle.bodySmall.withColor(
-                        colors.silverChalice,
+                      style: AppTypography.bodyMuted.copyWith(
+                        height: 1.25,
                       ),
                     ),
                   ],
@@ -122,8 +122,11 @@ class _DeliveryOptionCard extends StatelessWidget {
             ),
             SizedBox(width: 8.w),
             Text(
-              "৳ $_amount",
-              style: context.textStyle.productPrice.withColor(colors.primary),
+              _amount,
+              style: AppTypography.priceStandard.copyWith(
+                color: AppColors.pickabooBlue,
+                fontSize: 13.5.sp,
+              ),
             ),
           ],
         ),
@@ -134,20 +137,18 @@ class _DeliveryOptionCard extends StatelessWidget {
 
 class _RadioDot extends StatelessWidget {
   final bool selected;
-  final Color color;
 
-  const _RadioDot({required this.selected, required this.color});
+  const _RadioDot({required this.selected});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     return Container(
       width: 18.w,
       height: 18.w,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? color : colors.silverChalice,
+          color: selected ? AppColors.pickabooBlue : AppColors.border,
           width: 2,
         ),
       ),
@@ -156,7 +157,10 @@ class _RadioDot extends StatelessWidget {
               child: Container(
                 width: 8.w,
                 height: 8.w,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.pickabooBlue,
+                ),
               ),
             )
           : null,

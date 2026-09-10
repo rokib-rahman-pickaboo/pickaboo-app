@@ -1,24 +1,33 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
+import 'dart:async';
 import 'dart:io';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:pinput/pinput.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 
+import 'package:pickaboo/core/constants/app_constants.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/auth/login_bloc/login_bloc.dart';
 import 'package:pickaboo/presentation/bloc/auth/registration_bloc/registration_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/login_page/social_login_button.dart';
-import 'package:pinput/pinput.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modernized Pickaboo Registration OTP Page
+/// Seamlessly bridges Pickaboo-App-UI aesthetics with OTP BLoC state architecture.
 class RegistrationPage extends StatefulWidget {
   final String phone;
 
@@ -33,9 +42,35 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _otp = '';
   bool _isLoading = false;
 
+  Timer? _resendTimer;
+  int _resendCountdown = 300; // 5 minutes timeout
+
+  String get _formattedCountdown {
+    final minutes = (_resendCountdown ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_resendCountdown % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  void _startResendTimer() {
+    _resendTimer?.cancel();
+    setState(() => _resendCountdown = 300);
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_resendCountdown > 0) {
+        setState(() => _resendCountdown--);
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _startResendTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _sendOtp();
     });
@@ -43,8 +78,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   void dispose() {
+    _resendTimer?.cancel();
     _otpController.dispose();
     super.dispose();
+  }
+
+  void _dismissKeyboard() {
+    FocusScope.of(context).unfocus();
   }
 
   void _sendOtp({bool resend = false}) {
@@ -59,7 +99,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> _handleContinue() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
+    if (_resendCountdown <= 0) {
+      SnackBarUtils.showError(context, 'OTP has expired. Please request a new OTP.');
+      return;
+    }
     if (_otp.length == 4) {
       context.read<RegistrationBloc>().add(
         RegistrationEvent.verifyOtp(mobile: widget.phone, otp: _otp),
@@ -70,23 +114,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> _signInWithGoogle() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     try {
       if (kDebugMode) {
         print('🔵 [Google Sign-In] Starting Google sign-in process...');
       }
 
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      if (kDebugMode) {
-        print('🔵 [Google Sign-In] GoogleSignIn instance created');
-      }
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
+        serverClientId: AppConstants.googleAndroidWebClientId,
+        scopes: const ['email', 'profile'],
+      );
+
+      // Sign out first to clear any cached/stale sessions
+      try {
+        await googleSignIn.signOut();
+      } catch (_) {}
 
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (kDebugMode) {
-        print(
-          '🔵 [Google Sign-In] Sign-in completed. User: ${googleUser?.email ?? "null"}',
-        );
-      }
 
       if (googleUser == null) {
         if (kDebugMode) {
@@ -95,28 +140,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
         return;
       }
 
-      if (kDebugMode) {
-        print('🔵 [Google Sign-In] Getting authentication details...');
-      }
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-      final String? accessToken = googleAuth.accessToken;
-
-      if (kDebugMode) {
-        print(
-          '🔵 [Google Sign-In] Access token obtained: ${accessToken != null ? "✅ Yes (length: ${accessToken.length})" : "❌ No"}',
-        );
-      }
+      final String? accessToken = googleAuth.accessToken ?? googleAuth.idToken;
 
       if (accessToken != null) {
         final source = Platform.isAndroid ? 'android' : 'ios';
-        if (kDebugMode) {
-          print('🔵 [Google Sign-In] Dispatching loginWithSocial event...');
-          print('   - Provider: google');
-          print('   - Source: $source');
-          print('   - Token length: ${accessToken.length}');
-        }
-
         if (!mounted) return;
         context.read<LoginBloc>().add(
           LoginEvent.loginWithSocial(
@@ -125,22 +154,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
             source: source,
           ),
         );
-
-        if (kDebugMode) {
-          print('✅ [Google Sign-In] Event dispatched successfully');
-        }
       } else {
-        if (kDebugMode) {
-          print('❌ [Google Sign-In] Failed to get access token');
-        }
         if (mounted) {
           SnackBarUtils.showError(context, 'Failed to get Google access token');
         }
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ [Google Sign-In] Exception occurred: $e');
-        print('Stack trace: $stackTrace');
+        print('❌ [Google Sign-In] Exception occurred: $e\n$stackTrace');
       }
       if (mounted) {
         SnackBarUtils.showError(
@@ -152,9 +173,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> _signInWithFacebook() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     try {
-      final LoginResult result = await FacebookAuth.instance.login();
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: const ['public_profile', 'email'],
+      );
 
       if (result.status == LoginStatus.success) {
         final AccessToken? accessToken = result.accessToken;
@@ -198,7 +221,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> _signInWithApple() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     try {
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -238,9 +261,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return MultiBlocListener(
       listeners: [
         BlocListener<RegistrationBloc, RegistrationState>(
@@ -251,6 +271,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               },
               otpSent: (message) {
                 setState(() => _isLoading = false);
+                _startResendTimer();
                 SnackBarUtils.showSuccess(context, message);
               },
               otpSendFailed: (error) {
@@ -299,212 +320,310 @@ class _RegistrationPageState extends State<RegistrationPage> {
           },
         ),
       ],
-      child: Scaffold(
-        body: ResponsiveContainer(
-          child: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 15.w, top: 15.h),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AppBarButton(
-                        iconPath: 'assets/new/svg/back_nav_icon.svg',
-                        width: 7.w,
-                        height: 14.h,
-                        onPressed: () {
-                          FocusScope.of(context).unfocus();
-                          Navigator.of(context).pop();
-                        },
-                        iconColor: colors.text,
-                      ),
-                    ),
-                  ),
-                ),
-
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 52.h),
-                        Image.asset(
-                          'assets/images/logo.png',
-                          width: 188.w,
-                          height: 45.h,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              "assets/images/pickaboo-login-logo.png",
-                              width: 188.w,
-                              height: 45.h,
-                            );
-                          },
-                        ),
-
-                        Expanded(
-                          child: Center(
+      child: GestureDetector(
+        onTap: _dismissKeyboard,
+        behavior: HitTestBehavior.opaque,
+        child: Scaffold(
+          backgroundColor: AppColors.pageBg,
+          body: ResponsiveContainer(
+            child: SafeArea(
+              child: Stack(
+                children: [
+                  // ── BALANCED MAIN CONTENT ──
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24.w,
+                              vertical: 24.h,
+                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                SizedBox(height: 40.h),
-
-                                Text(
-                                  'Enter OTP for',
-                                  style: textTheme.displayLarge.copyWith(
-                                    color: colors.text,
-                                  ),
-                                  textAlign: TextAlign.center,
+                                // Brand Logo
+                                Image.asset(
+                                  'assets/images/pickaboo_new_logo.png',
+                                  height: 44.h,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/pickaboo-login-logo.png',
+                                      height: 44.h,
+                                      fit: BoxFit.contain,
+                                    );
+                                  },
                                 ),
-                                SizedBox(height: 4.h),
-                                Text(
-                                  'verification',
-                                  style: textTheme.displayLarge.copyWith(
-                                    color: colors.text,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-
-                                SizedBox(height: 40.h),
-
-                                _buildOtpInput(),
 
                                 SizedBox(height: 20.h),
 
-                                Container(
+                                // Title text
+                                Text(
+                                  'Enter OTP for',
+                                  style: AppTypography.heroTitle,
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 6.h),
+                                Text(
+                                  'verification',
+                                  style: AppTypography.heroTitle,
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: 10.h),
+
+                                Text(
+                                  'Enter the 4-digit code sent to ${widget.phone}',
+                                  style: AppTypography.bodyMutedLight,
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                SizedBox(height: 28.h),
+
+                                // ── OTP PIN INPUT ──
+                                _buildOtpInput(),
+
+                                SizedBox(height: 16.h),
+
+                                // ── RESEND OTP / 5-MIN TIMER (Matching Phone Change Style) ──
+                                _resendCountdown > 0
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.access_time_rounded,
+                                            size: 14.sp,
+                                            color: AppColors.muted,
+                                          ),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            'Resend OTP in $_formattedCountdown',
+                                            style: AppTypography.bodyMuted,
+                                          ),
+                                        ],
+                                      )
+                                    : TextButton(
+                                        onPressed:
+                                            _isLoading
+                                                ? null
+                                                : () => _sendOtp(resend: true),
+                                        style: TextButton.styleFrom(
+                                          padding: EdgeInsets.zero,
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: Text(
+                                          'Resend OTP',
+                                          style: AppTypography.brandActionText,
+                                        ),
+                                      ),
+
+                                SizedBox(height: 20.h),
+
+                                // ── PRIMARY ACTION BUTTON ──
+                                SizedBox(
                                   width: double.infinity,
-                                  height: 48.h,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        colors.button,
-                                        colors.button.withValues(alpha: 0.85),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12.r),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: colors.button.withValues(
-                                          alpha: 0.3,
-                                        ),
-                                        blurRadius: 12.r,
-                                        offset: Offset(0, 4.h),
-                                      ),
-                                    ],
-                                  ),
+                                  height: 50.h,
                                   child: ElevatedButton(
-                                    onPressed: _isLoading
-                                        ? null
-                                        : _handleContinue,
+                                    onPressed: _isLoading ? null : _handleContinue,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: colors.black.withValues(
-                                        alpha: 0.0,
-                                      ),
-                                      shadowColor: colors.black.withValues(
-                                        alpha: 0.0,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          12.r,
-                                        ),
+                                      backgroundColor: AppColors.pickabooBlue,
+                                      foregroundColor: AppColors.white,
+                                      elevation: 0,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: AppRadius.cardRadius,
                                       ),
                                     ),
                                     child: _isLoading
-                                        ? SizedBox(
-                                            height: 22.h,
-                                            width: 22.w,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2.5.w,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                    colors.white,
-                                                  ),
-                                            ),
-                                          )
+                                        ? const AppLoader.button()
                                         : Text(
                                             'Continue',
-                                            style: context.textStyle.buttonLarge
-                                                .withColor(colors.white),
+                                            style: AppTypography.buttonPrimary,
                                           ),
                                   ),
                                 ),
 
-                                SizedBox(height: 12.h),
+                                SizedBox(height: 16.h),
 
+                                // ── TERMS & PRIVACY ──
                                 _buildTermsAndPrivacy(),
 
-                                SizedBox(height: 20.h),
+                                SizedBox(height: 24.h),
 
+                                // ── DIVIDER ──
                                 Row(
                                   children: [
-                                    Expanded(
-                                      child: Divider(color: colors.borderColor),
+                                    const Expanded(
+                                      child: Divider(color: AppColors.border),
                                     ),
                                     Padding(
                                       padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
+                                        horizontal: 14.w,
                                       ),
                                       child: Text(
-                                        'Or Login with',
-                                        style: textTheme.bodyMedium.copyWith(
-                                          color: colors.gray,
-                                        ),
+                                        'Or continue with',
+                                        style: AppTypography.bodyMutedLight,
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Divider(color: colors.borderColor),
+                                    const Expanded(
+                                      child: Divider(color: AppColors.border),
                                     ),
                                   ],
                                 ),
 
-                                SizedBox(height: 12.h),
+                                SizedBox(height: 18.h),
+
+                                // ── SOCIAL LOGIN BUTTONS ──
+                                Row(
+                                  children: [
+                                    // Google
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: _signInWithGoogle,
+                                        style: OutlinedButton.styleFrom(
+                                          minimumSize:
+                                              Size(double.infinity, 46.h),
+                                          side: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: AppRadius.cardRadius,
+                                          ),
+                                          backgroundColor: AppColors.white,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/new/svg/google_icon.svg',
+                                              width: 18.w,
+                                              height: 18.h,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              'Google',
+                                              style: AppTypography.cardTitle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    // Facebook
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: _signInWithFacebook,
+                                        style: OutlinedButton.styleFrom(
+                                          minimumSize:
+                                              Size(double.infinity, 46.h),
+                                          side: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: AppRadius.cardRadius,
+                                          ),
+                                          backgroundColor: AppColors.white,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/new/svg/facebook_icon.svg',
+                                              width: 18.w,
+                                              height: 18.h,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              'Facebook',
+                                              style: AppTypography.cardTitle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                if (Platform.isIOS) ...[
+                                  SizedBox(height: 12.h),
+                                  OutlinedButton(
+                                    onPressed: _signInWithApple,
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: Size(double.infinity, 46.h),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: AppRadius.cardRadius,
+                                      ),
+                                      backgroundColor: AppColors.navy,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(
+                                          'assets/new/svg/apple_icon.svg',
+                                          width: 18.w,
+                                          height: 18.h,
+                                          colorFilter: const ColorFilter.mode(
+                                            AppColors.white,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Text(
+                                          'Continue with Apple',
+                                          style: AppTypography.buttonPrimary,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                         ),
+                      );
+                    },
+                  ),
 
-                        Column(
-                          children: [
-                            SocialLoginButton(
-                              onPressed: _signInWithGoogle,
-                              svgIcon: 'assets/new/svg/google_icon.svg',
-                              label: 'Continue with Google',
-                              backgroundColor: colors.white,
-                              textColor: const Color(0xFF1F1F1F),
-                              borderColor: const Color(0xFFE0E0E0),
-                            ),
-                            SizedBox(height: 16.h),
-
-                            SocialLoginButton(
-                              onPressed: _signInWithFacebook,
-                              svgIcon: 'assets/new/svg/facebook_icon.svg',
-                              label: 'Continue with Facebook',
-                              backgroundColor: const Color(0xFF1877F2),
-                              textColor: colors.white,
-                            ),
-                            SizedBox(height: 16.h),
-
-                            if (Theme.of(context).platform ==
-                                TargetPlatform.iOS)
-                              SocialLoginButton(
-                                onPressed: _signInWithApple,
-                                svgIcon: 'assets/new/svg/apple_icon.svg',
-                                label: 'Continue with Apple',
-                                backgroundColor: colors.black,
-                                textColor: colors.white,
-                                iconColor: colors.white,
-                              ),
-                          ],
+                  // ── TOP BACK BUTTON (Positioned ON TOP of Stack) ──
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          _dismissKeyboard();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            context.go(Routes.home);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(20.r),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.r),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.navy,
+                            size: 20.sp,
+                          ),
                         ),
-                        SizedBox(height: 40.h),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -514,16 +633,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Widget _buildOtpInput() {
     final defaultPinTheme = PinTheme(
-      width: 48.w,
-      height: 48.h,
-      textStyle: context.textStyle.bodyLargeBold.withColor(context.colors.text),
+      width: 52.w,
+      height: 52.h,
+      textStyle: AppTypography.sectionTitle.size(18.sp),
       decoration: BoxDecoration(
-        color: context.colors.white,
-        border: Border.all(color: context.colors.borderColor),
-        borderRadius: BorderRadius.circular(12.r),
+        color: AppColors.white,
+        border: Border.all(color: AppColors.border),
+        borderRadius: AppRadius.cardRadius,
         boxShadow: [
           BoxShadow(
-            color: context.colors.black.withValues(alpha: 0.04),
+            color: AppColors.navy.withValues(alpha: 0.04),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
@@ -533,11 +652,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        border: Border.all(color: context.colors.primary, width: 2.w),
+        border: Border.all(color: AppColors.pickabooBlue, width: 1.8.w),
         boxShadow: [
           BoxShadow(
-            color: context.colors.primary.withValues(alpha: 0.1),
-            blurRadius: 12.r,
+            color: AppColors.pickabooBlue.withValues(alpha: 0.12),
+            blurRadius: 10.r,
             offset: Offset(0, 2.h),
           ),
         ],
@@ -546,8 +665,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     final submittedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        color: context.colors.primary.withValues(alpha: 0.05),
-        border: Border.all(color: context.colors.primary, width: 2.w),
+        color: AppColors.surfaceBlue,
+        border: Border.all(color: AppColors.pickabooBlue, width: 1.5.w),
       ),
     );
 
@@ -576,43 +695,35 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Widget _buildTermsAndPrivacy() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: context.textStyle.bodySmall.withColor(context.colors.gray),
+          style: AppTypography.bodyRegular.withColor(AppColors.muted),
           children: [
             const TextSpan(text: 'By continuing, I accept the '),
             WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
               child: GestureDetector(
                 onTap: () {
                   context.push(Routes.terms);
                 },
                 child: Text(
                   'Terms and conditions',
-                  style: context.textStyle.bodySmall
-                      .withColor(context.colors.primary)
-                      .copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: context.colors.primary,
-                      ),
+                  style: AppTypography.linkText,
                 ),
               ),
             ),
             const TextSpan(text: ' and the '),
             WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
               child: GestureDetector(
                 onTap: () {
                   context.push(Routes.privacyPolicy);
                 },
                 child: Text(
                   'Privacy Policy.',
-                  style: context.textStyle.bodySmall
-                      .withColor(context.colors.primary)
-                      .copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: context.colors.primary,
-                      ),
+                  style: AppTypography.linkText,
                 ),
               ),
             ),

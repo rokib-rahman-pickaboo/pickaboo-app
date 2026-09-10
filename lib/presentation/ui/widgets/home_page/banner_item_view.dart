@@ -1,4 +1,4 @@
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -31,10 +31,14 @@ class BannerItemView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveWidth = width ?? double.maxFinite;
-    final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(8.r);
+    final effectiveBorderRadius = borderRadius ?? AppRadius.cardRadius;
     final imageWidth = effectiveWidth == double.maxFinite
-        ? MediaQuery.sizeOf(context).width - 32
+        ? MediaQuery.sizeOf(context).width - 2 * AppSpacing.sameGroupItemSpacing.w
         : effectiveWidth;
+
+    final double devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
+    final int calculatedCacheWidth =
+        cacheWidth ?? (imageWidth * devicePixelRatio).round().clamp(400, 900);
 
     final imageChild = ClipRRect(
       borderRadius: effectiveBorderRadius,
@@ -43,14 +47,14 @@ class BannerItemView extends StatelessWidget {
               imageUrl: banner.mobileImage,
               width: imageWidth,
               fit: BoxFit.fitWidth,
-              cacheWidth: cacheWidth,
+              cacheWidth: calculatedCacheWidth,
             )
           : AppImage(
               imageUrl: banner.mobileImage,
               width: imageWidth,
-              height: height ?? 160.h,
+              height: height ?? 130.h,
               fit: fit,
-              cacheWidth: cacheWidth,
+              cacheWidth: calculatedCacheWidth,
             ),
     );
 
@@ -63,7 +67,7 @@ class BannerItemView extends StatelessWidget {
       child: Container(
         width: effectiveWidth,
         decoration: BoxDecoration(
-          color: context.colors.white,
+          color: AppColors.white,
           borderRadius: effectiveBorderRadius,
         ),
         child: imageChild,

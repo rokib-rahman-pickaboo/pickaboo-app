@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/bloc/search_bloc/search_bloc.dart';
 
 class SortDropdown extends StatelessWidget {
@@ -62,14 +61,13 @@ class SortDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyles = context.textStyle;
 
     return PopupMenuButton<SortOptionItem>(
-      icon: Icon(Icons.arrow_drop_down, color: colors.text, size: 24.sp),
+      icon: Icon(Icons.arrow_drop_down, color: AppColors.text, size: 24.sp),
       offset: Offset(0, 40.h),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-      color: colors.white,
+      color: AppColors.white,
       elevation: 8,
       itemBuilder: (context) {
         return _sortOptions.map((option) {
@@ -81,7 +79,7 @@ class SortDropdown extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               child: Text(
                 option.title,
-                style: textStyles.bodyMedium.copyWith(color: colors.text),
+                style: textStyles.bodyMedium.copyWith(color: AppColors.text),
               ),
             ),
           );

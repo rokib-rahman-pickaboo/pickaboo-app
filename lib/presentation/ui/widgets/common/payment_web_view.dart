@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaymentWebView extends StatefulWidget {
@@ -165,7 +166,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         return true;
       } else if (status.isNotEmpty) {
         debugPrint('🚫 WebView: EBL payment FAILED (status=$status)');
-        _fireResult(false, 'EBL payment failed');
+        _fireResult(false, 'Payment failed');
         return true;
       }
     }
@@ -292,7 +293,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           child: Stack(
             children: [
               WebViewWidget(controller: _controller),
-              if (_isLoading) const Center(child: CircularProgressIndicator()),
+              if (_isLoading) const AppLoader.fullPage(),
             ],
           ),
         ),

@@ -1,10 +1,15 @@
-import 'package:flutter/foundation.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 
+/// Modern OrderSummarySection matching Pickaboo-App-UI design language.
 class OrderSummarySection extends StatelessWidget {
   final OrderDetailEntity order;
   final bool showPayNow;
@@ -19,19 +24,24 @@ class OrderSummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      print('🛒 OrderSummarySection: order.couponCode = "${order.couponCode}"');
-      for (var info in order.paymentInformation) {
-        print('🛒 OrderSummarySection: paymentInfo [${info.code}] = ${info.title} : ${info.value}');
-      }
-    }
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
     return Container(
-      color: colors.white,
-      margin: EdgeInsets.only(top: 8.h),
+      margin: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: 4.h,
+      ),
       padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 8.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,47 +51,40 @@ class OrderSummarySection extends StatelessWidget {
             children: [
               Text(
                 'Order Summary (${order.orderSummary.totalOrderQty})',
-                style: textStyles.headingSmall.copyWith(
-                  color: colors.text,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTypography.sectionTitle,
               ),
               if (showPayNow)
                 ElevatedButton(
                   onPressed: onPayNow,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.white,
+                    backgroundColor: AppColors.pickabooBlue,
+                    foregroundColor: AppColors.white,
                     elevation: 0,
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.w,
                       vertical: 8.h,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadius.cardRadius,
                     ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
                     "Pay Now",
-                    style: textStyles.buttonSmall.copyWith(color: colors.white),
+                    style: AppTypography.buttonPrimary,
                   ),
                 ),
             ],
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 14.h),
           _buildSummaryRow(
             'Subtotal (${order.orderSummary.totalOrderQty} item)',
             '৳ ${order.orderSummary.subtotal.toStringAsFixed(0)}',
-            colors,
-            textStyles,
           ),
           _buildSummaryRow(
-            'Shipping',
+            'Shipping and Handeling',
             '৳ ${order.orderSummary.shippingFee.toStringAsFixed(0)}',
-            colors,
-            textStyles,
           ),
           if (order.orderSummary.discountAmount.abs() > 0)
             _buildSummaryRow(
@@ -89,16 +92,12 @@ class OrderSummarySection extends StatelessWidget {
                   ? 'Discount (${order.couponCode})'
                   : 'Discount',
               '- ৳ ${order.orderSummary.discountAmount.abs().toStringAsFixed(0)}',
-              colors,
-              textStyles,
+              isDiscount: true,
             ),
-          const Divider(),
-          SizedBox(height: 8.h),
+          const Divider(height: 20, color: AppColors.border),
           _buildSummaryRow(
             'Total',
             '৳ ${order.orderSummary.grandTotal.toStringAsFixed(0)}',
-            colors,
-            textStyles,
             isBold: true,
           ),
         ],
@@ -108,25 +107,27 @@ class OrderSummarySection extends StatelessWidget {
 
   Widget _buildSummaryRow(
     String label,
-    String value,
-    AppColors colors,
-    AppTextStyles textStyles, {
+    String value, {
     bool isBold = false,
+    bool isDiscount = false,
   }) {
+    Color valueColor = isBold ? AppColors.pickabooBlue : AppColors.navy;
+    if (isDiscount) {
+      valueColor = AppColors.green;
+    }
+
     return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: (isBold ? textStyles.bodyMediumBold : textStyles.bodyMedium)
-                .copyWith(color: colors.text),
+            style: isBold ? AppTypography.cardTitle : AppTypography.bodyMuted,
           ),
           Text(
             value,
-            style: (isBold ? textStyles.bodyMediumBold : textStyles.bodyMedium)
-                .copyWith(color: colors.text),
+            style: isBold ? AppTypography.priceStandard.withColor(valueColor) : AppTypography.bodyRegular.withColor(valueColor),
           ),
         ],
       ),

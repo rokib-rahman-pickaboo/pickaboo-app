@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class DiscoverMetrics {
   const DiscoverMetrics._();
@@ -84,7 +83,7 @@ class DiscoverTileLabel extends StatelessWidget {
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
         style: context.textStyle.bodySmall.copyWith(
-          color: context.colors.black,
+          color: AppColors.navy,
           fontSize: 10.sp,
           fontWeight: FontWeight.w600,
           height: 1.25,
@@ -109,7 +108,7 @@ class DiscoverTileAction extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: context.textStyle.bodySmall.copyWith(
-          color: context.colors.primary,
+          color: AppColors.pickabooBlue,
           fontSize: 10.sp,
           fontWeight: FontWeight.w700,
           height: 1.2,

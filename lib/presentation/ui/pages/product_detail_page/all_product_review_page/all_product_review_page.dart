@@ -1,19 +1,27 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/domain/entity/review/review_entity.dart';
-import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
+import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/review_image_viewer_sheet.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/review_item.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_rating_breakdown_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_review_tile.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class AllProductReviewPage extends StatefulWidget {
   final ProductDetailEntity product;
@@ -25,23 +33,12 @@ class AllProductReviewPage extends StatefulWidget {
 }
 
 class _AllProductReviewPageState extends State<AllProductReviewPage> {
-
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Scaffold(
-      backgroundColor: colors.white,
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: const Text('All Reviews'),
+      backgroundColor: AppColors.pageBg,
+      appBar: const PickabooAppBar(
+        title: 'All Reviews',
       ),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, authState) {
@@ -53,258 +50,112 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
           return BlocBuilder<ReviewBloc, ReviewState>(
             builder: (context, state) {
               final summary = state.summary;
-              final detailedRatings =
-                  summary?.detailedRatings ?? widget.product.detailedRatings;
-              final reviewImages =
-                  summary?.allReviewImages ?? widget.product.allReviewImages;
+              final detailedRatings = summary?.detailedRatings.isNotEmpty == true
+                  ? summary!.detailedRatings
+                  : widget.product.detailedRatings;
+
+              final detailedSummary = summary != null
+                  ? [
+                      summary.rating5Count,
+                      summary.rating4Count,
+                      summary.rating3Count,
+                      summary.rating2Count,
+                      summary.rating1Count,
+                    ]
+                  : widget.product.detailedSummary;
+
+              final customerPhotos = summary?.allReviewImages.isNotEmpty == true
+                  ? summary!.allReviewImages
+                  : widget.product.allReviewImages;
+
+              final totalReviewCount = summary?.totalReviews ?? widget.product.reviewsCount;
+              final ratingValue = summary?.averageRating ?? widget.product.ratingSummaryValue;
 
               return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
                 slivers: [
+                  // ── 1. PRODUCT SUMMARY HEADER WITH WRITE A REVIEW BUTTON ──
                   SliverToBoxAdapter(
-                    child: _buildProductHeader(colors, textStyle, isLoggedIn),
+                    child: _buildProductHeader(isLoggedIn),
                   ),
+
+                  // ── 2. RATINGS & REVIEWS BREAKDOWN CARD ──
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.all(16.w),
+                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.sameGroupItemSpacing.w),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Ratings & Reviews',
-                            style: textStyle.headingMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: colors.text,
-                            ),
+                          PdpRatingBreakdownCard(
+                            rating: ratingValue,
+                            totalReviews: totalReviewCount,
+                            detailedSummary: detailedSummary,
+                            detailedRatings: detailedRatings,
+                            customerPhotos: customerPhotos,
+                            onPhotoTap: (idx) {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.black,
+                                useSafeArea: true,
+                                builder: (_) => ReviewImageViewerSheet(
+                                  imageUrls: customerPhotos,
+                                  initialIndex: idx,
+                                ),
+                              );
+                            },
                           ),
                           SizedBox(height: 16.h),
-
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '${summary?.averageRating ?? widget.product.ratingSummaryValue}',
-                                          style: textStyle.headingLarge
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: colors.text,
-                                                fontSize: 32.sp,
-                                              ),
-                                        ),
-                                        SizedBox(width: 4.w),
-                                        Icon(
-                                          Icons.star,
-                                          color: colors.text,
-                                          size: 24.sp,
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 4.h),
-                                    Text(
-                                      '${summary?.ratingSummary ?? widget.product.ratingSummary} Ratings &',
-                                      style: textStyle.bodyMedium.copyWith(
-                                        color: colors.textMedium,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${summary?.totalReviews ?? widget.product.reviewsCount} Reviews',
-                                      style: textStyle.bodyMedium.copyWith(
-                                        color: colors.textMedium,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                height: 80.h,
-                                width: 1.w,
-                                color: colors.borderColor,
-                                margin: EdgeInsets.symmetric(horizontal: 16.w),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Column(
-                                  children: List.generate(5, (index) {
-                                    final star = 5 - index;
-
-                                    final int totalReviews =
-                                        summary?.totalReviews ??
-                                        widget.product.reviewsCollection.length;
-
-                                    if (totalReviews == 0) {
-                                      return _buildStarBar(
-                                        context,
-                                        star,
-                                        0,
-                                        '0',
-                                      );
-                                    }
-
-                                    final count =
-                                        summary?.ratingCount(star) ??
-                                        widget.product.reviewsCollection
-                                            .where(
-                                              (r) =>
-                                                  r.reviwerRating.round() ==
-                                                  star,
-                                            )
-                                            .length;
-                                    final percent = count / totalReviews;
-
-                                    return _buildStarBar(
-                                      context,
-                                      star,
-                                      percent,
-                                      count.toString(),
-                                    );
-                                  }),
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'Customer Reviews ($totalReviewCount)',
+                            style: AppTypography.sectionTitle,
                           ),
-                          SizedBox(height: 24.h),
-
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: detailedRatings.map((rate) {
-                              return _buildFeatureRating(
-                                context,
-                                '${rate.avgValue}',
-                                rate.rating,
-                                colors.green,
-                              );
-                            }).toList(),
-                          ),
-                          SizedBox(height: 24.h),
-
-                          if (reviewImages.isNotEmpty) ...[
-                            SizedBox(
-                              height: 80.w,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: reviewImages.length,
-                                itemBuilder: (context, index) {
-                                  final imageUrl = reviewImages[index];
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: colors.black,
-                                        useSafeArea: true,
-                                        builder: (context) =>
-                                            ReviewImageViewerSheet(
-                                              imageUrls: reviewImages,
-                                              initialIndex: index,
-                                            ),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: 80.w,
-                                      height: 80.w,
-                                      margin: EdgeInsets.only(right: 12.w),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                          8.r,
-                                        ),
-                                        border: Border.all(
-                                          color: colors.borderColor,
-                                        ),
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                          8.r,
-                                        ),
-                                        child: CachedNetworkImage(
-                                          imageUrl: imageUrl,
-                                          fit: BoxFit.cover,
-                                          placeholder: (context, url) => Center(
-                                            child: CircularProgressIndicator(
-                                              color: colors.primary,
-                                              strokeWidth: 2,
-                                            ),
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              Icon(
-                                                Icons.image_not_supported,
-                                                size: 24.sp,
-                                                color: colors.gray,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(height: 24.h),
-                          ],
+                          SizedBox(height: 10.h),
                         ],
                       ),
                     ),
                   ),
 
+                  // ── 3. PAGINATED CUSTOMER REVIEWS LIST ──
                   PagedSliverList<int, ReviewEntity>(
                     state: state.pagingState,
                     fetchNextPage: () => context.read<ReviewBloc>().add(
-                      ReviewEvent.load(
-                        productId: widget.product.id.toString(),
-                      ),
-                    ),
-                    builderDelegate: PagedChildBuilderDelegate<ReviewEntity>(
-                      itemBuilder: (context, review, index) => Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: Column(
-                          children: [
-                            Container(height: 1.w, color: colors.borderColor),
-                            ReviewItem(
-                              review: review,
-                              productId: widget.product.id.toString(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      firstPageProgressIndicatorBuilder: (context) => Center(
-                        child: CircularProgressIndicator(color: colors.primary),
-                      ),
-                      newPageProgressIndicatorBuilder: (context) => Padding(
-                        padding: EdgeInsets.all(16.w),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: colors.primary,
+                          ReviewEvent.load(
+                            productId: widget.product.id.toString(),
                           ),
                         ),
+                    builderDelegate: PagedChildBuilderDelegate<ReviewEntity>(
+                      itemBuilder: (context, review, index) => Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sameGroupItemSpacing.w,
+                        ),
+                        child: PdpReviewTile(
+                          review: review,
+                          productId: widget.product.id.toString(),
+                          isPdpCompact: false,
+                        ),
                       ),
+                      firstPageProgressIndicatorBuilder: (context) =>
+                          const AppLoader.fullPage(),
+                      newPageProgressIndicatorBuilder: (context) =>
+                          const AppLoader.pagination(),
                       firstPageErrorIndicatorBuilder: (context) => Padding(
-                        padding: EdgeInsets.all(16.w),
+                        padding: EdgeInsets.all(24.w),
                         child: Center(
                           child: Text(
                             state.error?.message ?? 'Failed to load reviews',
-                            style: textStyle.bodyMedium.copyWith(
-                              color: colors.textMedium,
-                            ),
+                            style: AppTypography.bodyMuted,
                             textAlign: TextAlign.center,
                           ),
                         ),
                       ),
-                      newPageErrorIndicatorBuilder: (context) =>
-                          const SizedBox(),
+                      newPageErrorIndicatorBuilder: (context) => const SizedBox.shrink(),
                       noItemsFoundIndicatorBuilder: (context) => Padding(
-                        padding: EdgeInsets.all(16.w),
+                        padding: EdgeInsets.all(32.w),
                         child: Center(
                           child: Text(
-                            'No reviews yet',
-                            style: textStyle.bodyMedium.copyWith(
-                              color: colors.textMedium,
-                            ),
+                            'No reviews yet for this product.',
+                            style: AppTypography.bodyMuted,
                           ),
                         ),
                       ),
@@ -321,27 +172,24 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
     );
   }
 
-  Widget _buildProductHeader(
-    AppColors colors,
-    AppTextStyles textStyle,
-    bool isLoggedIn,
-  ) {
+  Widget _buildProductHeader(bool isLoggedIn) {
     return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: colors.white,
-        border: Border(bottom: BorderSide(color: colors.borderColor)),
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(14.w),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 80.w,
-            height: 80.w,
-            padding: EdgeInsets.all(8.w),
+            width: 56.w,
+            height: 56.w,
+            padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: colors.white,
-              border: Border.all(color: colors.borderColor),
+              color: AppColors.white,
+              border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: CachedNetworkImage(
@@ -351,24 +199,25 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
               fit: BoxFit.contain,
               errorWidget: (context, url, error) => Icon(
                 Icons.image_not_supported_outlined,
-                color: colors.textMedium,
+                color: AppColors.muted,
+                size: 20.sp,
               ),
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   widget.product.name,
-                  style: textStyle.bodyLargeBold,
+                  style: AppTypography.cardTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 12.h),
-                ElevatedButton(
-                  onPressed: () {
+                SizedBox(height: 8.h),
+                GestureDetector(
+                  onTap: () {
                     if (isLoggedIn) {
                       if (widget.product.isEligibleForReview) {
                         context.pushNamed(
@@ -382,135 +231,30 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                           },
                         );
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('You are not eligible to write a review for this product'),
-                            backgroundColor: colors.red,
-                          ),
+                        SnackBarUtils.showWarning(
+                          context,
+                          'You are not eligible to write a review for this product',
                         );
                       }
                     } else {
                       context.push(Routes.login);
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFF1E6),
-                    foregroundColor: colors.orange,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24.w,
-                      vertical: 8.h,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.amberBg,
+                      borderRadius: BorderRadius.circular(6.r),
+                      border: Border.all(color: AppColors.border),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    'Write a review',
-                    style: textStyle.bodyMedium.copyWith(
-                      color: colors.orange,
-                      fontWeight: FontWeight.w600,
+                    child: Text(
+                      'Write a review',
+                      style: AppTypography.brandTag,
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStarBar(
-    BuildContext context,
-    int star,
-    double percent,
-    String count,
-  ) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
-    Color barColor;
-    if (star >= 4) {
-      barColor = colors.green;
-    } else if (star == 3) {
-      barColor = colors.greenlight;
-    } else if (star == 2) {
-      barColor = colors.orange;
-    } else {
-      barColor = colors.red;
-    }
-
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2.h),
-      child: Row(
-        children: [
-          Text('$star', style: textStyle.bodySmall),
-          SizedBox(width: 4.w),
-          Icon(Icons.star, size: 10.sp, color: colors.text),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(2.r),
-              child: LinearProgressIndicator(
-                value: percent,
-                backgroundColor: colors.borderColor,
-                color: barColor,
-                minHeight: 4.h,
-              ),
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            count,
-            style: textStyle.bodySmall.copyWith(color: colors.textMedium),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureRating(
-    BuildContext context,
-    String rating,
-    String label,
-    Color color,
-  ) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
-    return SizedBox(
-      width: 70.w,
-      child: Column(
-        children: [
-          Container(
-            width: 50.w,
-            height: 50.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: color, width: 3.w),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              rating,
-              style: textStyle.bodyMedium.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colors.textMedium,
-              ),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            label,
-            style: textStyle.caption.copyWith(
-              color: colors.textMedium,
-              fontSize: 10.sp,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

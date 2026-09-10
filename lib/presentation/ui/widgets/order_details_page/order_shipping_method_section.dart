@@ -1,8 +1,15 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_info_section.dart';
 
+/// Modern OrderShippingMethodSection matching Pickaboo-App-UI design language.
 class OrderShippingMethodSection extends StatelessWidget {
   final String shippingMethod;
 
@@ -10,14 +17,23 @@ class OrderShippingMethodSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
     return OrderInfoSection(
       title: 'Shipping Method',
-      content: Text(
-        shippingMethod,
-        style: textStyles.bodyMedium.copyWith(color: colors.text),
+      content: Row(
+        children: [
+          Icon(
+            Icons.local_shipping_outlined,
+            size: 18.sp,
+            color: AppColors.pickabooBlue,
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              shippingMethod,
+              style: AppTypography.bodyRegular,
+            ),
+          ),
+        ],
       ),
     );
   }

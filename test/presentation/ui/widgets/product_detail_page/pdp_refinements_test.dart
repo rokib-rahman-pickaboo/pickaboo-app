@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/product_media_dialog.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_delivery_location_selector.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_media_gallery_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_pickaboo_assured_card.dart';
@@ -114,6 +115,21 @@ void main() {
       expect(find.byIcon(Icons.store_mall_directory_outlined), findsOneWidget);
       expect(find.text('Authorized & verified merchant on Pickaboo'), findsOneWidget);
     });
+
+    testWidgets('Does not render Express Delivery row even when expressDelivery is 1',
+        (WidgetTester tester) async {
+      final product = _createTestProduct(expressDelivery: 1);
+
+      await tester.pumpWidget(
+        wrapWidget(
+          PdpPickabooAssuredCard(product: product),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Express Delivery'), findsNothing);
+      expect(find.text('Get guaranteed fast delivery to your doorstep'), findsNothing);
+    });
   });
 
   group('PdpTrustRibbonWidget - Sold by Transfer', () {
@@ -129,6 +145,39 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Sold by Gadget Park BD'), findsNothing);
+    });
+
+    testWidgets('Renders Delivery by Today/Tomorrow when expressDelivery is 1',
+        (WidgetTester tester) async {
+      final product = _createTestProduct(expressDelivery: 1, stockAvailable: true);
+
+      await tester.pumpWidget(
+        wrapWidget(
+          PdpTrustRibbonWidget(product: product),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final now = DateTime.now();
+      final expectedTarget =
+          (now.weekday != DateTime.friday && now.hour < 12) ? 'Today' : 'Tomorrow';
+      expect(find.textContaining('Delivery by'), findsOneWidget);
+      expect(find.textContaining(expectedTarget), findsOneWidget);
+    });
+
+    testWidgets('Renders Delivery by 3-4 working days when expressDelivery is 0',
+        (WidgetTester tester) async {
+      final product = _createTestProduct(expressDelivery: 0, stockAvailable: true);
+
+      await tester.pumpWidget(
+        wrapWidget(
+          PdpTrustRibbonWidget(product: product),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Delivery by'), findsOneWidget);
+      expect(find.textContaining('3-4 working days'), findsOneWidget);
     });
   });
 
@@ -171,6 +220,107 @@ void main() {
             widget.scrollDirection == Axis.horizontal,
       );
       expect(scrollFinder, findsOneWidget);
+    });
+  });
+
+  group('PdpMediaGalleryWidget - Video Default & Inline Switching', () {
+    testWidgets('Selects video by default when videos are present and switches on pill tap',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      ProductMediaType? tappedType;
+      int? tappedIndex;
+
+      final product = _createTestProduct(
+        youtubeVideos: const [
+          YoutubeVideoEntity(
+            url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
+            title: 'Rick Astley',
+          ),
+        ],
+        allReviewImages: ['https://example.com/customer1.jpg'],
+      );
+
+      await tester.pumpWidget(
+        wrapWidget(
+          PdpMediaGalleryWidget(
+            product: product,
+            activeImages: const ['https://via.placeholder.com/400'],
+            onFavorite: () {},
+            onShare: () {},
+            onCompare: () {},
+            onMediaTap: (type, index) {
+              tappedType = type;
+              tappedIndex = index;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Videos is first pill and active by default
+      expect(find.byKey(const ValueKey('pdp_videos_page_view')), findsOneWidget);
+      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+
+      // Tap on the video hero area -> invokes onMediaTap with videos type
+      await tester.tap(find.byKey(const ValueKey('pdp_videos_page_view')));
+      await tester.pump();
+      expect(tappedType, ProductMediaType.videos);
+      expect(tappedIndex, 0);
+
+      // Tap Product Images pill -> switches hero view to product images on page
+      await tester.tap(find.text('Product Images (1)'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pdp_images_page_view')), findsOneWidget);
+      expect(find.byKey(const ValueKey('pdp_videos_page_view')), findsNothing);
+
+      // Tap on the image hero area -> invokes onMediaTap with productImages type
+      await tester.tap(find.byKey(const ValueKey('pdp_images_page_view')));
+      await tester.pump();
+      expect(tappedType, ProductMediaType.productImages);
+      expect(tappedIndex, 0);
+
+      // Tap Customer Images pill -> switches hero view to customer images on page
+      await tester.tap(find.text('Customer Images (1)'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pdp_customer_page_view')), findsOneWidget);
+      expect(find.byKey(const ValueKey('pdp_images_page_view')), findsNothing);
+
+      // Tap on the customer image hero area -> invokes onMediaTap with customerImages type
+      await tester.tap(find.byKey(const ValueKey('pdp_customer_page_view')));
+      await tester.pump();
+      expect(tappedType, ProductMediaType.customerImages);
+      expect(tappedIndex, 0);
+    });
+
+    testWidgets('Selects Product Images by default when no videos are present',
+        (WidgetTester tester) async {
+      final product = _createTestProduct(
+        youtubeVideos: const [],
+        allReviewImages: ['https://example.com/customer1.jpg'],
+      );
+
+      await tester.pumpWidget(
+        wrapWidget(
+          PdpMediaGalleryWidget(
+            product: product,
+            activeImages: const ['https://via.placeholder.com/400'],
+            onFavorite: () {},
+            onShare: () {},
+            onCompare: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('pdp_images_page_view')), findsOneWidget);
+      expect(find.byKey(const ValueKey('pdp_videos_page_view')), findsNothing);
+      expect(find.textContaining('Videos'), findsNothing);
     });
   });
 

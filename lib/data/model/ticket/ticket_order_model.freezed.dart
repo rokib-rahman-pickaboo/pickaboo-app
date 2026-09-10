@@ -21,13 +21,17 @@ TicketOrderModel _$TicketOrderModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TicketOrderModel {
-  @JsonKey(name: "order_id")
+  @JsonKey(name: "order_id", fromJson: _toString)
   String? get orderId => throw _privateConstructorUsedError;
-  @JsonKey(name: "increment_id")
+  @JsonKey(
+    name: "increment_id",
+    readValue: _readIncrementId,
+    fromJson: _toString,
+  )
   String? get incrementId => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(name: "created_at", fromJson: _toString)
   String? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: "status")
+  @JsonKey(name: "status", fromJson: _toString)
   String? get status => throw _privateConstructorUsedError;
   @JsonKey(name: "grand_total")
   double? get grandTotal => throw _privateConstructorUsedError;
@@ -50,10 +54,15 @@ abstract class $TicketOrderModelCopyWith<$Res> {
   ) = _$TicketOrderModelCopyWithImpl<$Res, TicketOrderModel>;
   @useResult
   $Res call({
-    @JsonKey(name: "order_id") String? orderId,
-    @JsonKey(name: "increment_id") String? incrementId,
-    @JsonKey(name: "created_at") String? createdAt,
-    @JsonKey(name: "status") String? status,
+    @JsonKey(name: "order_id", fromJson: _toString) String? orderId,
+    @JsonKey(
+      name: "increment_id",
+      readValue: _readIncrementId,
+      fromJson: _toString,
+    )
+    String? incrementId,
+    @JsonKey(name: "created_at", fromJson: _toString) String? createdAt,
+    @JsonKey(name: "status", fromJson: _toString) String? status,
     @JsonKey(name: "grand_total") double? grandTotal,
   });
 }
@@ -122,10 +131,15 @@ abstract class _$$TicketOrderModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "order_id") String? orderId,
-    @JsonKey(name: "increment_id") String? incrementId,
-    @JsonKey(name: "created_at") String? createdAt,
-    @JsonKey(name: "status") String? status,
+    @JsonKey(name: "order_id", fromJson: _toString) String? orderId,
+    @JsonKey(
+      name: "increment_id",
+      readValue: _readIncrementId,
+      fromJson: _toString,
+    )
+    String? incrementId,
+    @JsonKey(name: "created_at", fromJson: _toString) String? createdAt,
+    @JsonKey(name: "status", fromJson: _toString) String? status,
     @JsonKey(name: "grand_total") double? grandTotal,
   });
 }
@@ -186,10 +200,15 @@ class __$$TicketOrderModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$TicketOrderModelImpl implements _TicketOrderModel {
   const _$TicketOrderModelImpl({
-    @JsonKey(name: "order_id") this.orderId,
-    @JsonKey(name: "increment_id") this.incrementId,
-    @JsonKey(name: "created_at") this.createdAt,
-    @JsonKey(name: "status") this.status,
+    @JsonKey(name: "order_id", fromJson: _toString) this.orderId,
+    @JsonKey(
+      name: "increment_id",
+      readValue: _readIncrementId,
+      fromJson: _toString,
+    )
+    this.incrementId,
+    @JsonKey(name: "created_at", fromJson: _toString) this.createdAt,
+    @JsonKey(name: "status", fromJson: _toString) this.status,
     @JsonKey(name: "grand_total") this.grandTotal,
   });
 
@@ -197,16 +216,20 @@ class _$TicketOrderModelImpl implements _TicketOrderModel {
       _$$TicketOrderModelImplFromJson(json);
 
   @override
-  @JsonKey(name: "order_id")
+  @JsonKey(name: "order_id", fromJson: _toString)
   final String? orderId;
   @override
-  @JsonKey(name: "increment_id")
+  @JsonKey(
+    name: "increment_id",
+    readValue: _readIncrementId,
+    fromJson: _toString,
+  )
   final String? incrementId;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(name: "created_at", fromJson: _toString)
   final String? createdAt;
   @override
-  @JsonKey(name: "status")
+  @JsonKey(name: "status", fromJson: _toString)
   final String? status;
   @override
   @JsonKey(name: "grand_total")
@@ -262,10 +285,15 @@ class _$TicketOrderModelImpl implements _TicketOrderModel {
 
 abstract class _TicketOrderModel implements TicketOrderModel {
   const factory _TicketOrderModel({
-    @JsonKey(name: "order_id") final String? orderId,
-    @JsonKey(name: "increment_id") final String? incrementId,
-    @JsonKey(name: "created_at") final String? createdAt,
-    @JsonKey(name: "status") final String? status,
+    @JsonKey(name: "order_id", fromJson: _toString) final String? orderId,
+    @JsonKey(
+      name: "increment_id",
+      readValue: _readIncrementId,
+      fromJson: _toString,
+    )
+    final String? incrementId,
+    @JsonKey(name: "created_at", fromJson: _toString) final String? createdAt,
+    @JsonKey(name: "status", fromJson: _toString) final String? status,
     @JsonKey(name: "grand_total") final double? grandTotal,
   }) = _$TicketOrderModelImpl;
 
@@ -273,16 +301,20 @@ abstract class _TicketOrderModel implements TicketOrderModel {
       _$TicketOrderModelImpl.fromJson;
 
   @override
-  @JsonKey(name: "order_id")
+  @JsonKey(name: "order_id", fromJson: _toString)
   String? get orderId;
   @override
-  @JsonKey(name: "increment_id")
+  @JsonKey(
+    name: "increment_id",
+    readValue: _readIncrementId,
+    fromJson: _toString,
+  )
   String? get incrementId;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(name: "created_at", fromJson: _toString)
   String? get createdAt;
   @override
-  @JsonKey(name: "status")
+  @JsonKey(name: "status", fromJson: _toString)
   String? get status;
   @override
   @JsonKey(name: "grand_total")

@@ -16,6 +16,7 @@ import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/place_picker/place_pick_result_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+import 'package:pickaboo/domain/entity/auth/user_entity.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
@@ -27,10 +28,12 @@ import 'package:pickaboo/presentation/bloc/emi_bloc/emi_bloc.dart';
 import 'package:pickaboo/presentation/bloc/place_picker_bloc/place_picker_bloc.dart';
 import 'package:pickaboo/presentation/bloc/product_detail_bloc/product_detail_bloc.dart';
 import 'package:pickaboo/presentation/bloc/product_flash_sale_bloc/product_flash_sale_bloc.dart';
+import 'package:pickaboo/core/cache/pdp_location_cache.dart';
 import 'package:pickaboo/presentation/bloc/promo_bloc/promo_bloc.dart';
 import 'package:pickaboo/presentation/bloc/recommended_products_bloc/recommended_products_bloc.dart';
 import 'package:pickaboo/presentation/bloc/related_products_bloc/related_products_bloc.dart';
 import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
+import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/wishlist/wishlist_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
@@ -50,7 +53,7 @@ import 'package:pickaboo/presentation/ui/widgets/product_detail_page/draggable_c
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_available_offers_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_bottom_action_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_delivery_location_selector.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_header_price_section.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_new_price_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_key_highlights_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_media_gallery_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_pickaboo_assured_card.dart';
@@ -61,7 +64,6 @@ import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_trust_r
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_variant_selector_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/product_frequently_bought_together.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/product_sale_timer_section.dart';
-import 'package:flutter/rendering.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_top_app_bar.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -107,9 +109,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   /// The hero image is 1:1 aspect ratio, so its height equals the screen width.
   double get _heroImageHeight => MediaQuery.of(context).size.width;
 
-  /// Guards against active scroll notifications during snap animation.
-  bool _isSnapping = false;
-
   @override
   void initState() {
     super.initState();
@@ -120,14 +119,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       );
       context.read<CmsContentBloc>().add(const CmsContentEvent.loadAll());
       _loadSlugBasedSections(widget.slug);
+      _loadCachedDeliveryLocation();
     });
   }
 
   void _onScrollChanged() {
     if (!_scrollController.hasClients) return;
-    // Hard guarantee: Whenever at or near top (offset <= 5px),
+    // Hard guarantee: Whenever at or near top (offset <= 20px),
     // the top bar MUST be transparent without product name.
-    if (_scrollController.offset <= 5.0 && _isScrolledPastHeroNotifier.value) {
+    if (_scrollController.offset <= 20.0 && _isScrolledPastHeroNotifier.value) {
       _isScrolledPastHeroNotifier.value = false;
     }
   }
@@ -147,39 +147,37 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     }
 
     final pixels = notification.metrics.pixels;
-    final threshold = _heroImageHeight * 0.25; // 75% visible threshold
+    final threshold = _heroImageHeight * 0.5;
 
-    // ── 1. Top of page / Over-scroll guarantee ──
-    // At the top of the page (offset <= 5px or overscrolling at the top):
+    // ── 1. Top of page guarantee ──
+    // At the top of the page (offset <= 20px):
     // App bar MUST be transparent without name.
-    if (pixels <= 5.0) {
+    if (pixels <= 20.0) {
       if (_isScrolledPastHeroNotifier.value) {
         _isScrolledPastHeroNotifier.value = false;
       }
       return false;
     }
 
-    if (_isSnapping) return false;
-
     // ── 2. Active Scrolling ──
     if (notification is ScrollUpdateNotification) {
       final delta = notification.scrollDelta ?? 0;
 
-      // Scrolling DOWN and scrolled past 20px:
+      // Scrolling DOWN and scrolled past 40px:
       // Show regular top app bar with product name.
-      if (delta > 0.5 && pixels > 20.0) {
+      if (delta > 0.5 && pixels > 40.0) {
         if (!_isScrolledPastHeroNotifier.value) {
           _isScrolledPastHeroNotifier.value = true;
         }
       }
-      // Scrolling UP and >= 75% of image is visible:
+      // Scrolling UP and <= 50% of image height remaining:
       // Transition immediately to transparent top app bar without name.
       else if (delta < -0.5 && pixels < threshold) {
         if (_isScrolledPastHeroNotifier.value) {
           _isScrolledPastHeroNotifier.value = false;
         }
       }
-      // If scrolled deep (less than 75% of image visible):
+      // If scrolled deep past threshold:
       // Keep regular top app bar with product name.
       else if (pixels >= threshold) {
         if (!_isScrolledPastHeroNotifier.value) {
@@ -188,53 +186,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       }
     }
 
-    // ── 3. Snap-to-top on release ──
-    // If scroll settles and >= 75% of the product image is visible:
-    // Automatically transition to image-focused state and snap image to full fit.
-    final bool isScrollSettled =
-        (notification is UserScrollNotification &&
-            notification.direction == ScrollDirection.idle) ||
-        notification is ScrollEndNotification;
-
-    if (isScrollSettled) {
-      if (pixels > 2.0 && pixels < threshold) {
-        _triggerSnapToTop();
-      } else if (pixels <= 5.0) {
-        if (_isScrolledPastHeroNotifier.value) {
-          _isScrolledPastHeroNotifier.value = false;
-        }
-      }
-    }
-
     return false;
-  }
-
-  /// Smoothly snaps scroll to offset 0 while transitioning the
-  /// app bar to transparent without name over the product image.
-  void _triggerSnapToTop() {
-    if (_isSnapping) return;
-    if (!_scrollController.hasClients) return;
-    if (_scrollController.offset <= 0) {
-      _isScrolledPastHeroNotifier.value = false;
-      return;
-    }
-
-    _isSnapping = true;
-    _isScrolledPastHeroNotifier.value = false;
-
-    _scrollController
-        .animateTo(
-          0,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-        )
-        .catchError((_) {})
-        .whenComplete(() {
-          _isSnapping = false;
-          if (_isScrolledPastHeroNotifier.value) {
-            _isScrolledPastHeroNotifier.value = false;
-          }
-        });
   }
 
   void _loadSlugBasedSections(String slug) {
@@ -253,6 +205,71 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
+  Future<void> _loadCachedDeliveryLocation() async {
+    final cached = await PdpLocationCache.getLocation();
+    if (cached != null && mounted) {
+      setState(() => _selectedDeliveryLocation = cached);
+      context.read<DeliveryChargeBloc>().add(
+        DeliveryChargeEvent.fetch(productId: widget.productId),
+      );
+    }
+  }
+
+  bool _isDhakaPlace(PlacePickResultEntity? place) {
+    if (place == null) return false;
+    final candidates = [
+      place.district,
+      place.division,
+      place.city,
+      place.address,
+      place.placeName,
+      place.area,
+    ];
+    return candidates.any((c) => c != null && c.toLowerCase().contains('dhaka'));
+  }
+
+  UserEntity? get _currentUser {
+    try {
+      final state = context.read<UserProfileBloc>().state;
+      return state.maybeWhen(
+        loaded: (user, _, __) => user,
+        updating: (user, _, __) => user,
+        basicInfoUpdateSuccess: (_, user, __, ___) => user,
+        mobileUpdateSuccess: (_, user, __, ___) => user,
+        imageUploadSuccess: (_, user, __, ___) => user,
+        phoneUpdateOtpSent: (_, user, __) => user,
+        loading: (user, _, __) => user,
+        orElse: () => null,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool _isUserLocationNonDhaka() {
+    if (_selectedDeliveryLocation != null) {
+      return !_isDhakaPlace(_selectedDeliveryLocation);
+    }
+    final user = _currentUser;
+    final addresses = user?.addresses;
+    if (addresses != null && addresses.isNotEmpty) {
+      final addr = addresses.firstWhere(
+        (a) => a.defaultShipping,
+        orElse: () => addresses.first,
+      );
+      final List<String> candidates = [
+        addr.city,
+        addr.region.region,
+        ...addr.street,
+      ];
+      final isDhaka = candidates.any(
+        (c) => c.toLowerCase().contains('dhaka'),
+      );
+      return !isDhaka;
+    }
+    return false;
+  }
+
   Future<void> _onDeliveryInfoTap() async {
     await _openDeliveryLocationSheet();
   }
@@ -264,6 +281,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       context.read<DeliveryChargeBloc>().add(
         DeliveryChargeEvent.fetch(productId: widget.productId),
       );
+      PdpLocationCache.saveLocation(result);
     }
   }
 
@@ -492,10 +510,42 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     context.push(Routes.cart);
   }
 
+  VariantMatrixProductEntity? _getMatchedMatrixProduct(ProductDetailEntity product) {
+    final matrix = product.variantMatrix;
+    if (matrix.isEmpty) return null;
+    final selectedMap = {
+      for (final v in _selectedVariantsStatus)
+        if (v.optionValue.isNotEmpty) v.optionId: v.optionValue,
+    };
+    return matrix.productFor(selectedMap);
+  }
+
+  int _calculateBasePrice(ProductDetailEntity product) {
+    final matched = _getMatchedMatrixProduct(product);
+    if (matched != null) {
+      if (matched.productSpecialPrice > 0) return matched.productSpecialPrice;
+      if (matched.productPrice > 0) return matched.productPrice;
+    }
+    return product.spacialPrice > 0 ? product.spacialPrice : product.regularPrice;
+  }
+
+  int _calculateRegularPrice(ProductDetailEntity product) {
+    final matched = _getMatchedMatrixProduct(product);
+    if (matched != null && matched.productPrice > 0) {
+      return matched.productPrice;
+    }
+    return product.regularPrice;
+  }
+
   List<String> _resolveImages(ProductDetailEntity product) {
     List<String> images = product.images.isNotEmpty
         ? product.images
         : ['https://via.placeholder.com/400'];
+
+    final matched = _getMatchedMatrixProduct(product);
+    if (matched != null && matched.productImages.isNotEmpty) {
+      return matched.productImages;
+    }
 
     for (var selection in _selectedVariantsStatus) {
       try {
@@ -541,6 +591,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           listener: (context, state) {
             final place = state.selectedPlace!;
             setState(() => _selectedDeliveryLocation = place);
+            PdpLocationCache.saveLocation(place);
             context.read<DeliveryChargeBloc>().add(
               DeliveryChargeEvent.fetch(productId: widget.productId),
             );
@@ -550,12 +601,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           listener: (context, state) {
             state.maybeWhen(
               error: (error, _) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(error.message),
-                    backgroundColor: AppColors.red,
-                  ),
-                );
+                SnackBarUtils.showNegative(context, error.message);
               },
               orElse: () {},
             );
@@ -640,7 +686,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
           return BlocBuilder<ProductDetailBloc, ProductDetailState>(
             builder: (context, state) {
-              return Scaffold(
+              return PopScope(
+                canPop: widget.embedded,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop || widget.embedded) return;
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(Routes.home);
+                  }
+                },
+                child: Scaffold(
                 backgroundColor: AppColors.white,
                 body: SafeArea(
                   top: true,
@@ -691,11 +747,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         orElse: () => false,
                       );
 
-                      final int basePrice = product.spacialPrice > 0
-                          ? product.spacialPrice
-                          : product.regularPrice;
+                      final int basePrice = _calculateBasePrice(product);
+                      final int regularPrice = _calculateRegularPrice(product);
                       final int computedCurrent = (basePrice + _totalAddonPrice) * _quantity;
-                      final int computedOriginal = (product.regularPrice + _totalAddonPrice) * _quantity;
+                      final int computedOriginal = (regularPrice + _totalAddonPrice) * _quantity;
 
                       return PdpBottomActionBar(
                         product: product,
@@ -712,6 +767,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   orElse: () => const SizedBox.shrink(),
                 ),
+              ),
               );
             },
           );
@@ -730,11 +786,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     bool isLoggedIn,
   ) {
     final activeImages = _resolveImages(product);
-    final int basePrice = product.spacialPrice > 0
-        ? product.spacialPrice
-        : product.regularPrice;
+    final int basePrice = _calculateBasePrice(product);
+    final int regularPrice = _calculateRegularPrice(product);
     final int currentPrice = (basePrice + _totalAddonPrice) * _quantity;
-    final int originalPrice = (product.regularPrice + _totalAddonPrice) * _quantity;
+    final int originalPrice = (regularPrice + _totalAddonPrice) * _quantity;
     final int saving = originalPrice > currentPrice ? originalPrice - currentPrice : 0;
 
     return BlocBuilder<CompareBloc, CompareState>(
@@ -756,7 +811,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               onNotification: _handleScrollNotification,
               child: SingleChildScrollView(
                 controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -825,10 +880,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           );
                         }
                       },
-                      onImageTap: (index) {
+                      onMediaTap: (type, index) {
                         ProductMediaDialog.show(
                           context,
-                          initialType: ProductMediaType.productImages,
+                          initialType: type,
                           initialIndex: index,
                           productImages: activeImages.isNotEmpty
                               ? activeImages
@@ -837,25 +892,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           videoIds: _youtubeIds(product),
                           customerImages: product.allReviewImages,
                         );
-                      },
-                      onMediaFilterSelected: (filter) {
-                        ProductMediaType? type;
-                        if (filter == 'Product Images') type = ProductMediaType.productImages;
-                        if (filter == 'Videos') type = ProductMediaType.videos;
-                        if (filter == 'Customer Images') type = ProductMediaType.customerImages;
-
-                        if (type != null) {
-                          ProductMediaDialog.show(
-                            context,
-                            initialType: type,
-                            productImages: activeImages.isNotEmpty
-                                ? activeImages
-                                : product.images,
-                            videoThumbnails: _youtubeThumbnails(product),
-                            videoIds: _youtubeIds(product),
-                            customerImages: product.allReviewImages,
-                          );
-                        }
                       },
                     ),
 
@@ -866,7 +902,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                     // ── 3. Product Header, Stock, Price & EMI Section ──
                     PdpSectionCard(
-                      child: PdpHeaderPriceSection(
+                      child: PdpNewPriceSection(
                         product: product,
                         currentPrice: currentPrice,
                         originalPrice: originalPrice,
@@ -967,10 +1003,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     if (product.stockAvailable)
                       BlocBuilder<DeliveryChargeBloc, DeliveryChargeState>(
                         builder: (context, deliveryChargeState) {
-                          final isInsideDhaka = _selectedDeliveryLocation?.district
-                                  ?.toLowerCase()
-                                  .contains('dhaka') ==
-                              true;
+                          final hasLocation = _selectedDeliveryLocation != null;
+                          final isInsideDhaka = _isDhakaPlace(_selectedDeliveryLocation);
+
+                          // If location is set and is not Dhaka, or user location is known and not Dhaka, express will not work
+                          final isNonDhaka = (hasLocation && !isInsideDhaka) || _isUserLocationNonDhaka();
+                          final effectiveIsExpress = product.expressDelivery == 1 && !isNonDhaka;
 
                           final trailingText = deliveryChargeState.maybeWhen(
                             loaded: (entity) => isInsideDhaka
@@ -983,7 +1021,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             child: PdpDeliveryLocationSelector(
                               selectedAddress: _selectedDeliveryLocation?.displayAddress,
                               deliveryCharge: trailingText,
-                              isExpress: product.expressDelivery == 1,
+                              isExpress: effectiveIsExpress,
                               onTap: _onDeliveryInfoTap,
                             ),
                           );
@@ -1341,7 +1379,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 title: productName,
                 cartCount: cartCount,
                 showBackButton: !widget.embedded,
-                onBack: () => Navigator.of(context).maybePop(),
+                onBack: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(Routes.home);
+                  }
+                },
                 onSearch: isLoaded ? () => context.push(Routes.search) : null,
                 onCart: isLoaded ? () => context.push(Routes.cart) : null,
                 isVisible: true,

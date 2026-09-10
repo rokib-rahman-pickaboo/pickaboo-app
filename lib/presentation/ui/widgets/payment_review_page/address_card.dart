@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 
+/// ============================================================================
+/// 📍 ADDRESS CARD (Modern, Clean & Standardized)
+/// Uses centralized design tokens & typography.
+/// ============================================================================
 class AddressCard extends StatelessWidget {
   final AddressEntity? address;
   final VoidCallback onChange;
@@ -25,55 +28,62 @@ class AddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     if (!_hasValidAddress) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
+            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF3E0),
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(color: const Color(0xFFFFB74D)),
+              color: AppColors.surfaceBlue,
+              borderRadius: AppRadius.buttonRadius,
+              border: Border.all(
+                color: AppColors.pickabooBlue.withValues(alpha: 0.2),
+              ),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.location_off_outlined,
-                  color: const Color(0xFFE65100),
-                  size: 24.sp,
+                  color: AppColors.pickabooBlue,
+                  size: 18.sp,
                 ),
-                SizedBox(width: 10.w),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
-                    'Please add a shipping address to continue with your order.',
-                    style: context.textStyle.bodyMedium.copyWith(
-                      color: const Color(0xFFE65100),
+                    'Please select or add a shipping address to proceed.',
+                    style: AppTypography.bodyMuted.copyWith(
+                      color: AppColors.navy,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 10.h),
           SizedBox(
             width: double.infinity,
+            height: 38.h,
             child: ElevatedButton.icon(
               onPressed: onAddNew,
-              icon: const Icon(Icons.add_location_alt_outlined, size: 18),
+              icon: Icon(Icons.add_location_alt_outlined, size: 16.sp),
               label: Text(
-                "Add new address",
-                style: context.textStyle.buttonSmall.withColor(colors.white),
+                "Add Address",
+                style: AppTypography.bodyRegular.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.white,
+                ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: colors.black,
-                foregroundColor: colors.white,
-                minimumSize: Size(double.infinity, 44.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.r),
+                backgroundColor: AppColors.pickabooBlue,
+                foregroundColor: AppColors.white,
+                elevation: 0,
+                padding: EdgeInsets.zero,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.buttonRadius,
                 ),
               ),
             ),
@@ -90,96 +100,164 @@ class AddressCard extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        if (name.isNotEmpty) ...[
-          RichText(
-            text: TextSpan(
-              style: context.textStyle.bodyMedium.copyWith(
-                color: colors.text,
-                height: 1.5.h,
+        // ── Deliver To Name & Phone Row ──
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(4.w),
+              decoration: const BoxDecoration(
+                color: AppColors.surfaceBlue,
+                borderRadius: AppRadius.badgeRadius,
               ),
-              children: [
-                const TextSpan(text: "Deliver to: "),
-                TextSpan(
-                  text: name,
-                  style: context.textStyle.bodyMediumBold,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 4.h),
-        ],
-        if (fullAddress.isNotEmpty) ...[
-          RichText(
-            text: TextSpan(
-              style: context.textStyle.bodyMedium.copyWith(
-                color: colors.text,
-                height: 1.5.h,
+              child: Icon(
+                Icons.person_outline_rounded,
+                size: 14.sp,
+                color: AppColors.pickabooBlue,
               ),
-              children: [
-                const TextSpan(text: "Address: "),
-                TextSpan(
-                  text: fullAddress,
-                  style: context.textStyle.bodyMediumBold,
-                ),
-              ],
             ),
-          ),
-          SizedBox(height: 4.h),
-        ],
-        if (phone.isNotEmpty) ...[
-          RichText(
-            text: TextSpan(
-              style: context.textStyle.bodyMedium.copyWith(
-                color: colors.text,
-                height: 1.5.h,
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Text(
+                name.isNotEmpty ? name : 'Recipient',
+                style: AppTypography.cardTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              children: [
-                const TextSpan(text: "Phone Number: "),
-                TextSpan(
-                  text: phone,
-                  style: context.textStyle.bodyMediumBold,
-                ),
-              ],
             ),
-          ),
-        ],
-        SizedBox(height: 16.h),
+            if (phone.isNotEmpty) ...[
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.5.h),
+                decoration: BoxDecoration(
+                  color: AppColors.pageBg,
+                  borderRadius: BorderRadius.circular(6.r),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.phone_outlined,
+                      size: 13.sp,
+                      color: AppColors.navy,
+                    ),
+                    SizedBox(width: 5.w),
+                    Text(
+                      phone,
+                      style: AppTypography.cardTitle.copyWith(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.navy,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
 
+        SizedBox(height: 8.h),
+
+        // ── Address Text Row (No icon, with Address: prefix) ──
+        if (fullAddress.isNotEmpty)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            decoration: const BoxDecoration(
+              color: AppColors.pageBg,
+              borderRadius: AppRadius.buttonRadius,
+            ),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Address: ',
+                    style: AppTypography.bodyMuted.copyWith(
+                      color: AppColors.muted,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: fullAddress,
+                    style: AppTypography.bodyMuted.copyWith(
+                      color: AppColors.navy,
+                      fontWeight: FontWeight.w500,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+
+        SizedBox(height: 10.h),
+
+        // ── Action Buttons Row ──
         Row(
           children: [
             Expanded(
-              child: ElevatedButton(
-                onPressed: onChange,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.button,
-                  foregroundColor: colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 12.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6.r),
+              child: SizedBox(
+                height: 34.h,
+                child: OutlinedButton.icon(
+                  onPressed: onChange,
+                  icon: Icon(
+                    Icons.edit_location_alt_outlined,
+                    size: 14.sp,
+                    color: AppColors.pickabooBlue,
                   ),
-                ),
-                child: Text(
-                  "Change Address",
-                  style: context.textStyle.buttonSmall.withColor(colors.white),
+                  label: Text(
+                    "Change Address",
+                    style: AppTypography.bodyMuted.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.pickabooBlue,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.pickabooBlue,
+                    side: const BorderSide(
+                      color: AppColors.pickabooBlue,
+                      width: 1,
+                    ),
+                    padding: EdgeInsets.zero,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadius.buttonRadius,
+                    ),
+                  ),
                 ),
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 8.w),
             Expanded(
-              child: ElevatedButton(
-                onPressed: onAddNew,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.black,
-                  foregroundColor: colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 12.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6.r),
+              child: SizedBox(
+                height: 34.h,
+                child: ElevatedButton.icon(
+                  onPressed: onAddNew,
+                  icon: Icon(
+                    Icons.add_location_alt_outlined,
+                    size: 14.sp,
+                    color: AppColors.white,
                   ),
-                ),
-                child: Text(
-                  "Add new address",
-                  style: context.textStyle.buttonSmall.withColor(colors.white),
+                  label: Text(
+                    "Add New Address",
+                    style: AppTypography.bodyMuted.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.navy,
+                    foregroundColor: AppColors.white,
+                    elevation: 0,
+                    padding: EdgeInsets.zero,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadius.buttonRadius,
+                    ),
+                  ),
                 ),
               ),
             ),

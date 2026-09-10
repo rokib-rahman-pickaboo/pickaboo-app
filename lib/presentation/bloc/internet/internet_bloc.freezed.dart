@@ -516,32 +516,39 @@ mixin _$InternetEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() onConnected,
     required TResult Function() onNotConnected,
+    required TResult Function() confirmedDisconnected,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? onConnected,
     TResult? Function()? onNotConnected,
+    TResult? Function()? confirmedDisconnected,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? onConnected,
     TResult Function()? onNotConnected,
+    TResult Function()? confirmedDisconnected,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_OnConnected value) onConnected,
     required TResult Function(_OnNotConnected value) onNotConnected,
+    required TResult Function(_ConfirmedDisconnected value)
+    confirmedDisconnected,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_OnConnected value)? onConnected,
     TResult? Function(_OnNotConnected value)? onNotConnected,
+    TResult? Function(_ConfirmedDisconnected value)? confirmedDisconnected,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_OnConnected value)? onConnected,
     TResult Function(_OnNotConnected value)? onNotConnected,
+    TResult Function(_ConfirmedDisconnected value)? confirmedDisconnected,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -619,6 +626,7 @@ class _$OnConnectedImpl with DiagnosticableTreeMixin implements _OnConnected {
   TResult when<TResult extends Object?>({
     required TResult Function() onConnected,
     required TResult Function() onNotConnected,
+    required TResult Function() confirmedDisconnected,
   }) {
     return onConnected();
   }
@@ -628,6 +636,7 @@ class _$OnConnectedImpl with DiagnosticableTreeMixin implements _OnConnected {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? onConnected,
     TResult? Function()? onNotConnected,
+    TResult? Function()? confirmedDisconnected,
   }) {
     return onConnected?.call();
   }
@@ -637,6 +646,7 @@ class _$OnConnectedImpl with DiagnosticableTreeMixin implements _OnConnected {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? onConnected,
     TResult Function()? onNotConnected,
+    TResult Function()? confirmedDisconnected,
     required TResult orElse(),
   }) {
     if (onConnected != null) {
@@ -650,6 +660,8 @@ class _$OnConnectedImpl with DiagnosticableTreeMixin implements _OnConnected {
   TResult map<TResult extends Object?>({
     required TResult Function(_OnConnected value) onConnected,
     required TResult Function(_OnNotConnected value) onNotConnected,
+    required TResult Function(_ConfirmedDisconnected value)
+    confirmedDisconnected,
   }) {
     return onConnected(this);
   }
@@ -659,6 +671,7 @@ class _$OnConnectedImpl with DiagnosticableTreeMixin implements _OnConnected {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_OnConnected value)? onConnected,
     TResult? Function(_OnNotConnected value)? onNotConnected,
+    TResult? Function(_ConfirmedDisconnected value)? confirmedDisconnected,
   }) {
     return onConnected?.call(this);
   }
@@ -668,6 +681,7 @@ class _$OnConnectedImpl with DiagnosticableTreeMixin implements _OnConnected {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_OnConnected value)? onConnected,
     TResult Function(_OnNotConnected value)? onNotConnected,
+    TResult Function(_ConfirmedDisconnected value)? confirmedDisconnected,
     required TResult orElse(),
   }) {
     if (onConnected != null) {
@@ -735,6 +749,7 @@ class _$OnNotConnectedImpl
   TResult when<TResult extends Object?>({
     required TResult Function() onConnected,
     required TResult Function() onNotConnected,
+    required TResult Function() confirmedDisconnected,
   }) {
     return onNotConnected();
   }
@@ -744,6 +759,7 @@ class _$OnNotConnectedImpl
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? onConnected,
     TResult? Function()? onNotConnected,
+    TResult? Function()? confirmedDisconnected,
   }) {
     return onNotConnected?.call();
   }
@@ -753,6 +769,7 @@ class _$OnNotConnectedImpl
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? onConnected,
     TResult Function()? onNotConnected,
+    TResult Function()? confirmedDisconnected,
     required TResult orElse(),
   }) {
     if (onNotConnected != null) {
@@ -766,6 +783,8 @@ class _$OnNotConnectedImpl
   TResult map<TResult extends Object?>({
     required TResult Function(_OnConnected value) onConnected,
     required TResult Function(_OnNotConnected value) onNotConnected,
+    required TResult Function(_ConfirmedDisconnected value)
+    confirmedDisconnected,
   }) {
     return onNotConnected(this);
   }
@@ -775,6 +794,7 @@ class _$OnNotConnectedImpl
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_OnConnected value)? onConnected,
     TResult? Function(_OnNotConnected value)? onNotConnected,
+    TResult? Function(_ConfirmedDisconnected value)? confirmedDisconnected,
   }) {
     return onNotConnected?.call(this);
   }
@@ -784,6 +804,7 @@ class _$OnNotConnectedImpl
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_OnConnected value)? onConnected,
     TResult Function(_OnNotConnected value)? onNotConnected,
+    TResult Function(_ConfirmedDisconnected value)? confirmedDisconnected,
     required TResult orElse(),
   }) {
     if (onNotConnected != null) {
@@ -795,4 +816,128 @@ class _$OnNotConnectedImpl
 
 abstract class _OnNotConnected implements InternetEvent {
   const factory _OnNotConnected() = _$OnNotConnectedImpl;
+}
+
+/// @nodoc
+abstract class _$$ConfirmedDisconnectedImplCopyWith<$Res> {
+  factory _$$ConfirmedDisconnectedImplCopyWith(
+    _$ConfirmedDisconnectedImpl value,
+    $Res Function(_$ConfirmedDisconnectedImpl) then,
+  ) = __$$ConfirmedDisconnectedImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ConfirmedDisconnectedImplCopyWithImpl<$Res>
+    extends _$InternetEventCopyWithImpl<$Res, _$ConfirmedDisconnectedImpl>
+    implements _$$ConfirmedDisconnectedImplCopyWith<$Res> {
+  __$$ConfirmedDisconnectedImplCopyWithImpl(
+    _$ConfirmedDisconnectedImpl _value,
+    $Res Function(_$ConfirmedDisconnectedImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of InternetEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ConfirmedDisconnectedImpl
+    with DiagnosticableTreeMixin
+    implements _ConfirmedDisconnected {
+  const _$ConfirmedDisconnectedImpl();
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'InternetEvent.confirmedDisconnected()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'InternetEvent.confirmedDisconnected'));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ConfirmedDisconnectedImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() onConnected,
+    required TResult Function() onNotConnected,
+    required TResult Function() confirmedDisconnected,
+  }) {
+    return confirmedDisconnected();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? onConnected,
+    TResult? Function()? onNotConnected,
+    TResult? Function()? confirmedDisconnected,
+  }) {
+    return confirmedDisconnected?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? onConnected,
+    TResult Function()? onNotConnected,
+    TResult Function()? confirmedDisconnected,
+    required TResult orElse(),
+  }) {
+    if (confirmedDisconnected != null) {
+      return confirmedDisconnected();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_OnConnected value) onConnected,
+    required TResult Function(_OnNotConnected value) onNotConnected,
+    required TResult Function(_ConfirmedDisconnected value)
+    confirmedDisconnected,
+  }) {
+    return confirmedDisconnected(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_OnConnected value)? onConnected,
+    TResult? Function(_OnNotConnected value)? onNotConnected,
+    TResult? Function(_ConfirmedDisconnected value)? confirmedDisconnected,
+  }) {
+    return confirmedDisconnected?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_OnConnected value)? onConnected,
+    TResult Function(_OnNotConnected value)? onNotConnected,
+    TResult Function(_ConfirmedDisconnected value)? confirmedDisconnected,
+    required TResult orElse(),
+  }) {
+    if (confirmedDisconnected != null) {
+      return confirmedDisconnected(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ConfirmedDisconnected implements InternetEvent {
+  const factory _ConfirmedDisconnected() = _$ConfirmedDisconnectedImpl;
 }

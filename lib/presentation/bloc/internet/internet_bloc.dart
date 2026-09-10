@@ -20,7 +20,6 @@ class InternetBloc extends Bloc<InternetEvent, InternetState>
   Timer? _suppressTimer;
 
   bool _isInForeground = true;
-
   bool _suppressAfterResume = false;
 
   static const _tag = '🌐 [InternetBloc]';
@@ -39,9 +38,22 @@ class InternetBloc extends Bloc<InternetEvent, InternetState>
           debugPrint('$_tag ✅ STATE → connected');
         },
         onNotConnected: (_) {
-          debugPrint('$_tag 📥 EVENT onNotConnected — emitting disconnected');
+          debugPrint('$_tag 📥 EVENT onNotConnected — requesting strict confirmation');
+          _requestDisconnectConfirmation();
+        },
+        confirmedDisconnected: (_) {
+          if (!_isInForeground) {
+            debugPrint('$_tag 🛡️ BLOCKED confirmedDisconnected — app is in background');
+            return;
+          }
+          if (_suppressAfterResume) {
+            debugPrint('$_tag 🛡️ BLOCKED confirmedDisconnected — in resume grace period');
+            return;
+          }
+          _disconnectDebounce?.cancel();
+          _disconnectDebounce = null;
           emit(const InternetState.disconnected("No Internet Connection"));
-          debugPrint('$_tag ❌ STATE → disconnected (this triggers the snackbar!)');
+          debugPrint('$_tag ❌ STATE → disconnected (strictly confirmed)');
         },
       );
     });
@@ -49,6 +61,22 @@ class InternetBloc extends Bloc<InternetEvent, InternetState>
     _subscription =
         InternetConnectionChecker().onStatusChange.listen(_onStatusChange);
     debugPrint('$_tag 📡 Subscribed to InternetConnectionChecker.onStatusChange');
+
+    InternetConnectionChecker().hasConnection.then((hasConnection) {
+      if (isClosed) return;
+      if (hasConnection) {
+        add(const InternetEvent.onConnected());
+      } else {
+        _confirmTrulyNoInternet().then((trulyNoInternet) {
+          if (isClosed) return;
+          if (trulyNoInternet && _isInForeground && !_suppressAfterResume) {
+            add(const InternetEvent.confirmedDisconnected());
+          }
+        });
+      }
+    }).catchError((e) {
+      debugPrint('$_tag ⚠️ Initial connection check error: $e');
+    });
   }
 
   void _onStatusChange(InternetConnectionStatus status) {
@@ -62,68 +90,110 @@ class InternetBloc extends Bloc<InternetEvent, InternetState>
       debugPrint('$_tag ✅ Status=connected → adding onConnected event');
       add(const InternetEvent.onConnected());
     } else {
-      if (!_isInForeground) {
-        debugPrint('$_tag 🛡️ BLOCKED — app is in background, ignoring disconnect');
-        debugPrint('$_tag ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        return;
-      }
-
-      debugPrint('$_tag ⚠️ Status=disconnected → starting 3s debounce timer');
-      _disconnectDebounce?.cancel();
-      _disconnectDebounce = Timer(const Duration(seconds: 3), () async {
-        debugPrint('$_tag ⏰ Debounce timer FIRED (3s elapsed)');
-        debugPrint('$_tag    _isInForeground: $_isInForeground');
-        debugPrint('$_tag    _suppressAfterResume: $_suppressAfterResume');
-
-        if (!_isInForeground) {
-          debugPrint('$_tag 🛡️ BLOCKED — app moved to background during debounce');
-          return;
-        }
-
-        if (_suppressAfterResume) {
-          debugPrint('$_tag 🛡️ SUPPRESSED — app recently resumed, skipping');
-          return;
-        }
-
-        debugPrint('$_tag 🔍 Verifying connectivity with DNS lookup...');
-        final hasConnection = await _verifyConnectivity();
-        debugPrint('$_tag 🔍 DNS verify result: hasConnection=$hasConnection');
-
-        if (!hasConnection) {
-          if (!_isInForeground) {
-            debugPrint('$_tag 🛡️ BLOCKED — app went to background during DNS check');
-            return;
-          }
-          debugPrint('$_tag ❌ DNS verify FAILED → adding onNotConnected event');
-          add(const InternetEvent.onNotConnected());
-        } else {
-          debugPrint('$_tag ✅ DNS verify PASSED → false alarm, not disconnecting');
-        }
-      });
+      _requestDisconnectConfirmation();
     }
     debugPrint('$_tag ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
-  Future<bool> _verifyConnectivity() async {
-    try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 3));
-      final ok = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-      debugPrint('$_tag 🔍 _verifyConnectivity: success=$ok, '
-          'results=${result.length}');
-      return ok;
-    } catch (e) {
-      debugPrint('$_tag 🔍 _verifyConnectivity: EXCEPTION: $e');
-      return false;
+  void _requestDisconnectConfirmation() {
+    if (!_isInForeground) {
+      debugPrint('$_tag 🛡️ BLOCKED — app is not in foreground, ignoring disconnect');
+      return;
     }
+
+    if (_suppressAfterResume) {
+      debugPrint('$_tag 🛡️ SUPPRESSED — app recently resumed, skipping disconnect check');
+      return;
+    }
+
+    if (state.maybeWhen(disconnected: (_) => true, orElse: () => false)) {
+      debugPrint('$_tag ℹ️ Already disconnected, no need to confirm again');
+      return;
+    }
+
+    if (_disconnectDebounce != null && _disconnectDebounce!.isActive) {
+      debugPrint('$_tag ⏳ Confirmation already in progress');
+      return;
+    }
+
+    debugPrint('$_tag ⚠️ Starting 3.5s disconnect confirmation debounce');
+    _disconnectDebounce?.cancel();
+    _disconnectDebounce = Timer(const Duration(milliseconds: 3500), () async {
+      debugPrint('$_tag ⏰ Debounce elapsed — actively verifying real connectivity...');
+
+      if (!_isInForeground) {
+        debugPrint('$_tag 🛡️ BLOCKED — app moved to background during debounce');
+        return;
+      }
+
+      if (_suppressAfterResume) {
+        debugPrint('$_tag 🛡️ SUPPRESSED — app recently resumed during debounce');
+        return;
+      }
+
+      final trulyOffline = await _confirmTrulyNoInternet();
+      debugPrint('$_tag 🔍 Strict check result: trulyOffline=$trulyOffline');
+
+      if (!_isInForeground) {
+        debugPrint('$_tag 🛡️ BLOCKED — app moved to background during active check');
+        return;
+      }
+
+      if (_suppressAfterResume) {
+        debugPrint('$_tag 🛡️ SUPPRESSED — app resumed during active check');
+        return;
+      }
+
+      if (isClosed) return;
+
+      if (trulyOffline) {
+        debugPrint('$_tag ❌ CONFIRMED NO INTERNET → dispatching confirmedDisconnected');
+        add(const InternetEvent.confirmedDisconnected());
+      } else {
+        debugPrint('$_tag ✅ Active check PASSED → false alarm, recovering to connected');
+        add(const InternetEvent.onConnected());
+      }
+    });
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
-    super.didChangeAppLifecycleState(lifecycleState);
-    debugPrint('$_tag 🔄 LIFECYCLE: $lifecycleState');
+  Future<bool> _confirmTrulyNoInternet() async {
+    try {
+      final hasConn = await InternetConnectionChecker()
+          .hasConnection
+          .timeout(const Duration(seconds: 3));
+      if (hasConn) return false;
+    } catch (_) {}
 
-    switch (lifecycleState) {
+    final hosts = ['google.com', 'one.one.one.one'];
+    for (final host in hosts) {
+      try {
+        final result = await InternetAddress.lookup(host)
+            .timeout(const Duration(seconds: 2));
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          return false;
+        }
+      } catch (_) {}
+    }
+    return true;
+  }
+
+  void _checkAndRecoverIfOnline() {
+    InternetConnectionChecker().hasConnection.then((hasConnection) {
+      if (isClosed) return;
+      if (hasConnection && _isInForeground) {
+        debugPrint('$_tag 🔄 Immediate recovery on resume: online detected!');
+        add(const InternetEvent.onConnected());
+      }
+    }).catchError((_) {});
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    debugPrint('$_tag 🔄 LIFECYCLE: $state');
+
+    switch (state) {
       case AppLifecycleState.resumed:
         _isInForeground = true;
         _suppressAfterResume = true;
@@ -135,9 +205,15 @@ class InternetBloc extends Bloc<InternetEvent, InternetState>
           debugPrint('$_tag 🔄 Suppress window EXPIRED — disconnect events allowed');
         });
         debugPrint('$_tag 🔄 App RESUMED — foreground=true, suppress=5s');
+        if (this.state.maybeWhen(disconnected: (_) => true, orElse: () => false)) {
+          _checkAndRecoverIfOnline();
+        }
 
       case AppLifecycleState.inactive:
-        debugPrint('$_tag 🔄 App INACTIVE (transitioning)');
+        _isInForeground = false;
+        _disconnectDebounce?.cancel();
+        _disconnectDebounce = null;
+        debugPrint('$_tag 🔄 App INACTIVE (transitioning/locking) — debounce cancelled');
 
       case AppLifecycleState.hidden:
         _isInForeground = false;
@@ -153,6 +229,8 @@ class InternetBloc extends Bloc<InternetEvent, InternetState>
 
       case AppLifecycleState.detached:
         _isInForeground = false;
+        _disconnectDebounce?.cancel();
+        _disconnectDebounce = null;
         debugPrint('$_tag 🔄 App DETACHED');
     }
   }
@@ -167,4 +245,5 @@ class InternetBloc extends Bloc<InternetEvent, InternetState>
     return super.close();
   }
 }
+
 

@@ -100,7 +100,10 @@ class IProductApiService extends ProductApiService {
         return ErrorResponse.fromJson(errorData);
       }
     }
-    return const ErrorResponse();
+    return ErrorResponse(
+      success: false,
+      message: err.message ?? err.error?.toString() ?? 'Network error (${err.type})',
+    );
   }
 
   String _buildFiltersJson(Map<String, List<String>> filters) {
@@ -478,6 +481,23 @@ class IProductApiService extends ProductApiService {
           if (modifiedJson[key] != null && modifiedJson[key] is! List) {
             modifiedJson[key] = null;
           }
+        }
+        final stringListKeys = [
+          'category_ids',
+          'images',
+          'all_review_images',
+        ];
+        for (var key in stringListKeys) {
+          if (modifiedJson[key] is List) {
+            modifiedJson[key] = (modifiedJson[key] as List)
+                .map((e) => e.toString())
+                .toList();
+          }
+        }
+        if (modifiedJson['detailed_summary'] is List) {
+          modifiedJson['detailed_summary'] = (modifiedJson['detailed_summary'] as List)
+              .map((e) => (e is num) ? e.toInt() : (int.tryParse(e.toString()) ?? 0))
+              .toList();
         }
         if (modifiedJson['variant_matrix'] is! Map<String, dynamic>) {
           modifiedJson['variant_matrix'] = null;

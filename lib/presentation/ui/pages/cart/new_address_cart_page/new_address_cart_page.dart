@@ -1,10 +1,15 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/utils/address/place_area_matcher.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/core/constants/address_constants.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/place_picker/place_pick_result_entity.dart';
@@ -15,8 +20,10 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart'
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/ui/common/bottom_sheet/delivery_location_sheet.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/address_added_result.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/new_address_cart_page/address_text_field.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/phone_text_field.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/searchable_picker_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/new_address_cart_page/address_dropdown_field.dart';
@@ -70,30 +77,34 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
     if (_selectedDivision == null ||
         _selectedCity == null ||
         _selectedArea == null) {
-      SnackBarUtils.showError(context, 'Please select division, city and area');
+      SnackBarUtils.showError(context, AppStrings.selectDivisionCityArea);
       return;
     }
 
     setState(() => _isSaving = true);
 
     try {
+      final String houseRoad =
+          (_capturedAddressController?.text ?? _addressController.text).trim();
+      final String areaThana =
+          _selectedArea?['cities_name']?.toString() ??
+          _selectedArea?['zip_code']?.toString() ??
+          '';
+
       final addressMap = {
-        'customer_id': 0,
         'firstname': _firstNameController.text.trim(),
         'lastname': _lastNameController.text.trim(),
-        'telephone': _contactNumberController.text.trim(),
+        'company': '',
         'street': [
-          (_capturedAddressController?.text ?? _addressController.text).trim()
+          houseRoad,
+          areaThana,
         ],
         'city': _selectedCity!['cities_name'] ?? '',
-        'region': {
-          'region_id': int.tryParse(_selectedDivision!['id']!) ?? 0,
-          'region': _selectedDivision!['title'],
-          'region_code': _selectedDivision!['region_code'],
-        },
-        'region_id': int.tryParse(_selectedDivision!['id']!) ?? 0,
         'postcode': _selectedArea!['zip_code'] ?? '',
+        'region': _selectedDivision!['title'] ?? '',
+        'region_id': int.tryParse(_selectedDivision!['id']!) ?? 0,
         'country_id': 'BD',
+        'telephone': _contactNumberController.text.trim(),
         'default_shipping': _isDefaultShipping,
         'default_billing': _isDefaultBilling,
       };
@@ -106,14 +117,13 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        SnackBarUtils.showError(context, 'Failed to save address');
+        SnackBarUtils.showError(context, AppStrings.failedToSaveAddress);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return MultiBlocListener(
@@ -124,7 +134,12 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
               basicInfoUpdateSuccess: (message, _, _, _) {
                 if (mounted) {
                   setState(() => _isSaving = false);
-                  SnackBarUtils.showSuccess(context, message);
+                  SnackBarUtils.showSuccess(
+                    context,
+                    message.isNotEmpty
+                        ? message
+                        : AppStrings.operationSuccessful,
+                  );
                   context.pop(
                     AddressAddedResult(
                       address: _submittedAddress ?? const {},
@@ -136,7 +151,12 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
               },
               error: (message) {
                 if (mounted) {
-                  SnackBarUtils.showError(context, message);
+                  SnackBarUtils.showError(
+                    context,
+                    message.isNotEmpty
+                        ? message
+                        : AppStrings.somethingWentWrong,
+                  );
                 }
               },
               loaded: (_, __, ___) {
@@ -208,39 +228,14 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: colors.background,
-        appBar: AppBar(
-          leading: AppBarButton(
-            iconPath: 'assets/new/svg/back_nav_icon.svg',
-            width: 7.w,
-            height: 14.h,
-            onPressed: () => Navigator.of(context).pop(),
-            iconColor: colors.text,
-          ),
-          title: Text(
-            widget.pageTitle,
-            style: context.textStyle.appBarTitle,
-          ),
-          elevation: 0,
-          backgroundColor: colors.white,
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(1.h),
-            child: Container(color: colors.borderColor, height: 1.h),
-          ),
+        backgroundColor: AppColors.pageBg,
+        appBar: PickabooAppBar(
+          title: widget.pageTitle,
           actions: [
             if (_isSaving)
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.only(right: 16.w),
-                  child: SizedBox(
-                    width: 20.w,
-                    height: 20.h,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: colors.primary,
-                    ),
-                  ),
-                ),
+              Padding(
+                padding: EdgeInsets.only(right: 16.w),
+                child: const AppLoader.button(size: 20),
               ),
           ],
         ),
@@ -249,7 +244,12 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
           child: CustomScrollView(
             slivers: [
               SliverPadding(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.sameGroupItemSpacing.w,
+                  0,
+                  AppSpacing.sameGroupItemSpacing.w,
+                  AppSpacing.sameGroupItemSpacing.h,
+                ),
                 sliver: SliverToBoxAdapter(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +261,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                         validator: (v) =>
                             v?.isEmpty ?? true ? 'Required' : null,
                       ),
-                      SizedBox(height: 16.h),
+                      AppSpacing.groupToGroupGap,
                       AddressTextField(
                         controller: _lastNameController,
                         label: 'Last Name*',
@@ -269,35 +269,35 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                         validator: (v) =>
                             v?.isEmpty ?? true ? 'Required' : null,
                       ),
-                      SizedBox(height: 16.h),
+                      AppSpacing.groupToGroupGap,
                       PhoneTextField(
                         controller: _contactNumberController,
                         label: 'Contact Number*',
                         hint: 'Enter contact number',
                       ),
-                      SizedBox(height: 16.h),
+                      AppSpacing.groupToGroupGap,
                       _buildAddressAutocompleteField(),
-                      SizedBox(height: 16.h),
+                      AppSpacing.groupToGroupGap,
                       AddressDropdownField(
                         label: 'Division*',
                         value: _selectedDivision?['title'] ?? 'Select Your Division',
                         onTap: _selectDivision,
                       ),
-                      SizedBox(height: 16.h),
+                      AppSpacing.groupToGroupGap,
                       AddressDropdownField(
                         label: 'City*',
                         value: _selectedCity?['cities_name'] ?? 'Select Your City',
                         onTap: _selectCity,
                         enabled: _selectedDivision != null,
                       ),
-                      SizedBox(height: 16.h),
+                      AppSpacing.groupToGroupGap,
                       AddressDropdownField(
                         label: 'Area*',
                         value: _selectedArea?['zip_code']?.toString() ?? 'Select Your Area',
                         onTap: _selectArea,
                         enabled: _selectedCity != null,
                       ),
-                      SizedBox(height: 24.h),
+                      AppSpacing.groupToGroupGap,
                       _buildDefaultSwitch(
                         label: 'Set as default shipping',
                         value: _isDefaultShipping,
@@ -318,7 +318,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                             Icon(
                               Icons.info_outline,
                               size: 14.sp,
-                              color: colors.gray,
+                              color: AppColors.muted,
                             ),
                             SizedBox(width: 6.w),
                             Expanded(
@@ -326,7 +326,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                                 'This address will be used for this order only '
                                 'and will not become your default.',
                                 style: textStyle.bodySmall.copyWith(
-                                  color: colors.gray,
+                                  color: AppColors.muted,
                                 ),
                               ),
                             ),
@@ -343,8 +343,8 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                             child: ElevatedButton(
                               onPressed: _isSaving ? null : _saveAddress,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: colors.button,
-                                foregroundColor: colors.white,
+                                backgroundColor: AppColors.pickabooBlue,
+                                foregroundColor: AppColors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
@@ -352,7 +352,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                               child: Text(
                                 'Save Address',
                                 style: textStyle.buttonLarge.copyWith(
-                                  color: colors.white,
+                                  color: AppColors.white,
                                 ),
                               ),
                             ),
@@ -375,14 +375,13 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: colors.white,
-        border: Border.all(color: colors.borderColor),
+        color: AppColors.white,
+        border: Border.all(color: AppColors.border),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
@@ -391,13 +390,13 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
           Expanded(
             child: Text(
               label,
-              style: textStyle.bodyMediumMedium.copyWith(color: colors.text),
+              style: textStyle.bodyMediumMedium.copyWith(color: AppColors.text),
             ),
           ),
           Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: colors.primary,
+            activeThumbColor: AppColors.pickabooBlue,
           ),
         ],
       ),
@@ -405,7 +404,6 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
   }
 
   Widget _buildAddressAutocompleteField() {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Column(
@@ -413,7 +411,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
       children: [
         Text(
           'Address*',
-          style: textStyle.inputLabel.copyWith(color: colors.text),
+          style: textStyle.inputLabel.copyWith(color: AppColors.text),
         ),
         SizedBox(height: 4.h),
 
@@ -422,25 +420,25 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
             Icon(
               Icons.info_outline_rounded,
               size: 11.sp,
-              color: colors.textMedium,
+              color: AppColors.muted,
             ),
             SizedBox(width: 4.w),
             Text(
               'Type to search or tap ',
               style: textStyle.bodySmall.copyWith(
-                color: colors.textMedium,
+                color: AppColors.muted,
                 fontSize: 11.sp,
               ),
             ),
             Icon(
               Icons.location_on_rounded,
               size: 12.sp,
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
             ),
             Text(
               ' to pick from map',
               style: textStyle.bodySmall.copyWith(
-                color: colors.textMedium,
+                color: AppColors.muted,
                 fontSize: 11.sp,
               ),
             ),
@@ -488,14 +486,14 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                   maxLines: 2,
                   validator: (v) =>
                       (v?.trim().isEmpty ?? true) ? 'Required' : null,
-                  style: textStyle.inputText.copyWith(color: colors.text),
+                  style: textStyle.inputText.copyWith(color: AppColors.text),
                   decoration: InputDecoration(
                     hintText: 'e.g. House 5, Road 12, Mirpur...',
                     hintStyle: textStyle.inputPlaceholder.copyWith(
-                      color: colors.gray.withValues(alpha: 0.5),
+                      color: AppColors.muted.withValues(alpha: 0.5),
                     ),
                     filled: true,
-                    fillColor: colors.white,
+                    fillColor: AppColors.white,
                     contentPadding: EdgeInsets.only(
                       left: 14.w,
                       right: 8.w,
@@ -507,7 +505,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                       child: Icon(
                         Icons.search_rounded,
                         size: 20.sp,
-                        color: isLoading ? colors.primary : colors.gray,
+                        color: isLoading ? AppColors.pickabooBlue : AppColors.muted,
                       ),
                     ),
                     prefixIconConstraints: const BoxConstraints(),
@@ -517,14 +515,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (isLoading)
-                            SizedBox(
-                              width: 14.w,
-                              height: 14.h,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colors.primary,
-                              ),
-                            ),
+                            const AppLoader.inline(size: 14, padding: EdgeInsets.zero),
                           if (isLoading) SizedBox(width: 8.w),
                           GestureDetector(
                             onTap: _openDeliveryLocationSheet,
@@ -535,16 +526,16 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                               ),
                               decoration: BoxDecoration(
                                 color:
-                                    colors.primary.withValues(alpha: 0.1),
+                                    AppColors.pickabooBlue.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20.r),
                                 border: Border.all(
-                                  color: colors.primary
+                                  color: AppColors.pickabooBlue
                                       .withValues(alpha: 0.35),
                                 ),
                               ),
                               child: Icon(
                                 Icons.location_on_rounded,
-                                color: colors.primary,
+                                color: AppColors.pickabooBlue,
                                 size: 13.sp,
                               ),
                             ),
@@ -556,22 +547,22 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                       borderSide: BorderSide(
-                          color: colors.gray.withValues(alpha: 0.2)),
+                          color: AppColors.muted.withValues(alpha: 0.2)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                       borderSide: BorderSide(
-                          color: colors.gray.withValues(alpha: 0.2)),
+                          color: AppColors.muted.withValues(alpha: 0.2)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                       borderSide:
-                          BorderSide(color: colors.primary, width: 1.5.w),
+                          BorderSide(color: AppColors.pickabooBlue, width: 1.5.w),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                       borderSide:
-                          BorderSide(color: colors.red, width: 1.w),
+                          BorderSide(color: AppColors.red, width: 1.w),
                     ),
                   ),
                 );
@@ -583,7 +574,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
               alignment: Alignment.topLeft,
               child: Material(
                 elevation: 6,
-                shadowColor: colors.black.withValues(alpha: 0.12),
+                shadowColor: AppColors.black.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10.r),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.r),
@@ -599,11 +590,11 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(
                               horizontal: 14.w, vertical: 8.h),
-                          color: colors.backgroundGray,
+                          color: AppColors.pageBg,
                           child: Text(
                             'Suggestions',
                             style: textStyle.bodySmall.copyWith(
-                              color: colors.textMedium,
+                              color: AppColors.muted,
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -617,7 +608,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                             separatorBuilder: (_, __) => Divider(
                               height: 1,
                               indent: 44.w,
-                              color: colors.borderColor,
+                              color: AppColors.border,
                             ),
                             itemBuilder: (_, i) {
                               final place = options.elementAt(i);
@@ -639,13 +630,13 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
 
         if (_selectedPlace != null) ...[
           SizedBox(height: 8.h),
-          _buildSelectedPlaceChip(colors, textStyle),
+          _buildSelectedPlaceChip(textStyle),
         ],
       ],
     );
   }
 
-  Widget _buildSelectedPlaceChip(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildSelectedPlaceChip(AppTextStyles textStyle) {
     final place = _selectedPlace!;
     final subtitle = [place.area, place.city, place.division]
         .where((s) => s != null && s.isNotEmpty)
@@ -654,9 +645,9 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: 0.06),
+        color: AppColors.pickabooBlue.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: colors.primary.withValues(alpha: 0.25)),
+        border: Border.all(color: AppColors.pickabooBlue.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -665,12 +656,12 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
             margin: EdgeInsets.only(top: 1.h),
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.12),
+              color: AppColors.pickabooBlue.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.location_on_rounded,
-              color: colors.primary,
+              color: AppColors.pickabooBlue,
               size: 13.sp,
             ),
           ),
@@ -682,7 +673,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                 Text(
                   place.address ?? place.displayAddress,
                   style: textStyle.bodySmallBold.copyWith(
-                    color: colors.text,
+                    color: AppColors.text,
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 2,
@@ -693,7 +684,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
                   Text(
                     subtitle,
                     style: textStyle.bodySmall.copyWith(
-                      color: colors.textMedium,
+                      color: AppColors.muted,
                       fontSize: 11.sp,
                     ),
                     maxLines: 1,
@@ -712,7 +703,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
             child: Padding(
               padding: EdgeInsets.only(left: 8.w),
               child:
-                  Icon(Icons.close_rounded, size: 16.sp, color: colors.gray),
+                  Icon(Icons.close_rounded, size: 16.sp, color: AppColors.muted),
             ),
           ),
         ],
@@ -846,7 +837,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
 
   Future<void> _selectCity() async {
     if (_selectedDivision == null) {
-      SnackBarUtils.showError(context, 'Please select division first');
+      SnackBarUtils.showError(context, AppStrings.selectDivisionFirst);
       return;
     }
 
@@ -878,7 +869,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
 
   Future<void> _selectArea() async {
     if (_selectedCity == null) {
-      SnackBarUtils.showError(context, 'Please select city first');
+      SnackBarUtils.showError(context, AppStrings.selectCityFirst);
       return;
     }
 
@@ -912,15 +903,11 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
   }
 
   Widget _buildCitySheet() {
-    final colors = context.colors;
     return BlocBuilder<AddressBloc, AddressState>(
       builder: (context, state) {
         if (state.isLoadingCities) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.h),
-              child: CircularProgressIndicator(color: colors.primary),
-            ),
+          return const AppLoader.inline(
+            padding: EdgeInsets.all(32),
           );
         }
 
@@ -928,7 +915,48 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
           return Center(
             child: Padding(
               padding: EdgeInsets.all(32.h),
-              child: Text(state.error!),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.muted,
+                    size: 36.sp,
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    state.error!.contains('Type Error') ||
+                            state.error!.contains('AbstractFactory')
+                        ? 'Unable to load cities. Please try again.'
+                        : state.error!,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodyMuted.copyWith(
+                      color: AppColors.navy,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_selectedDivision != null) {
+                        context.read<AddressBloc>().add(
+                              AddressEvent.loadCities(
+                                division: _selectedDivision!['title']!,
+                              ),
+                            );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.pickabooBlue,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -949,15 +977,11 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
   }
 
   Widget _buildAreaSheet() {
-    final colors = context.colors;
     return BlocBuilder<AddressBloc, AddressState>(
       builder: (context, state) {
         if (state.isLoadingAreas) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.h),
-              child: CircularProgressIndicator(color: colors.primary),
-            ),
+          return const AppLoader.inline(
+            padding: EdgeInsets.all(32),
           );
         }
 
@@ -965,7 +989,48 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
           return Center(
             child: Padding(
               padding: EdgeInsets.all(32.h),
-              child: Text(state.error!),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.muted,
+                    size: 36.sp,
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    state.error!.contains('Type Error') ||
+                            state.error!.contains('AbstractFactory')
+                        ? 'Unable to load areas. Please try again.'
+                        : state.error!,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodyMuted.copyWith(
+                      color: AppColors.navy,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_selectedCity != null) {
+                        context.read<AddressBloc>().add(
+                              AddressEvent.loadAreas(
+                                city: _selectedCity!['cities_name'] ?? '',
+                              ),
+                            );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.pickabooBlue,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           );
         }

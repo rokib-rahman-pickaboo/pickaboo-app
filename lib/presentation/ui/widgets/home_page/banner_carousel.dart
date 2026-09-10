@@ -8,6 +8,15 @@ import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/banner_item_view.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+/// 🖼️ CENTRALIZED BIG BANNER CAROUSEL
+///
+/// Configured according to specifications:
+/// - Core: Native CarouselSlider.builder + smooth_page_indicator
+/// - Non-Swipeable: User cannot manually drag (scrollPhysics: NeverScrollableScrollPhysics)
+/// - Auto-Slide: Fixed rotation every 3.6s with 400ms easeInOutCubic animation
+/// - Sizing & Peek: height 160.h, viewportFraction 0.95, enlargeCenterPage true (0.15 factor)
+/// - Indicator: Overlaid inside image at bottom
+/// - Smart Indicator: Hidden when banner count <= 1
 class BannerCarousel extends StatefulWidget {
   final List<SliderEntity> banners;
   final Function(SliderEntity slider)? onBannerTap;
@@ -66,67 +75,77 @@ class _BannerCarouselState extends State<BannerCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     if (widget.banners.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        CarouselSlider.builder(
-          carouselController: _carouselController,
-          itemCount: widget.banners.length,
-          itemBuilder: (context, index, realIndex) {
-            final banner = widget.banners[index];
-            return BannerItemView(
-              banner: banner,
-              onTap: (slider) {
-                _logBannerClick(slider);
-                widget.onBannerTap?.call(slider);
-              },
-            );
-          },
-          options: CarouselOptions(
-            height: 160.h,
-            viewportFraction: 0.95,
-            autoPlay: false,
-            autoPlayInterval: const Duration(seconds: 5),
-            autoPlayAnimationDuration: const Duration(milliseconds: 800),
-            autoPlayCurve: Curves.fastOutSlowIn,
-            enlargeCenterPage: true,
-            enlargeFactor: 0.15,
-            onPageChanged: (index, reason) {
-              _currentIndex.value = index;
-              if (index >= 0 && index < widget.banners.length) {
-                _logBannerView(widget.banners[index]);
-              }
-            },
-          ),
-        ),
+    final bool hasMultipleBanners = widget.banners.length > 1;
 
-        Positioned(
-          bottom: 10.h,
-          child: ValueListenableBuilder<int>(
-            valueListenable: _currentIndex,
-            builder: (context, currentIndex, _) => AnimatedSmoothIndicator(
-              activeIndex: currentIndex,
-              count: widget.banners.length,
-              effect: WormEffect(
-                dotHeight: 2.h,
-                dotWidth: 10.w,
-                activeDotColor: colors.primary,
-                dotColor: colors.white.withValues(alpha: 0.5),
-                spacing: 1.w,
-              ),
-              onDotClicked: (index) {
-                _carouselController.animateToPage(index);
+    return RepaintBoundary(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          // ── 1. Carousel Slider (Non-swipeable by user, auto-slides via timer) ──
+          CarouselSlider.builder(
+            carouselController: _carouselController,
+            itemCount: widget.banners.length,
+            itemBuilder: (context, index, realIndex) {
+              final banner = widget.banners[index];
+              return BannerItemView(
+                banner: banner,
+                onTap: (slider) {
+                  _logBannerClick(slider);
+                  widget.onBannerTap?.call(slider);
+                },
+              );
+            },
+            options: CarouselOptions(
+              height: 160.h,
+              viewportFraction: 0.95,
+              scrollPhysics:
+                  const NeverScrollableScrollPhysics(), // Non-swipeable by user
+              autoPlay: hasMultipleBanners,
+              autoPlayInterval: const Duration(milliseconds: 3600), // 3.6s
+              autoPlayAnimationDuration:
+                  const Duration(milliseconds: 400), // 400ms
+              autoPlayCurve: Curves.easeInOutCubic,
+              pauseAutoPlayOnTouch: true,
+              pauseAutoPlayOnManualNavigate: true,
+              enlargeCenterPage: true,
+              enlargeFactor: 0.15,
+              onPageChanged: (index, reason) {
+                _currentIndex.value = index;
+                if (index >= 0 && index < widget.banners.length) {
+                  _logBannerView(widget.banners[index]);
+                }
               },
             ),
           ),
-        ),
-      ],
+
+          // ── 2. Indicator (Inside image, only shown if banners > 1) ──
+          if (hasMultipleBanners)
+            Positioned(
+              bottom: 10.h,
+              child: ValueListenableBuilder<int>(
+                valueListenable: _currentIndex,
+                builder: (context, currentIndex, _) => AnimatedSmoothIndicator(
+                  activeIndex: currentIndex,
+                  count: widget.banners.length,
+                  effect: WormEffect(
+                    dotHeight: 3.h,
+                    dotWidth: 10.w,
+                    activeDotColor: AppColors.pickabooBlue,
+                    dotColor: AppColors.white.withValues(alpha: 0.6),
+                    spacing: 2.w,
+                  ),
+                  onDotClicked: (index) {
+                    _carouselController.animateToPage(index);
+                  },
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

@@ -4,13 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pickaboo/presentation/bloc/search_bloc/search_bloc.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/product_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/list_product_view.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class SearchResults extends StatelessWidget {
   final bool isGridView;
@@ -28,50 +30,27 @@ class SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
         final pagingState = state.pagingState;
 
+        final Widget resultsSliver = isGridView
+            ? _buildGridView(state, context)
+            : _buildListView(state, context);
+
         if (state.correctedQuery != null) {
-          return SliverPadding(
-            padding: EdgeInsets.zero,
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                Container(
-                  padding: EdgeInsets.all(12.h),
-                  color: colors.orange.withValues(alpha: 0.1),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: colors.orange,
-                        size: 16.sp,
-                      ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: Text(
-                          'Did you mean "${state.correctedQuery}"?',
-                          style: context.textStyle.bodyLarge.copyWith(
-                            color: colors.orange,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ]),
-            ),
+          return SliverMainAxisGroup(
+            slivers: [
+              _buildCorrectedQueryBanner(context, state.correctedQuery!),
+              resultsSliver,
+            ],
           );
         }
 
         if (pagingState.isLoading &&
             (pagingState.pages == null || pagingState.pages!.isEmpty)) {
-          return SliverFillRemaining(
-            child: Center(
-              child: CircularProgressIndicator(color: colors.primary),
-            ),
+          return const SliverFillRemaining(
+            child: AppLoader.fullPage(),
           );
         }
 
@@ -84,18 +63,14 @@ class SearchResults extends StatelessWidget {
 
         if (pagingState.pages == null || pagingState.pages!.isEmpty) {
           return SliverFillRemaining(
-            child: _buildEmptyState(
-              "Start typing to search for products",
-              colors,
-              context,
-            ),
+            child: _buildInitialSearchPrompt(context),
           );
         }
 
         if (isGridView) {
-          return _buildGridView(state, colors, context);
+          return _buildGridView(state, context);
         } else {
-          return _buildListView(state, colors, context);
+          return _buildListView(state, context);
         }
       },
     );
@@ -103,14 +78,16 @@ class SearchResults extends StatelessWidget {
 
   Widget _buildGridView(
     SearchState state,
-    AppColors colors,
     BuildContext context,
   ) {
     return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: AppSpacing.sameGroupItemSpacing.h,
+      ),
       sliver: PagedSliverAlignedGrid<int, ProductEntity>(
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
+        mainAxisSpacing: AppSpacing.sameGroupItemSpacing.h,
+        crossAxisSpacing: AppSpacing.sameGroupItemSpacing.w,
         gridDelegateBuilder: (int childCount) {
           return SliverSimpleGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: gridColumnsFor(context),
@@ -121,9 +98,9 @@ class SearchResults extends StatelessWidget {
               _buildErrorState(context),
           newPageErrorIndicatorBuilder: (context) => const SizedBox(),
           firstPageProgressIndicatorBuilder: (context) =>
-              Center(child: CircularProgressIndicator(color: colors.primary)),
+              const AppLoader.fullPage(),
           noItemsFoundIndicatorBuilder: (context) =>
-              _buildNoProductsState(colors, context),
+              _buildNoProductsState(context),
           itemBuilder: (context, product, index) {
             return ProductView(
               product: product,
@@ -147,58 +124,61 @@ class SearchResults extends StatelessWidget {
 
   Widget _buildListView(
     SearchState state,
-    AppColors colors,
     BuildContext context,
   ) {
-    return PagedSliverList<int, ProductEntity>(
-      builderDelegate: PagedChildBuilderDelegate<ProductEntity>(
-        firstPageErrorIndicatorBuilder: (context) =>
-            _buildErrorState(context),
-        newPageErrorIndicatorBuilder: (context) => Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Center(
-            child: Text(
-              "Couldn't load more items",
-              style: context.textStyle.caption.copyWith(color: colors.gray),
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(
+        vertical: AppSpacing.sameGroupItemSpacing.h,
+      ),
+      sliver: PagedSliverList<int, ProductEntity>(
+        builderDelegate: PagedChildBuilderDelegate<ProductEntity>(
+          firstPageErrorIndicatorBuilder: (context) =>
+              _buildErrorState(context),
+          newPageErrorIndicatorBuilder: (context) => Padding(
+            padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+            child: Center(
+              child: Text(
+                "Couldn't load more items",
+                style: context.textStyle.caption.copyWith(color: AppColors.muted),
+              ),
             ),
           ),
+          firstPageProgressIndicatorBuilder: (context) =>
+              const AppLoader.fullPage(),
+          newPageProgressIndicatorBuilder: (context) =>
+              const AppLoader.pagination(),
+          noItemsFoundIndicatorBuilder: (context) =>
+              _buildNoProductsState(context),
+          itemBuilder: (context, product, index) {
+            return ListProductView(
+              product: product,
+              onTap: (product) {
+                context.goToProductDetail(
+                  product.id.toString(),
+                  slug: product.slug,
+                  productName: product.productName,
+                );
+              },
+            );
+          },
         ),
-        firstPageProgressIndicatorBuilder: (context) =>
-            Center(child: CircularProgressIndicator(color: colors.primary)),
-        newPageProgressIndicatorBuilder: (context) => Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Center(
-            child: CircularProgressIndicator(color: colors.primary),
-          ),
-        ),
-        noItemsFoundIndicatorBuilder: (context) =>
-            _buildNoProductsState(colors, context),
-        itemBuilder: (context, product, index) {
-          return ListProductView(
-            product: product,
-            onTap: (product) {
-              context.goToProductDetail(
-                product.id.toString(),
-                slug: product.slug,
-                productName: product.productName,
-              );
-            },
-          );
+        state: state.pagingState,
+        fetchNextPage: () {
+          context.read<SearchBloc>().add(const SearchEvent.searchLoadMore());
         },
       ),
-      state: state.pagingState,
-      fetchNextPage: () {
-        context.read<SearchBloc>().add(const SearchEvent.searchLoadMore());
-      },
     );
   }
 
   Widget _buildErrorState(BuildContext context) {
+    final isOffline = ConnectivityUtils.isOffline(context);
     return AppErrorView(
-      type: AppErrorType.generic,
-      title: "Couldn't load results",
-      message: 'Something went wrong while loading your search results. '
-          'Please try again in a moment.',
+      type: isOffline ? AppErrorType.noInternet : AppErrorType.generic,
+      title: isOffline ? 'No Internet Connection' : "Couldn't load results",
+      message: isOffline
+          ? 'Please check your network and try again.'
+          : 'Something went wrong while loading your search results. '
+              'Please try again in a moment.',
       retryLabel: 'Try Again',
       onRetry: () {
         context.read<SearchBloc>().add(const SearchEvent.searchRefresh());
@@ -206,68 +186,62 @@ class SearchResults extends StatelessWidget {
     );
   }
 
-  Widget _buildNoProductsState(AppColors colors, BuildContext context) {
-    final textStyle = context.textStyle;
-
-    return Padding(
+  Widget _buildNoProductsState(BuildContext context) {
+    return AppEmptyView.search(
+      hasActiveFilters: hasActiveFilters,
+      onClearFilters: onClearFilters,
+      isCompact: true,
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 48.h),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inventory_2_outlined, size: 64.sp, color: colors.gray),
-          SizedBox(height: 16.h),
-          Text(
-            hasActiveFilters
-                ? 'No products match your filters'
-                : 'No products found',
-            textAlign: TextAlign.center,
-            style: textStyle.bodyLarge.withColor(colors.text),
-          ),
-          if (hasActiveFilters) ...[
-            SizedBox(height: 8.h),
-            Text(
-              'Try removing a filter to see more.',
-              textAlign: TextAlign.center,
-              style: textStyle.bodySmall.withColor(colors.gray),
-            ),
-            SizedBox(height: 16.h),
-            OutlinedButton(
-              onPressed: onClearFilters,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colors.primary,
-                side: BorderSide(color: colors.primary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-              child: const Text('Clear all filters'),
-            ),
-          ],
-        ],
-      ),
     );
   }
 
-  Widget _buildEmptyState(
-    String message,
-    AppColors colors,
+  Widget _buildInitialSearchPrompt(BuildContext context) {
+    return AppEmptyView.searchPrompt(
+      isCompact: true,
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 48.h),
+    );
+  }
+
+  Widget _buildCorrectedQueryBanner(
     BuildContext context,
+    String correctedQuery,
   ) {
-    final textStyle = context.textStyle;
-    return Padding(
-      padding: EdgeInsets.all(24.w),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search, size: 64.sp, color: colors.gray),
-          SizedBox(height: 16.h),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: textStyle.bodyLarge.copyWith(color: colors.gray),
+    return SliverToBoxAdapter(
+      child: GestureDetector(
+        onTap: () {
+          context.read<SearchBloc>().add(
+                SearchEvent.searchSubmitted(query: correctedQuery),
+              );
+        },
+        child: Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: AppSpacing.sameGroupItemSpacing.w,
+            vertical: 4.h,
           ),
-        ],
+          padding: EdgeInsets.all(12.h),
+          decoration: BoxDecoration(
+            color: AppColors.orange.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                color: AppColors.orange,
+                size: 16.sp,
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(
+                  'Did you mean "$correctedQuery"?',
+                  style: context.textStyle.bodyLarge.copyWith(
+                    color: AppColors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

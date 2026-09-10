@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/data/services/auth_service.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/checkout/payment_methods_entity.dart';
@@ -109,6 +108,7 @@ import 'package:pickaboo/presentation/ui/pages/deep_link_resolver_page.dart';
 import 'package:pickaboo/presentation/bloc/saved_payment/saved_payment_bloc.dart';
 import 'package:pickaboo/core/navigation/app_navigator_key.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/payment_web_view.dart';
+import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 
 class AppRouter {
   final AuthService authService;
@@ -134,11 +134,17 @@ class AppRouter {
           final isPop = state.uri.queryParameters['isPop'] == 'true';
           final isBuyNow = state.uri.queryParameters['isBuyNow'] == 'true';
           final isPopGuest = state.uri.queryParameters['isPopGuest'] == 'true';
+          final from = state.uri.queryParameters['from'];
+          final redirectToHome =
+              state.uri.queryParameters['redirectToHome'] == 'true' ||
+              from == 'profile' ||
+              from == 'drawer';
 
           return LoginPage(
             isPop: isPop,
             isBuyNow: isBuyNow,
             isPopGuest: isPopGuest,
+            redirectToHome: redirectToHome,
           );
         },
       ),
@@ -245,6 +251,7 @@ class AppRouter {
                   GoRoute(
                     path: ':id',
                     name: 'knowledgeBaseDetails',
+                    parentNavigatorKey: appNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
                       final id = state.pathParameters['id'];
@@ -486,12 +493,13 @@ class AppRouter {
         path: Routes.search,
         name: 'search',
         builder: (context, state) {
+          final query = state.uri.queryParameters['q'];
           return MultiBlocProvider(
             providers: [
               BlocProvider(create: (context) => getIt<SearchBloc>()),
               BlocProvider(create: (context) => getIt<FilterBloc>()),
             ],
-            child: const SearchPage(),
+            child: SearchPage(initialQuery: query),
           );
         },
       ),
@@ -721,7 +729,12 @@ class AppRouter {
       GoRoute(
         path: Routes.review,
         name: 'review',
-        builder: (context, state) => const Review(),
+        builder: (context, state) {
+          return BlocProvider(
+            create: (context) => getIt<ReviewBloc>(),
+            child: const Review(),
+          );
+        },
       ),
 
       GoRoute(
@@ -850,7 +863,10 @@ class AppRouter {
               ),
             ],
             child: KnowledgeBaseDetailsPage(
-              categoryId: categoryId ?? id,
+              categoryId: categoryId ??
+                  ((query != null && query.isNotEmpty || id == 'search')
+                      ? null
+                      : id),
               categoryName: categoryName,
               query: query,
             ),
@@ -920,21 +936,7 @@ class AppRouter {
         path: '/product-detail/:slug',
         builder: (context, state) {
           final slug = state.pathParameters['slug'] ?? '';
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (context) => getIt<ProductDetailBloc>()),
-              BlocProvider(create: (context) => getIt<ReviewBloc>()),
-              BlocProvider(create: (context) => getIt<EmiBloc>()),
-              BlocProvider(create: (context) => getIt<CmsContentBloc>()),
-              BlocProvider(create: (context) => getIt<WishlistBloc>()),
-              BlocProvider(create: (context) => getIt<PromoBloc>()),
-            ],
-            child: ProductDetailsPage(
-              productId: slug,
-              slug: slug,
-              productName: (state.extra as Map<String, dynamic>?)?['productName'] as String? ?? '',
-            ),
-          );
+          return DeepLinkResolverPage(slug: slug, type: 'product');
         },
       ),
 
@@ -945,33 +947,46 @@ class AppRouter {
           return DeepLinkResolverPage(slug: slug, type: 'category');
         },
       ),
+      GoRoute(
+        path: Routes.noInternet,
+        name: 'no_internet',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return NoInternetPage(
+            title: extra?['title'] as String?,
+            message: extra?['message'] as String?,
+            onRetry: extra?['onRetry'] as VoidCallback?,
+            onBack: extra?['onBack'] as VoidCallback?,
+          );
+        },
+      ),
     ],
 
     errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(title: Text('Error', style: context.textStyle.appBarTitle)),
+      appBar: AppBar(title: Text(AppStrings.error, style: context.textStyle.appBarTitle)),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64.sp, color: context.colors.red),
+            Icon(Icons.error_outline, size: 64.sp, color: AppColors.red),
             SizedBox(height: 16.h),
             Text(
-              'Page not found',
+              AppStrings.pageNotFound,
               style: context.textStyle.headingLarge.withColor(
-                context.colors.text,
+                AppColors.navy,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               state.matchedLocation,
               style: context.textStyle.bodyMedium.withColor(
-                context.colors.gray,
+                AppColors.muted,
               ),
             ),
             SizedBox(height: 24.h),
             ElevatedButton(
               onPressed: () => context.go(Routes.home),
-              child: Text('Go Home'),
+              child: const Text(AppStrings.goHome),
             ),
           ],
         ),

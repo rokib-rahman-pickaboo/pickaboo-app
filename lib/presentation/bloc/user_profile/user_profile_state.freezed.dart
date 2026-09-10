@@ -66,6 +66,20 @@ mixin _$UserProfileState {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -109,6 +123,20 @@ mixin _$UserProfileState {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -152,6 +180,20 @@ mixin _$UserProfileState {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -167,6 +209,8 @@ mixin _$UserProfileState {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -180,6 +224,8 @@ mixin _$UserProfileState {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -193,6 +239,8 @@ mixin _$UserProfileState {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -310,6 +358,20 @@ class _$InitialImpl implements _Initial {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return initial();
@@ -357,6 +419,20 @@ class _$InitialImpl implements _Initial {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return initial?.call();
@@ -404,6 +480,20 @@ class _$InitialImpl implements _Initial {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -426,6 +516,8 @@ class _$InitialImpl implements _Initial {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return initial(this);
@@ -443,6 +535,8 @@ class _$InitialImpl implements _Initial {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return initial?.call(this);
@@ -460,6 +554,8 @@ class _$InitialImpl implements _Initial {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -616,6 +712,20 @@ class _$LoadingImpl implements _Loading {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return loading(currentUser, imageUrl, mobileNumber);
@@ -663,6 +773,20 @@ class _$LoadingImpl implements _Loading {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return loading?.call(currentUser, imageUrl, mobileNumber);
@@ -710,6 +834,20 @@ class _$LoadingImpl implements _Loading {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -732,6 +870,8 @@ class _$LoadingImpl implements _Loading {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return loading(this);
@@ -749,6 +889,8 @@ class _$LoadingImpl implements _Loading {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return loading?.call(this);
@@ -766,6 +908,8 @@ class _$LoadingImpl implements _Loading {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -934,6 +1078,20 @@ class _$LoadedImpl implements _Loaded {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return loaded(user, imageUrl, mobileNumber);
@@ -981,6 +1139,20 @@ class _$LoadedImpl implements _Loaded {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return loaded?.call(user, imageUrl, mobileNumber);
@@ -1028,6 +1200,20 @@ class _$LoadedImpl implements _Loaded {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -1050,6 +1236,8 @@ class _$LoadedImpl implements _Loaded {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return loaded(this);
@@ -1067,6 +1255,8 @@ class _$LoadedImpl implements _Loaded {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return loaded?.call(this);
@@ -1084,6 +1274,8 @@ class _$LoadedImpl implements _Loaded {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -1258,6 +1450,20 @@ class _$UpdatingImpl implements _Updating {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return updating(currentUser, imageUrl, mobileNumber);
@@ -1305,6 +1511,20 @@ class _$UpdatingImpl implements _Updating {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return updating?.call(currentUser, imageUrl, mobileNumber);
@@ -1352,6 +1572,20 @@ class _$UpdatingImpl implements _Updating {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -1374,6 +1608,8 @@ class _$UpdatingImpl implements _Updating {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return updating(this);
@@ -1391,6 +1627,8 @@ class _$UpdatingImpl implements _Updating {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return updating?.call(this);
@@ -1408,6 +1646,8 @@ class _$UpdatingImpl implements _Updating {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -1600,6 +1840,20 @@ class _$BasicInfoUpdateSuccessImpl implements _BasicInfoUpdateSuccess {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return basicInfoUpdateSuccess(message, user, imageUrl, mobileNumber);
@@ -1647,6 +1901,20 @@ class _$BasicInfoUpdateSuccessImpl implements _BasicInfoUpdateSuccess {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return basicInfoUpdateSuccess?.call(message, user, imageUrl, mobileNumber);
@@ -1694,6 +1962,20 @@ class _$BasicInfoUpdateSuccessImpl implements _BasicInfoUpdateSuccess {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -1716,6 +1998,8 @@ class _$BasicInfoUpdateSuccessImpl implements _BasicInfoUpdateSuccess {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return basicInfoUpdateSuccess(this);
@@ -1733,6 +2017,8 @@ class _$BasicInfoUpdateSuccessImpl implements _BasicInfoUpdateSuccess {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return basicInfoUpdateSuccess?.call(this);
@@ -1750,6 +2036,8 @@ class _$BasicInfoUpdateSuccessImpl implements _BasicInfoUpdateSuccess {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -1943,6 +2231,20 @@ class _$MobileUpdateSuccessImpl implements _MobileUpdateSuccess {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return mobileUpdateSuccess(message, user, imageUrl, mobileNumber);
@@ -1990,6 +2292,20 @@ class _$MobileUpdateSuccessImpl implements _MobileUpdateSuccess {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return mobileUpdateSuccess?.call(message, user, imageUrl, mobileNumber);
@@ -2037,6 +2353,20 @@ class _$MobileUpdateSuccessImpl implements _MobileUpdateSuccess {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -2059,6 +2389,8 @@ class _$MobileUpdateSuccessImpl implements _MobileUpdateSuccess {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return mobileUpdateSuccess(this);
@@ -2076,6 +2408,8 @@ class _$MobileUpdateSuccessImpl implements _MobileUpdateSuccess {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return mobileUpdateSuccess?.call(this);
@@ -2093,6 +2427,8 @@ class _$MobileUpdateSuccessImpl implements _MobileUpdateSuccess {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -2286,6 +2622,20 @@ class _$ImageUploadSuccessImpl implements _ImageUploadSuccess {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return imageUploadSuccess(message, user, imageUrl, mobileNumber);
@@ -2333,6 +2683,20 @@ class _$ImageUploadSuccessImpl implements _ImageUploadSuccess {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return imageUploadSuccess?.call(message, user, imageUrl, mobileNumber);
@@ -2380,6 +2744,20 @@ class _$ImageUploadSuccessImpl implements _ImageUploadSuccess {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -2402,6 +2780,8 @@ class _$ImageUploadSuccessImpl implements _ImageUploadSuccess {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return imageUploadSuccess(this);
@@ -2419,6 +2799,8 @@ class _$ImageUploadSuccessImpl implements _ImageUploadSuccess {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return imageUploadSuccess?.call(this);
@@ -2436,6 +2818,8 @@ class _$ImageUploadSuccessImpl implements _ImageUploadSuccess {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -2587,6 +2971,20 @@ class _$UpdateRequiresLogoutImpl implements _UpdateRequiresLogout {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return updateRequiresLogout(message);
@@ -2634,6 +3032,20 @@ class _$UpdateRequiresLogoutImpl implements _UpdateRequiresLogout {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return updateRequiresLogout?.call(message);
@@ -2681,6 +3093,20 @@ class _$UpdateRequiresLogoutImpl implements _UpdateRequiresLogout {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -2703,6 +3129,8 @@ class _$UpdateRequiresLogoutImpl implements _UpdateRequiresLogout {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return updateRequiresLogout(this);
@@ -2720,6 +3148,8 @@ class _$UpdateRequiresLogoutImpl implements _UpdateRequiresLogout {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return updateRequiresLogout?.call(this);
@@ -2737,6 +3167,8 @@ class _$UpdateRequiresLogoutImpl implements _UpdateRequiresLogout {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -2907,6 +3339,20 @@ class _$PhoneUpdateOtpSentImpl implements _PhoneUpdateOtpSent {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return phoneUpdateOtpSent(mobileNumber, user, imageUrl);
@@ -2954,6 +3400,20 @@ class _$PhoneUpdateOtpSentImpl implements _PhoneUpdateOtpSent {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return phoneUpdateOtpSent?.call(mobileNumber, user, imageUrl);
@@ -3001,6 +3461,20 @@ class _$PhoneUpdateOtpSentImpl implements _PhoneUpdateOtpSent {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -3023,6 +3497,8 @@ class _$PhoneUpdateOtpSentImpl implements _PhoneUpdateOtpSent {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return phoneUpdateOtpSent(this);
@@ -3040,6 +3516,8 @@ class _$PhoneUpdateOtpSentImpl implements _PhoneUpdateOtpSent {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return phoneUpdateOtpSent?.call(this);
@@ -3057,6 +3535,8 @@ class _$PhoneUpdateOtpSentImpl implements _PhoneUpdateOtpSent {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
@@ -3082,6 +3562,788 @@ abstract class _PhoneUpdateOtpSent implements UserProfileState {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PhoneUpdateOtpSentImplCopyWith<_$PhoneUpdateOtpSentImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$EmailUpdateOtpSentImplCopyWith<$Res> {
+  factory _$$EmailUpdateOtpSentImplCopyWith(
+    _$EmailUpdateOtpSentImpl value,
+    $Res Function(_$EmailUpdateOtpSentImpl) then,
+  ) = __$$EmailUpdateOtpSentImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({
+    String email,
+    UserEntity user,
+    String? imageUrl,
+    String? mobileNumber,
+  });
+}
+
+/// @nodoc
+class __$$EmailUpdateOtpSentImplCopyWithImpl<$Res>
+    extends _$UserProfileStateCopyWithImpl<$Res, _$EmailUpdateOtpSentImpl>
+    implements _$$EmailUpdateOtpSentImplCopyWith<$Res> {
+  __$$EmailUpdateOtpSentImplCopyWithImpl(
+    _$EmailUpdateOtpSentImpl _value,
+    $Res Function(_$EmailUpdateOtpSentImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of UserProfileState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? email = null,
+    Object? user = null,
+    Object? imageUrl = freezed,
+    Object? mobileNumber = freezed,
+  }) {
+    return _then(
+      _$EmailUpdateOtpSentImpl(
+        email:
+            null == email
+                ? _value.email
+                : email // ignore: cast_nullable_to_non_nullable
+                    as String,
+        user:
+            null == user
+                ? _value.user
+                : user // ignore: cast_nullable_to_non_nullable
+                    as UserEntity,
+        imageUrl:
+            freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        mobileNumber:
+            freezed == mobileNumber
+                ? _value.mobileNumber
+                : mobileNumber // ignore: cast_nullable_to_non_nullable
+                    as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$EmailUpdateOtpSentImpl implements _EmailUpdateOtpSent {
+  const _$EmailUpdateOtpSentImpl({
+    required this.email,
+    required this.user,
+    this.imageUrl,
+    this.mobileNumber,
+  });
+
+  @override
+  final String email;
+  @override
+  final UserEntity user;
+  @override
+  final String? imageUrl;
+  @override
+  final String? mobileNumber;
+
+  @override
+  String toString() {
+    return 'UserProfileState.emailUpdateOtpSent(email: $email, user: $user, imageUrl: $imageUrl, mobileNumber: $mobileNumber)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$EmailUpdateOtpSentImpl &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.user, user) || other.user == user) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.mobileNumber, mobileNumber) ||
+                other.mobileNumber == mobileNumber));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, email, user, imageUrl, mobileNumber);
+
+  /// Create a copy of UserProfileState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$EmailUpdateOtpSentImplCopyWith<_$EmailUpdateOtpSentImpl> get copyWith =>
+      __$$EmailUpdateOtpSentImplCopyWithImpl<_$EmailUpdateOtpSentImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(
+      UserEntity? currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    loading,
+    required TResult Function(
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    loaded,
+    required TResult Function(
+      UserEntity currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    updating,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    basicInfoUpdateSuccess,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    mobileUpdateSuccess,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    imageUploadSuccess,
+    required TResult Function(String message) updateRequiresLogout,
+    required TResult Function(
+      String mobileNumber,
+      UserEntity user,
+      String? imageUrl,
+    )
+    phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
+    required TResult Function(String message) error,
+  }) {
+    return emailUpdateOtpSent(email, user, imageUrl, mobileNumber);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function(
+      UserEntity? currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    loading,
+    TResult? Function(UserEntity user, String? imageUrl, String? mobileNumber)?
+    loaded,
+    TResult? Function(
+      UserEntity currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    updating,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    basicInfoUpdateSuccess,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    mobileUpdateSuccess,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    imageUploadSuccess,
+    TResult? Function(String message)? updateRequiresLogout,
+    TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
+    phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
+    TResult? Function(String message)? error,
+  }) {
+    return emailUpdateOtpSent?.call(email, user, imageUrl, mobileNumber);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(
+      UserEntity? currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    loading,
+    TResult Function(UserEntity user, String? imageUrl, String? mobileNumber)?
+    loaded,
+    TResult Function(
+      UserEntity currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    updating,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    basicInfoUpdateSuccess,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    mobileUpdateSuccess,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    imageUploadSuccess,
+    TResult Function(String message)? updateRequiresLogout,
+    TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
+    phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (emailUpdateOtpSent != null) {
+      return emailUpdateOtpSent(email, user, imageUrl, mobileNumber);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Updating value) updating,
+    required TResult Function(_BasicInfoUpdateSuccess value)
+    basicInfoUpdateSuccess,
+    required TResult Function(_MobileUpdateSuccess value) mobileUpdateSuccess,
+    required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
+    required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
+    required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
+    required TResult Function(_Error value) error,
+  }) {
+    return emailUpdateOtpSent(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Initial value)? initial,
+    TResult? Function(_Loading value)? loading,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Updating value)? updating,
+    TResult? Function(_BasicInfoUpdateSuccess value)? basicInfoUpdateSuccess,
+    TResult? Function(_MobileUpdateSuccess value)? mobileUpdateSuccess,
+    TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
+    TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
+    TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
+    TResult? Function(_Error value)? error,
+  }) {
+    return emailUpdateOtpSent?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Updating value)? updating,
+    TResult Function(_BasicInfoUpdateSuccess value)? basicInfoUpdateSuccess,
+    TResult Function(_MobileUpdateSuccess value)? mobileUpdateSuccess,
+    TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
+    TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
+    TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
+    TResult Function(_Error value)? error,
+    required TResult orElse(),
+  }) {
+    if (emailUpdateOtpSent != null) {
+      return emailUpdateOtpSent(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _EmailUpdateOtpSent implements UserProfileState {
+  const factory _EmailUpdateOtpSent({
+    required final String email,
+    required final UserEntity user,
+    final String? imageUrl,
+    final String? mobileNumber,
+  }) = _$EmailUpdateOtpSentImpl;
+
+  String get email;
+  UserEntity get user;
+  String? get imageUrl;
+  String? get mobileNumber;
+
+  /// Create a copy of UserProfileState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$EmailUpdateOtpSentImplCopyWith<_$EmailUpdateOtpSentImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$EmailUpdateSuccessImplCopyWith<$Res> {
+  factory _$$EmailUpdateSuccessImplCopyWith(
+    _$EmailUpdateSuccessImpl value,
+    $Res Function(_$EmailUpdateSuccessImpl) then,
+  ) = __$$EmailUpdateSuccessImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({
+    String message,
+    UserEntity user,
+    String? imageUrl,
+    String? mobileNumber,
+  });
+}
+
+/// @nodoc
+class __$$EmailUpdateSuccessImplCopyWithImpl<$Res>
+    extends _$UserProfileStateCopyWithImpl<$Res, _$EmailUpdateSuccessImpl>
+    implements _$$EmailUpdateSuccessImplCopyWith<$Res> {
+  __$$EmailUpdateSuccessImplCopyWithImpl(
+    _$EmailUpdateSuccessImpl _value,
+    $Res Function(_$EmailUpdateSuccessImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of UserProfileState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? message = null,
+    Object? user = null,
+    Object? imageUrl = freezed,
+    Object? mobileNumber = freezed,
+  }) {
+    return _then(
+      _$EmailUpdateSuccessImpl(
+        message:
+            null == message
+                ? _value.message
+                : message // ignore: cast_nullable_to_non_nullable
+                    as String,
+        user:
+            null == user
+                ? _value.user
+                : user // ignore: cast_nullable_to_non_nullable
+                    as UserEntity,
+        imageUrl:
+            freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        mobileNumber:
+            freezed == mobileNumber
+                ? _value.mobileNumber
+                : mobileNumber // ignore: cast_nullable_to_non_nullable
+                    as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$EmailUpdateSuccessImpl implements _EmailUpdateSuccess {
+  const _$EmailUpdateSuccessImpl({
+    required this.message,
+    required this.user,
+    this.imageUrl,
+    this.mobileNumber,
+  });
+
+  @override
+  final String message;
+  @override
+  final UserEntity user;
+  @override
+  final String? imageUrl;
+  @override
+  final String? mobileNumber;
+
+  @override
+  String toString() {
+    return 'UserProfileState.emailUpdateSuccess(message: $message, user: $user, imageUrl: $imageUrl, mobileNumber: $mobileNumber)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$EmailUpdateSuccessImpl &&
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.user, user) || other.user == user) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.mobileNumber, mobileNumber) ||
+                other.mobileNumber == mobileNumber));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, message, user, imageUrl, mobileNumber);
+
+  /// Create a copy of UserProfileState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$EmailUpdateSuccessImplCopyWith<_$EmailUpdateSuccessImpl> get copyWith =>
+      __$$EmailUpdateSuccessImplCopyWithImpl<_$EmailUpdateSuccessImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(
+      UserEntity? currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    loading,
+    required TResult Function(
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    loaded,
+    required TResult Function(
+      UserEntity currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    updating,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    basicInfoUpdateSuccess,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    mobileUpdateSuccess,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    imageUploadSuccess,
+    required TResult Function(String message) updateRequiresLogout,
+    required TResult Function(
+      String mobileNumber,
+      UserEntity user,
+      String? imageUrl,
+    )
+    phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
+    required TResult Function(String message) error,
+  }) {
+    return emailUpdateSuccess(message, user, imageUrl, mobileNumber);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function(
+      UserEntity? currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    loading,
+    TResult? Function(UserEntity user, String? imageUrl, String? mobileNumber)?
+    loaded,
+    TResult? Function(
+      UserEntity currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    updating,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    basicInfoUpdateSuccess,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    mobileUpdateSuccess,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    imageUploadSuccess,
+    TResult? Function(String message)? updateRequiresLogout,
+    TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
+    phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
+    TResult? Function(String message)? error,
+  }) {
+    return emailUpdateSuccess?.call(message, user, imageUrl, mobileNumber);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(
+      UserEntity? currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    loading,
+    TResult Function(UserEntity user, String? imageUrl, String? mobileNumber)?
+    loaded,
+    TResult Function(
+      UserEntity currentUser,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    updating,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    basicInfoUpdateSuccess,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    mobileUpdateSuccess,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    imageUploadSuccess,
+    TResult Function(String message)? updateRequiresLogout,
+    TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
+    phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (emailUpdateSuccess != null) {
+      return emailUpdateSuccess(message, user, imageUrl, mobileNumber);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Updating value) updating,
+    required TResult Function(_BasicInfoUpdateSuccess value)
+    basicInfoUpdateSuccess,
+    required TResult Function(_MobileUpdateSuccess value) mobileUpdateSuccess,
+    required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
+    required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
+    required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
+    required TResult Function(_Error value) error,
+  }) {
+    return emailUpdateSuccess(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Initial value)? initial,
+    TResult? Function(_Loading value)? loading,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Updating value)? updating,
+    TResult? Function(_BasicInfoUpdateSuccess value)? basicInfoUpdateSuccess,
+    TResult? Function(_MobileUpdateSuccess value)? mobileUpdateSuccess,
+    TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
+    TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
+    TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
+    TResult? Function(_Error value)? error,
+  }) {
+    return emailUpdateSuccess?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Updating value)? updating,
+    TResult Function(_BasicInfoUpdateSuccess value)? basicInfoUpdateSuccess,
+    TResult Function(_MobileUpdateSuccess value)? mobileUpdateSuccess,
+    TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
+    TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
+    TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
+    TResult Function(_Error value)? error,
+    required TResult orElse(),
+  }) {
+    if (emailUpdateSuccess != null) {
+      return emailUpdateSuccess(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _EmailUpdateSuccess implements UserProfileState {
+  const factory _EmailUpdateSuccess({
+    required final String message,
+    required final UserEntity user,
+    final String? imageUrl,
+    final String? mobileNumber,
+  }) = _$EmailUpdateSuccessImpl;
+
+  String get message;
+  UserEntity get user;
+  String? get imageUrl;
+  String? get mobileNumber;
+
+  /// Create a copy of UserProfileState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$EmailUpdateSuccessImplCopyWith<_$EmailUpdateSuccessImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -3202,6 +4464,20 @@ class _$ErrorImpl implements _Error {
       String? imageUrl,
     )
     phoneUpdateOtpSent,
+    required TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateOtpSent,
+    required TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )
+    emailUpdateSuccess,
     required TResult Function(String message) error,
   }) {
     return error(message);
@@ -3249,6 +4525,20 @@ class _$ErrorImpl implements _Error {
     TResult? Function(String message)? updateRequiresLogout,
     TResult? Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult? Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult? Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult? Function(String message)? error,
   }) {
     return error?.call(message);
@@ -3296,6 +4586,20 @@ class _$ErrorImpl implements _Error {
     TResult Function(String message)? updateRequiresLogout,
     TResult Function(String mobileNumber, UserEntity user, String? imageUrl)?
     phoneUpdateOtpSent,
+    TResult Function(
+      String email,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateOtpSent,
+    TResult Function(
+      String message,
+      UserEntity user,
+      String? imageUrl,
+      String? mobileNumber,
+    )?
+    emailUpdateSuccess,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
@@ -3318,6 +4622,8 @@ class _$ErrorImpl implements _Error {
     required TResult Function(_ImageUploadSuccess value) imageUploadSuccess,
     required TResult Function(_UpdateRequiresLogout value) updateRequiresLogout,
     required TResult Function(_PhoneUpdateOtpSent value) phoneUpdateOtpSent,
+    required TResult Function(_EmailUpdateOtpSent value) emailUpdateOtpSent,
+    required TResult Function(_EmailUpdateSuccess value) emailUpdateSuccess,
     required TResult Function(_Error value) error,
   }) {
     return error(this);
@@ -3335,6 +4641,8 @@ class _$ErrorImpl implements _Error {
     TResult? Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult? Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult? Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult? Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult? Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult? Function(_Error value)? error,
   }) {
     return error?.call(this);
@@ -3352,6 +4660,8 @@ class _$ErrorImpl implements _Error {
     TResult Function(_ImageUploadSuccess value)? imageUploadSuccess,
     TResult Function(_UpdateRequiresLogout value)? updateRequiresLogout,
     TResult Function(_PhoneUpdateOtpSent value)? phoneUpdateOtpSent,
+    TResult Function(_EmailUpdateOtpSent value)? emailUpdateOtpSent,
+    TResult Function(_EmailUpdateSuccess value)? emailUpdateSuccess,
     TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {

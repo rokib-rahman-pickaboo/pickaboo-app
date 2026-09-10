@@ -10,6 +10,7 @@ class TicketState with _$TicketState {
     @Default([]) List<TicketEntity> tickets,
     TicketDetailEntity? ticketDetails,
     @Default([]) List<TicketOrderEntity> orders,
+    @Default([]) List<TicketIssueTypeEntity> issueTypes,
     String? successMessage,
   }) = _TicketState;
 }

@@ -1,8 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/domain/entity/club_point/club_point_entity.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ClubPointsHeader extends StatelessWidget {
   final ClubPointEntity data;
@@ -56,22 +61,21 @@ class ClubPointsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return Container(
-      margin: EdgeInsets.all(16.w),
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [colors.primary, colors.primary.withAlpha(200)],
+          colors: [
+            AppColors.pickabooBlue,
+            AppColors.navy,
+          ],
         ),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: colors.primary.withAlpha(76),
+            color: AppColors.pickabooBlue.withValues(alpha: 0.35),
             blurRadius: 16.r,
             offset: Offset(0, 4.h),
           ),
@@ -87,43 +91,36 @@ class ClubPointsHeader extends StatelessWidget {
                   children: [
                     Text(
                       'My lifetime points',
-                      style: textTheme.bodySmall.copyWith(
-                        color: colors.white.withAlpha(204),
-                      ),
+                      style: AppTypography.bodyRegular.withColor(Colors.white.withValues(alpha: 0.85)),
                     ),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: 4.h),
                     Text(
                       '${data.myLifeTimePoints}',
-                      style: textTheme.displayLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colors.white,
-                      ),
+                      style: AppTypography.heroTitle.size(28.sp).withColor(Colors.white),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: colors.white.withAlpha(51),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       'Balance',
-                      style: textTheme.bodySmall.copyWith(
-                        color: colors.white.withAlpha(204),
-                      ),
+                      style: AppTypography.bodyMuted.withColor(Colors.white.withValues(alpha: 0.85)),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 2.h),
                     Text(
                       '${data.myPoints}',
-                      style: textTheme.headingLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colors.white,
-                      ),
+                      style: AppTypography.pageTitleWhite,
                     ),
                   ],
                 ),
@@ -132,31 +129,29 @@ class ClubPointsHeader extends StatelessWidget {
           ),
 
           if (data.tiers.isNotEmpty) ...[
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
             ClipRRect(
               borderRadius: BorderRadius.circular(8.r),
               child: LinearProgressIndicator(
                 value: _getProgressPercentage(data),
-                backgroundColor: colors.white.withAlpha(76),
-                valueColor: AlwaysStoppedAnimation<Color>(colors.shamrock),
-                minHeight: 12.h,
+                backgroundColor: Colors.white.withValues(alpha: 0.25),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.green,
+                ),
+                minHeight: 8.h,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: 6.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   data.tiers.first.name,
-                  style: textTheme.bodySmall.copyWith(
-                    color: colors.white.withAlpha(204),
-                  ),
+                  style: AppTypography.bodyMuted.withColor(Colors.white.withValues(alpha: 0.85)),
                 ),
                 Text(
                   data.tiers.last.name,
-                  style: textTheme.bodySmall.copyWith(
-                    color: colors.white.withAlpha(204),
-                  ),
+                  style: AppTypography.bodyMuted.withColor(Colors.white.withValues(alpha: 0.85)),
                 ),
               ],
             ),
@@ -165,19 +160,23 @@ class ClubPointsHeader extends StatelessWidget {
           if (_getReachGoalText(data).isNotEmpty) ...[
             SizedBox(height: 12.h),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: colors.white.withAlpha(51),
-                borderRadius: BorderRadius.circular(8.r),
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.emoji_events, color: colors.white, size: 16.sp),
-                  SizedBox(width: 8.w),
+                  Icon(
+                    Icons.emoji_events_rounded,
+                    color: Colors.white,
+                    size: 15.sp,
+                  ),
+                  SizedBox(width: 6.w),
                   Text(
                     _getReachGoalText(data),
-                    style: textTheme.bodySmall.copyWith(color: colors.white),
+                    style: AppTypography.buttonPrimary.size(11.5.sp),
                   ),
                 ],
               ),

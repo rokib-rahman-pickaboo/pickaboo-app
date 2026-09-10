@@ -1,36 +1,47 @@
-import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
 
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+
+import 'package:pickaboo/core/constants/app_constants.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/core/validatator/validator.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/phone_text_field.dart';
 import 'package:pickaboo/presentation/bloc/auth/login_bloc/login_bloc.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/login_page/social_login_button.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:pickaboo/presentation/ui/pages/main_page.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/phone_text_field.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
 
+/// Modernized Pickaboo Login Page
+/// Maintains exact requested brand typography, balanced upper & lower margins, and clean inputs.
 class LoginPage extends StatefulWidget {
   final bool isPop;
   final bool isBuyNow;
   final bool isPopGuest;
+  final bool redirectToHome;
 
   const LoginPage({
     super.key,
     this.isPop = false,
     this.isBuyNow = false,
     this.isPopGuest = false,
+    this.redirectToHome = false,
   });
 
   @override
@@ -48,42 +59,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _isEmail = false;
   bool _obscurePassword = true;
 
-  double get _fieldSpacing => 16.h;
-
-  InputDecoration _inputDecoration({
-    required String label,
-    required String hintText,
-    Widget? suffixIcon,
-  }) {
-    final colors = context.colors;
-
-    return InputDecoration(
-      labelText: label,
-      labelStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
-      hintText: hintText,
-      hintStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
-      floatingLabelStyle: context.textStyle.bodyMediumMedium.withColor(
-        colors.primary,
-      ),
-      filled: true,
-      fillColor: colors.white,
-      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.primary, width: 2.w),
-      ),
-      suffixIcon: suffixIcon,
-    );
-  }
-
   @override
   void dispose() {
     _emailOrMobileController.dispose();
@@ -91,8 +66,12 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _handleToggleLoginMethod() {
+  void _dismissKeyboard() {
     FocusScope.of(context).unfocus();
+  }
+
+  void _handleToggleLoginMethod() {
+    _dismissKeyboard();
     setState(() {
       _isEmail = !_isEmail;
       _isUser = false;
@@ -103,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleSignIn() {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -137,23 +116,24 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _signInWithGoogle() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     try {
       if (kDebugMode) {
         print('🔵 [Google Sign-In] Starting Google sign-in process...');
       }
 
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      if (kDebugMode) {
-        print('🔵 [Google Sign-In] GoogleSignIn instance created');
-      }
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
+        serverClientId: AppConstants.googleAndroidWebClientId,
+        scopes: const ['email', 'profile'],
+      );
+
+      // Sign out first to clear any cached/stale sessions
+      try {
+        await googleSignIn.signOut();
+      } catch (_) {}
 
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (kDebugMode) {
-        print(
-          '🔵 [Google Sign-In] Sign-in completed. User: ${googleUser?.email ?? "null"}',
-        );
-      }
 
       if (googleUser == null) {
         if (kDebugMode) {
@@ -162,28 +142,12 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      if (kDebugMode) {
-        print('🔵 [Google Sign-In] Getting authentication details...');
-      }
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-      final String? accessToken = googleAuth.accessToken;
-
-      if (kDebugMode) {
-        print(
-          '🔵 [Google Sign-In] Access token obtained: ${accessToken != null ? "✅ Yes (length: ${accessToken.length})" : "❌ No"}',
-        );
-      }
+      final String? accessToken = googleAuth.accessToken ?? googleAuth.idToken;
 
       if (accessToken != null) {
         final source = Platform.isAndroid ? 'android' : 'ios';
-        if (kDebugMode) {
-          print('🔵 [Google Sign-In] Dispatching loginWithSocial event...');
-          print('   - Provider: google');
-          print('   - Source: $source');
-          print('   - Token length: ${accessToken.length}');
-        }
-
         if (!mounted) return;
         context.read<LoginBloc>().add(
           LoginEvent.loginWithSocial(
@@ -192,22 +156,14 @@ class _LoginPageState extends State<LoginPage> {
             source: source,
           ),
         );
-
-        if (kDebugMode) {
-          print('✅ [Google Sign-In] Event dispatched successfully');
-        }
       } else {
-        if (kDebugMode) {
-          print('❌ [Google Sign-In] Failed to get access token');
-        }
         if (mounted) {
           SnackBarUtils.showError(context, 'Failed to get Google access token');
         }
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ [Google Sign-In] Exception occurred: $e');
-        print('Stack trace: $stackTrace');
+        print('❌ [Google Sign-In] Exception occurred: $e\n$stackTrace');
       }
       if (mounted) {
         SnackBarUtils.showError(
@@ -219,9 +175,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _signInWithFacebook() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     try {
-      final LoginResult result = await FacebookAuth.instance.login();
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: const ['public_profile', 'email'],
+      );
 
       if (result.status == LoginStatus.success) {
         final AccessToken? accessToken = result.accessToken;
@@ -265,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _signInWithApple() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     try {
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -303,271 +261,297 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: AppTypography.inputHint,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
+      filled: true,
+      fillColor: AppColors.white,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      border: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
+      ),
+      errorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red),
+      ),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red, width: 1.5),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
-    return BlocListener<LoginBloc, LoginState>(
-      listener: (context, state) {
-        state.maybeWhen(
-          userExists: (status, message, httpCode) {
-            setState(() => _isUser = true);
-          },
-          userNotFound: (status, message, httpCode) {
-            SnackBarUtils.showInfo(context, message);
-            final phone = _emailOrMobileController.text.trim();
-            context.push('${Routes.registration}?phone=$phone');
-          },
-          loginSuccess: (status, isLogin) {
-            context.read<AuthBloc>().add(const AuthEvent.userLoggedIn());
-
-            if (widget.isPop || Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
-            } else {
-              context.go(Routes.home);
-            }
-
-            SnackBarUtils.showSuccess(context, 'Login Successful');
-          },
-          loginFailure: (error) {
-            SnackBarUtils.showError(context, error);
-          },
-          orElse: () {},
-        );
+    
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _dismissKeyboard();
+        if (_isUser) {
+          setState(() => _isUser = false);
+        } else if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go(Routes.home);
+        }
       },
-      child: Scaffold(
-        body: ResponsiveContainer(
-          child: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 15.w, top: 15.h),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AppBarButton(
-                        iconPath: 'assets/new/svg/back_nav_icon.svg',
-                        width: 7.w,
-                        height: 14.h,
-                        onPressed: () {
-                          FocusScope.of(context).unfocus();
-                          if (_isUser) {
-                            setState(() => _isUser = false);
-                          } else {
-                            if (Navigator.of(context).canPop()) {
-                              Navigator.of(context).pop();
-                            } else {
-                              context.go(Routes.home);
-                            }
-                          }
-                        },
-                        iconColor: colors.text,
-                      ),
-                    ),
-                  ),
-                ),
+      child: BlocListener<LoginBloc, LoginState>(
+        listener: (context, state) {
+          state.maybeWhen(
+            userExists: (status, message, httpCode) {
+              setState(() => _isUser = true);
+            },
+            userNotFound: (status, message, httpCode) {
+              SnackBarUtils.showInfo(context, message);
+              final phone = _emailOrMobileController.text.trim();
+              context.push('${Routes.registration}?phone=$phone');
+            },
+            loginSuccess: (status, isLogin) {
+              context.read<AuthBloc>().add(const AuthEvent.userLoggedIn());
 
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 52.h),
-                        Image.asset(
-                          'assets/images/logo.png',
-                          width: 188.w,
-                          height: 45.h,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              "assets/images/pickaboo-login-logo.png",
-                              width: 188.w,
-                              height: 45.h,
-                            );
-                          },
-                        ),
+              if (widget.redirectToHome) {
+                MainPage.hideBottomNav.value = false;
+                context.go(Routes.home);
+              } else if (widget.isPop || Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                MainPage.hideBottomNav.value = false;
+                context.go(Routes.home);
+              }
 
-                        Expanded(
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 16.h),
+              SnackBarUtils.showSuccess(context, 'Login Successful');
+            },
+            loginFailure: (error) {
+              SnackBarUtils.showError(context, error);
+            },
+            orElse: () {},
+          );
+        },
+        child: GestureDetector(
+          onTap: _dismissKeyboard,
+          behavior: HitTestBehavior.opaque,
+          child: Scaffold(
+            backgroundColor: AppColors.pageBg,
+            body: ResponsiveContainer(
+              child: SafeArea(
+                child: Stack(
+                  children: [
+                    // ── PERFECTLY CENTERED MAIN CONTENT ──
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 24.w,
+                                vertical: 24.h,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Brand Logo
+                                  Image.asset(
+                                    'assets/images/pickaboo_new_logo.png',
+                                    height: 44.h,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/pickaboo-login-logo.png',
+                                        height: 44.h,
+                                        fit: BoxFit.contain,
+                                      );
+                                    },
+                                  ),
 
+                                SizedBox(height: 20.h),
+
+                                // Welcome to Pickaboo! / Enter Password Text
                                 Text(
                                   _isUser
                                       ? 'Enter Password'
                                       : 'Welcome to Pickaboo!',
-                                  style: textTheme.displayLarge.copyWith(
-                                    color: colors.text,
-                                  ),
+                                  style: AppTypography.heroTitle,
                                   textAlign: TextAlign.center,
                                 ),
                                 SizedBox(height: 8.h),
                                 Text(
                                   _isUser ? 'for login.' : 'Please login.',
-                                  style: textTheme.displayLarge.copyWith(
-                                    color: colors.text,
-                                  ),
+                                  style: AppTypography.bodyRegular,
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(height: 16.h),
 
-                                InkWell(
-                                  onTap: _handleToggleLoginMethod,
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 48.h,
-                                    decoration: BoxDecoration(
-                                      color: colors.white,
-                                      borderRadius: BorderRadius.circular(12.r),
-                                      border: Border.all(
-                                        color: colors.primary.withValues(
-                                          alpha: 0.2,
-                                        ),
-                                        width: 1.5.w,
+                                SizedBox(height: 20.h),
+
+                                // Login Method Toggle Pill (Phone vs Email)
+                                if (!_isUser) ...[
+                                  InkWell(
+                                    onTap: _handleToggleLoginMethod,
+                                    borderRadius: AppRadius.cardRadius,
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 44.h,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 14.w,
                                       ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: colors.black.withValues(
-                                            alpha: 0.04,
-                                          ),
-                                          blurRadius: 8.r,
-                                          offset: Offset(0, 2.h),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius: AppRadius.cardRadius,
+                                        border: Border.all(
+                                          color: AppColors.pickabooBlue
+                                              .withValues(alpha: 0.25),
+                                          width: 1.2.w,
                                         ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 8.w,
-                                            vertical: 4.w,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: colors.primary.withValues(
-                                              alpha: 0.1,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.navy.withValues(
+                                              alpha: 0.04,
                                             ),
-                                            borderRadius: BorderRadius.circular(
-                                              20.r,
+                                            blurRadius: 8.r,
+                                            offset: Offset(0, 2.h),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.all(5.w),
+                                            decoration: const BoxDecoration(
+                                              color: AppColors.surfaceBlue,
+                                              borderRadius:
+                                                  AppRadius.badgeRadius,
+                                            ),
+                                            child: Icon(
+                                              _isEmail
+                                                  ? Icons.phone_android
+                                                  : Icons.email_outlined,
+                                              size: 16.sp,
+                                              color: AppColors.pickabooBlue,
                                             ),
                                           ),
-                                          child: Icon(
-                                            _isEmail
-                                                ? Icons.phone_android
-                                                : Icons.email_outlined,
-                                            size: 18.sp,
-                                            color: colors.primary,
+                                          SizedBox(width: 10.w),
+                                          Text.rich(
+                                            TextSpan(
+                                              children: [
+                                                const TextSpan(
+                                                  text: 'Login with ',
+                                                ),
+                                                TextSpan(
+                                                  text: _isEmail
+                                                      ? 'Phone Number'
+                                                      : 'Email',
+                                                  style: AppTypography.bodyLarge,
+                                                ),
+                                              ],
+                                            ),
+                                            style: AppTypography.bodyMuted,
                                           ),
-                                        ),
-                                        SizedBox(width: 12.w),
-                                        Text.rich(
-                                          TextSpan(
-                                            children: [
-                                              const TextSpan(
-                                                text: 'Login with',
-                                              ),
-                                              TextSpan(
-                                                text:
-                                                    ' ${_isEmail ? 'Phone Number' : 'Email'}',
-                                                style: textTheme.bodyMedium
-                                                    .copyWith(
-                                                      color: colors.text,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          style: textTheme.bodyMedium.copyWith(
-                                            color: colors.silverChalice,
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(height: 20.h),
-
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Divider(color: colors.borderColor),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
+                                  SizedBox(height: 16.h),
+                                  // Or Divider
+                                  Row(
+                                    children: [
+                                      const Expanded(
+                                        child: Divider(color: AppColors.border),
                                       ),
-                                      child: Text(
-                                        'Or',
-                                        style: textTheme.bodyMedium.copyWith(
-                                          color: colors.gray,
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 14.w,
+                                        ),
+                                        child: Text(
+                                          'Or',
+                                          style: AppTypography.bodyMutedLight,
                                         ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: Divider(color: colors.borderColor),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.h),
+                                      const Expanded(
+                                        child: Divider(color: AppColors.border),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 16.h),
+                                ],
 
+                                // Form Inputs
                                 Form(
                                   key: _formKey,
                                   child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 300),
-                                    switchInCurve: Curves.easeOut,
-                                    switchOutCurve: Curves.easeIn,
-                                    transitionBuilder: (child, animation) {
-                                      final slideAnimation = Tween<Offset>(
-                                        begin: const Offset(0.08, 0),
-                                        end: Offset.zero,
-                                      ).animate(animation);
-
-                                      return FadeTransition(
-                                        opacity: animation,
-                                        child: SlideTransition(
-                                          position: slideAnimation,
-                                          child: child,
-                                        ),
-                                      );
-                                    },
+                                    duration: const Duration(milliseconds: 250),
                                     child: _isEmail
                                         ? Column(
-                                            key: const ValueKey('email'),
+                                            key: const ValueKey('email_form'),
                                             children: [
                                               TextFormField(
                                                 controller:
                                                     _emailOrMobileController,
                                                 keyboardType:
                                                     TextInputType.emailAddress,
-                                                decoration: _inputDecoration(
-                                                  label: 'Enter your email',
-                                                  hintText:
-                                                      'Example: yourname@gmail.com',
+                                                style: AppTypography.inputText,
+                                                decoration:
+                                                    _buildInputDecoration(
+                                                  hintText: 'Enter your email',
+                                                  prefixIcon: Icon(
+                                                    Icons.email_outlined,
+                                                    size: 18.sp,
+                                                    color:
+                                                        AppColors.mutedLight,
+                                                  ),
                                                 ),
                                                 autofillHints: const [
                                                   AutofillHints.email,
                                                 ],
                                                 validator: validateEmail,
                                               ),
-                                              SizedBox(height: _fieldSpacing),
+                                              SizedBox(height: 12.h),
                                               TextFormField(
                                                 controller: _passwordController,
                                                 obscureText: _obscurePassword,
-                                                decoration: _inputDecoration(
-                                                  label: 'Enter your password',
+                                                style: AppTypography.inputText,
+                                                decoration:
+                                                    _buildInputDecoration(
                                                   hintText:
-                                                      'Use at least 8 characters',
+                                                      'Enter your password',
+                                                  prefixIcon: Icon(
+                                                    Icons.lock_outline,
+                                                    size: 18.sp,
+                                                    color:
+                                                        AppColors.mutedLight,
+                                                  ),
                                                   suffixIcon: IconButton(
                                                     icon: Icon(
                                                       _obscurePassword
-                                                          ? Icons.visibility_off
-                                                          : Icons.visibility,
+                                                          ? Icons
+                                                              .visibility_off_outlined
+                                                          : Icons
+                                                              .visibility_outlined,
+                                                      size: 18.sp,
+                                                      color: AppColors.mutedLight,
                                                     ),
                                                     onPressed: () {
                                                       setState(() {
@@ -585,24 +569,33 @@ class _LoginPageState extends State<LoginPage> {
                                             ],
                                           )
                                         : Column(
-                                            key: const ValueKey('phone'),
+                                            key: const ValueKey('phone_form'),
                                             children: [
                                               if (_isUser)
                                                 TextFormField(
                                                   controller:
                                                       _passwordController,
-                                                  obscureText: _obscurePassword,
-                                                  decoration: _inputDecoration(
-                                                    label:
-                                                        'Enter your password',
+                                                  obscureText:
+                                                      _obscurePassword,
+                                                  style: AppTypography.inputText,
+                                                  decoration:
+                                                      _buildInputDecoration(
                                                     hintText:
-                                                        'Use at least 8 characters',
+                                                        'Enter your password',
+                                                    prefixIcon: Icon(
+                                                      Icons.lock_outline,
+                                                      size: 18.sp,
+                                                      color: AppColors.mutedLight,
+                                                    ),
                                                     suffixIcon: IconButton(
                                                       icon: Icon(
                                                         _obscurePassword
                                                             ? Icons
-                                                                  .visibility_off
-                                                            : Icons.visibility,
+                                                                .visibility_off_outlined
+                                                            : Icons
+                                                                .visibility_outlined,
+                                                        size: 18.sp,
+                                                        color: AppColors.mutedLight,
                                                       ),
                                                       onPressed: () {
                                                         setState(() {
@@ -626,11 +619,16 @@ class _LoginPageState extends State<LoginPage> {
                                                   inputFormatters:
                                                       PhoneTextField
                                                           .inputFormatters,
-                                                  decoration: _inputDecoration(
-                                                    label:
-                                                        'Enter your mobile number',
+                                                  style: AppTypography.inputText,
+                                                  decoration:
+                                                      _buildInputDecoration(
                                                     hintText:
-                                                        'Mobile number (e.g. 017XXXXXXXX)',
+                                                        'Enter Mobile Number (01XXXXXXXXX)',
+                                                    prefixIcon: Icon(
+                                                      Icons.phone_outlined,
+                                                      size: 18.sp,
+                                                      color: AppColors.mutedLight,
+                                                    ),
                                                   ),
                                                   autofillHints: const [
                                                     AutofillHints
@@ -643,8 +641,34 @@ class _LoginPageState extends State<LoginPage> {
                                           ),
                                   ),
                                 ),
+
+                                // Forgot Password Link
+                                if (_isEmail || _isUser) ...[
+                                  SizedBox(height: 10.h),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton(
+                                      onPressed: () {
+                                        _dismissKeyboard();
+                                        context.push(Routes.forgotPassword);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      child: Text(
+                                        'Forgot password?',
+                                        style: AppTypography.brandActionText,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+
                                 SizedBox(height: 20.h),
 
+                                // Primary Action Button (Pickaboo Sky Blue #00AEEF)
                                 BlocBuilder<LoginBloc, LoginState>(
                                   builder: (context, state) {
                                     final isLoading = state.maybeWhen(
@@ -653,69 +677,28 @@ class _LoginPageState extends State<LoginPage> {
                                       orElse: () => false,
                                     );
 
-                                    return Container(
+                                    return SizedBox(
                                       width: double.infinity,
-                                      height: 48.h,
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            colors.button,
-                                            colors.button.withValues(
-                                              alpha: 0.85,
-                                            ),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          12.r,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: colors.button.withValues(
-                                              alpha: 0.3,
-                                            ),
-                                            blurRadius: 12.r,
-                                            offset: Offset(0, 4.h),
-                                          ),
-                                        ],
-                                      ),
+                                      height: 50.h,
                                       child: ElevatedButton(
-                                        onPressed: isLoading
-                                            ? null
-                                            : _handleSignIn,
+                                        onPressed:
+                                            isLoading ? null : _handleSignIn,
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: colors.black
-                                              .withValues(alpha: 0.0),
-                                          shadowColor: colors.black.withValues(
-                                            alpha: 0.0,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12.r,
-                                            ),
+                                          backgroundColor:
+                                              AppColors.pickabooBlue,
+                                          foregroundColor: AppColors.white,
+                                          elevation: 0,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: AppRadius.cardRadius,
                                           ),
                                         ),
                                         child: isLoading
-                                            ? SizedBox(
-                                                height: 22.h,
-                                                width: 22.w,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2.5.w,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                        Color
-                                                      >(colors.white),
-                                                ),
-                                              )
+                                            ? const AppLoader.button()
                                             : Text(
                                                 _isEmail || _isUser
                                                     ? 'Login'
-                                                    : 'Sign Up/Login',
-                                                style: context
-                                                    .textStyle
-                                                    .buttonLarge
-                                                    .withColor(colors.white),
+                                                    : 'Continue',
+                                                style: AppTypography.buttonPrimary,
                                               ),
                                       ),
                                     );
@@ -724,67 +707,198 @@ class _LoginPageState extends State<LoginPage> {
 
                                 SizedBox(height: 12.h),
 
-                                TextButton(
-                                  onPressed: () {
-                                    FocusScope.of(context).unfocus();
-                                    context.push(Routes.forgotPassword);
-                                  },
-                                  child: Text(
-                                    'Forgot Your Password?',
-                                    style: textTheme.bodyMedium.copyWith(
-                                      color: colors.gray,
+                                // Forgot Password Link (Always visible - matches Pickaboo-App-BK and Pickaboo-App-DC)
+                                Center(
+                                  child: TextButton(
+                                    onPressed: () {
+                                      _dismissKeyboard();
+                                      context.push(Routes.forgotPassword);
+                                    },
+                                    child: Text(
+                                      'Forgot Your Password?',
+                                      style: AppTypography.brandActionText.copyWith(
+                                        color: AppColors.muted,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),
 
                                 SizedBox(height: 12.h),
+
+                                // Or Login With Divider
+                                Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Divider(color: AppColors.border),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 14.w,
+                                      ),
+                                      child: Text(
+                                        'Or continue with',
+                                        style: AppTypography.bodyMutedLight,
+                                      ),
+                                    ),
+                                    const Expanded(
+                                      child: Divider(color: AppColors.border),
+                                    ),
+                                  ],
+                                ),
+
+                                SizedBox(height: 18.h),
+
+                                // Social Login Buttons
+                                Row(
+                                  children: [
+                                    // Google
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: _signInWithGoogle,
+                                        style: OutlinedButton.styleFrom(
+                                          minimumSize:
+                                              Size(double.infinity, 46.h),
+                                          side: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: AppRadius.cardRadius,
+                                          ),
+                                          backgroundColor: AppColors.white,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/new/svg/google_icon.svg',
+                                              width: 18.w,
+                                              height: 18.h,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              'Google',
+                                              style: AppTypography.cardTitle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    // Facebook
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: _signInWithFacebook,
+                                        style: OutlinedButton.styleFrom(
+                                          minimumSize:
+                                              Size(double.infinity, 46.h),
+                                          side: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: AppRadius.cardRadius,
+                                          ),
+                                          backgroundColor: AppColors.white,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/new/svg/facebook_icon.svg',
+                                              width: 18.w,
+                                              height: 18.h,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              'Facebook',
+                                              style: AppTypography.cardTitle,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                if (Platform.isIOS) ...[
+                                  SizedBox(height: 12.h),
+                                  OutlinedButton(
+                                    onPressed: _signInWithApple,
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: Size(double.infinity, 46.h),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: AppRadius.cardRadius,
+                                      ),
+                                      backgroundColor: AppColors.navy,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(
+                                          'assets/new/svg/apple_icon.svg',
+                                          width: 18.w,
+                                          height: 18.h,
+                                          colorFilter: const ColorFilter.mode(
+                                            AppColors.white,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Text(
+                                          'Continue with Apple',
+                                          style: AppTypography.buttonPrimary,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                         ),
+                      );
+                    },
+                  ),
 
-                        Column(
-                          children: [
-                            SocialLoginButton(
-                              onPressed: _signInWithGoogle,
-                              svgIcon: 'assets/new/svg/google_icon.svg',
-                              label: 'Continue with Google',
-                              backgroundColor: colors.white,
-                              textColor: const Color(0xFF1F1F1F),
-                              borderColor: const Color(0xFFE0E0E0),
-                            ),
-                            SizedBox(height: 16.h),
-
-                            SocialLoginButton(
-                              onPressed: _signInWithFacebook,
-                              svgIcon: 'assets/new/svg/facebook_icon.svg',
-                              label: 'Continue with Facebook',
-                              backgroundColor: const Color(0xFF1877F2),
-                              textColor: colors.white,
-                            ),
-                            SizedBox(height: 16.h),
-
-                            if (Platform.isIOS)
-                              SocialLoginButton(
-                                onPressed: _signInWithApple,
-                                svgIcon: 'assets/new/svg/apple_icon.svg',
-                                label: 'Continue with Apple',
-                                backgroundColor: colors.black,
-                                textColor: colors.white,
-                                iconColor: colors.white,
-                              ),
-                          ],
+                  // ── TOP BACK BUTTON (Positioned ON TOP of Stack for reliable hit testing) ──
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          _dismissKeyboard();
+                          if (_isUser) {
+                            setState(() => _isUser = false);
+                          } else if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            context.go(Routes.home);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(20.r),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.r),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.navy,
+                            size: 20.sp,
+                          ),
                         ),
-                        SizedBox(height: 40.h),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

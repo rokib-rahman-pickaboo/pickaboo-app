@@ -74,4 +74,5 @@ class Routes {
   static const String referral = '/referral';
   static const String referralCode = '/referral/code';
   static const String cmsContent = 'cms-content';
+  static const String noInternet = '/no-internet';
 }

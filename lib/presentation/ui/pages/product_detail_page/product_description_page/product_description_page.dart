@@ -1,13 +1,18 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 
+/// Modern ProductDescriptionPage matching Pickaboo-App-UI design language.
 class ProductDescriptionPage extends StatefulWidget {
   final ProductDetailEntity product;
   final int initialIndex;
@@ -44,63 +49,57 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: Text(widget.product.name, style: context.textStyle.appBarTitle),
+      backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        title: widget.product.name,
       ),
       body: Column(
         children: [
-          _buildProductSummary(colors, textStyle),
+          _buildProductSummary(),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.w),
+            margin: EdgeInsets.symmetric(
+              horizontal: AppSpacing.sameGroupItemSpacing.w,
+            ),
             padding: EdgeInsets.all(4.w),
             height: 48.h,
             decoration: BoxDecoration(
-              color: colors.whiteSmoke.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12.r),
+              color: AppColors.surfaceBlue,
+              borderRadius: AppRadius.cardRadius,
+              border: Border.all(color: AppColors.border),
             ),
             child: TabBar(
               controller: _tabController,
               dividerColor: Colors.transparent,
-              labelColor: colors.white,
-              unselectedLabelColor: colors.textMedium,
+              labelColor: AppColors.white,
+              unselectedLabelColor: AppColors.muted,
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
-                color: colors.primary,
+                color: AppColors.pickabooBlue,
                 borderRadius: BorderRadius.circular(8.r),
                 boxShadow: [
                   BoxShadow(
-                    color: colors.primary.withValues(alpha: 0.2),
+                    color: AppColors.pickabooBlue.withValues(alpha: 0.2),
                     blurRadius: 4.r,
                     offset: Offset(0, 2.h),
                   ),
                 ],
               ),
-              labelStyle: textStyle.bodyMediumBold,
-              unselectedLabelStyle: textStyle.bodyMedium,
+              labelStyle: AppTypography.cardTitle,
+              unselectedLabelStyle: AppTypography.bodyRegular,
               tabs: const [
                 Tab(text: 'Specification'),
                 Tab(text: 'Description'),
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildSpecification(colors, textStyle),
-                _buildDescription(colors),
+                _buildSpecification(),
+                _buildDescription(),
               ],
             ),
           ),
@@ -109,7 +108,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
     );
   }
 
-  Widget _buildProductSummary(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildProductSummary() {
     final hasDiscount = widget.product.discount > 0;
     final currentPrice = hasDiscount
         ? widget.product.spacialPrice
@@ -119,17 +118,17 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
     final showDiscount = hasDiscount;
 
     return Container(
-      margin: EdgeInsets.all(16.w),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(width: 1.w, color: colors.borderColor),
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
-            blurRadius: 12.r,
-            offset: Offset(0, 4.h),
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 8.r,
+            offset: Offset(0, 2.h),
           ),
         ],
       ),
@@ -137,82 +136,70 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 90.w,
-            height: 90.w,
-            padding: EdgeInsets.all(8.w),
+            width: 75.w,
+            height: 75.w,
+            padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: colors.white,
-              border: Border.all(
-                color: colors.borderColor.withValues(alpha: 0.5),
-              ),
-              borderRadius: BorderRadius.circular(12.r),
+              color: AppColors.pageBg,
+              border: Border.all(color: AppColors.border),
+              borderRadius: AppRadius.cardRadius,
             ),
-            child: CachedNetworkImage(
-              imageUrl: widget.product.images.isNotEmpty
-                  ? widget.product.images.first
-                  : '',
-              fit: BoxFit.contain,
-              errorWidget: (context, url, error) => Icon(
-                Icons.image_not_supported_outlined,
-                color: colors.textMedium,
+            child: ClipRRect(
+              borderRadius: AppRadius.cardRadius,
+              child: CachedNetworkImage(
+                imageUrl: widget.product.images.isNotEmpty
+                    ? widget.product.images.first
+                    : '',
+                fit: BoxFit.contain,
+                errorWidget: (context, url, error) => const Icon(
+                  Icons.image_not_supported_outlined,
+                  color: AppColors.mutedLight,
+                ),
               ),
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   widget.product.name,
-                  style: textStyle.productNameLarge.copyWith(
-                    color: context.colors.text,
-                  ),
+                  style: AppTypography.sectionTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 6.h),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       '৳ ${currentPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
-                      style: textStyle.productPriceLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.colors.primary,
-                      ),
+                      style: AppTypography.priceStandard.withColor(AppColors.pickabooBlue),
                     ),
                   ],
                 ),
                 if (showDiscount) ...[
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 4.h),
                   Row(
                     children: [
                       Text(
                         '৳ ${originalPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
-                        style: textStyle.bodyMedium.copyWith(
-                          color: colors.textMedium,
-                          decoration: TextDecoration.lineThrough,
-                          decorationColor: colors.textMedium,
-                          fontWeight: FontWeight.w400,
-                        ),
+                        style: AppTypography.priceStrikethrough,
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: 6.w),
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 6.w,
                           vertical: 2.h,
                         ),
                         decoration: BoxDecoration(
-                          color: colors.red.withValues(alpha: 0.1),
+                          color: AppColors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text(
                           '$discountPercent% OFF',
-                          style: textStyle.bodySmall.copyWith(
-                            color: colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTypography.badgeDiscountItem,
                         ),
                       ),
                     ],
@@ -226,86 +213,242 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
     );
   }
 
-  Widget _buildDescription(AppColors colors) {
+  Widget _buildDescription() {
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: AppHtml(data: widget.product.productDetails),
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: 8.h,
+      ),
+      child: Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.cardRadius,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: AppHtml(data: widget.product.productDetails),
+      ),
     );
   }
 
-  Widget _buildSpecification(AppColors colors, AppTextStyles textStyle) {
+  int _selectedSpecGroupIndex = 0;
+
+  Widget _buildSpecification() {
     if (widget.product.moreInformation.isEmpty) {
       return Center(
         child: Text(
           'No specifications available',
-          style: textStyle.bodyMedium.copyWith(color: colors.textMedium),
+          style: AppTypography.bodyMuted,
         ),
       );
     }
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: widget.product.moreInformation.length,
-      itemBuilder: (context, index) {
-        final info = widget.product.moreInformation[index];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Text(
-                info.groupLabel,
-                style: textStyle.bodyLargeBold.copyWith(color: colors.primary),
+
+    final groups = widget.product.moreInformation;
+    final safeIndex = _selectedSpecGroupIndex.clamp(0, groups.length - 1);
+    final activeGroup = groups[safeIndex];
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        left: AppSpacing.sameGroupItemSpacing.w,
+        right: AppSpacing.sameGroupItemSpacing.w,
+        bottom: 24.h,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Horizontal Chip List (Radio Group for Specification Categories) ──
+          if (groups.length > 1) ...[
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: List.generate(groups.length, (index) {
+                  final group = groups[index];
+                  final isSelected = index == safeIndex;
+                  final label = group.groupLabel.isNotEmpty
+                      ? group.groupLabel
+                      : 'Group ${index + 1}';
+
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8.w),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedSpecGroupIndex = index;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(6.r),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 4.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.pickabooBlue
+                              : AppColors.white,
+                          borderRadius: BorderRadius.circular(6.r),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.pickabooBlue
+                                : AppColors.border,
+                            width: 1.w,
+                          ),
+                        ),
+                        child: Text(
+                          label,
+                          style: AppTypography.bodyMuted.copyWith(
+                            fontSize: 11.sp,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            color: isSelected
+                                ? AppColors.white
+                                : AppColors.navy,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
               ),
             ),
-            ...info.attrList.map((attr) {
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: 16.w),
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: colors.white,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: colors.borderColor.withValues(alpha: 0.3),
-                      width: 1.w,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        attr.label,
-                        style: textStyle.bodyMedium.copyWith(
-                          color: colors.text,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        attr.value,
-                        style: textStyle.bodyMedium.copyWith(
-                          color: colors.text,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-            SizedBox(height: 16.h),
+            SizedBox(height: 12.h),
           ],
-        );
-      },
+
+          // ── Active Group Specification Card ──
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.cardRadius,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.navy.withValues(alpha: 0.03),
+                  blurRadius: 8.r,
+                  offset: Offset(0, 2.h),
+                ),
+              ],
+            ),
+            foregroundDecoration: BoxDecoration(
+              borderRadius: AppRadius.cardRadius,
+              border: Border.all(color: AppColors.border),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: ClipRRect(
+              borderRadius: AppRadius.cardRadius,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (activeGroup.groupLabel.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14.w,
+                        vertical: 10.h,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: AppColors.surfaceBlue,
+                      ),
+                      child: Text(
+                        activeGroup.groupLabel,
+                        style: AppTypography.cardTitle,
+                      ),
+                    ),
+                  if (activeGroup.attrList.isNotEmpty)
+                    for (int i = 0; i < activeGroup.attrList.length; i++)
+                      Builder(
+                        builder: (context) {
+                          final bool isFirst = i == 0;
+                          final bool isLast =
+                              i == activeGroup.attrList.length - 1;
+                          final bool hasGroupHeader =
+                              activeGroup.groupLabel.isNotEmpty;
+
+                          final BorderRadius? rowRadius = (hasGroupHeader)
+                              ? (isLast
+                                  ? const BorderRadius.vertical(
+                                      bottom: Radius.circular(AppRadius.card),
+                                    )
+                                  : null)
+                              : (isFirst && isLast)
+                                  ? AppRadius.cardRadius
+                                  : isFirst
+                                      ? const BorderRadius.vertical(
+                                          top: Radius.circular(AppRadius.card),
+                                        )
+                                      : isLast
+                                          ? const BorderRadius.vertical(
+                                              bottom: Radius.circular(
+                                                  AppRadius.card),
+                                            )
+                                          : null;
+
+                          return Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 14.w,
+                              vertical: 10.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: i % 2 == 0
+                                  ? AppColors.white
+                                  : AppColors.pageBg,
+                              borderRadius: rowRadius,
+                              border: !isLast
+                                  ? Border(
+                                      bottom: BorderSide(
+                                        color: AppColors.border
+                                            .withValues(alpha: 0.6),
+                                        width: 0.8.w,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    activeGroup.attrList[i].label,
+                                    style: AppTypography.bodyMuted.copyWith(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 8.w),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    activeGroup.attrList[i].value,
+                                    style: AppTypography.cardTitle.copyWith(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      )
+                  else
+                    Padding(
+                      padding: EdgeInsets.all(16.w),
+                      child: Text(
+                        'No specifications in this category.',
+                        style: AppTypography.bodyMuted,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

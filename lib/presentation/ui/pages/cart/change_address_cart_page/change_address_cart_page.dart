@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/change_address_cart_page/address_item.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/address_added_result.dart';
 
@@ -23,27 +23,12 @@ class ChangeAddressCartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Scaffold(
-      backgroundColor: colors.background,
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => context.pop(),
-          iconColor: colors.text,
-        ),
-        title: Text(
-          pageTitle,
-          style: context.textStyle.appBarTitle,
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(1.h),
-          child: Container(color: colors.borderColor, height: 1.h),
-        ),
+      backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        title: pageTitle,
       ),
       body: addresses.isEmpty
           ? Center(
@@ -53,25 +38,32 @@ class ChangeAddressCartPage extends StatelessWidget {
                   Icon(
                     Icons.location_off_outlined,
                     size: 64.sp,
-                    color: colors.silverChalice,
+                    color: AppColors.mutedLight,
                   ),
                   SizedBox(height: 16.h),
                   Text(
                     "No addresses found",
-                    style: textStyle.bodyLarge.copyWith(color: colors.text),
+                    style: textStyle.bodyLarge.copyWith(color: AppColors.text),
                   ),
                   SizedBox(height: 8.h),
                   Text(
                     "Add a new address to continue",
-                    style: textStyle.bodyMedium.copyWith(color: colors.gray),
+                    style: textStyle.bodyMedium.copyWith(color: AppColors.muted),
                   ),
                 ],
               ),
             )
           : ListView.separated(
-              padding: EdgeInsets.all(20.w),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.sameGroupItemSpacing.w,
+                0,
+                AppSpacing.sameGroupItemSpacing.w,
+                AppSpacing.groupToGroupSpacing.h,
+              ),
               itemCount: addresses.length,
-              separatorBuilder: (_, _) => SizedBox(height: 16.h),
+              separatorBuilder: (_, _) => SizedBox(
+                height: AppSpacing.groupToGroupSpacing.h,
+              ),
               itemBuilder: (context, index) {
                 final address = addresses[index];
 
@@ -117,10 +109,10 @@ class ChangeAddressCartPage extends StatelessWidget {
       bottomNavigationBar: Container(
         padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: colors.white,
+          color: AppColors.white,
           boxShadow: [
             BoxShadow(
-              color: colors.black.withValues(alpha: 0.05),
+              color: AppColors.black.withValues(alpha: 0.05),
               offset: const Offset(0, -4),
               blurRadius: 16.r,
             ),
@@ -141,17 +133,17 @@ class ChangeAddressCartPage extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: colors.button,
+                backgroundColor: AppColors.pickabooBlue,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              icon: Icon(Icons.add, color: colors.white, size: 20.sp),
+              icon: Icon(Icons.add, color: AppColors.white, size: 20.sp),
               label: Text(
                 "Add New Address",
                 style: textStyle.buttonLarge.copyWith(
-                  color: colors.white,
+                  color: AppColors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),

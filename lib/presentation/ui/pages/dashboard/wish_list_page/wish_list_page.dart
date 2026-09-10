@@ -3,15 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/wishlist/wishlist_entity.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/bloc/wishlist/wishlist_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/wish_list_page/wishlist_item_card.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class WishListPage extends StatefulWidget {
   const WishListPage({super.key});
@@ -49,22 +53,20 @@ class _WishListPageState extends State<WishListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Wishlist",
-          style: context.textStyle.appBarTitle,
-        ),
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.home);
+        }
+      },
+      child: Scaffold(
+      backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        title: "Wishlist",
         actions: [
           BlocBuilder<WishlistBloc, WishlistState>(
             builder: (context, state) {
@@ -79,7 +81,10 @@ class _WishListPageState extends State<WishListPage> {
                   padding: EdgeInsets.only(right: 16.w),
                   child: Text(
                     "($count)",
-                    style: textStyle.bodyLarge.withColor(colors.text),
+                    style: AppTypography.bodyMuted.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.navy,
+                    ),
                   ),
                 ),
               );
@@ -93,7 +98,10 @@ class _WishListPageState extends State<WishListPage> {
           state.maybeWhen(
             itemAdded: (cart, message) {
               setState(() => _addingSku = null);
-              SnackBarUtils.showSuccess(context, message);
+              SnackBarUtils.showCartItemAdded(
+                context,
+                message: message.isNotEmpty ? message : 'Item added to cart',
+              );
             },
             error: (error, lastCart) {
               setState(() => _addingSku = null);
@@ -106,74 +114,40 @@ class _WishListPageState extends State<WishListPage> {
         listener: (context, state) {
           state.maybeWhen(
             actionSuccess: (message) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                  duration: const Duration(seconds: 1),
-                ),
-              );
+              SnackBarUtils.showPositive(context, message);
             },
             orElse: () {},
           );
         },
         builder: (context, state) {
           return state.maybeWhen(
-            loading: () => Center(
-              child: CircularProgressIndicator(
-                color: colors.primary,
-                strokeWidth: 2.w,
-              ),
-            ),
-            error: (message) => Center(
-              child: Padding(
-                padding: EdgeInsets.all(24.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error_outline_rounded,
-                      size: 64.sp,
-                      color: colors.red,
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: textStyle.bodyLarge.withColor(colors.text),
-                    ),
-                    SizedBox(height: 24.h),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.button,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                      ),
-                      onPressed: () {
-                        context.read<WishlistBloc>().add(
-                          const WishlistEvent.started(),
-                        );
-                      },
-                      child: Text(
-                        "Retry",
-                        style: textStyle.buttonMedium.withColor(colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            loading: () => const AppLoader.fullPage(),
+            error: (message) {
+              final isOffline = ConnectivityUtils.isNoInternet(message, context);
+              return AppErrorView(
+                type: isOffline ? AppErrorType.noInternet : AppErrorType.generic,
+                title: isOffline ? 'No Internet Connection' : 'Unable to Load Wishlist',
+                message: isOffline ? null : message,
+                onRetry: () {
+                  context.read<WishlistBloc>().add(
+                    const WishlistEvent.started(),
+                  );
+                },
+              );
+            },
             loaded: (items) {
               if (items.isEmpty) {
-                return _buildEmptyState(colors, textStyle);
+                return AppEmptyView.wishlist(
+                  onStartShopping: () => context.go(Routes.home),
+                );
               }
               return CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
                   SliverPadding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 16.h,
+                      horizontal: AppSpacing.sameGroupItemSpacing.w,
+                      vertical: AppSpacing.sameGroupItemSpacing.h,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
@@ -206,71 +180,7 @@ class _WishListPageState extends State<WishListPage> {
         },
         ),
       ),
-    );
-  }
-
-  Widget _buildEmptyState(AppColors colors, AppTextStyles textStyle) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(24.w),
-              decoration: BoxDecoration(
-                color: colors.backgroundGray,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10.r,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.favorite_outline_rounded,
-                size: 64.sp,
-                color: colors.primary,
-              ),
-            ),
-            SizedBox(height: 24.h),
-            Text(
-              "Your wishlist_response is empty",
-              style: textStyle.headingMedium.withColor(colors.text),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              "Tap the heart icon on any product to save it for later.",
-              textAlign: TextAlign.center,
-              style: textStyle.bodyMedium.withColor(colors.gray),
-            ),
-            SizedBox(height: 32.h),
-            SizedBox(
-              width: double.infinity,
-              height: 48.h,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.button,
-                  elevation: 2,
-                  shadowColor: colors.button.withValues(alpha: 0.4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-                onPressed: () {
-                  context.go(Routes.home);
-                },
-                child: Text(
-                  "Continue Shopping",
-                  style: textStyle.buttonLarge.withColor(colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    ),
     );
   }
 }

@@ -56,6 +56,49 @@ void main() {
         expect(r.first.ticketCode, 'TCK-123');
       });
     });
+
+    test('getTicketOrders parses 2D array of orders and issue types correctly', () async {
+      final responseData = [
+        [
+          {
+            "order_id": "3408",
+            "order_number": "1008290762",
+            "created_at": "2026-08-10 07:41:53",
+            "status": "processing_for_delivery"
+          }
+        ],
+        [
+          {
+            "department_id": "1",
+            "name": "Delivery Issue"
+          },
+          {
+            "department_id": "2",
+            "name": "Customer Support"
+          }
+        ]
+      ];
+
+      when(() => mockDio.get(any())).thenAnswer((_) async {
+        return Response(
+          requestOptions: RequestOptions(path: ''),
+          data: responseData,
+          statusCode: 200,
+        );
+      });
+
+      final result = await apiService.getTicketOrders();
+
+      expect(result.isRight(), true);
+      result.fold((l) => fail('Should be right'), (r) {
+        expect(r.orders.length, 1);
+        expect(r.orders.first.orderId, '3408');
+        expect(r.orders.first.incrementId, '1008290762');
+        expect(r.issueTypes.length, 2);
+        expect(r.issueTypes.first.name, 'Delivery Issue');
+        expect(r.issueTypes.last.name, 'Customer Support');
+      });
+    });
   });
 
   tearDownAll(() {

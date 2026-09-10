@@ -1,6 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_typography.dart';
 
 /// Shared "we can't ask again" dialog.
 ///
@@ -20,8 +27,6 @@ class PermissionPrompt {
     required String title,
     required String message,
   }) async {
-    final colors = context.colors;
-
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -30,13 +35,13 @@ class PermissionPrompt {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text('Not now', style: TextStyle(color: colors.textMedium)),
+            child: Text('Not now', style: AppTypography.bodyRegular),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text(
               'Open Settings',
-              style: TextStyle(color: colors.primary),
+              style: AppTypography.bodyRegular,
             ),
           ),
         ],

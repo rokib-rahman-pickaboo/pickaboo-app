@@ -1,10 +1,21 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/constants/app_constants.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
+/// ─────────────────────────────────────────────────────────────
+/// 🛒 REFINED CART ITEM CARD
+/// Theme inspired by [AppMenuTile] with soft-tinted action bubbles,
+/// structured typography hierarchy, and consistent card tokens.
+/// ─────────────────────────────────────────────────────────────
 class CartItemCard extends StatelessWidget {
   final CartItemEntity item;
   final Function(int) onQuantityChanged;
@@ -12,6 +23,8 @@ class CartItemCard extends StatelessWidget {
   final VoidCallback onSaveForLater;
   final bool showActions;
   final bool isQuantityModifiable;
+  final bool showDivider;
+  final bool showOuterCard;
 
   const CartItemCard({
     super.key,
@@ -21,338 +34,464 @@ class CartItemCard extends StatelessWidget {
     required this.onSaveForLater,
     this.showActions = true,
     this.isQuantityModifiable = false,
+    this.showDivider = false,
+    this.showOuterCard = false,
   });
+
+  String _formatPrice(double price) {
+    final formatted = price.toStringAsFixed(0);
+    return formatted.replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (match) => '${match[1]},',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final price = item.customOptions.isNotEmpty
+        ? item.price
+        : (item.specialPrice > 0 ? item.specialPrice : item.price);
+    final originalPrice = item.regularPrice;
+    final hasDiscount =
+        item.specialPrice > 0 && item.specialPrice < item.regularPrice;
 
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(width: 1.w, color: context.colors.borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
-      child: Column(
+    final itemContent = Padding(
+      padding: EdgeInsets.all(10.w),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.all(12.0.w),
-            child: Row(
+          // ── 1. LEFT: ROUNDED PRODUCT THUMBNAIL (80x80px) ──
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8.r),
+            child: Container(
+              width: 80.w,
+              height: 80.w,
+              color: AppColors.pageBg,
+              child: item.imageUrl.isNotEmpty
+                  ? AppImage(
+                      imageUrl: item.imageUrl,
+                      fit: BoxFit.contain,
+                    )
+                  : const Center(
+                      child: Icon(
+                        Icons.image_outlined,
+                        color: AppColors.mutedLight,
+                      ),
+                    ),
+            ),
+          ),
+          SizedBox(width: 10.w),
+
+          // ── 2. RIGHT: PRODUCT DETAILS (TITLE, SELLER, PRICE+QTY, ACTIONS) ──
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                // Product Full Name
+                Text(
+                  item.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.cardTitle.copyWith(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.navy,
+                    height: 1.25,
+                  ),
+                ),
+
+                // Sold By
+                if (item.soldBy.isNotEmpty) ...[
+                  SizedBox(height: 3.h),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Sold by ',
+                          style: AppTypography.bodyMuted,
+                        ),
+                        TextSpan(
+                          text: item.soldBy,
+                          style: AppTypography.bodyMuted.copyWith(
+                            color: AppColors.navy,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+
+                // ── Variant Config & Custom Add-on Attributes (Micro-Chips) ──
+                if (item.configOptions.isNotEmpty || item.customOptions.isNotEmpty) ...[
+                  SizedBox(height: 5.h),
+                  Wrap(
+                    spacing: 6.w,
+                    runSpacing: 4.h,
                     children: [
-                      Text(
-                        item.name,
-                        style: context.textStyle.cartItemName.withColor(
-                          colors.text,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 5.h),
-
-                      if (item.configOptions.isNotEmpty)
-                        ...item.configOptions.map(
-                          (option) => Padding(
-                            padding: EdgeInsets.only(top: 4.h, bottom: 4.h),
-                            child: RichText(
-                              text: TextSpan(
-                                style: context.textStyle.productBrand,
-                                children: [
-                                  TextSpan(
-                                    text: '${option.title}: ',
-                                    style: context.textStyle.productBrand
-                                        .withColor(colors.black)
-                                  ),
-                                  TextSpan(
-                                    text: option.value,
-                                    style: context.textStyle.productBrand
-                                        .withColor(colors.primary)
-                                        .copyWith(fontWeight: FontWeight.w800),
-                                  ),
-                                ],
-                              ),
+                      // 1. Configurable Variants (Color, Storage, Size, etc.)
+                      ...item.configOptions.map((o) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.pageBg,
+                            borderRadius: BorderRadius.circular(4.r),
+                            border: Border.all(
+                              color: AppColors.border,
+                              width: 0.8.w,
                             ),
                           ),
-                        ),
-
-                      if (item.customOptions.isNotEmpty)
-                        ...item.customOptions.map(
-                          (option) => Padding(
-                            padding: EdgeInsets.only(top: 4.h, bottom: 4.h),
-                            child: RichText(
-                              text: TextSpan(
-                                style: context.textStyle.productBrand,
-                                children: [
-                                  TextSpan(
-                                    text: '${option.title}: ',
-                                    style: context.textStyle.productBrand
-                                        .withColor(colors.black)
-                                  ),
-                                  TextSpan(
-                                    text: option.value,
-                                    style: context.textStyle.productBrand
-                                        .withColor(colors.primary)
-                                        .copyWith(fontWeight: FontWeight.w800),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      if (item.soldBy.isNotEmpty)
-                        Padding(
-                          padding: EdgeInsets.only(top: 4.h, bottom: 4.h),
-                          child: RichText(
-                            text: TextSpan(
-                              style: context.textStyle.productBrand.copyWith(
-                                color: colors.gray,
-                              ),
+                          child: Text.rich(
+                            TextSpan(
                               children: [
-                                const TextSpan(text: 'Sold by: '),
                                 TextSpan(
-                                  text: item.soldBy,
-                                  style: context.textStyle.productBrand
-                                      .withColor(colors.primary)
-                                      .copyWith(fontWeight: FontWeight.w500),
+                                  text: '${o.title}: ',
+                                  style: AppTypography.bodyMuted.copyWith(
+                                    fontSize: 10.sp,
+                                    color: AppColors.muted,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: o.value,
+                                  style: AppTypography.bodyRegular.copyWith(
+                                    fontSize: 10.sp,
+                                    color: AppColors.navy,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
+                        );
+                      }),
 
-                      if (!item.stockAvailable)
-                        Container(
+                      // 2. Custom Options / Add-ons (Gift, Warranty, Accessories, etc.)
+                      ...item.customOptions.map((o) {
+                        final addonPriceNum = double.tryParse(o.price) ?? 0;
+                        final priceTag = addonPriceNum > 0
+                            ? ' (+৳${addonPriceNum.toStringAsFixed(0)})'
+                            : (o.price.isNotEmpty && o.price != '0'
+                                ? ' (+৳${o.price})'
+                                : '');
+
+                        return Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 4.h,
+                            horizontal: 6.w,
+                            vertical: 2.h,
                           ),
-                          margin: EdgeInsets.only(top: 4.h),
-                          color: colors.whiteSmoke,
-                          child: Text(
-                            'Out of Stock',
-                            style: context.textStyle.badgeSmall.withColor(
-                              colors.red,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceBlue,
+                            borderRadius: BorderRadius.circular(4.r),
+                            border: Border.all(
+                              color: AppColors.pickabooBlue.withValues(alpha: 0.25),
+                              width: 0.8.w,
                             ),
                           ),
-                        ),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${o.title}: ',
+                                  style: AppTypography.bodyMuted.copyWith(
+                                    fontSize: 10.sp,
+                                    color: AppColors.pickabooBlue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: '${o.value}$priceTag',
+                                  style: AppTypography.bodyRegular.copyWith(
+                                    fontSize: 10.sp,
+                                    color: AppColors.navy,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ],
 
-                      SizedBox(height: 8.h),
-                      Row(
+                // Stock status tag
+                if (!item.stockAvailable) ...[
+                  SizedBox(height: 3.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 2.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.red.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.badgeRadius,
+                    ),
+                    child: Text(
+                      'Out of Stock',
+                      style: AppTypography.badgeStockOut,
+                    ),
+                  ),
+                ],
+
+                SizedBox(height: 6.h),
+
+                // ── PRICE (LEFT) & QUANTITY SELECTOR (RIGHT) ROW ──
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Price on the Left (+ Strikethrough if discounted)
+                    Expanded(
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6.w,
                         children: [
                           Text(
-                            '৳${item.customOptions.isNotEmpty ? item.price.toStringAsFixed(0) : (item.specialPrice > 0 ? item.specialPrice.toStringAsFixed(0) : item.price.toStringAsFixed(0))}',
-                            style: context.textStyle.cartItemPrice.withColor(
-                              colors.primary,
+                            '৳${_formatPrice(price)}',
+                            style: AppTypography.priceStandard.copyWith(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.navy,
                             ),
                           ),
-                          if (item.specialPrice > 0 &&
-                              item.specialPrice != item.regularPrice)
-                            Padding(
-                              padding: EdgeInsets.only(left: 8.w),
-                              child: Text(
-                                '৳${item.regularPrice.toStringAsFixed(0)}',
-                                style: context.textStyle.priceStrikethrough
-                                    .withColor(colors.gray),
-                              ),
-                            ),
-                          if (item.discount.isNotEmpty &&
-                              double.tryParse(item.discount) != null &&
-                              double.parse(item.discount) > 0)
-                            Container(
-                              margin: EdgeInsets.only(left: 8.w),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 6.w,
-                                vertical: 2.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.grayLight,
-                                borderRadius: BorderRadius.circular(4.r),
-                              ),
-                              child: Text(
-                                '-${item.discount}%',
-                                style: context.textStyle.productDiscount
-                                    .withColor(colors.orange),
+                          if (hasDiscount)
+                            Text(
+                              '৳${_formatPrice(originalPrice)}',
+                              style: AppTypography.priceStrikethrough.copyWith(
+                                fontSize: 10.5.sp,
                               ),
                             ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                    SizedBox(width: 8.w),
 
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 90.h,
-                        width: 90.w,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: colors.borderColor),
-                          borderRadius: BorderRadius.circular(5.r),
+                    // Qty Dropdown Pill on the Right (Dropdown opens just below)
+                    if (isQuantityModifiable)
+                      PopupMenuButton<int>(
+                        initialValue: item.qty,
+                        onSelected: onQuantityChanged,
+                        position: PopupMenuPosition.under,
+                        offset: Offset(0, 4.h),
+                        constraints: BoxConstraints(minWidth: 68.w),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                          side: BorderSide(
+                            color: AppColors.border,
+                            width: 1.w,
+                          ),
                         ),
-                        child: item.imageUrl.isNotEmpty
-                            ? Image.network(
-                                item.imageUrl,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(
-                                      Icons.broken_image,
-                                      color: colors.gray,
-                                    ),
-                              )
-                            : Icon(Icons.image, color: colors.gray),
-                      ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        width: 90.w,
-                        height: 32.h,
-                        padding: EdgeInsets.symmetric(horizontal: 4.w),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: colors.borderColor),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        alignment: Alignment.center,
-                        child: isQuantityModifiable
-                            ? DropdownButtonHideUnderline(
-                                child: DropdownButton<int>(
-                                  value: item.qty,
-                                  isDense: true,
-                                  isExpanded: true,
-                                  alignment: Alignment.center,
-                                  icon: Icon(Icons.keyboard_arrow_down, size: 16.sp),
-                                  style: context.textStyle.bodySmall.copyWith(
-                                    color: colors.text,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  onChanged: (newValue) {
-                                    if (newValue != null) {
-                                      onQuantityChanged(newValue);
-                                    }
-                                  },
-                                  items: (<int>{
-                                    for (var i = AppConstants.minCartQuantity;
-                                        i <= AppConstants.maxCartQuantity;
-                                        i++)
-                                      i,
-                                    item.qty,
-                                  }.toList()..sort()).map((int value) {
-                                    return DropdownMenuItem<int>(
-                                      value: value,
-                                      alignment: Alignment.center,
-                                      child: Text('Qty: $value'),
-                                    );
-                                  }).toList(),
-                                ),
-                              )
-                            : Text(
+                        color: AppColors.white,
+                        elevation: 3,
+                        padding: EdgeInsets.zero,
+                        itemBuilder: (context) => List.generate(10, (i) {
+                          final qty = i + 1;
+                          final isSelected = item.qty == qty;
+                          return PopupMenuItem<int>(
+                            value: qty,
+                            height: 32.h,
+                            padding: EdgeInsets.symmetric(horizontal: 6.w),
+                            child: Center(
+                              child: Text(
+                                '$qty',
+                                style: isSelected
+                                    ? AppTypography.cardTitle.copyWith(
+                                        color: AppColors.pickabooBlue,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 12.sp,
+                                      )
+                                    : AppTypography.bodyRegular.copyWith(
+                                        color: AppColors.navy,
+                                        fontSize: 12.sp,
+                                      ),
+                              ),
+                            ),
+                          );
+                        }),
+                        child: Container(
+                          constraints: BoxConstraints(
+                            minWidth: 54.w,
+                            minHeight: 28.h,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 4.h,
+                          ),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.pageBg,
+                            borderRadius: BorderRadius.circular(6.r),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
                                 'Qty: ${item.qty}',
-                                style: context.textStyle.bodySmall.copyWith(
-                                  color: colors.text,
+                                style: AppTypography.cardTitle.copyWith(
+                                  fontSize: 11.5.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              SizedBox(width: 2.w),
+                              Icon(
+                                Icons.arrow_drop_down_rounded,
+                                size: 16.sp,
+                                color: AppColors.navy,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        constraints: BoxConstraints(
+                          minWidth: 54.w,
+                          minHeight: 28.h,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.w,
+                          vertical: 4.h,
+                        ),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColors.pageBg,
+                          borderRadius: BorderRadius.circular(6.r),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Text(
+                          'Qty: ${item.qty}',
+                          style: AppTypography.cardTitle.copyWith(
+                            fontSize: 11.5.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+
+                // ── BOTTOM ROW: FULL WIDTH INLINE ACTION BUTTONS (Save for later & Remove) ──
+                if (showActions) ...[
+                  SizedBox(height: 10.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Save for later
+                      InkWell(
+                        onTap: onSaveForLater,
+                        borderRadius: BorderRadius.circular(4.r),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 2.h),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.bookmark_border_rounded,
+                                size: 16.sp,
+                                color: AppColors.navy,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                'Save for later',
+                                style: AppTypography.bodyRegular.copyWith(
+                                  fontSize: 11.5.sp,
+                                  color: AppColors.navy,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Remove
+                      InkWell(
+                        onTap: onRemove,
+                        borderRadius: BorderRadius.circular(4.r),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 2.h),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.delete_outline_rounded,
+                                size: 16.sp,
+                                color: AppColors.red,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                'Remove',
+                                style: AppTypography.bodyRegular.copyWith(
+                                  fontSize: 11.5.sp,
+                                  color: AppColors.red,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ],
             ),
           ),
-
-          if (showActions) ...[
-            Divider(height: 1.h, color: colors.borderColor),
-            Row(
-              children: [
-                Expanded(
-                  child: Material(
-                    color: colors.black.withValues(alpha: 0.0),
-                    child: InkWell(
-                      onTap: onSaveForLater,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(16.r),
-                      ),
-                      splashColor: colors.primary.withAlpha(20),
-                      highlightColor: colors.primary.withAlpha(10),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.bookmark_border,
-                              size: 18.sp,
-                              color: colors.gray,
-                            ),
-                            SizedBox(width: 6.w),
-                            Flexible(
-                              child: Text(
-                                'Save for later',
-                                style: context.textStyle.buttonLink.withColor(
-                                  colors.black,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Container(width: 1.w, height: 40.h, color: colors.borderColor),
-                Expanded(
-                  child: Material(
-                    color: colors.black.withValues(alpha: 0.0),
-                    child: InkWell(
-                      onTap: onRemove,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: Radius.circular(16.r),
-                      ),
-                      splashColor: colors.red.withAlpha(20),
-                      highlightColor: colors.red.withAlpha(10),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.delete_outline,
-                              size: 18.sp,
-                              color: colors.gray,
-                            ),
-                            SizedBox(width: 6.w),
-                            Text(
-                              'Remove',
-                              style: context.textStyle.buttonLink.withColor(
-                                colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
+    );
+
+    if (showOuterCard) {
+      return Container(
+        margin: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.cardRadius,
+          border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.navy.withValues(alpha: 0.03),
+              blurRadius: 8.r,
+              offset: Offset(0, 2.h),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            itemContent,
+            if (showDivider)
+              Divider(
+                height: 1.h,
+                thickness: 1.h,
+                indent: 95.w,
+                color: AppColors.border,
+              ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        itemContent,
+        if (showDivider)
+          Divider(
+            height: 1.h,
+            thickness: 1.h,
+            indent: 95.w,
+            color: AppColors.border,
+          ),
+      ],
     );
   }
 }

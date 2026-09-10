@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class SectionTitle extends StatelessWidget {
   final String title;
@@ -13,11 +12,10 @@ class SectionTitle extends StatelessWidget {
       title,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: context.textStyle.headingSmall.copyWith(
-        fontWeight: FontWeight.w700,
-        color: context.colors.black,
-        fontSize: 15.sp,
-        height: 1.2,
+      style: AppTypography.sectionTitle.copyWith(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w800,
+        color: AppColors.navy,
         letterSpacing: -0.2,
       ),
     );

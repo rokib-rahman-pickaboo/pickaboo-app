@@ -1,75 +1,52 @@
-import 'package:cached_network_image/cached_network_image.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/auth/user_entity.dart';
-import 'package:pickaboo/domain/entity/common/custom_attribute_entity.dart';
+import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/profile_grid_tile.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/profile_header_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/profile_section_card.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 
-class DashboardPage extends StatefulWidget {
+/// PROFILE DASHBOARD PAGE
+class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
-  @override
-  State<DashboardPage> createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends State<DashboardPage> {
-  String? _promotionalText;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPromotionalContent();
-  }
-
-  Future<void> _loadPromotionalContent() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    setState(() {
-      _promotionalText = 'Special Offer! Get 20% off on your next purchase';
-    });
-  }
-
-  String _getAttributeValue(UserEntity user, String code) {
-    final attr = user.customAttributes?.firstWhere(
-      (element) => element.attributeCode == code,
-      orElse: () => const CustomAttributeEntity(attributeCode: '', value: null),
-    );
-    return attr?.value?.toString() ?? '';
-  }
-
   UserEntity? _userFrom(UserProfileState state) => state.maybeWhen(
-    loaded: (user, _, _) => user,
-    updating: (user, _, _) => user,
-    loading: (user, _, _) => user,
-    basicInfoUpdateSuccess: (_, user, _, _) => user,
-    mobileUpdateSuccess: (_, user, _, _) => user,
-    imageUploadSuccess: (_, user, _, _) => user,
-    phoneUpdateOtpSent: (_, user, _) => user,
-    orElse: () => null,
-  );
+        loaded: (user, _, _) => user,
+        updating: (user, _, _) => user,
+        loading: (user, _, _) => user,
+        basicInfoUpdateSuccess: (_, user, _, _) => user,
+        mobileUpdateSuccess: (_, user, _, _) => user,
+        imageUploadSuccess: (_, user, _, _) => user,
+        phoneUpdateOtpSent: (_, user, _) => user,
+        orElse: () => null,
+      );
 
   String? _imageUrlFrom(UserProfileState state) => state.maybeWhen(
-    loaded: (_, imageUrl, _) => imageUrl,
-    updating: (_, imageUrl, _) => imageUrl,
-    loading: (_, imageUrl, _) => imageUrl,
-    basicInfoUpdateSuccess: (_, _, imageUrl, _) => imageUrl,
-    mobileUpdateSuccess: (_, _, imageUrl, _) => imageUrl,
-    imageUploadSuccess: (_, _, imageUrl, _) => imageUrl,
-    phoneUpdateOtpSent: (_, _, imageUrl) => imageUrl,
-    orElse: () => null,
-  );
-
-  bool _isValidImageUrl(String? url) {
-    if (url == null || url.isEmpty) return false;
-    final uri = Uri.tryParse(url);
-    return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
-  }
+        loaded: (_, imageUrl, _) => imageUrl,
+        updating: (_, imageUrl, _) => imageUrl,
+        loading: (_, imageUrl, _) => imageUrl,
+        basicInfoUpdateSuccess: (_, _, imageUrl, _) => imageUrl,
+        mobileUpdateSuccess: (_, _, imageUrl, _) => imageUrl,
+        imageUploadSuccess: (_, _, imageUrl, _) => imageUrl,
+        phoneUpdateOtpSent: (_, _, imageUrl) => imageUrl,
+        orElse: () => null,
+      );
 
   void _requireAuth(
     BuildContext context,
@@ -77,7 +54,7 @@ class _DashboardPageState extends State<DashboardPage> {
     UserEntity? user,
   }) {
     if (user == null) {
-      context.push(Routes.login);
+      context.push('${Routes.login}?from=profile');
     } else {
       action();
     }
@@ -85,8 +62,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -95,611 +70,333 @@ class _DashboardPageState extends State<DashboardPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: colors.scaffoldBackground,
-        body: CustomScrollView(
-          slivers: [
-            _buildDashboardAppBar(context, colors),
-
-            _buildGridMenu(context, colors),
-
-            SliverToBoxAdapter(child: SizedBox(height: 8.h)),
-
-            _buildListMenu(context, colors),
-          ],
+        backgroundColor: AppColors.pageBg,
+        appBar: const PickabooAppBar(
+          title: 'Dashboard',
+          showBackButton: false,
         ),
-      ),
-    );
-  }
-
-  Widget _buildDashboardAppBar(BuildContext context, AppColors colors) {
-    return BlocBuilder<UserProfileBloc, UserProfileState>(
-      builder: (context, state) {
-        final user = _userFrom(state);
-
-        if (user != null) {
-          final imageUrl = _imageUrlFrom(state);
-          final validImageUrl = _isValidImageUrl(imageUrl) ? imageUrl : null;
-
-          return SliverAppBar(
-              pinned: true,
-              title: Text('Dashboard', style: context.textStyle.appBarTitle),
-              backgroundColor: colors.scaffoldBackground,
-              bottom: PreferredSize(
-                preferredSize: Size.fromHeight(130.w),
-                child: Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 12.w,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.white,
-                    borderRadius: BorderRadius.circular(16.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10.r,
-                        offset: Offset(0, 2.h),
-                      ),
-                    ],
-                  ),
-                  padding: EdgeInsets.all(16.w),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: colors.primary.withValues(alpha: 0.1),
-                            width: 2.w,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 32.r,
-                          backgroundColor: colors.grayLight,
-                          backgroundImage: validImageUrl != null
-                              ? CachedNetworkImageProvider(validImageUrl)
-                              : null,
-                          child: validImageUrl == null
-                              ? SvgPicture.asset(
-                                  'assets/new/svg/profile_icon.svg',
-                                  width: 44.sp,
-                                  height: 44.sp,
-                                )
-                              : null,
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${user.firstname} ${user.lastname}',
-                              style: context.textStyle.profileName.withColor(
-                                colors.text,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 6.h),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.badge_outlined,
-                                  size: 14.sp,
-                                  color: colors.gray,
-                                ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  'ID #${user.id}',
-                                  style: context.textStyle.profileLabel
-                                      .withColor(colors.gray),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 2.h),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.phone_outlined,
-                                  size: 14.sp,
-                                  color: colors.gray,
-                                ),
-                                SizedBox(width: 4.w),
-                                Expanded(
-                                  child: Text(
-                                    _getAttributeValue(
-                                          user,
-                                          'mobile_number',
-                                        ).isNotEmpty
-                                        ? _getAttributeValue(
-                                            user,
-                                            'mobile_number',
-                                          )
-                                        : user.email,
-                                    style: context.textStyle.profileEmail
-                                        .withColor(colors.gray),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Material(
-                          color: colors.black.withValues(alpha: 0.0),
-                          child: InkWell(
-                            onTap: () {
-                              context.push(Routes.accountInformation);
-                            },
-                            borderRadius: BorderRadius.circular(8.r),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12.w,
-                                vertical: 8.h,
-                              ),
-                              child: Icon(
-                                Icons.edit_outlined,
-                                color: colors.primary,
-                                size: 20.sp,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+        body: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, authState) {
+            final authUser = authState.maybeWhen(
+              authenticated: (token, user) => user,
+              orElse: () => null,
             );
-        }
+            final bool isAuthenticated = authUser != null;
 
-        return SliverAppBar(
-              pinned: true,
-              title: Text('Dashboard', style: context.textStyle.appBarTitle),
-              backgroundColor: colors.scaffoldBackground,
-              bottom: PreferredSize(
-                preferredSize: Size.fromHeight(130.w),
-                child: Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 12.w,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.white,
-                    borderRadius: BorderRadius.circular(16.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10.r,
-                        offset: Offset(0, 2.h),
-                      ),
-                    ],
-                  ),
-                  padding: EdgeInsets.all(16.w),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: colors.primary.withValues(alpha: 0.1),
-                            width: 2.w,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 32.r,
-                          backgroundColor: colors.grayLight,
-                          child: SvgPicture.asset(
-                            'assets/new/svg/profile_icon.svg',
-                            width: 44.sp,
-                            height: 44.sp,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Welcome to Pickaboo!',
-                              style: context.textStyle.profileName.withColor(
-                                colors.text,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 6.h),
-                            Text(
-                              'Login to continue',
-                              style: context.textStyle.profileLabel.withColor(
-                                colors.gray,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colors.primary,
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Material(
-                          color: colors.black.withValues(alpha: 0.0),
-                          child: InkWell(
-                            onTap: () {
-                              context.push(Routes.login);
-                            },
-                            borderRadius: BorderRadius.circular(8.r),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 8.h,
-                              ),
-                              child: Text(
-                                'Login',
-                                style: context.textStyle.bodyMediumBold
-                                    .copyWith(color: colors.white),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-      },
-    );
-  }
+            return BlocBuilder<UserProfileBloc, UserProfileState>(
+              builder: (context, profileState) {
+                final profileUser = _userFrom(profileState);
+                final user = isAuthenticated ? (profileUser ?? authUser) : null;
+                final imageUrl = isAuthenticated ? _imageUrlFrom(profileState) : null;
+                final bool isLoggedIn = isAuthenticated && user != null;
 
-  // ignore: unused_element
-  Widget _buildPromotionalBanner(AppColors colors) {
-    return SliverToBoxAdapter(
-      child: Material(
-        color: colors.black.withValues(alpha: 0.0),
-        child: InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(16.r),
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.w),
-            padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [colors.primary, colors.scampi],
-              ),
-              borderRadius: BorderRadius.circular(16.r),
-              boxShadow: [
-                BoxShadow(
-                  color: colors.primary.withValues(alpha: 0.3),
-                  blurRadius: 12.r,
-                  offset: Offset(0, 4.h),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12.r),
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.sameGroupItemSpacing.w,
+                    0,
+                    AppSpacing.sameGroupItemSpacing.w,
+                    0,
                   ),
-                  child: Icon(
-                    Icons.local_offer,
-                    color: colors.white,
-                    size: 24.sp,
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Special Offer!',
-                        style: context.textStyle.headingSmall.withColor(
-                          colors.white,
+                      // ── 1. DYNAMIC PROFILE HEADER CARD (0 vertical margin, horizontal sameGroupItemSpacing) ──
+                      ProfileHeaderCard(
+                        isLoggedIn: isLoggedIn,
+                        user: user,
+                        imageUrl: imageUrl,
+                        onEditTap: () => context.push(Routes.accountInformation),
+                        onLoginTap: () =>
+                            context.push('${Routes.login}?from=profile'),
+                      ),
+
+                  AppSpacing.groupToGroupGap,
+
+                  // ── 2. 4-ITEM QUICK ACTION GRID (sameGroupItemSpacing) ──
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    mainAxisSpacing: AppSpacing.sameGroupItemSpacing.h,
+                    crossAxisSpacing: AppSpacing.sameGroupItemSpacing.w,
+                    childAspectRatio: 2.5,
+                    children: [
+                      ProfileGridTile(
+                        icon: Icons.local_shipping_outlined,
+                        title: 'My Orders',
+                        accentColor: AppColors.pickabooBlue,
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.orderList),
+                          user: user,
                         ),
                       ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        _promotionalText!,
-                        style: context.textStyle.bodySmall.withColor(
-                          colors.white.withValues(alpha: 0.9),
+                      ProfileGridTile(
+                        icon: Icons.confirmation_number_outlined,
+                        title: 'Support Tickets',
+                        accentColor: AppColors.pink,
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.ticketMain),
+                          user: user,
+                        ),
+                      ),
+                      ProfileGridTile(
+                        icon: Icons.stars_outlined,
+                        title: AppStrings.clubPointsTitle,
+                        accentColor: AppColors.amber,
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.clubPoint),
+                          user: user,
+                        ),
+                      ),
+                      ProfileGridTile(
+                        icon: Icons.rate_review_outlined,
+                        title: 'Review & Win',
+                        accentColor: AppColors.green,
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.yourReview),
+                          user: user,
                         ),
                       ),
                     ],
                   ),
-                ),
-                Icon(Icons.arrow_forward_ios, color: colors.white, size: 16.sp),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildGridMenu(BuildContext context, AppColors colors) {
-    return BlocBuilder<UserProfileBloc, UserProfileState>(
-      builder: (context, state) {
-        final user = _userFrom(state);
+                  AppSpacing.groupToGroupGap,
 
-        return SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DashboardGridItem(
-                        title: 'My Orders',
-                        icon: Icons.shopping_bag_outlined,
-                        backgroundColor: colors.geraldine,
-                        onTap: () => _requireAuth(context, () {
-                          context.push(Routes.orderList);
-                        }, user: user),
+                  // ── 3. MAIN MENU SECTION ──
+                  ProfileSectionCard(
+                    children: [
+                      AppMenuTile(
+                        icon: Icons.share_outlined,
+                        title: 'Share & Earn',
+                        subtitle: 'Invite friends & earn reward points',
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.referral),
+                          user: user,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _DashboardGridItem(
-                        title: 'Support Tickets',
-                        icon: Icons.support_agent_outlined,
-                        backgroundColor: colors.salmon,
-                        onTap: () => _requireAuth(context, () {
-                          context.push(Routes.ticketMain);
-                        }, user: user),
+                      AppMenuTile(
+                        icon: Icons.help_outline_rounded,
+                        title: 'FAQ & Support',
+                        subtitle: 'Help center & frequent questions',
+                        onTap: () => context.go(Routes.knowledgeBase),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DashboardGridItem(
-                        title: 'Pickaboo Club Points',
-                        icon: Icons.stars_outlined,
-                        backgroundColor: colors.shamrock,
-                        onTap: () => _requireAuth(context, () {
-                          context.push(Routes.clubPoint);
-                        }, user: user),
+                      AppMenuTile(
+                        icon: Icons.description_outlined,
+                        title: AppStrings.termsAndConditions,
+                        subtitle: 'Policies, terms & privacy statement',
+                        onTap: () => context.push(Routes.terms),
                       ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _DashboardGridItem(
-                        title: 'Reviews & Win',
-                        icon: Icons.rate_review_outlined,
-                        backgroundColor: colors.primary,
-                        onTap: () => _requireAuth(context, () {
-                          context.push(Routes.yourReview);
-                        }, user: user),
+                      AppMenuTile(
+                        icon: Icons.person_outline_rounded,
+                        title: AppStrings.accountInformation,
+                        subtitle: 'Personal info & security details',
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.accountInformation),
+                          user: user,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+                      AppMenuTile(
+                        icon: Icons.location_on_outlined,
+                        title: 'Manage Address',
+                        subtitle: 'Saved shipping & delivery addresses',
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.address),
+                          user: user,
+                        ),
+                      ),
+                      AppMenuTile(
+                        icon: Icons.payment_outlined,
+                        title: 'Saved Payment Method',
+                        subtitle: 'Credit cards & mobile wallets',
+                        onTap: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.savePayment),
+                          user: user,
+                        ),
+                      ),
+                      AppMenuTile(
+                        icon: Icons.headset_mic_outlined,
+                        title: AppStrings.contactUs,
+                        subtitle: 'Reach Pickaboo customer support',
+                        onTap: () => context.push(Routes.contactUs),
+                      ),
+                    ],
+                  ),
+
+                  AppSpacing.groupToGroupGap,
+
+                  // ── 4. SETTINGS & LOGOUT / LOGIN SECTION ──
+                  ProfileSectionCard(
+                    children: [
+                      AppMenuTile(
+                        icon: Icons.settings_outlined,
+                        title: AppStrings.appSettings,
+                        subtitle: 'App preferences, language & notifications',
+                        onTap: () => context.push(Routes.setting),
+                      ),
+                      if (isLoggedIn)
+                        AppMenuTile(
+                          icon: Icons.logout_rounded,
+                          title: AppStrings.logout,
+                          subtitle: 'Sign out of your account',
+                          isDestructive: true,
+                          onTap: () =>
+                              _showLogoutConfirmationBottomSheet(context),
+                        )
+                      else
+                        AppMenuTile(
+                          icon: Icons.login_rounded,
+                          title: 'Login / Register',
+                          subtitle:
+                              'Sign in to access your full profile & orders',
+                          isBrand: true,
+                          onTap: () =>
+                              context.push('${Routes.login}?from=profile'),
+                        ),
+                    ],
+                  ),
+
+                  // Bottom clearance for floating bottom navigation bar
+                  SizedBox(
+                    height: 90.h + MediaQuery.paddingOf(context).bottom,
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
-    );
-  }
-
-  Widget _buildListMenu(BuildContext context, AppColors colors) {
-    return BlocBuilder<UserProfileBloc, UserProfileState>(
-      builder: (context, state) {
-        final user = _userFrom(state);
-
-        return SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
-            child: Column(
-              children: [
-                _DashboardListItem(
-                  icon: Icons.share_outlined,
-                  title: 'Share & Earn',
-                  onTap: () => _requireAuth(
-                    context,
-                    () => context.push(Routes.referral),
-                    user: user,
-                  ),
-                ),
-                _DashboardListItem(
-                  icon: Icons.help_outline,
-                  title: 'FAQ & Support',
-                  onTap: () => context.go(Routes.knowledgeBase),
-                ),
-                _DashboardListItem(
-                  icon: Icons.description_outlined,
-                  title: 'Terms and Conditions',
-                  onTap: () => context.push(Routes.terms),
-                ),
-                _DashboardListItem(
-                  icon: Icons.account_circle_outlined,
-                  title: 'Account Information',
-                  onTap: () => _requireAuth(
-                    context,
-                    () => context.push(Routes.accountInformation),
-                    user: user,
-                  ),
-                ),
-                _DashboardListItem(
-                  icon: Icons.location_on_outlined,
-                  title: 'Manage Address',
-                  onTap: () => _requireAuth(
-                    context,
-                    () => context.push(Routes.address),
-                    user: user,
-                  ),
-                ),
-                _DashboardListItem(
-                  icon: Icons.payment_outlined,
-                  title: 'Saved Payment Method',
-                  onTap: () => _requireAuth(
-                    context,
-                    () => context.push(Routes.savePayment),
-                    user: user,
-                  ),
-                ),
-                _DashboardListItem(
-                  icon: Icons.contact_support_outlined,
-                  title: 'Contact Us',
-                  onTap: () => context.push(Routes.contactUs),
-                ),
-                _DashboardListItem(
-                  icon: Icons.settings_outlined,
-                  title: 'Settings',
-                  onTap: () => context.push(Routes.setting),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+    ),
+  ),
+);
 }
 
-class _DashboardGridItem extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Color backgroundColor;
-  final VoidCallback onTap;
-
-  const _DashboardGridItem({
-    required this.title,
-    required this.icon,
-    required this.backgroundColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Material(
-      color: colors.black.withValues(alpha: 0.0),
-      borderRadius: BorderRadius.circular(16.r),
-      elevation: 2,
-      shadowColor: backgroundColor.withValues(alpha: 0.3),
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16.r),
-          child: Container(
-            height: 135.h,
-            padding: EdgeInsets.all(16.w),
+  // ── LOGOUT CONFIRMATION BOTTOM SHEET ──
+  void _showLogoutConfirmationBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(20.w),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
+                // Handle bar
                 Container(
-                  padding: EdgeInsets.all(8.w),
+                  width: 36.w,
+                  height: 4.h,
                   decoration: BoxDecoration(
-                    color: colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12.r),
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
-                  child: Icon(icon, color: colors.white, size: 28.sp),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 18.h),
+
+                // Icon
+                Container(
+                  width: 56.w,
+                  height: 56.h,
+                  decoration: const BoxDecoration(
+                    color: AppColors.redBg,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.logout_rounded,
+                    color: AppColors.red,
+                    size: 26.sp,
+                  ),
+                ),
+                SizedBox(height: 14.h),
+
+                // Title
                 Text(
-                  title,
-                  style: context.textStyle.bodyMediumBold.copyWith(
-                    color: colors.white,
-                  ),
+                  'Confirm Logout',
+                  style: AppTypography.pageTitle,
+                ),
+                SizedBox(height: 6.h),
+
+                // Body
+                Text(
+                  'Are you sure you want to log out of your Pickaboo account? You can log back in anytime.',
                   textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bodyMuted,
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+                SizedBox(height: 22.h),
 
-class _DashboardListItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const _DashboardListItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.h, left: 16.w, right: 16.w),
-      child: Material(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        elevation: 0.5,
-        shadowColor: colors.black.withValues(alpha: 0.1),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12.r),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
-            decoration: BoxDecoration(
-              border: Border.all(color: colors.borderColor, width: 1.w),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: colors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(icon, color: colors.primary, size: 22.sp),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: context.textStyle.bodyMediumMedium.copyWith(
-                      color: colors.text,
+                // Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 46.h,
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          style: TextButton.styleFrom(
+                            backgroundColor: AppColors.pageBg,
+                            foregroundColor: AppColors.navy,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: AppTypography.cardTitle,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: colors.gray.withValues(alpha: 0.5),
-                  size: 16.sp,
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: SizedBox(
+                        height: 46.h,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            context
+                                .read<AuthBloc>()
+                                .add(const AuthEvent.userLoggedOut());
+                            SnackBarUtils.showSuccess(
+                              context,
+                              'Logged out successfully',
+                            );
+                            context.go(Routes.home);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.red,
+                            foregroundColor: AppColors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Yes, Logout',
+                            style: AppTypography.buttonPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

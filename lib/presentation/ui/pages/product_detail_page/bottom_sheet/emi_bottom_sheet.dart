@@ -1,10 +1,16 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/emi/emi_entity.dart';
 
+/// Modern EmiBottomSheet matching Pickaboo-App-UI design language.
 class EmiBottomSheet extends StatelessWidget {
   final List<EmiEntity> emiOptions;
   final String productPrice;
@@ -17,59 +23,54 @@ class EmiBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Material(
-      color: colors.white,
+      color: AppColors.white,
       clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(16.r),
-        topRight: Radius.circular(16.r),
-      ),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'EMI Details',
-                  style: textStyle.bodyMediumBold.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colors.text,
-                    fontSize: 16.sp,
-                  ),
+                  style: AppTypography.pageTitle,
                 ),
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
                     padding: EdgeInsets.all(4.w),
-                    decoration: BoxDecoration(
-                      color: colors.backgroundGray,
+                    decoration: const BoxDecoration(
+                      color: AppColors.surfaceBlue,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.close, color: colors.text, size: 20.sp),
+                    child: Icon(
+                      Icons.close,
+                      color: AppColors.navy,
+                      size: 20.sp,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          Divider(height: 1.w, color: colors.borderColor),
+          const Divider(height: 1, color: AppColors.border),
 
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: 0.7.sh),
             child: ListView.separated(
               shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).padding.bottom + 16.h,
               ),
               itemCount: emiOptions.length,
               separatorBuilder: (context, index) =>
-                  Divider(height: 1.w, color: colors.borderColor),
+                  const Divider(height: 1, color: AppColors.border),
               itemBuilder: (context, index) {
                 return _buildBankItem(context, emiOptions[index]);
               },
@@ -81,11 +82,8 @@ class EmiBottomSheet extends StatelessWidget {
   }
 
   Widget _buildBankItem(BuildContext context, EmiEntity emi) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Theme(
-      data: Theme.of(context).copyWith(dividerColor: context.colors.black.withValues(alpha: 0.0)),
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
         title: Row(
@@ -97,24 +95,28 @@ class EmiBottomSheet extends StatelessWidget {
                 height: 24.w,
                 fit: BoxFit.contain,
                 errorWidget: (_, _, _) => Icon(
-                  Icons.account_balance,
+                  Icons.account_balance_outlined,
                   size: 24.w,
-                  color: colors.textMedium,
+                  color: AppColors.pickabooBlue,
                 ),
               )
             else
-              Icon(Icons.account_balance, size: 24.w, color: colors.textMedium),
+              Icon(
+                Icons.account_balance_outlined,
+                size: 24.w,
+                color: AppColors.pickabooBlue,
+              ),
             SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 emi.bankName,
-                style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                style: AppTypography.sectionTitle,
               ),
             ),
           ],
         ),
-        iconColor: colors.textMedium,
-        collapsedIconColor: colors.textMedium,
+        iconColor: AppColors.pickabooBlue,
+        collapsedIconColor: AppColors.mutedLight,
         children: emi.tenureOptions.map((option) {
           return _buildTenureItem(context, option);
         }).toList(),
@@ -123,38 +125,35 @@ class EmiBottomSheet extends StatelessWidget {
   }
 
   Widget _buildTenureItem(BuildContext context, EmiTenureEntity option) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return CustomExpansionTile(
       title: Text(
         '${option.tenure} EMIs | Convenience Fee (${option.convenienceFee}%) ${option.monthlyPayable}/m',
-        style: textStyle.bodySmall.copyWith(
-          color: colors.text,
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w500,
-        ),
+        style: AppTypography.bodyRegular,
       ),
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
-          child: Column(
-            children: [
-              _buildDetailRow(context, "Price", option.price),
-              SizedBox(height: 8.h),
-              _buildDetailRow(
-                context,
-                "Convenience Fee",
-                option.conveniencePrice,
-              ),
-              SizedBox(height: 8.h),
-              _buildDetailRow(
-                context,
-                "Total Amount Payable",
-                option.total,
-                isBold: true,
-              ),
-            ],
+          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 14.h),
+          child: Container(
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceBlue,
+              borderRadius: AppRadius.cardRadius,
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              children: [
+                _buildDetailRow("Price", option.price),
+                SizedBox(height: 6.h),
+                _buildDetailRow("Convenience Fee", option.conveniencePrice),
+                SizedBox(height: 6.h),
+                const Divider(height: 12, color: AppColors.border),
+                _buildDetailRow(
+                  "Total Amount Payable",
+                  option.total,
+                  isBold: true,
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -162,30 +161,20 @@ class EmiBottomSheet extends StatelessWidget {
   }
 
   Widget _buildDetailRow(
-    BuildContext context,
     String label,
     String value, {
     bool isBold = false,
   }) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: textStyle.bodySmall.copyWith(
-            color: colors.text,
-            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-          ),
+          style: AppTypography.bodyMuted,
         ),
         Text(
           value,
-          style: textStyle.bodySmall.copyWith(
-            color: colors.text,
-            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-          ),
+          style: AppTypography.brandActionText,
         ),
       ],
     );
@@ -221,15 +210,15 @@ class _CustomExpansionTileState extends State<CustomExpansionTile> {
             });
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(child: widget.title),
                 SizedBox(width: 8.w),
                 Icon(
-                  _isExpanded ? Icons.remove : Icons.add,
-                  color: context.colors.orange,
+                  _isExpanded ? Icons.remove_circle_outline : Icons.add_circle_outline,
+                  color: AppColors.pickabooBlue,
                   size: 20.sp,
                 ),
               ],

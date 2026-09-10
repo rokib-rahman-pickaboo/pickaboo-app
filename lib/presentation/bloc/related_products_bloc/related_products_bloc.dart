@@ -22,9 +22,71 @@ class RelatedProductsBloc extends Bloc<RelatedProductsEvent, RelatedProductsStat
 
     final result = await repository.getRelatedProducts(slug: event.slug);
 
-    result.fold(
-      (error) => emit(RelatedProductsState.error(error)),
-      (relatedProducts) => emit(RelatedProductsState.loaded(relatedProducts)),
+    await result.fold(
+      (error) async => emit(RelatedProductsState.error(error)),
+      (relatedProducts) async {
+        emit(RelatedProductsState.loaded(relatedProducts));
+
+        final hasZeroPrice = relatedProducts.relatedProducts.any(
+          (p) => p.finalPrice <= 0 && p.id.isNotEmpty,
+        );
+
+        if (hasZeroPrice) {
+          final updatedList = await Future.wait(
+            relatedProducts.relatedProducts.map((p) async {
+              if (p.finalPrice <= 0 && p.id.isNotEmpty) {
+                final detailResult =
+                    await repository.getProductDetail(productId: p.id);
+                return detailResult.fold(
+                  (_) => p,
+                  (detail) {
+                    int regular = detail.regularPrice;
+                    int special = detail.spacialPrice;
+                    int discount = detail.discount;
+
+                    if (regular <= 0 && detail.varient.isNotEmpty) {
+                      for (final v in detail.varient) {
+                        for (final opt in v.options) {
+                          final cp = opt.configurableProduct;
+                          if (cp != null && cp.productPrice > 0) {
+                            regular = cp.productPrice;
+                            if (cp.productSpecialPrice > 0) {
+                              special = cp.productSpecialPrice;
+                            }
+                            if (cp.productDiscount > 0) {
+                              discount = cp.productDiscount;
+                            }
+                            break;
+                          }
+                        }
+                        if (regular > 0) break;
+                      }
+                    }
+
+                    if (regular > 0) {
+                      return p.copyWith(
+                        productPrice: regular,
+                        productSpecialPrice: special,
+                        productDiscount: discount,
+                      );
+                    }
+                    return p;
+                  },
+                );
+              }
+              return p;
+            }),
+          );
+
+          if (!isClosed) {
+            emit(RelatedProductsState.loaded(
+              relatedProducts.copyWith(
+                relatedProducts: updatedList,
+              ),
+            ));
+          }
+        }
+      },
     );
   }
 }

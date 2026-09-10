@@ -135,7 +135,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
       (error) => emit(
         state.copyWith(
           votingReviewId: null,
-          voteError: AppErrorEntity(message: error.message),
+          voteError: error,
         ),
       ),
       (_) {
@@ -205,7 +205,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
       (error) => emit(
         state.copyWith(
           isUserReviewsLoading: false,
-          userReviewsError: AppErrorEntity(message: error.message),
+          userReviewsError: error,
         ),
       ),
       (reviews) => emit(

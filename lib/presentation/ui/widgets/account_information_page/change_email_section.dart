@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ChangeEmailSection extends StatefulWidget {
   final bool isEnabled;
@@ -45,18 +44,17 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
+            color: AppColors.black.withValues(alpha: 0.04),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
@@ -71,15 +69,15 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                 child: Text(
                   'Change Email Address',
                   style: textTheme.bodyMediumMedium.copyWith(
-                    color: colors.text,
+                    color: AppColors.text,
                   ),
                 ),
               ),
               Switch(
                 value: widget.isEnabled,
                 onChanged: (_) => widget.onToggle(),
-                activeThumbColor: colors.primary,
-                activeTrackColor: colors.primary.withAlpha(128),
+                activeThumbColor: AppColors.pickabooBlue,
+                activeTrackColor: AppColors.pickabooBlue.withAlpha(128),
               ),
             ],
           ),
@@ -91,28 +89,28 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                   SizedBox(height: 16.h),
                   TextFormField(
                     controller: _emailController,
-                    style: textTheme.bodyMedium.copyWith(color: colors.text),
+                    style: textTheme.bodyMedium.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: 'Enter your email id',
                       hintStyle: textTheme.bodyMedium.copyWith(
-                        color: colors.gray,
+                        color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
-                          color: colors.borderColor.withAlpha(128),
+                          color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
-                          color: colors.borderColor.withAlpha(128),
+                          color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
-                          color: colors.primary,
+                          color: AppColors.pickabooBlue,
                           width: 1.5.w,
                         ),
                       ),
@@ -131,29 +129,29 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                   SizedBox(height: 12.h),
                   TextFormField(
                     controller: _confirmEmailController,
-                    style: textTheme.bodyMedium.copyWith(color: colors.text),
+                    style: textTheme.bodyMedium.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: 'Confirm your email id',
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
                       hintStyle: textTheme.bodyMedium.copyWith(
-                        color: colors.gray,
+                        color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
-                          color: colors.borderColor.withAlpha(128),
+                          color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
-                          color: colors.borderColor.withAlpha(128),
+                          color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
                         borderSide: BorderSide(
-                          color: colors.primary,
+                          color: AppColors.pickabooBlue,
                           width: 1.5.w,
                         ),
                       ),
@@ -178,7 +176,7 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                     child: ElevatedButton(
                       onPressed: _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.button,
+                        backgroundColor: AppColors.pickabooBlue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
                         ),
@@ -186,7 +184,7 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                       child: Text(
                         'Save Email',
                         style: textTheme.buttonMedium.copyWith(
-                          color: colors.white,
+                          color: AppColors.white,
                         ),
                       ),
                     ),

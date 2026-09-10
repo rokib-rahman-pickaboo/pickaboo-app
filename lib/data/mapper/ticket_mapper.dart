@@ -1,9 +1,13 @@
 import 'package:injectable/injectable.dart';
+import 'package:pickaboo/data/model/ticket/ticket_issue_type_model.dart';
+import 'package:pickaboo/data/model/ticket/ticket_order_info_response.dart';
 import 'package:pickaboo/data/model/ticket/ticket_response/ticket_response.dart';
 import 'package:pickaboo/data/model/ticket/ticket_detail_response/ticket_detail_response.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
 import 'package:pickaboo/data/model/ticket/ticket_order_model.dart';
+import 'package:pickaboo/domain/entity/ticket/ticket_issue_type_entity.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_order_entity.dart';
+import 'package:pickaboo/domain/entity/ticket/ticket_order_info_entity.dart';
 
 @lazySingleton
 class TicketMapper {
@@ -37,24 +41,31 @@ class TicketMapper {
       orderCreatedAt: response.orderCreatedAt,
       lastReplyAt: response.lastReplyAt,
       lastReplyName: response.lastReplyName,
-      messages:
-          response.messages?.map((e) => mapMessageToEntity(e)).toList() ?? [],
+      messages: response.messages != null
+          ? response.messages!
+              .map((e) => mapTicketMessageResponseToEntity(e))
+              .toList()
+          : [],
     );
   }
 
-  TicketMessageEntity mapMessageToEntity(Message message) {
+  TicketMessageEntity mapTicketMessageResponseToEntity(Message message) {
     return TicketMessageEntity(
       messageId: message.messageId ?? '',
       replyer: message.replyer ?? '',
       body: message.body ?? '',
       createdAt: message.createdAt,
-      attachments:
-          message.attachment?.map((e) => mapAttachmentToEntity(e)).toList() ??
-          [],
+      attachments: message.attachment != null
+          ? message.attachment!
+              .map((e) => mapTicketAttachmentResponseToEntity(e))
+              .toList()
+          : [],
     );
   }
 
-  TicketAttachmentEntity mapAttachmentToEntity(Attachment attachment) {
+  TicketAttachmentEntity mapTicketAttachmentResponseToEntity(
+    Attachment attachment,
+  ) {
     return TicketAttachmentEntity(
       fileName: attachment.fileName ?? '',
       fileType: attachment.fileType ?? '',
@@ -66,9 +77,29 @@ class TicketMapper {
     return TicketOrderEntity(
       orderId: model.orderId ?? '',
       incrementId: model.incrementId ?? '',
+      orderNumber: model.incrementId,
       createdAt: model.createdAt ?? '',
       status: model.status ?? '',
       grandTotal: model.grandTotal ?? 0.0,
+    );
+  }
+
+  TicketIssueTypeEntity mapTicketIssueTypeModelToEntity(
+    TicketIssueTypeModel model,
+  ) {
+    return TicketIssueTypeEntity(
+      id: model.id,
+      name: model.name,
+    );
+  }
+
+  TicketOrderInfoEntity mapTicketOrderInfoResponseToEntity(
+    TicketOrderInfoResponse response,
+  ) {
+    return TicketOrderInfoEntity(
+      orders: response.orders.map(mapTicketOrderModelToEntity).toList(),
+      issueTypes:
+          response.issueTypes.map(mapTicketIssueTypeModelToEntity).toList(),
     );
   }
 }

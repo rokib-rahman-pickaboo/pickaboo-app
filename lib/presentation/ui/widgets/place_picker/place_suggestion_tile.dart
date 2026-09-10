@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/place_picker/place_pick_result_entity.dart';
 
 class PlaceSuggestionTile extends StatelessWidget {
@@ -26,7 +25,7 @@ class PlaceSuggestionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            Icon(Icons.location_on_outlined, size: 20, color: context.colors.gray),
+            const Icon(Icons.location_on_outlined, size: 20, color: AppColors.muted),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -34,7 +33,7 @@ class PlaceSuggestionTile extends StatelessWidget {
                 children: [
                   Text(
                     address,
-                    style: context.textStyle.bodyMediumMedium.withColor(context.colors.text),
+                    style: context.textStyle.bodyMediumMedium.withColor(AppColors.navy),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -42,7 +41,7 @@ class PlaceSuggestionTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: context.textStyle.bodySmall.withColor(context.colors.gray),
+                      style: context.textStyle.bodySmall.withColor(AppColors.muted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

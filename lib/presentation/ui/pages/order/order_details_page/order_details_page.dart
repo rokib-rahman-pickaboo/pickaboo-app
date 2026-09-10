@@ -1,30 +1,39 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:collection/collection.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/just_for_you_bloc/just_for_you_bloc.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/pages/order/bottom_sheet/order_review_product_bottom_sheet.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_address_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_header_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_item_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_payment_section.dart';
-import 'package:pickaboo/presentation/ui/pages/order/bottom_sheet/order_review_product_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_shipping_method_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_summary_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_timeline_section.dart';
 
+/// Modernized OrderDetailsPage matching Pickaboo-App-UI design language.
 class OrderDetailsPage extends StatefulWidget {
   final String orderId;
-
   final bool embedded;
 
   const OrderDetailsPage({
@@ -55,24 +64,31 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
-    return Scaffold(
-      backgroundColor: colors.scaffoldBackground,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text("Items Order", style: context.textStyle.appBarTitle),
-        leading: widget.embedded
-            ? null
-            : AppBarButton(
-                iconPath: 'assets/new/svg/back_nav_icon.svg',
-                width: 7.w,
-                height: 14.h,
-                onPressed: () => Navigator.of(context).pop(),
-                iconColor: colors.text,
-              ),
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.orderList);
+        }
+      },
+      child: Scaffold(
+      backgroundColor: AppColors.pageBg,
+      appBar: widget.embedded
+          ? null
+          : PickabooAppBar(
+              title: "Items Order",
+              showBackButton: true,
+              onBackTap: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(Routes.orderList);
+                }
+              },
+            ),
       bottomNavigationBar: BlocBuilder<OrderBloc, OrderState>(
         builder: (context, state) {
           if (state.orderDetails == null) return const SizedBox.shrink();
@@ -80,45 +96,45 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           final showPayNow = _shouldShowPayNow(order);
 
           return Container(
-            padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+              vertical: 12.h,
+            ),
             decoration: BoxDecoration(
-              color: colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.r),
-                topRight: Radius.circular(10.r),
-              ),
+              color: AppColors.white,
+              border: const Border(top: BorderSide(color: AppColors.border)),
               boxShadow: [
                 BoxShadow(
-                  color: colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
+                  color: AppColors.navy.withValues(alpha: 0.05),
+                  blurRadius: 10.r,
+                  offset: Offset(0, -2.h),
                 ),
               ],
             ),
             child: SafeArea(
+              top: false,
               child: showPayNow
                   ? Row(
                       children: [
                         Expanded(
                           flex: 1,
-                          child: OutlinedButton(
-                            onPressed: () => _handleReorder(
-                              context,
-                              order.orderId.toString(),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: Size(0, 48.h),
-                              side: BorderSide(color: colors.primary),
-                              foregroundColor: colors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
+                          child: SizedBox(
+                            height: 48.h,
+                            child: OutlinedButton(
+                              onPressed: () => _handleReorder(
+                                context,
+                                order.orderId.toString(),
                               ),
-                            ),
-                            child: Text(
-                              'Buy Again',
-                              style: textStyles.buttonMedium.copyWith(
-                                color: colors.primary,
-                                fontWeight: FontWeight.bold,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.pickabooBlue,
+                                side: const BorderSide(color: AppColors.pickabooBlue),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: AppRadius.cardRadius,
+                                ),
+                              ),
+                              child: Text(
+                                'Buy Again',
+                                style: AppTypography.brandActionText,
                               ),
                             ),
                           ),
@@ -126,54 +142,52 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                         SizedBox(width: 12.w),
                         Expanded(
                           flex: 1,
-                          child: ElevatedButton(
-                            onPressed: () => context.goToOrderPayment(
-                              orderId: order.orderId.toString(),
-                              selectedMethod: order.paymentMethod,
-                              grandTotal: order.orderSummary.grandTotal,
-                              subtotal: order.orderSummary.subtotal,
-                              shippingAmount: order.orderSummary.shippingFee,
-                              discountAmount: order.orderSummary.discountAmount,
-                              itemsCount: order.orderSummary.totalOrderQty,
-                              quoteId: order.paymentAddress?.quoteId,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.primary,
-                              foregroundColor: colors.white,
-                              minimumSize: Size(0, 48.h),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
+                          child: SizedBox(
+                            height: 48.h,
+                            child: ElevatedButton(
+                              onPressed: () => context.goToOrderPayment(
+                                orderId: order.orderId.toString(),
+                                selectedMethod: order.paymentMethod,
+                                grandTotal: order.orderSummary.grandTotal,
+                                subtotal: order.orderSummary.subtotal,
+                                shippingAmount: order.orderSummary.shippingFee,
+                                discountAmount: order.orderSummary.discountAmount,
+                                itemsCount: order.orderSummary.totalOrderQty,
+                                quoteId: order.paymentAddress?.quoteId,
                               ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'Pay Now',
-                              style: textStyles.buttonMedium.copyWith(
-                                color: colors.white,
-                                fontWeight: FontWeight.bold,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.pickabooBlue,
+                                foregroundColor: AppColors.white,
+                                elevation: 0,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: AppRadius.cardRadius,
+                                ),
+                              ),
+                              child: Text(
+                                'Pay Now',
+                                style: AppTypography.buttonPrimary,
                               ),
                             ),
                           ),
                         ),
                       ],
                     )
-                  : ElevatedButton(
-                      onPressed: () =>
-                          _handleReorder(context, order.orderId.toString()),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.white,
-                        minimumSize: Size(double.infinity, 48.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
+                  : SizedBox(
+                      height: 48.h,
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            _handleReorder(context, order.orderId.toString()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.pickabooBlue,
+                          foregroundColor: AppColors.white,
+                          elevation: 0,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: AppRadius.cardRadius,
+                          ),
                         ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'Buy Again',
-                        style: textStyles.buttonMedium.copyWith(
-                          color: colors.white,
-                          fontWeight: FontWeight.bold,
+                        child: Text(
+                          'Buy Again',
+                          style: AppTypography.buttonPrimary,
                         ),
                       ),
                     ),
@@ -185,80 +199,82 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         listener: (context, state) {
           if (state.successMessage != null) {
             context.read<CartBloc>().add(const CartEvent.getCart());
-            if (state.successMessage == 'Items added to cart') {
-              context.push(Routes.cart);
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    state.successMessage!,
-                    style: textStyles.bodyMedium.copyWith(color: colors.white),
-                  ),
-                  backgroundColor: colors.green,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              );
-            }
+            SnackBarUtils.showSuccess(
+              context,
+              state.successMessage ?? AppStrings.operationSuccessful,
+            );
+            context.push(Routes.cart);
+          }
+          if (state.errorMessage != null) {
+            SnackBarUtils.showError(
+              context,
+              state.errorMessage ?? AppStrings.somethingWentWrong,
+            );
           }
         },
         builder: (context, state) {
+          if (state.isLoading && state.orderDetails == null) {
+            return const AppLoader.fullPage();
+          }
+
           if (state.orderDetails == null) {
-            if (state.errorMessage != null) {
-              return AppErrorView(
-                type: AppErrorType.generic,
-                title: "Couldn't load order details",
-                message:
-                    'Something went wrong while loading this order. '
-                    'Please try again in a moment.',
-                onRetry: () => context.read<OrderBloc>().add(
+            final isOffline = ConnectivityUtils.isNoInternet(state.errorMessage, context);
+            return AppErrorView(
+              type: isOffline ? AppErrorType.noInternet : AppErrorType.server,
+              message: isOffline ? null : (state.errorMessage ?? "Failed to load order details"),
+              onRetry: () {
+                context.read<OrderBloc>().add(
                   OrderEvent.loadOrderDetails(widget.orderId),
-                ),
-              );
-            }
-            return Center(
-              child: CircularProgressIndicator(color: colors.primary),
+                );
+              },
+              onSecondary: Navigator.of(context).canPop()
+                  ? () => Navigator.of(context).pop()
+                  : null,
+              secondaryLabel: 'Go Back',
             );
           }
 
-          final OrderDetailEntity order = state.orderDetails!;
+          final order = state.orderDetails!;
 
-          return CustomScrollView(
+          return SafeArea(
+            top: false,
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
-                child: OrderHeaderSection(
-                  order: order,
-                  getStatusAttributes: _getStatusAttributes,
-                  onBuyAgain: () =>
-                      _handleReorder(context, order.orderId.toString()),
-                  onReview: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      useSafeArea: true,
-                      backgroundColor: colors.black.withValues(alpha: 0.0),
-                      builder: (context) => OrderReviewProductBottomSheet(
-                        items: order.items,
-                        onProductSelected: (item) {
-                          context.pushNamed(
-                            'writeReviewOrder',
-                            extra: {
-                              'productId': item.productId.toString(),
-                              'productName': item.itemName,
-                              'productImage': item.image,
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  showCancel: _shouldShowCancel(order),
-                  showReview: _shouldShowReview(order),
-                  onCancel: () {
-                    context.push(Routes.orderCancelled, extra: order);
-                  },
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8.h),
+                  child: OrderHeaderSection(
+                    order: order,
+                    getStatusAttributes: _getStatusAttributes,
+                    onReview: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => OrderReviewProductBottomSheet(
+                          items: order.items,
+                          onProductSelected: (item) {
+                            context.pushNamed(
+                              'writeReviewOrder',
+                              pathParameters: {
+                                'id': item.productId.toString(),
+                              },
+                              extra: {
+                                'productName': item.itemName,
+                                'productImage': item.image ?? '',
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    showCancel: _shouldShowCancel(order),
+                    showReview: _shouldShowReview(order),
+                    onCancel: () {
+                      context.push(Routes.orderCancelled, extra: order);
+                    },
+                  ),
                 ),
               ),
               SliverToBoxAdapter(
@@ -305,17 +321,19 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                   formatPaymentMethod: _formatPaymentMethod,
                 ),
               ),
-              SliverPadding(padding: EdgeInsets.only(bottom: 24.h)),
+              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
             ],
-          );
-        },
-      ),
-    );
+          ),
+        );
+      },
+    ),
+    ),
+  );
   }
 
   OrderStatusAttributes _getStatusAttributes(String status) {
-    const Color defaultColor = Color(0xFF1B5DD5);
-    const Color cancelColor = Color(0xFFFF2222);
+    const Color defaultColor = AppColors.pickabooBlue;
+    const Color cancelColor = AppColors.red;
 
     if (status.toLowerCase().contains('canceled') ||
         status.toLowerCase().contains('cancelled') ||

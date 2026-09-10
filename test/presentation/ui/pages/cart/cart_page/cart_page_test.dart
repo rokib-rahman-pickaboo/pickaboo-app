@@ -15,6 +15,7 @@ import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_bloc.dart';
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_event.dart';
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_state.dart';
+import 'package:pickaboo/presentation/bloc/internet/internet_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
@@ -35,6 +36,9 @@ class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
 class MockClubPointBloc extends MockBloc<ClubPointEvent, ClubPointState>
     implements ClubPointBloc {}
 
+class MockInternetBloc extends MockBloc<InternetEvent, InternetState>
+    implements InternetBloc {}
+
 class MockAuthCacheManager extends Mock implements AuthCacheManager {}
 
 void main() {
@@ -42,6 +46,7 @@ void main() {
   late MockUserProfileBloc mockUserProfileBloc;
   late MockAuthBloc mockAuthBloc;
   late MockClubPointBloc mockClubPointBloc;
+  late MockInternetBloc mockInternetBloc;
   late MockAuthCacheManager mockAuthCacheManager;
 
   setUpAll(() {
@@ -55,6 +60,7 @@ void main() {
     mockUserProfileBloc = MockUserProfileBloc();
     mockAuthBloc = MockAuthBloc();
     mockClubPointBloc = MockClubPointBloc();
+    mockInternetBloc = MockInternetBloc();
     mockAuthCacheManager = MockAuthCacheManager();
 
     if (getIt.isRegistered<AuthCacheManager>()) {
@@ -76,6 +82,9 @@ void main() {
     when(
       () => mockClubPointBloc.state,
     ).thenReturn(const ClubPointState.initial());
+    when(
+      () => mockInternetBloc.state,
+    ).thenReturn(const InternetState.connected('Back Online'));
   });
 
   Widget createWidgetUnderTest({Size designSize = const Size(375, 812)}) {
@@ -87,7 +96,6 @@ void main() {
         return MaterialApp(
           theme: ThemeData(
             extensions: [
-              AppColors.light(),
               AppTextStyles.build(Brightness.light),
             ],
           ),
@@ -97,6 +105,7 @@ void main() {
               BlocProvider<UserProfileBloc>.value(value: mockUserProfileBloc),
               BlocProvider<AuthBloc>.value(value: mockAuthBloc),
               BlocProvider<ClubPointBloc>.value(value: mockClubPointBloc),
+              BlocProvider<InternetBloc>.value(value: mockInternetBloc),
             ],
             child: const CartPage(),
           ),
@@ -160,7 +169,7 @@ void main() {
           stockAvailable: true,
         );
 
-        final tCart = CartEntity(
+        const tCart = CartEntity(
           id: '1',
           itemsCount: 1,
           items: [tCartItem],
@@ -172,7 +181,7 @@ void main() {
           couponCode: '',
         );
 
-        when(() => mockCartBloc.state).thenReturn(CartState.loaded(tCart));
+        when(() => mockCartBloc.state).thenReturn(const CartState.loaded(tCart));
 
         await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
         await tester.pumpAndSettle();

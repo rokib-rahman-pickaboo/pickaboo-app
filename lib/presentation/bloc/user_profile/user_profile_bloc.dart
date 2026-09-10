@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import 'package:pickaboo/domain/entity/auth/user_entity.dart';
 import 'package:pickaboo/domain/repository/user_profile_repository.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
@@ -24,12 +25,18 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
             _onSendPhoneUpdateOtp(e.mobileNumber, emit),
         updateMobile: (e) async => _onUpdateMobile(e.newMobile, e.otp, emit),
         uploadProfileImage: (e) async => _onUploadProfileImage(e.image, emit),
-        updateEmail: (e) async => _onUpdateEmail(e.newEmail, emit),
+        sendEmailUpdateOtp: (e) async =>
+            _onSendEmailUpdateOtp(e.email, emit),
+        updateEmail: (e) async => _onUpdateEmail(e.newEmail, e.otp, emit),
         changePassword: (e) async =>
             _onChangePassword(e.currentPassword, e.newPassword, emit),
         addAddress: (e) async => _onAddAddress(e.address, emit),
         updateAddress: (e) async => _onUpdateAddress(e.address, emit),
         deleteAddress: (e) async => _onDeleteAddress(e.addressId, emit),
+        clear: (e) async {
+          _forceProfileRefresh = true;
+          emit(const UserProfileState.initial());
+        },
       );
     });
   }
@@ -61,6 +68,10 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       updating: (s) =>
           (user: s.currentUser, imageUrl: s.imageUrl, mobile: s.mobileNumber),
       phoneUpdateOtpSent: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      emailUpdateOtpSent: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      emailUpdateSuccess: (s) =>
           (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
     );
 
@@ -223,16 +234,30 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     debugPrint(
       'UserProfileBloc: _onSendPhoneUpdateOtp: Sending OTP to $mobileNumber',
     );
-    final userData = state.mapOrNull(
-      loaded: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      updating: (s) =>
-          (user: s.currentUser, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      phoneUpdateOtpSent: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-    );
+    var userData = _extractUserData();
 
-    if (userData == null) return;
+    if (userData == null) {
+      final profileResult = await _repository.getProfile(forceRefresh: false);
+      userData = profileResult.fold(
+        (err) => null,
+        (user) => (user: user, imageUrl: null, mobile: null),
+      );
+    }
+
+    if (userData == null) {
+      debugPrint('UserProfileBloc: _onSendPhoneUpdateOtp: User data is null');
+      emit(
+        const UserProfileState.error(
+          'User information not found. Please log in again.',
+        ),
+      );
+      return;
+    }
+
+    final isResend = state.maybeWhen(
+      phoneUpdateOtpSent: (sentMobile, _, _) => sentMobile == mobileNumber,
+      orElse: () => false,
+    );
 
     emit(
       UserProfileState.updating(
@@ -242,7 +267,10 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       ),
     );
 
-    final result = await _repository.sendPhoneUpdateOtp(mobile: mobileNumber);
+    final result = await _repository.sendPhoneUpdateOtp(
+      mobile: mobileNumber,
+      resend: isResend,
+    );
 
     await result.fold(
       (error) async {
@@ -250,14 +278,20 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
           'UserProfileBloc: _onSendPhoneUpdateOtp: Failed: ${error.message}',
         );
         emit(UserProfileState.error(error.message));
-        _reloadProfile();
+        emit(
+          UserProfileState.loaded(
+            user: userData!.user,
+            imageUrl: userData.imageUrl,
+            mobileNumber: userData.mobile,
+          ),
+        );
       },
       (response) async {
         debugPrint('UserProfileBloc: _onSendPhoneUpdateOtp: Success');
         emit(
           UserProfileState.phoneUpdateOtpSent(
             mobileNumber: mobileNumber,
-            user: userData.user,
+            user: userData!.user,
             imageUrl: userData.imageUrl,
           ),
         );
@@ -273,16 +307,25 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     debugPrint(
       'UserProfileBloc: _onUpdateMobile: Updating mobile to $newMobile with OTP $otp',
     );
-    final userData = state.mapOrNull(
-      loaded: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      updating: (s) =>
-          (user: s.currentUser, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      phoneUpdateOtpSent: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-    );
+    var userData = _extractUserData();
 
-    if (userData == null) return;
+    if (userData == null) {
+      final profileResult = await _repository.getProfile(forceRefresh: false);
+      userData = profileResult.fold(
+        (err) => null,
+        (user) => (user: user, imageUrl: null, mobile: null),
+      );
+    }
+
+    if (userData == null) {
+      debugPrint('UserProfileBloc: _onUpdateMobile: User data is null');
+      emit(
+        const UserProfileState.error(
+          'User information not found. Please log in again.',
+        ),
+      );
+      return;
+    }
 
     emit(
       UserProfileState.updating(
@@ -293,7 +336,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     );
 
     final result = await _repository.updateMobile(
-      user: userData.user,
       newMobile: newMobile,
       otp: otp,
     );
@@ -304,27 +346,38 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
           'UserProfileBloc: _onUpdateMobile: Failed: ${error.message}',
         );
         emit(UserProfileState.error(error.message));
-        _reloadProfile();
+        // Restore to phoneUpdateOtpSent so the bottom sheet stays in OTP verification step
+        emit(
+          UserProfileState.phoneUpdateOtpSent(
+            mobileNumber: newMobile,
+            user: userData!.user,
+            imageUrl: userData.imageUrl,
+          ),
+        );
       },
       (newUser) async {
         debugPrint('UserProfileBloc: _onUpdateMobile: Success');
-        final parsedMobile =
-            newUser.customAttributes
-                    ?.where(
-                      (item) => item.attributeCode == 'customer_mobile',
-                    )
-                    .firstOrNull
-                    ?.value
-                as String?;
+        final parsedMobile = newUser.customAttributes
+            ?.where((item) => item.attributeCode == 'customer_mobile')
+            .firstOrNull
+            ?.value as String?;
+        final updatedMobile = parsedMobile ?? newMobile;
+
         emit(
           UserProfileState.mobileUpdateSuccess(
-            message: 'Mobile updated successfully',
+            message: 'Mobile number updated successfully',
             user: newUser,
-            imageUrl: userData.imageUrl,
-            mobileNumber: parsedMobile ?? newMobile,
+            imageUrl: userData!.imageUrl,
+            mobileNumber: updatedMobile,
           ),
         );
-        _reloadProfile();
+        emit(
+          UserProfileState.loaded(
+            user: newUser,
+            imageUrl: userData.imageUrl,
+            mobileNumber: updatedMobile,
+          ),
+        );
       },
     );
   }
@@ -380,23 +433,123 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     );
   }
 
-  Future<void> _onUpdateEmail(
-    String newEmail,
-    Emitter<UserProfileState> emit,
-  ) async {
-    final userData = state.mapOrNull(
+  ({UserEntity user, String? imageUrl, String? mobile})? _extractUserData() {
+    return state.mapOrNull(
       loaded: (s) =>
           (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      basicInfoUpdateSuccess: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      mobileUpdateSuccess: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      imageUploadSuccess: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      updating: (s) =>
+          (user: s.currentUser, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      phoneUpdateOtpSent: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      emailUpdateOtpSent: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      emailUpdateSuccess: (s) =>
+          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
+      loading: (s) => s.currentUser != null
+          ? (user: s.currentUser!, imageUrl: s.imageUrl, mobile: s.mobileNumber)
+          : null,
     );
+  }
+
+  Future<void> _onSendEmailUpdateOtp(
+    String email,
+    Emitter<UserProfileState> emit,
+  ) async {
+    debugPrint(
+      'UserProfileBloc: _onSendEmailUpdateOtp: Requesting OTP for $email',
+    );
+    var userData = _extractUserData();
 
     if (userData == null) {
-      debugPrint(
-        'UserProfileBloc: _onUpdateEmail: User data is null (state: $state)',
+      final profileResult = await _repository.getProfile(forceRefresh: false);
+      userData = profileResult.fold(
+        (err) => null,
+        (user) => (user: user, imageUrl: null, mobile: null),
+      );
+    }
+
+    if (userData == null) {
+      debugPrint('UserProfileBloc: _onSendEmailUpdateOtp: User data is null');
+      emit(
+        const UserProfileState.error(
+          'User information not found. Please log in again.',
+        ),
       );
       return;
     }
 
-    debugPrint('UserProfileBloc: Updating email to $newEmail');
+    emit(
+      UserProfileState.updating(
+        currentUser: userData.user,
+        imageUrl: userData.imageUrl,
+        mobileNumber: userData.mobile,
+      ),
+    );
+
+    final result = await _repository.sendEmailUpdateOtp(
+      email: email,
+    );
+
+    await result.fold(
+      (error) async {
+        debugPrint(
+          'UserProfileBloc: _onSendEmailUpdateOtp: Failed: ${error.message}',
+        );
+        emit(UserProfileState.error(error.message));
+        emit(
+          UserProfileState.loaded(
+            user: userData!.user,
+            imageUrl: userData.imageUrl,
+            mobileNumber: userData.mobile,
+          ),
+        );
+      },
+      (response) async {
+        debugPrint('UserProfileBloc: _onSendEmailUpdateOtp: Success');
+        emit(
+          UserProfileState.emailUpdateOtpSent(
+            email: email,
+            user: userData!.user,
+            imageUrl: userData.imageUrl,
+            mobileNumber: userData.mobile,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onUpdateEmail(
+    String newEmail,
+    String otp,
+    Emitter<UserProfileState> emit,
+  ) async {
+    var userData = _extractUserData();
+
+    if (userData == null) {
+      final profileResult = await _repository.getProfile(forceRefresh: false);
+      userData = profileResult.fold(
+        (err) => null,
+        (user) => (user: user, imageUrl: null, mobile: null),
+      );
+    }
+
+    if (userData == null) {
+      debugPrint('UserProfileBloc: _onUpdateEmail: User data is null');
+      emit(
+        const UserProfileState.error(
+          'User information not found. Please log in again.',
+        ),
+      );
+      return;
+    }
+
+    debugPrint('UserProfileBloc: Updating email to $newEmail with OTP $otp');
 
     emit(
       UserProfileState.updating(
@@ -407,21 +560,38 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     );
 
     final result = await _repository.updateEmail(
-      user: userData.user,
       newEmail: newEmail,
+      otp: otp,
     );
 
     await result.fold(
       (error) async {
         debugPrint('UserProfileBloc: Update email failed: ${error.message}');
         emit(UserProfileState.error(error.message));
-        _reloadProfile();
+        emit(
+          UserProfileState.emailUpdateOtpSent(
+            email: newEmail,
+            user: userData!.user,
+            imageUrl: userData.imageUrl,
+            mobileNumber: userData.mobile,
+          ),
+        );
       },
-      (user) async {
+      (newUser) async {
         debugPrint('UserProfileBloc: Update email success');
         emit(
-          const UserProfileState.updateRequiresLogout(
-            'Email updated successfully. Please login again.',
+          UserProfileState.emailUpdateSuccess(
+            message: 'Email address updated successfully',
+            user: newUser,
+            imageUrl: userData!.imageUrl,
+            mobileNumber: userData.mobile,
+          ),
+        );
+        emit(
+          UserProfileState.loaded(
+            user: newUser,
+            imageUrl: userData.imageUrl,
+            mobileNumber: userData.mobile,
           ),
         );
       },
@@ -433,14 +603,22 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     String newPassword,
     Emitter<UserProfileState> emit,
   ) async {
-    final userData = state.mapOrNull(
-      loaded: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-    );
+    var userData = _extractUserData();
 
     if (userData == null) {
-      debugPrint(
-        'UserProfileBloc: _onChangePassword: User data is null (state: $state)',
+      final profileResult = await _repository.getProfile(forceRefresh: false);
+      userData = profileResult.fold(
+        (err) => null,
+        (user) => (user: user, imageUrl: null, mobile: null),
+      );
+    }
+
+    if (userData == null) {
+      debugPrint('UserProfileBloc: _onChangePassword: User data is null');
+      emit(
+        const UserProfileState.error(
+          'User information not found. Please log in again.',
+        ),
       );
       return;
     }
@@ -467,7 +645,13 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       (error) async {
         debugPrint('UserProfileBloc: Change password failed: ${error.message}');
         emit(UserProfileState.error(error.message));
-        _reloadProfile();
+        emit(
+          UserProfileState.loaded(
+            user: userData!.user,
+            imageUrl: userData.imageUrl,
+            mobileNumber: userData.mobile,
+          ),
+        );
       },
       (success) async {
         if (success) {
@@ -480,7 +664,13 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         } else {
           debugPrint('UserProfileBloc: Change password returned success=false');
           emit(const UserProfileState.error('Failed to change password'));
-          _reloadProfile();
+          emit(
+            UserProfileState.loaded(
+              user: userData!.user,
+              imageUrl: userData.imageUrl,
+              mobileNumber: userData.mobile,
+            ),
+          );
         }
       },
     );
@@ -522,31 +712,7 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       ),
     );
 
-    final currentAddresses = userData.user.addresses ?? [];
-    List<Map<String, dynamic>> addressList = currentAddresses
-        .map((e) => _addressEntityToJson(e))
-        .toList();
-
-    final isDefaultShipping = address['default_shipping'] == true;
-    final isDefaultBilling = address['default_billing'] == true;
-
-    if (isDefaultShipping) {
-      for (var i = 0; i < addressList.length; i++) {
-        addressList[i]['default_shipping'] = false;
-      }
-    }
-    if (isDefaultBilling) {
-      for (var i = 0; i < addressList.length; i++) {
-        addressList[i]['default_billing'] = false;
-      }
-    }
-
-    addressList.add(address);
-
-    final result = await _repository.updateAddressList(
-      user: userData.user,
-      addresses: addressList,
-    );
+    final result = await _repository.addAddress(address);
 
     result.fold(
       (l) {
@@ -556,13 +722,15 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         emit(UserProfileState.error(l.message));
         _reloadProfile();
       },
-      (success) {
+      (message) {
         if (kDebugMode) {
-          print('[UserProfileBloc] Address added successfully');
+          print('[UserProfileBloc] Address added successfully: $message');
         }
         emit(
           UserProfileState.basicInfoUpdateSuccess(
-            message: 'Address added successfully',
+            message: message.isNotEmpty
+                ? message
+                : 'Address added successfully',
             user: userData.user,
             imageUrl: userData.imageUrl,
             mobileNumber: userData.mobile,
@@ -599,39 +767,7 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       ),
     );
 
-    final currentAddresses = userData.user.addresses ?? [];
-    List<Map<String, dynamic>> addressList = currentAddresses
-        .map((e) => _addressEntityToJson(e))
-        .toList();
-
-    final addressId = address['id'];
-    final isDefaultShipping = address['default_shipping'] == true;
-    final isDefaultBilling = address['default_billing'] == true;
-
-    if (isDefaultShipping) {
-      for (var i = 0; i < addressList.length; i++) {
-        if (addressList[i]['id'] != addressId) {
-          addressList[i]['default_shipping'] = false;
-        }
-      }
-    }
-    if (isDefaultBilling) {
-      for (var i = 0; i < addressList.length; i++) {
-        if (addressList[i]['id'] != addressId) {
-          addressList[i]['default_billing'] = false;
-        }
-      }
-    }
-
-    final index = addressList.indexWhere((e) => e['id'] == addressId);
-    if (index != -1) {
-      addressList[index] = address;
-    }
-
-    final result = await _repository.updateAddressList(
-      user: userData.user,
-      addresses: addressList,
-    );
+    final result = await _repository.updateAddress(address);
 
     result.fold(
       (l) {
@@ -641,13 +777,15 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         emit(UserProfileState.error(l.message));
         _reloadProfile();
       },
-      (success) {
+      (message) {
         if (kDebugMode) {
-          print('[UserProfileBloc] Address updated successfully');
+          print('[UserProfileBloc] Address updated successfully: $message');
         }
         emit(
           UserProfileState.basicInfoUpdateSuccess(
-            message: 'Address updated successfully',
+            message: message.isNotEmpty
+                ? message
+                : 'Address updated successfully',
             user: userData.user,
             imageUrl: userData.imageUrl,
             mobileNumber: userData.mobile,
@@ -684,16 +822,7 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       ),
     );
 
-    final currentAddresses = userData.user.addresses ?? [];
-    List<Map<String, dynamic>> addressList = currentAddresses
-        .where((e) => e.id != addressId)
-        .map((e) => _addressEntityToJson(e))
-        .toList();
-
-    final result = await _repository.updateAddressList(
-      user: userData.user,
-      addresses: addressList,
-    );
+    final result = await _repository.deleteAddress(addressId);
 
     result.fold(
       (l) {
@@ -703,13 +832,15 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         emit(UserProfileState.error(l.message));
         _reloadProfile();
       },
-      (success) {
+      (message) {
         if (kDebugMode) {
-          print('[UserProfileBloc] Address deleted successfully');
+          print('[UserProfileBloc] Address deleted successfully: $message');
         }
         emit(
           UserProfileState.basicInfoUpdateSuccess(
-            message: 'Address deleted successfully',
+            message: message.isNotEmpty
+                ? message
+                : 'Address deleted successfully',
             user: userData.user,
             imageUrl: userData.imageUrl,
             mobileNumber: userData.mobile,
@@ -718,27 +849,5 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         _reloadProfile();
       },
     );
-  }
-
-  Map<String, dynamic> _addressEntityToJson(dynamic address) {
-    return {
-      'id': address.id,
-      'customer_id': address.customerId,
-      'region': {
-        'region_code': address.region.regionCode,
-        'region': address.region.region,
-        'region_id': address.region.regionId,
-      },
-      'region_id': address.regionId,
-      'country_id': address.countryId,
-      'street': address.street,
-      'telephone': address.telephone,
-      'postcode': address.postcode,
-      'city': address.city,
-      'firstname': address.firstname,
-      'lastname': address.lastname,
-      'default_shipping': address.defaultShipping,
-      'default_billing': address.defaultBilling,
-    };
   }
 }

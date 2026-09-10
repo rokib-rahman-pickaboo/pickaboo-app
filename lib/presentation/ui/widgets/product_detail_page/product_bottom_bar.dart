@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
@@ -152,7 +152,6 @@ class ProductBottomBarState extends State<ProductBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return BlocListener<CartBloc, CartState>(
@@ -163,33 +162,7 @@ class ProductBottomBarState extends State<ProductBottomBar> {
               setState(() => _isBuyNowRequested = false);
               context.push(Routes.cart);
             } else {
-              ScaffoldMessenger.of(context).clearSnackBars();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  duration: const Duration(seconds: 1),
-                  backgroundColor: colors.primary,
-                  content: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(child: Text(message)),
-                      GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          context.push(Routes.cart);
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
-                          child: Text(
-                            'VIEW CART',
-                            style: TextStyle(color: colors.white, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              SnackBarUtils.showCartItemAdded(context, message: message);
             }
           },
           error: (error, lastCart) {
@@ -205,10 +178,10 @@ class ProductBottomBarState extends State<ProductBottomBar> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           decoration: BoxDecoration(
-            color: colors.white,
+            color: AppColors.white,
             boxShadow: [
               BoxShadow(
-                color: colors.black.withAlpha(15),
+                color: AppColors.black.withAlpha(15),
                 blurRadius: 10,
                 offset: const Offset(0, -3),
               ),
@@ -229,9 +202,9 @@ class ProductBottomBarState extends State<ProductBottomBar> {
                           child: ElevatedButton(
                             onPressed: null,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.grayLight,
-                              disabledBackgroundColor: colors.grayLight,
-                              disabledForegroundColor: colors.textMedium,
+                              backgroundColor: AppColors.pageBg,
+                              disabledBackgroundColor: AppColors.pageBg,
+                              disabledForegroundColor: AppColors.muted,
                               padding: EdgeInsets.symmetric(vertical: 12.h),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.r),
@@ -240,7 +213,7 @@ class ProductBottomBarState extends State<ProductBottomBar> {
                             ),
                             child: Text(
                               'Out of Stock',
-                              style: textStyle.buttonMedium.copyWith(color: colors.textMedium),
+                              style: textStyle.buttonMedium.copyWith(color: AppColors.muted),
                             ),
                           ),
                         ),
@@ -254,10 +227,10 @@ class ProductBottomBarState extends State<ProductBottomBar> {
                         child: OutlinedButton(
                           onPressed: isLoading ? null : () => _handleAddToCart(isBuyNow: false),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: colors.primary,
-                            disabledForegroundColor: colors.primary.withValues(alpha: 0.5),
+                            foregroundColor: AppColors.pickabooBlue,
+                            disabledForegroundColor: AppColors.pickabooBlue.withValues(alpha: 0.5),
                             side: BorderSide(
-                                color: isLoading ? colors.primary.withValues(alpha: 0.5) : colors.primary,
+                                color: isLoading ? AppColors.pickabooBlue.withValues(alpha: 0.5) : AppColors.pickabooBlue,
                                 width: 1.5),
                             padding: EdgeInsets.symmetric(vertical: 12.h),
                             shape: RoundedRectangleBorder(
@@ -267,7 +240,7 @@ class ProductBottomBarState extends State<ProductBottomBar> {
                           child: Text(
                             'Add to Cart',
                             style: textStyle.buttonMedium.copyWith(
-                              color: isLoading ? colors.primary.withValues(alpha: 0.5) : colors.primary,
+                              color: isLoading ? AppColors.pickabooBlue.withValues(alpha: 0.5) : AppColors.pickabooBlue,
                             ),
                           ),
                         ),
@@ -277,10 +250,10 @@ class ProductBottomBarState extends State<ProductBottomBar> {
                         child: ElevatedButton(
                           onPressed: isLoading ? null : () => _handleAddToCart(isBuyNow: true),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            foregroundColor: colors.white,
-                            disabledBackgroundColor: colors.primary.withValues(alpha: 0.5),
-                            disabledForegroundColor: colors.white.withValues(alpha: 0.8),
+                            backgroundColor: AppColors.pickabooBlue,
+                            foregroundColor: AppColors.white,
+                            disabledBackgroundColor: AppColors.pickabooBlue.withValues(alpha: 0.5),
+                            disabledForegroundColor: AppColors.white.withValues(alpha: 0.8),
                             padding: EdgeInsets.symmetric(vertical: 12.h),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.r),
@@ -290,7 +263,7 @@ class ProductBottomBarState extends State<ProductBottomBar> {
                           child: Text(
                             'Buy Now',
                             style: textStyle.buttonMedium.copyWith(
-                              color: isLoading ? colors.white.withValues(alpha: 0.8) : colors.white,
+                              color: isLoading ? AppColors.white.withValues(alpha: 0.8) : AppColors.white,
                             ),
                           ),
                         ),

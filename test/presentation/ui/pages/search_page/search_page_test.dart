@@ -11,6 +11,7 @@ import 'package:pickaboo/presentation/ui/pages/search_page/search_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/search_page/search_results.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:badges/badges.dart' as badges;
@@ -46,7 +47,6 @@ void main() {
       builder: (_, _) => MaterialApp(
         theme: ThemeData(
           extensions: [
-            AppColors.light(),
             AppTextStyles.build(Brightness.light),
           ],
         ),
@@ -98,16 +98,18 @@ void main() {
 
       // Verify Search TextField
       expect(find.byType(TextFormField), findsOneWidget);
-      expect(find.text('Search for Products, Brands and More'), findsOneWidget);
+      expect(find.text('Search what you are looking for...'), findsOneWidget);
 
       // Verify Cart Icon
-      expect(find.byType(AppBarButton).last, findsOneWidget);
+      expect(find.byIcon(Icons.shopping_bag_outlined), findsOneWidget);
 
       // Verify SearchResults body
       expect(find.byType(SearchResults), findsOneWidget);
 
       // Verify Initial Message is shown and NO loader
-      expect(find.text('Start typing to search for products'), findsOneWidget);
+      expect(find.byType(AppEmptyView), findsOneWidget);
+      expect(find.text('Search for Products'), findsOneWidget);
+      expect(find.text('No Results Found'), findsNothing);
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
@@ -242,8 +244,46 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Badge widget is present
-      expect(find.byType(badges.Badge), findsOneWidget);
+      expect(find.byType(Badge), findsOneWidget);
       expect(find.text('5'), findsOneWidget);
+      final textWidget = tester.widget<Text>(find.text('5'));
+      expect(textWidget.style?.color, AppColors.white);
     });
+
+    testWidgets(
+      'displays "No Results Found" when search returns empty results, but prompt on initial',
+      (WidgetTester tester) async {
+        when(() => mockSearchBloc.state).thenReturn(
+          SearchState(
+            pagingState: PagingState(pages: [[]], keys: [0]),
+          ),
+        );
+        whenListen(
+          mockSearchBloc,
+          Stream.value(
+            SearchState(
+              pagingState: PagingState(pages: [[]], keys: [0]),
+            ),
+          ),
+          initialState: SearchState(
+            pagingState: PagingState(pages: [[]], keys: [0]),
+          ),
+        );
+
+        when(() => mockCartBloc.state).thenReturn(const CartState.initial());
+        whenListen(
+          mockCartBloc,
+          Stream.value(const CartState.initial()),
+          initialState: const CartState.initial(),
+        );
+
+        await tester.pumpWidget(makeTestableWidget(const SearchPage()));
+        await tester.pumpAndSettle();
+
+        // When search returns 0 products, "No Results Found" should display
+        expect(find.text('No Results Found'), findsOneWidget);
+        expect(find.text('Search for Products'), findsNothing);
+      },
+    );
   });
 }

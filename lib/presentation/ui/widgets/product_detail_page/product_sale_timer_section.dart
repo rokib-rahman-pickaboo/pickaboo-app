@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
 class ProductSaleTimerSection extends StatefulWidget {
   final DateTime? endTime;
@@ -74,16 +73,20 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
     final subtitle = widget.subtitle?.trim() ?? '';
 
     return Container(
-      margin: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 12.h),
+      margin: EdgeInsets.only(
+        left: AppSpacing.sameGroupItemSpacing.w,
+        right: AppSpacing.sameGroupItemSpacing.w,
+        bottom: (AppSpacing.groupToGroupSpacing * 0.5).h,
+      ),
       decoration: BoxDecoration(
         image: const DecorationImage(
           image: AssetImage('assets/new/special_timer_background.png'),
           fit: BoxFit.cover,
         ),
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -96,10 +99,12 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
                 children: [
                   Text(
                     widget.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: textStyle.bodyMedium.copyWith(
-                      color: context.colors.white,
+                      color: AppColors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
+                      fontSize: 14.sp,
                       height: 1.2,
                     ),
                   ),
@@ -107,9 +112,11 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
                     SizedBox(height: 2.h),
                     Text(
                       subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: textStyle.bodySmall.copyWith(
-                        color: context.colors.white.withValues(alpha: 0.85),
-                        fontSize: 11.sp,
+                        color: AppColors.white.withValues(alpha: 0.85),
+                        fontSize: 10.5.sp,
                         height: 1.2,
                       ),
                     ),
@@ -118,7 +125,7 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
               ),
             ),
 
-            SizedBox(width: 10.w),
+            SizedBox(width: 8.w),
 
             Expanded(
               flex: 46,
@@ -132,7 +139,7 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
                       'Days',
                     ),
                   ),
-                  SizedBox(width: 6.w),
+                  SizedBox(width: 4.w),
                   Expanded(
                     child: _buildTimerBox(
                       context,
@@ -140,7 +147,7 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
                       'Hours',
                     ),
                   ),
-                  SizedBox(width: 6.w),
+                  SizedBox(width: 4.w),
                   Expanded(
                     child: _buildTimerBox(
                       context,
@@ -148,7 +155,7 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
                       'Min',
                     ),
                   ),
-                  SizedBox(width: 6.w),
+                  SizedBox(width: 4.w),
                   Expanded(
                     child: _buildTimerBox(
                       context,
@@ -160,7 +167,7 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
               ),
             ),
 
-            SizedBox(width: 10.w),
+            SizedBox(width: 8.w),
 
             Expanded(
               flex: 26,
@@ -169,11 +176,11 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
                 child: ElevatedButton(
                   onPressed: widget.onLearnMore,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E9BF0),
-                    foregroundColor: context.colors.white,
+                    backgroundColor: AppColors.pickabooBlue,
+                    foregroundColor: AppColors.white,
                     padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 10.h,
+                      horizontal: 6.w,
+                      vertical: 8.h,
                     ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -185,13 +192,13 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      'Learn More',
+                      AppStrings.learnMore,
                       maxLines: 1,
                       softWrap: false,
                       style: textStyle.bodySmall.copyWith(
-                        color: context.colors.white,
+                        color: AppColors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 12.sp,
+                        fontSize: 11.5.sp,
                         height: 1.1,
                       ),
                     ),
@@ -208,10 +215,10 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
   Widget _buildTimerBox(BuildContext context, String value, String label) {
     final textStyle = context.textStyle;
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 2.w),
+      padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 2.w),
       decoration: BoxDecoration(
-        color: context.colors.white,
-        borderRadius: BorderRadius.circular(8.r),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(6.r),
       ),
       alignment: Alignment.center,
       child: Column(
@@ -222,9 +229,9 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
             value,
             maxLines: 1,
             style: textStyle.bodyMedium.copyWith(
-              color: const Color(0xFF16181D),
+              color: AppColors.navy,
               fontWeight: FontWeight.bold,
-              fontSize: 15.sp,
+              fontSize: 13.5.sp,
               height: 1.15,
             ),
           ),
@@ -235,8 +242,8 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
               label,
               maxLines: 1,
               style: textStyle.caption.copyWith(
-                color: const Color(0xFF7A8699),
-                fontSize: 10.sp,
+                color: AppColors.muted,
+                fontSize: 9.sp,
                 height: 1.15,
               ),
             ),

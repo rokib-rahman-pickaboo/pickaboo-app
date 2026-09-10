@@ -1,9 +1,15 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
@@ -12,10 +18,12 @@ import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_bloc.d
 import 'package:pickaboo/presentation/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/dashboard/ticket_detail_page/ticket_detail_page.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_main_page/ticket_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class TicketMainPage extends StatefulWidget {
   const TicketMainPage({super.key});
@@ -59,18 +67,20 @@ class _TicketMainPageState extends State<TicketMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: const Text('Support Tickets'),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.dashboard);
+        }
+      },
+      child: Scaffold(
+      backgroundColor: AppColors.pageBg,
+      appBar: const PickabooAppBar(
+        title: 'Support Tickets',
       ),
       body: _wrapTwoPane(
         context,
@@ -84,108 +94,93 @@ class _TicketMainPageState extends State<TicketMainPage> {
           },
           builder: (context, state) {
             if (state.status == TicketStatus.loading) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: colors.primary,
-                  strokeWidth: 2.w,
-                ),
-              );
+              return const AppLoader.fullPage();
             }
 
             final tickets = state.tickets;
 
             if (state.status == TicketStatus.error && tickets.isEmpty) {
+              final isOffline = ConnectivityUtils.isNoInternet(state.error, context);
               return AppErrorView(
-                type: AppErrorType.server,
-                message: state.error?.message,
+                type: isOffline ? AppErrorType.noInternet : AppErrorType.server,
+                message: isOffline ? null : state.error?.message,
                 onRetry: () => context.read<TicketBloc>().add(
                   const TicketEvent.getTickets(),
                 ),
               );
             }
 
-            return Column(
-              children: [
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _refreshTickets,
-                    color: colors.primary,
-                    child: tickets.isEmpty
-                        ? Stack(
-                            children: [
-                              ListView(),
-                              _EmptyState(
-                                onCreateTicket: _navigateToCreateTicket,
-                              ),
-                            ],
-                          )
-                        : CustomScrollView(
-                            slivers: [
-                              SliverPadding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 8.h,
-                                ),
-                                sliver: SliverList.separated(
-                                  itemCount: tickets.length,
-                                  separatorBuilder: (context, index) =>
-                                      SizedBox(height: 12.h),
-                                  itemBuilder: (context, index) {
-                                    final ticket = tickets[index];
-                                    return TicketCard(
-                                      ticket: ticket,
-                                      onTap: () =>
-                                          _navigateToTicketDetails(ticket),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                              SliverToBoxAdapter(child: SizedBox(height: 80.h)),
-                            ],
-                          ),
-                  ),
-                ),
-
-                if (tickets.isNotEmpty)
-                  Container(
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10.r,
-                          offset: Offset(0, -2.h),
+            return RefreshIndicator(
+              onRefresh: _refreshTickets,
+              color: AppColors.pickabooBlue,
+              child: tickets.isEmpty
+                  ? Stack(
+                      children: [
+                        ListView(),
+                        AppEmptyView.tickets(
+                          onCreateTicket: _navigateToCreateTicket,
                         ),
                       ],
-                    ),
-                    child: SafeArea(
-                      top: false,
-                      child: ElevatedButton.icon(
-                        onPressed: _navigateToCreateTicket,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.button,
-                          minimumSize: Size(double.maxFinite, 48.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                        ),
-                        icon: Icon(Icons.add, color: colors.white, size: 22.sp),
-                        label: Text(
-                          'Create Ticket',
-                          style: context.textStyle.buttonMedium.copyWith(
-                            color: colors.white,
-                          ),
-                        ),
+                    )
+                  : ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
                       ),
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.sameGroupItemSpacing.w,
+                        0,
+                        AppSpacing.sameGroupItemSpacing.w,
+                        16.h,
+                      ),
+                      itemCount: tickets.length,
+                      separatorBuilder: (context, index) => SizedBox(
+                        height: AppSpacing.sameGroupItemSpacing.h,
+                      ),
+                      itemBuilder: (context, index) {
+                        final ticket = tickets[index];
+                        return TicketCard(
+                          ticket: ticket,
+                          onTap: () => _navigateToTicketDetails(ticket),
+                        );
+                      },
                     ),
-                  ),
-              ],
             );
           },
         ),
       ),
+
+      // ── PERSISTENT PINNED BOTTOM BAR ──
+      bottomNavigationBar: Container(
+        color: AppColors.pageBg,
+        padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+        child: SafeArea(
+          child: SizedBox(
+            height: 48.h,
+            child: ElevatedButton.icon(
+              onPressed: _navigateToCreateTicket,
+              icon: Icon(
+                Icons.add_rounded,
+                size: 20.sp,
+                color: AppColors.white,
+              ),
+              label: Text(
+                'Create Ticket',
+                style: AppTypography.buttonPrimary,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.pickabooBlue,
+                foregroundColor: AppColors.white,
+                elevation: 0,
+                shadowColor: AppColors.pickabooBlue.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
     );
   }
 
@@ -193,7 +188,7 @@ class _TicketMainPageState extends State<TicketMainPage> {
     if (!context.useTwoPane) return list;
     return Row(
       children: [
-        SizedBox(width: 360, child: list),
+        SizedBox(width: 360.w, child: list),
         const VerticalDivider(width: 1, thickness: 1),
         Expanded(child: _buildDetailPane(context)),
       ],
@@ -206,9 +201,7 @@ class _TicketMainPageState extends State<TicketMainPage> {
       return Center(
         child: Text(
           'Select a ticket to see its details',
-          style: context.textStyle.bodyMedium.copyWith(
-            color: context.colors.gray,
-          ),
+          style: AppTypography.bodyMuted,
         ),
       );
     }
@@ -219,72 +212,6 @@ class _TicketMainPageState extends State<TicketMainPage> {
         BlocProvider(create: (_) => getIt<PhotoPickerBloc>()),
       ],
       child: TicketDetailPage(ticketId: id, embedded: true),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final VoidCallback onCreateTicket;
-
-  const _EmptyState({required this.onCreateTicket});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(24.w),
-              decoration: BoxDecoration(
-                color: colors.primary.withAlpha(25),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.confirmation_num_outlined,
-                size: 80.sp,
-                color: colors.primary,
-              ),
-            ),
-            SizedBox(height: 24.h),
-            Text(
-              'No Support Tickets',
-              style: context.textStyle.bodyLargeBold.copyWith(
-                color: colors.text,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              'You do not have any open tickets.\nCreate a ticket to get help from our support team.',
-              style: context.textStyle.bodyMedium.copyWith(color: colors.gray),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 32.h),
-            ElevatedButton.icon(
-              onPressed: onCreateTicket,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colors.button,
-                minimumSize: Size(double.maxFinite, 48.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              icon: Icon(Icons.add, color: colors.white, size: 22.sp),
-              label: Text(
-                'Create Ticket',
-                style: context.textStyle.buttonMedium.copyWith(
-                  color: colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

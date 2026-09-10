@@ -1,8 +1,14 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
+/// Modern OrderInfoSection wrapper matching Pickaboo-App-UI design language.
 class OrderInfoSection extends StatelessWidget {
   final String title;
   final Widget content;
@@ -17,13 +23,24 @@ class OrderInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
     return Container(
-      color: colors.white,
-      margin: EdgeInsets.only(top: 8.h),
+      margin: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: 4.h,
+      ),
       padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 8.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,7 +49,7 @@ class OrderInfoSection extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: textStyles.bodyMediumBold.copyWith(color: colors.text),
+                style: AppTypography.sectionTitle,
               ),
               if (trailing != null) trailing!,
             ],

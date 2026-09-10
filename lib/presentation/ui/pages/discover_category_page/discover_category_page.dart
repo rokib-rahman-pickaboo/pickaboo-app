@@ -1,18 +1,27 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/discover_category/discover_category_banner_entity.dart';
 import 'package:pickaboo/domain/entity/discover_category/discover_category_entity.dart';
 import 'package:pickaboo/domain/entity/discover_category/discover_subsection_item_entity.dart';
 import 'package:pickaboo/presentation/bloc/discover_category_bloc/discover_category_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/bloc/internet/internet_bloc.dart';
+import 'package:pickaboo/presentation/ui/pages/main_page.dart';
+import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/discover_category_page/category_sidebar.dart';
 import 'package:pickaboo/presentation/ui/widgets/discover_category_page/subcategory_section.dart';
 
@@ -34,6 +43,12 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
     context.read<DiscoverCategoryBloc>().add(
       const DiscoverCategoryEvent.getDiscoverCategories(),
     );
+  }
+
+  @override
+  void dispose() {
+    MainPage.hideBottomNav.value = false;
+    super.dispose();
   }
 
   Future<void> _onRefresh() async {
@@ -72,108 +87,135 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyles = context.textStyle;
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          context.go(Routes.home);
-        }
+    return BlocListener<InternetBloc, InternetState>(
+      listenWhen: (previous, current) =>
+          previous.maybeWhen(disconnected: (_) => true, orElse: () => false) &&
+          current.maybeWhen(connected: (_) => true, orElse: () => false),
+      listener: (context, state) {
+        context.read<DiscoverCategoryBloc>().add(
+          const DiscoverCategoryEvent.getDiscoverCategories(),
+        );
       },
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          leading: AppBarButton(
-            iconPath: 'assets/new/svg/back_nav_icon.svg',
-            width: 7.w,
-            height: 14.h,
-            onPressed: () => context.go(Routes.home),
-            iconColor: colors.text,
-          ),
-          title: const Text('All Categories'),
-          actions: [
-            AppBarButton(
-              onPressed: () => context.push(Routes.search),
-              iconPath: 'assets/new/svg/search_icon.svg',
-              width: 22.w,
-              height: 20.h,
-              iconColor: colors.primary,
-            ),
-            BlocBuilder<CartBloc, CartState>(
-              builder: (context, cartState) {
-                final cartCount = cartState.maybeWhen(
-                  loaded: (cart) => cart.itemsCount,
-                  itemAdded: (cart, _) => cart.itemsCount,
-                  couponApplied: (cart, _) => cart.itemsCount,
-                  rewardPointsApplied: (cart, _) => cart.itemsCount,
-                  operationInProgress: (cart, _) => cart.itemsCount,
-                  orElse: () => 0,
-                );
+      child: BlocBuilder<DiscoverCategoryBloc, DiscoverCategoryState>(
+        builder: (context, state) {
+          final isOfflineError = state.discoverCategories == null &&
+              ConnectivityUtils.isOffline(context);
 
-                return AppBarButton(
-                  onPressed: () => context.push(Routes.cart),
-                  iconPath: 'assets/new/svg/cart_icon.svg',
-                  width: 22.w,
-                  height: 20.h,
-                  iconColor: colors.primary,
-                  showBadge: cartCount > 0,
-                  badgeCount: cartCount,
-                );
-              },
-            ),
-            SizedBox(width: 8.w),
-          ],
-        ),
-        body: BlocConsumer<DiscoverCategoryBloc, DiscoverCategoryState>(
-          listener: (context, state) {
-            if (state.status == DiscoverCategoryStatus.error) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    state.error?.message ?? 'Failed to load categories',
-                  ),
-                  backgroundColor: colors.salmon,
-                  action: SnackBarAction(
-                    label: 'Retry',
-                    textColor: colors.white,
-                    onPressed: () {
-                      context.read<DiscoverCategoryBloc>().add(
-                        const DiscoverCategoryEvent.getDiscoverCategories(),
-                      );
-                    },
-                  ),
-                ),
-              );
+          final isGenericError = state.discoverCategories == null &&
+              !isOfflineError &&
+              state.status == DiscoverCategoryStatus.error;
+
+          final hideNav = isOfflineError || isGenericError;
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (MainPage.hideBottomNav.value != hideNav) {
+              MainPage.hideBottomNav.value = hideNav;
             }
-          },
-          builder: (context, state) {
-            return RefreshIndicator(
-              onRefresh: _onRefresh,
-              color: colors.primary,
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  SliverFillRemaining(
-                    child: _buildContent(state, colors, textStyles),
-                  ),
-                ],
+          });
+
+          if (isOfflineError) {
+            return PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop) {
+                  MainPage.hideBottomNav.value = false;
+                  context.go(Routes.home);
+                }
+              },
+              child: NoInternetPage(
+                showAppBar: true,
+                title: AppStrings.allCategories,
+                onBack: () {
+                  MainPage.hideBottomNav.value = false;
+                  context.go(Routes.home);
+                },
+                onRetry: () => context.read<DiscoverCategoryBloc>().add(
+                  const DiscoverCategoryEvent.getDiscoverCategories(),
+                ),
               ),
             );
-          },
-        ),
+          }
+
+          if (isGenericError) {
+            return PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop) {
+                  MainPage.hideBottomNav.value = false;
+                  context.go(Routes.home);
+                }
+              },
+              child: Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: AppColors.pageBg,
+                appBar: PickabooAppBar(
+                  title: AppStrings.allCategories,
+                  showBackButton: true,
+                  onBackTap: () {
+                    MainPage.hideBottomNav.value = false;
+                    context.go(Routes.home);
+                  },
+                ),
+                body: SafeArea(
+                  child: AppErrorView(
+                    type: AppErrorType.generic,
+                    title: "Couldn't load categories",
+                    message: 'Please try again in a moment.',
+                    retryLabel: 'Retry',
+                    onRetry: () => context.read<DiscoverCategoryBloc>().add(
+                      const DiscoverCategoryEvent.getDiscoverCategories(),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop) {
+                MainPage.hideBottomNav.value = false;
+                context.go(Routes.home);
+              }
+            },
+            child: Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppColors.pageBg,
+              appBar: PickabooAppBar(
+                title: AppStrings.allCategories,
+                onBackTap: () {
+                  MainPage.hideBottomNav.value = false;
+                  context.go(Routes.home);
+                },
+                actions: [
+                  IconButton(
+                    icon: Icon(Icons.search_rounded, color: AppColors.navy, size: 22.sp),
+                    onPressed: () => context.push(Routes.search),
+                  ),
+                  SizedBox(width: 4.w),
+                ],
+              ),
+              body: RefreshIndicator(
+                onRefresh: _onRefresh,
+                color: AppColors.pickabooBlue,
+                child: _buildContent(state, textStyles),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildContent(
     DiscoverCategoryState state,
-    AppColors colors,
     AppTextStyles textStyles,
   ) {
     if (state.status == DiscoverCategoryStatus.loading) {
-      return Center(child: CircularProgressIndicator(color: colors.primary));
+      return const AppLoader.fullPage();
     }
 
     if (state.status == DiscoverCategoryStatus.empty) {
@@ -187,11 +229,13 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
     }
 
     if (state.status == DiscoverCategoryStatus.error) {
+      final isOffline = ConnectivityUtils.isNoInternet(state.error, context);
       return AppErrorView(
-        type: AppErrorType.generic,
-        title: "Couldn't load categories",
-        message: 'Something went wrong while loading this page. '
-            'Please try again in a moment.',
+        type: isOffline ? AppErrorType.noInternet : AppErrorType.generic,
+        title: isOffline ? 'No Internet Connection' : "Couldn't load categories",
+        message: isOffline
+            ? null
+            : 'Something went wrong while loading this page. Please try again in a moment.',
         onRetry: () => context.read<DiscoverCategoryBloc>().add(
           const DiscoverCategoryEvent.getDiscoverCategories(),
         ),
@@ -213,7 +257,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
             selectedIndex: _selectedCategoryIndex,
             onCategoryTap: _handleCategoryTap,
           ),
-
+          Container(width: 1, color: AppColors.border),
           Expanded(
             child: SubcategorySection(
               selectedCategory: categories.isNotEmpty
@@ -233,6 +277,6 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
       );
     }
 
-    return Center(child: CircularProgressIndicator(color: colors.primary));
+    return const AppLoader.fullPage();
   }
 }

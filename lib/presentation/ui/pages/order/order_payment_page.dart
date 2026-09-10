@@ -1,9 +1,14 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/cart/checkout_entity.dart';
 import 'package:pickaboo/domain/entity/checkout/checkout_emi_entity.dart';
@@ -14,6 +19,8 @@ import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/checkout_bloc/checkout_bloc.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
 import 'package:pickaboo/presentation/bloc/saved_payment/saved_payment_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/core/constants/app_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/payment_method_page/payment_option_item.dart';
@@ -22,7 +29,9 @@ import 'package:pickaboo/presentation/ui/widgets/cart/payment_method_page/card_b
 import 'package:pickaboo/presentation/bloc/card_bin_bloc/card_bin_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/bottom_sheet/card_bin_bottom_sheet.dart';
 import 'package:collection/collection.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/pages/order/bottom_sheet/emi_selection_bottom_sheet.dart';
 
 class OrderPaymentPage extends StatefulWidget {
@@ -143,7 +152,6 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return MultiBlocListener(
@@ -242,14 +250,14 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
               },
             );
           },
-          paymentMethodUpdated: (success, checkout) {
+            paymentMethodUpdated: (success, checkout) {
             if (!success) {
               if (widget.orderId != null) {
                 context.goToOrderFailed(orderId: widget.orderId);
               }
               SnackBarUtils.showError(
                 context,
-                'Failed to update payment method. Please try again.',
+                AppStrings.failedToUpdatePaymentMethod,
               );
               return;
             }
@@ -336,7 +344,12 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
           },
           paymentFailed: (orderId, errorMessage) {
             context.goToOrderFailed(orderId: orderId);
-            SnackBarUtils.showError(context, errorMessage);
+            SnackBarUtils.showError(
+              context,
+              errorMessage.isNotEmpty
+                  ? errorMessage
+                  : AppStrings.somethingWentWrong,
+            );
           },
           orderConfirmed: (success, _) {
             if (success && widget.orderId != null) {
@@ -353,7 +366,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
               }
               SnackBarUtils.showError(
                 context,
-                'Failed to confirm order. Please try again.',
+                AppStrings.failedToConfirmOrder,
               );
             }
           },
@@ -365,7 +378,12 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                 'orderId=${widget.orderId}, quoteId=$_resolvedQuoteId)',
               );
             }
-            SnackBarUtils.showError(context, error.message);
+            SnackBarUtils.showError(
+              context,
+              error.message.isNotEmpty
+                  ? error.message
+                  : AppStrings.somethingWentWrong,
+            );
           },
           orElse: () {},
         );
@@ -412,32 +430,29 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
         );
 
         final scaffold = Scaffold(
-          appBar: AppBar(
-            leading: AppBarButton(
-              iconPath: 'assets/new/svg/back_nav_icon.svg',
-              width: 7.w,
-              height: 14.h,
-              onPressed: () => Navigator.of(context).pop(),
-              iconColor: colors.text,
-            ),
-            title: Text("Payment Method", style: context.textStyle.appBarTitle),
+          backgroundColor: AppColors.pageBg,
+          appBar: const PickabooAppBar(
+            title: AppStrings.paymentMethod,
           ),
           body: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16.w),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sameGroupItemSpacing.w,
+                    vertical: AppSpacing.sameGroupItemSpacing.h,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSavedWalletsSection(colors, textStyle),
+                      _buildSavedWalletsSection(textStyle),
                       Text(
-                        'Select Payment Method',
-                        style: textStyle.listTitle.copyWith(color: colors.text),
+                        AppStrings.selectPaymentMethod,
+                        style: textStyle.listTitle.copyWith(color: AppColors.text),
                       ),
-                      SizedBox(height: 16.h),
-                      ..._buildPaymentMethodItems(context, colors, textStyle),
-                      SizedBox(height: 24.h),
+                      AppSpacing.groupToGroupGap,
+                      ..._buildPaymentMethodItems(context, textStyle),
+                      AppSpacing.groupToGroupGap,
 
                       BlocBuilder<CardBinBloc, CardBinState>(
                         builder: (context, cardBinState) {
@@ -473,13 +488,8 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                           emiTenure: _selectedEmiTenure,
                         )
                       else
-                        Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20.h),
-                            child: CircularProgressIndicator(
-                              color: colors.primary,
-                            ),
-                          ),
+                        AppLoader.inline(
+                          padding: EdgeInsets.symmetric(vertical: 20.h),
                         ),
 
                       SizedBox(height: 24.h),
@@ -491,7 +501,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
           ),
           bottomNavigationBar: BlocBuilder<CardBinBloc, CardBinState>(
             builder: (context, cardBinState) =>
-                _buildBottomBar(colors, textStyle, state, cardBinState),
+                _buildBottomBar(textStyle, state, cardBinState),
           ),
         );
 
@@ -501,19 +511,20 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
           orElse: () => false,
         );
 
-        if (!isProcessing) return scaffold;
-        return Stack(
-          children: [
-            scaffold,
-            Positioned.fill(
-              child: Container(
-                color: colors.black.withValues(alpha: 0.35),
-                child: Center(
-                  child: CircularProgressIndicator(color: colors.primary),
-                ),
-              ),
-            ),
-          ],
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(Routes.cart);
+            }
+          },
+          child: AppLoader.overlay(
+            isLoading: isProcessing,
+            child: scaffold,
+          ),
         );
       },
     ),
@@ -573,16 +584,12 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   List<Widget> _buildPaymentMethodItems(
     BuildContext context,
-    AppColors colors,
     AppTextStyles textStyle,
   ) {
     if (_availablePaymentMethods.isEmpty) {
       return [
-        Padding(
+        AppLoader.inline(
           padding: EdgeInsets.symmetric(vertical: 32.h),
-          child: Center(
-            child: CircularProgressIndicator(color: colors.primary),
-          ),
         ),
       ];
     }
@@ -592,7 +599,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
     final items = <Widget>[];
     for (int i = 0; i < methods.length; i++) {
-      items.add(_buildSingleMethodItem(context, colors, methods[i]));
+      items.add(_buildSingleMethodItem(context, methods[i]));
       if (i != methods.length - 1) items.add(SizedBox(height: 12.h));
     }
     return items;
@@ -600,7 +607,6 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   Widget _buildSingleMethodItem(
     BuildContext context,
-    AppColors colors,
     PaymentMethodEntity method,
   ) {
     final code = method.code;
@@ -608,6 +614,8 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
     if (code == 'emi') {
       final eligible = _isEmiEligible();
+      final double grandTotal = _lastTotals?.grandTotal ?? 0;
+      final remaining = AppConstants.minEmiAmount - grandTotal;
       return PaymentOptionItem(
         id: code,
         title: method.title,
@@ -617,9 +625,14 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
         subtitle: eligible
             ? (_selectedEmiBank != null && _selectedEmiTenure != null
                 ? '${_selectedEmiBank!.name} · ${_selectedEmiTenure!.tenure} months · ৳${_selectedEmiTenure!.monthlyPayable}/mo · $_emiPaymentMode'
-                : null)
-            : 'Add BDT ${(AppConstants.minEmiAmount - (_lastTotals?.grandTotal ?? 0)).toStringAsFixed(0)} more to unlock EMI',
-        onTap: () => _updateSelection('emi'),
+                : 'Tap to select bank & tenure')
+            : (remaining > 0
+                ? 'Add BDT ${remaining.toStringAsFixed(0)} more to unlock EMI'
+                : 'Minimum BDT ${AppConstants.minEmiAmount.toStringAsFixed(0)} required for EMI'),
+        onTap: () {
+          _updateSelection('emi');
+          _openEmiSheet();
+        },
       );
     }
 
@@ -648,13 +661,13 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
             badge: isApplied ? Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: const Color(0xFF00C853),
+                color: AppColors.green,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Text(
                 'BIN APPLIED',
                 style: context.textStyle.bodySmall.copyWith(
-                  color: colors.white,
+                  color: AppColors.white,
                   fontWeight: FontWeight.w700,
                   fontSize: 10.sp,
                 ),
@@ -682,22 +695,13 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     );
   }
 
-  Widget _buildSavedWalletsSection(AppColors colors, AppTextStyles textStyle) {
+  Widget _buildSavedWalletsSection(AppTextStyles textStyle) {
     return BlocBuilder<SavedPaymentBloc, SavedPaymentState>(
       builder: (context, savedState) {
         if (savedState.isLoading) {
-          return Padding(
+          return AppLoader.inline(
+            size: 20.h,
             padding: EdgeInsets.symmetric(vertical: 8.h),
-            child: Center(
-              child: SizedBox(
-                height: 20.h,
-                width: 20.h,
-                child: CircularProgressIndicator(
-                  color: colors.primary,
-                  strokeWidth: 2,
-                ),
-              ),
-            ),
           );
         }
         if (savedState.savedPayments.isEmpty) return const SizedBox.shrink();
@@ -709,7 +713,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
               child: Text(
                 'Saved Payments',
                 style: textStyle.bodySmall.copyWith(
-                  color: colors.textLight,
+                  color: AppColors.mutedLight,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -780,7 +784,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     );
     if (widget.orderId == null) {
       context.read<CheckoutBloc>().add(
-        CheckoutEvent.selectPaymentMethod(
+        const CheckoutEvent.selectPaymentMethod(
           paymentMethod: 'dynamicpaymentgateway',
         ),
       );
@@ -788,7 +792,6 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
   }
 
   Widget _buildBottomBar(
-    AppColors colors,
     AppTextStyles textStyle,
     CheckoutState state,
     CardBinState cardBinState,
@@ -815,14 +818,14 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20.r),
           topRight: Radius.circular(20.r),
         ),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.1),
+            color: AppColors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -836,7 +839,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 8.h),
               decoration: BoxDecoration(
-                color: colors.lightYellowBg,
+                color: AppColors.amberBg,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20.r),
                   topRight: Radius.circular(20.r),
@@ -846,7 +849,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                 child: Text(
                   "100% Safe and Secure Payments",
                   style: textStyle.listCaption.copyWith(
-                    color: colors.textLight,
+                    color: AppColors.mutedLight,
                   ),
                 ),
               ),
@@ -862,18 +865,18 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                       Text(
                         "Total",
                         style: textStyle.bodySmall.copyWith(
-                          color: colors.textLight,
+                          color: AppColors.mutedLight,
                         ),
                       ),
                       Text(
                         "৳ ${total.toStringAsFixed(0)}",
                         style: textStyle.productPriceLarge.copyWith(
-                          color: colors.text,
+                          color: AppColors.text,
                         ),
                       ),
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   SizedBox(
                     height: 48.h,
                     width: 160.w,
@@ -890,7 +893,11 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                           }
 
                           if (_currentSelection == 'emi') {
-                            _openEmiSheet();
+                            if (_selectedEmiBank == null || _selectedEmiTenure == null) {
+                              _openEmiSheet();
+                              return;
+                            }
+                            _dispatchConfirmEmi(context);
                             return;
                           }
 
@@ -910,9 +917,9 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                         },
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.darkBlueBg,
-                        foregroundColor: colors.white,
-                        disabledBackgroundColor: colors.darkBlueBg.withValues(
+                        backgroundColor: AppColors.navy,
+                        foregroundColor: AppColors.white,
+                        disabledBackgroundColor: AppColors.navy.withValues(
                           alpha: 0.6,
                         ),
                         elevation: 0,
@@ -921,14 +928,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                         ),
                       ),
                       child: state.maybeWhen(
-                        loading: (_) => SizedBox(
-                          height: 20.h,
-                          width: 20.h,
-                          child: CircularProgressIndicator(
-                            color: context.colors.white,
-                            strokeWidth: 2,
-                          ),
-                        ),
+                        loading: (_) => const AppLoader.button(),
                         orElse: () => FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
@@ -936,7 +936,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                             maxLines: 1,
                             softWrap: false,
                             style: textStyle.buttonLarge.copyWith(
-                              color: colors.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ),
@@ -954,15 +954,51 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   String _confirmButtonLabel() {
     const confirmOrderMethods = {'cashondelivery', 'cardondelivery', 'free'};
-    if (confirmOrderMethods.contains(_currentSelection)) return 'Confirm Order';
+    if (confirmOrderMethods.contains(_currentSelection)) return AppStrings.confirmOrder;
     if (_currentSelection == 'emi' && _emiPaymentMode == 'Card On Delivery') {
-      return 'Confirm Order';
+      return AppStrings.confirmOrder;
     }
-    return 'Pay Now';
+    return AppStrings.payNow;
   }
 
   bool _isEmiEligible() {
-    return (_lastTotals?.grandTotal ?? 0) >= AppConstants.minEmiAmount;
+    double total = _lastTotals?.grandTotal ?? 0;
+    if (total == 0) {
+      final checkoutState = context.read<CheckoutBloc>().state;
+      total = checkoutState.maybeMap(
+        checkoutLoaded: (s) => s.checkout.cartTotals.grandTotal,
+        orderPlaced: (s) => s.checkout.cartTotals.grandTotal,
+        placingOrder: (s) => s.checkout.cartTotals.grandTotal,
+        loading: (s) => s.lastCheckout?.cartTotals.grandTotal ?? 0,
+        paymentMethodUpdated: (s) => s.checkout?.cartTotals.grandTotal ?? 0,
+        orderConfirmed: (s) => s.checkout?.cartTotals.grandTotal ?? 0,
+        orElse: () => 0,
+      );
+    }
+    if (total == 0) {
+      final cartState = context.read<CartBloc>().state;
+      total = cartState.maybeMap(
+        loaded: (s) => s.cart.grandTotal,
+        orElse: () => 0,
+      );
+    }
+    return total >= AppConstants.minEmiAmount;
+  }
+
+  void _dispatchConfirmEmi(BuildContext context) {
+    if (_selectedEmiBank == null || _selectedEmiTenure == null) return;
+    if (widget.orderId == null) return;
+
+    context.read<CheckoutBloc>().add(
+      CheckoutEvent.confirmEmiSelection(
+        orderId: widget.orderId!,
+        quoteId: _resolvedQuoteId ?? widget.orderId!,
+        bankName: _selectedEmiBank!.name,
+        tenure: _selectedEmiTenure!.tenure,
+        paymentGateway: _selectedEmiBank!.paymentGateway,
+        paymentMode: _emiPaymentMode,
+      ),
+    );
   }
 
   String? _getGatewayForMethod(BuildContext context, String methodCode) {

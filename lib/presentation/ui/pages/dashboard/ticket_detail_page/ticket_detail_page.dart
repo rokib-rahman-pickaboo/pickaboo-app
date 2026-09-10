@@ -12,9 +12,13 @@ import 'package:pickaboo/presentation/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_detail_page/ticket_info_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_detail_page/ticket_message_item.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_detail_page/ticket_reply_section.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class TicketDetailPage extends StatefulWidget {
   final String ticketId;
@@ -69,7 +73,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
 
   Future<void> _postReply() async {
     if (_replyController.text.trim().isEmpty) {
-      SnackBarUtils.showError(context, 'Please enter message');
+      SnackBarUtils.showError(context, AppStrings.enterMessage);
       return;
     }
 
@@ -87,7 +91,6 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
   }
 
   Future<void> _closeTicket() async {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     final confirmed = await showDialog<bool>(
@@ -100,25 +103,25 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
           'Close Ticket',
           style: textTheme.headingMedium.copyWith(
             fontWeight: FontWeight.w600,
-            color: colors.text,
+            color: AppColors.text,
           ),
         ),
         content: Text(
           'Are you sure you want to close this ticket?',
-          style: textTheme.bodyMedium.copyWith(color: colors.gray),
+          style: textTheme.bodyMedium.copyWith(color: AppColors.muted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               'Cancel',
-              style: textTheme.bodyMedium.copyWith(color: colors.gray),
+              style: textTheme.bodyMedium.copyWith(color: AppColors.muted),
             ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: colors.salmon,
+              backgroundColor: AppColors.orange,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
               ),
@@ -126,7 +129,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
             child: Text(
               'Close Ticket',
               style: textTheme.bodyMedium.copyWith(
-                color: colors.white,
+                color: AppColors.white,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -144,23 +147,23 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: widget.embedded
-            ? null
-            : AppBarButton(
-                iconPath: 'assets/new/svg/back_nav_icon.svg',
-                width: 7.w,
-                height: 14.h,
-                onPressed: () => Navigator.of(context).pop(),
-                iconColor: colors.text,
-              ),
-        title: Text('Ticket Details', style: context.textStyle.appBarTitle),
-      ),
+    return PopScope(
+      canPop: widget.embedded,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop || widget.embedded) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.ticketMain);
+        }
+      },
+      child: Scaffold(
+      backgroundColor: AppColors.pageBg,
+      appBar: widget.embedded
+          ? null
+          : const PickabooAppBar(
+              title: 'Ticket Details',
+            ),
       body: SafeArea(
         top: false,
         child: BlocConsumer<TicketBloc, TicketState>(
@@ -170,12 +173,13 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
             }
             if (state.status == TicketStatus.success &&
                 state.successMessage != null) {
-              SnackBarUtils.showSuccess(context, state.successMessage!);
+              final msg = state.successMessage ?? AppStrings.operationSuccessful;
+              SnackBarUtils.showSuccess(context, msg);
               context.read<TicketBloc>().add(const TicketEvent.clearMessage());
-              if (state.successMessage!.contains('Reply posted')) {
+              if (msg.contains('Reply posted')) {
                 _replyController.clear();
                 _photoPickerBloc.add(const PhotoPickerEvent.clear());
-              } else if (state.successMessage!.contains('closed')) {
+              } else if (msg.contains('closed')) {
                 if (!widget.embedded) {
                   Navigator.of(context).pop();
                 }
@@ -188,12 +192,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
             if (state.status == TicketStatus.loading &&
                 detailEntity == null &&
                 _initialTicket == null) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: colors.primary,
-                  strokeWidth: 2.w,
-                ),
-              );
+              return const AppLoader.fullPage();
             }
 
             final isSubmitting =
@@ -203,9 +202,10 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                 _initialTicket == null &&
                 !isSubmitting) {
               if (state.status == TicketStatus.error) {
+                final isOffline = ConnectivityUtils.isNoInternet(state.error, context);
                 return AppErrorView(
-                  type: AppErrorType.server,
-                  message: state.error?.message,
+                  type: isOffline ? AppErrorType.noInternet : AppErrorType.server,
+                  message: isOffline ? null : state.error?.message,
                   onRetry: () => context.read<TicketBloc>().add(
                     TicketEvent.getTicketDetails(_ticketId),
                   ),
@@ -254,53 +254,28 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                       ),
 
                       if (ticketDetails.messages.isNotEmpty)
-                        SliverToBoxAdapter(
-                          child: Container(
-                            margin: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                                  child: Text(
-                                    'Message History',
-                                    style: textTheme.bodyLargeMedium.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: colors.text,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                      if (ticketDetails.messages.isNotEmpty)
                         SliverList(
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            final message = ticketDetails.messages[index];
-                            return TicketMessageItem(message: message);
+                          delegate:
+                              SliverChildBuilderDelegate((context, index) {
+                            return TicketMessageItem(
+                              message: ticketDetails.messages[index],
+                            );
                           }, childCount: ticketDetails.messages.length),
                         ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                      const SliverToBoxAdapter(
+                        child: AppSpacing.groupToGroupGap,
+                      ),
                     ],
                   ),
                 if (isSubmitting && ticketDetails == null)
-                  Center(
-                    child: CircularProgressIndicator(
-                      color: colors.primary,
-                      strokeWidth: 2.w,
-                    ),
-                  ),
+                  const AppLoader.fullPage(),
               ],
             );
           },
         ),
       ),
+    ),
     );
   }
 }

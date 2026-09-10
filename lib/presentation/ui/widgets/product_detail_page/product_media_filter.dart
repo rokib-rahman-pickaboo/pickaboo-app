@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 
 class ProductMediaFilter extends StatelessWidget {
@@ -18,7 +17,6 @@ class ProductMediaFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     final filters = [
@@ -33,7 +31,7 @@ class ProductMediaFilter extends StatelessWidget {
     if (filters.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -52,17 +50,17 @@ class ProductMediaFilter extends StatelessWidget {
                     vertical: 8.h,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? colors.solitude : colors.white,
+                    color: isSelected ? AppColors.surfaceBlue : AppColors.white,
                     borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: isSelected ? colors.primary : colors.borderColor,
+                      color: isSelected ? AppColors.pickabooBlue : AppColors.border,
                       width: 1.2.w,
                     ),
                   ),
                   child: Text(
                     '$label ($count)',
                     style: textStyle.bodySmall.copyWith(
-                      color: isSelected ? colors.primary : colors.text,
+                      color: isSelected ? AppColors.pickabooBlue : AppColors.text,
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w500,

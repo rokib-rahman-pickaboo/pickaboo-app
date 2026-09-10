@@ -1,10 +1,17 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modern OrderItemCard matching Pickaboo-App-UI design language.
 class OrderItemCard extends StatelessWidget {
   final OrderItemDetailEntity item;
 
@@ -12,30 +19,47 @@ class OrderItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
-
     return Container(
-      color: colors.white,
-      margin: EdgeInsets.only(top: 8.h),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: 4.h,
+      ),
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 8.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 80.w,
-            height: 80.w,
+            width: 70.w,
+            height: 70.w,
             decoration: BoxDecoration(
-              color: colors.scaffoldBackground,
-              borderRadius: BorderRadius.circular(8.r),
+              color: AppColors.pageBg,
+              borderRadius: AppRadius.cardRadius,
+              border: Border.all(color: AppColors.border),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.cardRadius,
               child: AppImage(
                 imageUrl: item.image ?? "",
-                width: 80.w,
-                height: 80.w,
+                width: 70.w,
+                height: 70.w,
                 fit: BoxFit.cover,
+                placeholder: const AppLoader.inline(),
+                errorWidget: const Icon(
+                  Icons.inventory_2_outlined,
+                  color: AppColors.mutedLight,
+                ),
               ),
             ),
           ),
@@ -46,18 +70,17 @@ class OrderItemCard extends StatelessWidget {
               children: [
                 Text(
                   item.itemName,
-                  style: textStyles.bodyMedium.copyWith(
-                    color: colors.text,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: AppTypography.cardTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (item.soldBy != null) ...[
+                if (item.soldBy != null &&
+                    item.soldBy!.trim().isNotEmpty &&
+                    item.soldBy!.trim().toLowerCase() != 'null') ...[
                   SizedBox(height: 4.h),
                   Text(
                     'Sold by: ${item.soldBy}',
-                    style: textStyles.bodySmall.copyWith(color: colors.primary),
+                    style: AppTypography.brandTag,
                   ),
                 ],
                 SizedBox(height: 8.h),
@@ -66,14 +89,21 @@ class OrderItemCard extends StatelessWidget {
                   children: [
                     Text(
                       '৳${item.finalPrice.toStringAsFixed(0)}',
-                      style: textStyles.headingSmall.copyWith(
-                        color: colors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTypography.priceStandard,
                     ),
-                    Text(
-                      'Qty: ${item.qty}',
-                      style: textStyles.bodySmall.copyWith(color: colors.gray),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 3.h,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: AppColors.surfaceBlue,
+                        borderRadius: AppRadius.badgeRadius,
+                      ),
+                      child: Text(
+                        'Qty: ${item.qty}',
+                        style: AppTypography.bodyRegular,
+                      ),
                     ),
                   ],
                 ),

@@ -16,24 +16,17 @@ class BrandFeaturedProductsRail extends StatelessWidget {
   });
 
   double _railHeight(BuildContext context, double cardWidth) {
-    final imageHeight = cardWidth / 1.45;
-    final imageTextGap = 4.h;
-    final textScaleFactor = MediaQuery.textScalerOf(context).scale(1.0);
-    final textContentHeight = (95.h * textScaleFactor).clamp(75.0, 130.0);
-    final verticalPadding = 16.h;
-    return imageHeight + imageTextGap + textContentHeight + verticalPadding;
+    return SliderProductView.calculateCardHeight(context, cardWidth);
   }
 
   @override
   Widget build(BuildContext context) {
     if (products.isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final cardWidth = screenWidth * 0.43;
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       padding: EdgeInsets.only(top: 12.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

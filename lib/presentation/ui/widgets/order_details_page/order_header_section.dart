@@ -1,15 +1,21 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/date_time_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 
+/// Modern OrderHeaderSection matching Pickaboo-App-UI design language.
 class OrderHeaderSection extends StatelessWidget {
   final OrderDetailEntity order;
   final Function(String) getStatusAttributes;
-  final VoidCallback onBuyAgain;
+  final VoidCallback? onBuyAgain;
   final VoidCallback onReview;
   final VoidCallback? onCancel;
   final bool showCancel;
@@ -19,7 +25,7 @@ class OrderHeaderSection extends StatelessWidget {
     super.key,
     required this.order,
     required this.getStatusAttributes,
-    required this.onBuyAgain,
+    this.onBuyAgain,
     required this.onReview,
     this.onCancel,
     this.showCancel = false,
@@ -28,13 +34,26 @@ class OrderHeaderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
     final statusAttr = getStatusAttributes(order.status);
 
     return Container(
-      color: colors.white,
+      margin: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: 4.h,
+      ),
       padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.03),
+            blurRadius: 8.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -46,23 +65,20 @@ class OrderHeaderSection extends StatelessWidget {
                 children: [
                   Text(
                     "Order #${order.orderNumber}",
-                    style: textStyles.subheading.copyWith(
-                      color: colors.text,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: AppTypography.pageTitle,
                   ),
                   SizedBox(height: 4.h),
                   Text(
                     _formatDate(order.createdAt),
-                    style: textStyles.bodySmall.copyWith(color: colors.gray),
+                    style: AppTypography.bodyMutedLight,
                   ),
                 ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 5.h),
                 decoration: BoxDecoration(
                   color: statusAttr.backgroundColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20.r),
+                  borderRadius: AppRadius.badgeRadius,
                   border: Border.all(
                     color: statusAttr.backgroundColor.withValues(alpha: 0.2),
                     width: 1.w,
@@ -70,113 +86,65 @@ class OrderHeaderSection extends StatelessWidget {
                 ),
                 child: Text(
                   statusAttr.text,
-                  style: textStyles.bodySmallBold.copyWith(
-                    color: statusAttr.backgroundColor,
-                  ),
+                  style: AppTypography.badgeStockOut.withColor(statusAttr.backgroundColor),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 16.h),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: colors.primary, width: 1.w),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Material(
-                    color: colors.black.withValues(alpha: 0.0),
-                    child: InkWell(
-                      onTap: onBuyAgain,
-                      borderRadius: BorderRadius.horizontal(
-                        left: Radius.circular(8.r),
-                      ),
-                      splashColor: colors.primary.withAlpha(20),
-                      highlightColor: colors.primary.withAlpha(10),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.shopping_cart_outlined,
-                              size: 18.sp,
-                              color: colors.primary,
-                            ),
-                            SizedBox(width: 6.w),
-                            Text(
-                              'Buy Again',
-                              style: textStyles.linkSmall.withColor(
-                                colors.primary,
-                              ),
-                            ),
-                          ],
+          if (showReview) ...[
+            SizedBox(height: 16.h),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.pickabooBlue, width: 1.w),
+                borderRadius: AppRadius.cardRadius,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onReview,
+                  borderRadius: AppRadius.cardRadius,
+                  splashColor: AppColors.pickabooBlue.withValues(alpha: 0.1),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.star_border_rounded,
+                          size: 16.sp,
+                          color: AppColors.pickabooBlue,
                         ),
-                      ),
+                        SizedBox(width: 6.w),
+                        Text(
+                          'Review',
+                          style: AppTypography.brandActionText,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                if (showReview) ...[
-                  Container(width: 1.w, height: 40.h, color: colors.primary),
-                  Expanded(
-                    child: Material(
-                      color: colors.black.withValues(alpha: 0.0),
-                      child: InkWell(
-                        onTap: onReview,
-                        borderRadius: BorderRadius.horizontal(
-                          right: Radius.circular(8.r),
-                        ),
-                        splashColor: colors.primary.withAlpha(20),
-                        highlightColor: colors.primary.withAlpha(10),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.h),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.star_border,
-                                size: 18.sp,
-                                color: colors.primary,
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                'Review',
-                                style: textStyles.linkSmall.withColor(
-                                  colors.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
-          ),
+          ],
           if (showCancel && onCancel != null) ...[
-            SizedBox(height: 12.h),
+            SizedBox(height: showReview ? 10.h : 16.h),
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: colors.red, width: 1.w),
-                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: AppColors.red, width: 1.w),
+                borderRadius: AppRadius.cardRadius,
               ),
               child: Material(
-                color: colors.black.withValues(alpha: 0.0),
+                color: Colors.transparent,
                 child: InkWell(
                   onTap: onCancel,
-                  borderRadius: BorderRadius.circular(8.r),
-                  splashColor: colors.red.withAlpha(20),
-                  highlightColor: colors.red.withAlpha(10),
+                  borderRadius: AppRadius.cardRadius,
+                  splashColor: AppColors.red.withValues(alpha: 0.1),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    padding: EdgeInsets.symmetric(vertical: 10.h),
                     child: Center(
                       child: Text(
                         'Cancel Order',
-                        style: textStyles.badgeLarge.withColor(colors.red),
+                        style: AppTypography.brandActionText.withColor(AppColors.red),
                       ),
                     ),
                   ),
@@ -192,6 +160,10 @@ class OrderHeaderSection extends StatelessWidget {
   String _formatDate(String dateString) {
     final date = parseServerDateTime(dateString);
     if (date == null) return dateString;
-    return DateFormat('dd MMMM yyyy, hh:mm a').format(date).toLowerCase();
+    final formatted = DateFormat('dd MMMM yyyy, hh:mm a').format(date);
+    return formatted.replaceAllMapped(
+      RegExp(r'\b(AM|PM)\b'),
+      (match) => match.group(0)!.toLowerCase(),
+    );
   }
 }

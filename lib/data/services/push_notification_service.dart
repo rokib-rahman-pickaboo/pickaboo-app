@@ -64,7 +64,7 @@ Future<void> showLocalNotification({
         : null,
   );
 
-  final iosDetails = const DarwinNotificationDetails(
+  const iosDetails = DarwinNotificationDetails(
     presentAlert: true,
     presentBadge: true,
     presentSound: true,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
@@ -15,12 +14,10 @@ class BrandShopByBrand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (brands.isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return Container(
-      color: colors.white,
+      color: AppColors.white,
       padding: EdgeInsets.only(top: 12.h, bottom: 8.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,10 +50,10 @@ class BrandShopByBrand extends StatelessWidget {
                           width: 64.w,
                           height: 64.w,
                           decoration: BoxDecoration(
-                            color: colors.white,
+                            color: AppColors.white,
                             borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
-                              color: colors.gray.withValues(alpha: 0.3),
+                              color: AppColors.muted.withValues(alpha: 0.3),
                               width: 1.w,
                             ),
                           ),
@@ -72,7 +69,7 @@ class BrandShopByBrand extends StatelessWidget {
                                         ? brand.name[0].toUpperCase()
                                         : '?',
                                     style: textStyle.bodyLargeBold.withColor(
-                                      colors.gray,
+                                      AppColors.muted,
                                     ),
                                   ),
                                 ),
@@ -83,7 +80,7 @@ class BrandShopByBrand extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: textStyle.caption.withColor(colors.text),
+                          style: textStyle.caption.withColor(AppColors.text),
                         ),
                       ],
                     ),

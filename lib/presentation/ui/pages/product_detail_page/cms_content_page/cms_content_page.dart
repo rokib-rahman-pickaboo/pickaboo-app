@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pickaboo/domain/entity/cms_block/cms_block_entity.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
 
 class CmsContentPage extends StatelessWidget {
@@ -16,18 +15,10 @@ class CmsContentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: Text(cmsBlock.title, style: context.textStyle.appBarTitle),
+      backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        title: cmsBlock.title,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.w),

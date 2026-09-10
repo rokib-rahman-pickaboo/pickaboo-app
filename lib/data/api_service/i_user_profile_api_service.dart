@@ -6,7 +6,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
+import 'package:pickaboo/core/config/api_config.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/user_profile_api_service.dart';
 import 'package:pickaboo/data/model/auth/user_response/user_response.dart';
 import 'package:pickaboo/data/model/club_point/club_point_response.dart';
@@ -26,16 +28,7 @@ class IUserProfileApiService implements UserProfileApiService {
   IUserProfileApiService(this._dio);
 
   ErrorResponse _checkErrorResponse(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
-      if (errorData is String) {
-        return ErrorResponse(message: errorData);
-      }
-    }
-    return ErrorResponse(message: err.message ?? 'Unknown error');
+    return ApiErrorParser.parseDioError(err);
   }
 
   @override
@@ -98,111 +91,292 @@ class IUserProfileApiService implements UserProfileApiService {
   }
 
   @override
-  Future<Either<ErrorResponse, UserResponse>> updateEmail({
-    required Map<String, dynamic> userMap,
-    required String newEmail,
+  Future<Either<ErrorResponse, OtpResponse>> sendEmailUpdateOtp({
+    required String email,
   }) async {
     try {
-      final Map<String, dynamic> body = {
-        'customer': {...userMap, 'email': newEmail},
-      };
-
-      final customerId = userMap['id'];
-
-      final response = await _dio.put(
-        ApiEndpoints.updateCustomerUrl,
-        queryParameters: {'customer_id': customerId},
-        data: json.encode(body),
+      final response = await _dio.post(
+        ApiEndpoints.sendEmailVerificationCodeUrl,
+        queryParameters: {
+          'customer_email': email,
+        },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-      return Right(UserResponse.fromJson(response.data));
+
+      if (kDebugMode) {
+        print('sendEmailVerificationCode -> ${response.data}');
+      }
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+
+      if (resData is Map<String, dynamic>) {
+        final status = resData['status'];
+        if (status == 400 || status == 409 || resData['success'] == false || status == 'failure') {
+          final msg = ApiErrorParser.extractErrorMessage(resData, defaultMessage: 'Failed to send verification code');
+          return Left(ErrorResponse(message: msg));
+        }
+        return Right(OtpResponse(
+          status: 200,
+          message: resData['message']?.toString() ?? 'Verification code has been sent to your email',
+        ));
+      }
+
+      return const Right(OtpResponse(
+        status: 200,
+        message: 'Verification code has been sent to your email',
+      ));
     } on DioException catch (e) {
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      return Left(ErrorResponse(message: e.toString()));
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<ErrorResponse, String>> updateEmail({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final response = await _dio.put(
+        ApiEndpoints.updateCustomerEmailUrl,
+        data: {
+          'email': email,
+          'otp': otp,
+        },
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (kDebugMode) {
+        print('updateCustomerEmail -> ${response.data}');
+      }
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+
+      if (resData is Map<String, dynamic>) {
+        final status = resData['status'];
+        if (status == 400 || status == 409 || resData['success'] == false || status == 'failure') {
+          final msg = ApiErrorParser.extractErrorMessage(resData, defaultMessage: 'Failed to update email address');
+          return Left(ErrorResponse(message: msg));
+        }
+        final message = resData['message']?.toString() ?? 'Your email address has been updated successfully';
+        return Right(message);
+      }
+
+      if (resData is String) {
+        final str = resData.replaceAll('"', '').trim();
+        return Right(str.isNotEmpty ? str : 'Your email address has been updated successfully');
+      }
+
+      return const Right('Your email address has been updated successfully');
+    } on DioException catch (e) {
+      return Left(_checkErrorResponse(e));
+    } catch (e) {
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
 
   @override
   Future<Either<ErrorResponse, OtpResponse>> sendPhoneUpdateOtp({
     required String mobile,
+    bool resend = false,
     String? recaptchaToken,
   }) async {
     try {
       final platform = Platform.isAndroid ? 'android' : 'ios';
 
       if (kDebugMode) {
-        print('[RECAPTCHA] sendPhoneUpdateOtp | rtokenPresent=${recaptchaToken != null} '
+        print('[RECAPTCHA] sendPhoneUpdateOtp | resend=$resend rtokenPresent=${recaptchaToken != null} '
             'rtokenLen=${recaptchaToken?.length ?? 0} platform=$platform');
       }
 
-      final response = await _dio.post(
-        ApiEndpoints.sendOtpUrl,
-        queryParameters: {
-          'resend': 0,
-          'storeId': 1,
-          'mobile': mobile,
-          'eventType': 'customer_account_edit_otp',
-          'platform': platform,
-          if (recaptchaToken != null) 'rtoken': recaptchaToken,
+      final payload = {
+        'mobile': mobile,
+        'resend': resend ? 1 : 0,
+        'storeId': 1,
+        'store_id': 1,
+        'eventType': 'customer_account_edit_otp',
+        'event_type': 'customer_account_edit_otp',
+        'platform': platform,
+        if (recaptchaToken != null && recaptchaToken.isNotEmpty) ...{
+          'rtoken': recaptchaToken,
+          'recaptcha_token': recaptchaToken,
         },
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
-      return Right(OtpResponse.fromJson(response.data));
+      };
+
+      Response response;
+      try {
+        response = await _dio.post(
+          ApiEndpoints.sendPhoneUpdateOtpUrl,
+          data: payload,
+          options: Options(headers: {'Content-Type': 'application/json'}),
+        );
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 404) {
+          if (kDebugMode) {
+            print('[API] Primary endpoint 404, trying fallback ${ApiEndpoints.sendPhoneUpdateOtpFallbackUrl}');
+          }
+          response = await _dio.post(
+            ApiEndpoints.sendPhoneUpdateOtpFallbackUrl,
+            data: payload,
+            options: Options(headers: {'Content-Type': 'application/json'}),
+          );
+        } else {
+          rethrow;
+        }
+      }
+
+      if (kDebugMode) {
+        print('[API] sendPhoneUpdateOtp response: ${response.statusCode} -> ${response.data}');
+      }
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+
+      if (resData is Map<String, dynamic>) {
+        final status = resData['status'];
+        final message = resData['message']?.toString();
+
+        if (status == 302 || status == 409) {
+          return Left(ErrorResponse(
+            message: message ?? 'This mobile number is already registered with another account',
+          ));
+        }
+
+        if (status == 400 || resData['success'] == false || status == 'failure') {
+          final msg = ApiErrorParser.extractErrorMessage(resData, defaultMessage: 'Failed to send OTP');
+          return Left(ErrorResponse(message: msg));
+        }
+
+        return Right(OtpResponse(
+          status: 200,
+          message: message ?? 'OTP has been sent to your mobile number',
+        ));
+      }
+
+      return const Right(OtpResponse(status: 200, message: 'OTP has been sent to your mobile number'));
     } on DioException catch (e) {
+      if (kDebugMode) {
+        print('[API] sendPhoneUpdateOtp DioException: ${e.response?.statusCode} -> ${e.response?.data}');
+      }
+      final statusCode = e.response?.statusCode;
+      if (statusCode == 302 || statusCode == 409) {
+        final data = e.response?.data;
+        String? msg;
+        if (data is Map) {
+          msg = data['message']?.toString();
+        }
+        return Left(ErrorResponse(
+          message: msg ?? 'This mobile number is already registered with another account',
+        ));
+      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      return Left(ErrorResponse(message: e.toString()));
+      if (kDebugMode) {
+        print('[API] sendPhoneUpdateOtp error: $e');
+      }
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
 
   @override
-  Future<Either<ErrorResponse, UserResponse>> updatePhoneNumber({
-    required Map<String, dynamic> userMap,
+  Future<Either<ErrorResponse, String>> validateOtp({
     required String mobile,
     required String otp,
   }) async {
     try {
-      final Map<String, dynamic> body = {
-        'customer': {...userMap},
-        'mobile': mobile,
-        'otp': otp,
-      };
-
-      final customerId = userMap['id'];
-
-      final response = await _dio.put(
-        ApiEndpoints.updateCustomerUrl,
-        queryParameters: {'customer_id': customerId},
-        data: json.encode(body),
+      final response = await _dio.post(
+        ApiEndpoints.verifyOtpUrl,
+        data: {
+          'mobile': mobile,
+          'otp': otp,
+          'storeId': 1,
+          'store_id': 1,
+        },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      final data = response.data;
-      final userResponse = UserResponse.fromJson(data);
-      final hasValidCustomer =
-          userResponse.id != null && userResponse.id != 0;
-
-      if (!hasValidCustomer) {
-        String? failureMessage;
-        if (data is Map) {
-          final rawMessage = data['message'] ?? data['error'];
-          if (rawMessage != null && rawMessage.toString().trim().isNotEmpty) {
-            failureMessage = rawMessage.toString();
-          }
-        }
-        return Left(
-          ErrorResponse(
-            message: failureMessage ?? 'Failed to update mobile number',
-          ),
-        );
+      if (kDebugMode) {
+        print('validateOtp -> ${response.data}');
       }
 
-      return Right(userResponse);
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['status'] == 'failure' || data['success'] == false || data['status'] == 400) {
+          final msg = ApiErrorParser.extractErrorMessage(data, defaultMessage: 'Invalid OTP');
+          return Left(ErrorResponse(message: msg));
+        }
+        return Right(data['message']?.toString() ?? 'OTP verified successfully.');
+      }
+
+      if (response.data is String) {
+        final str = response.data.toString().replaceAll('"', '').trim();
+        if (str.toLowerCase().contains('invalid') || str.toLowerCase().contains('not verified')) {
+          return Left(ErrorResponse(message: ApiErrorParser.sanitize(str, fallback: 'Invalid OTP')));
+        }
+        return Right(str.isNotEmpty ? str : 'OTP verified successfully.');
+      }
+
+      return const Right('OTP verified successfully.');
     } on DioException catch (e) {
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      return Left(ErrorResponse(message: e.toString()));
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<ErrorResponse, String>> updatePhoneNumber({
+    required String mobile,
+    required String otp,
+  }) async {
+    try {
+      final response = await _dio.put(
+        ApiEndpoints.updateCustomerMobileUrl,
+        data: {
+          'mobile': mobile,
+          'otp': otp,
+        },
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (kDebugMode) {
+        print('updateCustomerMobile -> ${response.data}');
+      }
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+
+      if (resData is Map<String, dynamic>) {
+        final status = resData['status'];
+        if (status == 400 || status == 409 || resData['success'] == false || status == 'failure') {
+          final msg = ApiErrorParser.extractErrorMessage(resData, defaultMessage: 'Failed to update mobile number');
+          return Left(ErrorResponse(message: msg));
+        }
+        final message = resData['message']?.toString() ?? 'Your mobile number has been updated successfully';
+        return Right(message);
+      }
+
+      if (resData is String) {
+        final str = resData.replaceAll('"', '').trim();
+        return Right(str.isNotEmpty ? str : 'Your mobile number has been updated successfully');
+      }
+
+      return const Right('Your mobile number has been updated successfully');
+    } on DioException catch (e) {
+      return Left(_checkErrorResponse(e));
+    } catch (e) {
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
 
@@ -224,10 +398,14 @@ class IUserProfileApiService implements UserProfileApiService {
         data: json.encode(body),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && response.data != false) {
         return const Right(true);
       } else {
-        return const Right(false);
+        return const Left(
+          ErrorResponse(
+            message: 'Failed to change password. Please check your current password.',
+          ),
+        );
       }
     } on DioException catch (e) {
       return Left(_checkErrorResponse(e));
@@ -384,7 +562,7 @@ class IUserProfileApiService implements UserProfileApiService {
 
       if (data is List) {
         if (data.isEmpty) {
-          return Left(
+          return const Left(
             ErrorResponse(message: 'Empty response from server'),
           );
         }
@@ -397,7 +575,7 @@ class IUserProfileApiService implements UserProfileApiService {
       }
 
       if (payload == null) {
-        return Left(
+        return const Left(
           ErrorResponse(message: 'Unexpected response from server'),
         );
       }
@@ -556,7 +734,37 @@ class IUserProfileApiService implements UserProfileApiService {
       return Right(response.statusCode == 200);
     } on DioException catch (e) {
       if (kDebugMode) {
-        print('[API] ❌ DioException');
+        print('[API] ❌ DioException on updateAddressList (${ApiEndpoints.updateCustomerUrl}): ${e.response?.statusCode}');
+      }
+
+      // If custom dcastalia-address endpoint fails (e.g. 400 DI TypeError or 404),
+      // attempt fallback to standard Magento PUT /rest/default/V1/customers/me
+      try {
+        if (kDebugMode) {
+          print('[API] 🔄 Trying fallback to standard Magento: PUT ${ApiEndpoints.customerMe}');
+        }
+        final fallbackResponse = await _dio.put(
+          ApiEndpoints.customerMe,
+          data: json.encode(body),
+          options: Options(headers: {'Content-Type': 'application/json'}),
+        );
+        if (kDebugMode) {
+          print('[API] Fallback response status: ${fallbackResponse.statusCode}');
+        }
+        if (fallbackResponse.statusCode == 200) {
+          if (kDebugMode) {
+            print('[API] ✅ Address list updated via standard customer endpoint successfully');
+            print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          }
+          return const Right(true);
+        }
+      } catch (fallbackError) {
+        if (kDebugMode) {
+          print('[API] ❌ Fallback to standard customer endpoint also failed: $fallbackError');
+        }
+      }
+
+      if (kDebugMode) {
         print('[API] Status: ${e.response?.statusCode}');
         print('[API] Error data: ${e.response?.data}');
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -568,6 +776,198 @@ class IUserProfileApiService implements UserProfileApiService {
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       }
       return Left(ErrorResponse(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<ErrorResponse, String>> addAddress(
+    Map<String, dynamic> body,
+  ) async {
+    if (kDebugMode) {
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('[API] 🏠 ADD NEW ADDRESS');
+      print('[API] Endpoint: POST ${ApiEndpoints.customerAddressUrl}');
+      print('[API] Body: ${json.encode(body)}');
+    }
+
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.customerAddressUrl,
+        data: json.encode(body),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (kDebugMode) {
+        print('[API] Response status: ${response.statusCode}');
+        print('[API] Response data: ${response.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+
+      if (resData is Map<String, dynamic>) {
+        final status = resData['status'];
+        if (status != null && status != 200 && status != 201) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            resData,
+            defaultMessage: 'Failed to save address',
+          );
+          return Left(ErrorResponse(message: msg));
+        }
+        final message = resData['message']?.toString() ?? 'Address saved successfully.';
+        return Right(message);
+      }
+
+      if (resData is String) {
+        final str = resData.replaceAll('"', '').trim();
+        return Right(str.isNotEmpty ? str : 'Address saved successfully.');
+      }
+
+      return const Right('Address saved successfully.');
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        print('[API] ❌ DioException on addAddress: ${e.response?.statusCode}');
+        print('[API] Error data: ${e.response?.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      return Left(_checkErrorResponse(e));
+    } catch (e) {
+      if (kDebugMode) {
+        print('[API] ❌ Exception on addAddress: $e');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<ErrorResponse, String>> updateAddress(
+    Map<String, dynamic> body,
+  ) async {
+    if (kDebugMode) {
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('[API] ✏️ UPDATE ADDRESS');
+      print('[API] Endpoint: PUT ${ApiEndpoints.customerAddressUrl}');
+      print('[API] Body: ${json.encode(body)}');
+    }
+
+    try {
+      final response = await _dio.put(
+        ApiEndpoints.customerAddressUrl,
+        data: json.encode(body),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (kDebugMode) {
+        print('[API] Response status: ${response.statusCode}');
+        print('[API] Response data: ${response.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+
+      if (resData is Map<String, dynamic>) {
+        final status = resData['status'];
+        if (status != null && status != 200 && status != 201) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            resData,
+            defaultMessage: 'Failed to update address',
+          );
+          return Left(ErrorResponse(message: msg));
+        }
+        final message = resData['message']?.toString() ?? 'Address updated successfully.';
+        return Right(message);
+      }
+
+      if (resData is String) {
+        final str = resData.replaceAll('"', '').trim();
+        return Right(str.isNotEmpty ? str : 'Address updated successfully.');
+      }
+
+      return const Right('Address updated successfully.');
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        print('[API] ❌ DioException on updateAddress: ${e.response?.statusCode}');
+        print('[API] Error data: ${e.response?.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      return Left(_checkErrorResponse(e));
+    } catch (e) {
+      if (kDebugMode) {
+        print('[API] ❌ Exception on updateAddress: $e');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<ErrorResponse, String>> deleteAddress(
+    int addressId,
+  ) async {
+    final endpoint = ApiEndpoints.deleteCustomerAddressUrl(addressId);
+    if (kDebugMode) {
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('[API] 🗑️ DELETE ADDRESS');
+      print('[API] Endpoint: DELETE $endpoint');
+      print('[API] Address ID: $addressId');
+    }
+
+    try {
+      final response = await _dio.delete(
+        endpoint,
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (kDebugMode) {
+        print('[API] Response status: ${response.statusCode}');
+        print('[API] Response data: ${response.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+
+      if (resData is Map<String, dynamic>) {
+        final status = resData['status'];
+        if (status != null && status != 200 && status != 201) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            resData,
+            defaultMessage: 'Failed to delete address',
+          );
+          return Left(ErrorResponse(message: msg));
+        }
+        final message = resData['message']?.toString() ?? 'Address deleted successfully.';
+        return Right(message);
+      }
+
+      if (resData is String) {
+        final str = resData.replaceAll('"', '').trim();
+        return Right(str.isNotEmpty ? str : 'Address deleted successfully.');
+      }
+
+      return const Right('Address deleted successfully.');
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        print('[API] ❌ DioException on deleteAddress: ${e.response?.statusCode}');
+        print('[API] Error data: ${e.response?.data}');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      return Left(_checkErrorResponse(e));
+    } catch (e) {
+      if (kDebugMode) {
+        print('[API] ❌ Exception on deleteAddress: $e');
+        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      }
+      return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
 
@@ -584,10 +984,28 @@ class IUserProfileApiService implements UserProfileApiService {
     }
 
     try {
-      final response = await _dio.get(
-        ApiEndpoints.getCityUrl,
-        queryParameters: {'param': division},
-      );
+      Response response;
+      try {
+        response = await _dio.get(
+          ApiEndpoints.getCityUrl,
+          queryParameters: {'param': division},
+        );
+      } on DioException catch (dioErr) {
+        // If staging has a backend DI failure, automatically fallback to production
+        if (_dio.options.baseUrl != ApiConfig.productionURL) {
+          if (kDebugMode) {
+            print(
+              '[API] ⚠️ Staging getCity failed (${dioErr.response?.statusCode}), trying production fallback...',
+            );
+          }
+          response = await _dio.get(
+            '${ApiConfig.productionURL}${ApiEndpoints.getCityUrl}',
+            queryParameters: {'param': division},
+          );
+        } else {
+          rethrow;
+        }
+      }
 
       if (kDebugMode) {
         print('[API] Response type: ${response.data.runtimeType}');
@@ -645,10 +1063,28 @@ class IUserProfileApiService implements UserProfileApiService {
     }
 
     try {
-      final response = await _dio.get(
-        ApiEndpoints.getAreaUrl,
-        queryParameters: {'param': city},
-      );
+      Response response;
+      try {
+        response = await _dio.get(
+          ApiEndpoints.getAreaUrl,
+          queryParameters: {'param': city},
+        );
+      } on DioException catch (dioErr) {
+        // If staging has a backend DI failure, automatically fallback to production
+        if (_dio.options.baseUrl != ApiConfig.productionURL) {
+          if (kDebugMode) {
+            print(
+              '[API] ⚠️ Staging getArea failed (${dioErr.response?.statusCode}), trying production fallback...',
+            );
+          }
+          response = await _dio.get(
+            '${ApiConfig.productionURL}${ApiEndpoints.getAreaUrl}',
+            queryParameters: {'param': city},
+          );
+        } else {
+          rethrow;
+        }
+      }
 
       if (kDebugMode) {
         print('[API] Response type: ${response.data.runtimeType}');

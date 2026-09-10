@@ -105,8 +105,26 @@ class ProductDetailEntity {
     required this.isEligibleForReview,
   });
 
-  List<VariantEntity> get variantGroups =>
-      variantMatrix.isNotEmpty ? variantMatrix.toVariantGroups() : varient;
+  List<VariantEntity> get variantGroups {
+    final rawGroups =
+        variantMatrix.isNotEmpty ? variantMatrix.toVariantGroups() : varient;
+    return rawGroups
+        .map((group) {
+          final inStockOptions = group.options.where((opt) {
+            if (opt.configurableProduct != null) {
+              return opt.configurableProduct!.stockAvailable;
+            }
+            return true;
+          }).toList();
+          return VariantEntity(
+            optionId: group.optionId,
+            optionName: group.optionName,
+            options: inStockOptions,
+          );
+        })
+        .where((group) => group.options.isNotEmpty)
+        .toList();
+  }
 
   bool get hasVariants => variantGroups.isNotEmpty;
 }
@@ -164,7 +182,7 @@ class VariantMatrixEntity {
   bool get isEmpty => !isNotEmpty;
 
   List<VariantMatrixProductEntity> get salableProducts =>
-      products.where((p) => p.salable).toList(growable: false);
+      products.where((p) => p.salable && p.stockAvailable).toList(growable: false);
 
   Set<String> selectableValues(String optionId, Map<String, String> selected) {
     final others = Map<String, String>.from(selected)..remove(optionId);
@@ -199,6 +217,7 @@ class VariantMatrixEntity {
             optionId: attr.optionId,
             optionName: attr.optionName,
             options: attr.options
+                .where((opt) => representative(attr.optionId, opt.optionValue) != null)
                 .map(
                   (opt) => VariantOptionEntity(
                     optionValue: opt.optionValue,
@@ -212,6 +231,7 @@ class VariantMatrixEntity {
                 .toList(),
           ),
         )
+        .where((attr) => attr.options.isNotEmpty)
         .toList();
   }
 }

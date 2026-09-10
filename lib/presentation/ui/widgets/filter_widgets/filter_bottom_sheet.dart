@@ -1,12 +1,27 @@
-import 'package:flutter/material.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pickaboo/presentation/bloc/filter_bloc/filter_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/filter_widgets/filter_category_list.dart';
 import 'package:pickaboo/presentation/ui/widgets/filter_widgets/filter_options_list.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// ============================================================================
+/// 🏷️ COMMON FILTER BOTTOM SHEET
+/// 2-Column split layout:
+/// - Header: "Filters" title (left) & "Clear All" action (right)
+/// - Left Sidebar: Filter Attribute Categories (strict itemExtent: 48.h)
+/// - Middle Section Height = Attributes Count * 48.h (zero clipping & zero extra whitespace)
+/// - Right Pane: Options Checkbox list with persistent visible scrollbar
+/// - Bottom Bar: Full-width "Apply Filters" button directly below middle section
+/// ============================================================================
 class FilterBottomSheet extends StatelessWidget {
   final Function(Map<String, List<String>>)? onApply;
 
@@ -14,129 +29,140 @@ class FilterBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        color: context.colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  FilterCategoryList(),
-                  Expanded(child: FilterOptionsList()),
-                ],
-              ),
-            ),
-            _buildBottomBar(context),
-          ],
-        ),
-      ),
-    );
-  }
+    return BlocBuilder<FilterBloc, FilterState>(
+      builder: (context, state) {
+        return state.maybeWhen(
+          loaded: (categories, selectedCategoryCode, selectionCounts) {
+            final int attributesCount = categories.length;
+            final double itemHeight = 48.h;
+            final double screenHeight = MediaQuery.of(context).size.height;
+            final double nonMiddleHeight = 118.h;
+            final double minMiddleHeight =
+                (screenHeight * 0.40 - nonMiddleHeight)
+                    .clamp(itemHeight, screenHeight * 0.40);
+            final double maxMiddleHeight =
+                (screenHeight * 0.80 - nonMiddleHeight)
+                    .clamp(minMiddleHeight, screenHeight * 0.80);
+            final double computedMiddleHeight = attributesCount * itemHeight;
+            final double middleSectionHeight =
+                computedMiddleHeight.clamp(minMiddleHeight, maxMiddleHeight);
+            final bool isClamped = computedMiddleHeight > maxMiddleHeight;
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(15.w),
-      color: const Color(0xFF1299E8),
-      child: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: IconButton(
-              icon: Icon(Icons.arrow_back, color: context.colors.white),
-              onPressed: () => Navigator.pop(context),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: EdgeInsets.only(top: 2.h),
-              child: Text(
-                'Filter',
-                style: context.textStyle.bodyLargeMedium.withColor(
-                  context.colors.white,
+            final totalSelected = selectionCounts.values.fold<int>(
+              0,
+              (sum, count) => sum + count,
+            );
+
+            return Material(
+              color: Colors.white,
+              clipBehavior: Clip.antiAlias,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildHeader(context, totalSelected),
+                    SizedBox(
+                      height: middleSectionHeight,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          FilterCategoryList(isClamped: isClamped),
+                          Container(
+                            width: 1.w,
+                            color: AppColors.border,
+                          ),
+                          const Expanded(child: FilterOptionsList()),
+                        ],
+                      ),
+                    ),
+                    _buildBottomBar(context, totalSelected),
+                  ],
                 ),
               ),
+            );
+          },
+          orElse: () => Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+            child: SizedBox(
+              height: 180.h,
+              child: const AppLoader.inline(),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildBottomBar(BuildContext context) {
+  Widget _buildHeader(BuildContext context, int totalSelected) {
     return Container(
-      height: 72.h,
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      decoration: BoxDecoration(
-        color: context.colors.white,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
         border: Border(
-          top: BorderSide(color: context.colors.black.withValues(alpha: 0.025), width: 4.w),
+          bottom: BorderSide(color: AppColors.border, width: 1),
         ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () {
+          Text(
+            'Filters',
+            style: AppTypography.pageTitle,
+          ),
+          if (totalSelected > 0)
+            GestureDetector(
+              onTap: () {
                 context.read<FilterBloc>().add(const FilterEvent.cleared());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Filter cleared. Press Apply Now.'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
               },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFA1A1A1)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.r),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 15.h),
-              ),
+              behavior: HitTestBehavior.opaque,
               child: Text(
-                'Clear Filter',
-                style: context.textStyle.bodyLargeMedium.withColor(
-                  context.colors.black,
-                ),
+                'Clear All',
+                style: AppTypography.brandActionText,
               ),
             ),
-          ),
-          SizedBox(width: 15.w),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                final filterBloc = context.read<FilterBloc>();
-                final selectedFilters = filterBloc.getSelectedFilters();
-                context.read<FilterBloc>().add(const FilterEvent.applied());
-                Navigator.pop(context);
-                onApply?.call(selectedFilters);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF5722),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.r),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 15.h),
-              ),
-              child: Text(
-                'Done',
-                style: context.textStyle.bodyLargeMedium.withColor(
-                  context.colors.white,
-                ),
-              ),
-            ),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context, int totalSelected) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: AppColors.border, width: 1),
+        ),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 46.h,
+        child: ElevatedButton(
+          onPressed: () {
+            final filterBloc = context.read<FilterBloc>();
+            final selectedFilters = filterBloc.getSelectedFilters();
+            filterBloc.add(const FilterEvent.applied());
+            Navigator.pop(context);
+            onApply?.call(selectedFilters);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.pickabooBlue,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          child: Text(
+            totalSelected > 0
+                ? 'Apply Filters ($totalSelected)'
+                : 'Apply Filters',
+            style: AppTypography.buttonPrimary,
+          ),
+        ),
       ),
     );
   }

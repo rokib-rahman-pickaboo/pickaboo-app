@@ -6,7 +6,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Drives the iOS build (CFBundleShortVersionString / CFBundleVersion) to
 # continue the React Native App Store track (live was 16.1.4 / 44).
 # Android version is pinned separately in android/app/build.gradle.kts.
-version: 16.1.6+49
+version: 16.1.6+54
 
 environment:
   sdk: ^3.9.2
@@ -44,6 +44,8 @@ dependencies:
   hive: ^2.2.3
   intl: ^0.20.2
   image_picker: ^1.2.1
+  image: ^4.8.0
+  file_picker: ^11.0.3
   image_cropper: ^12.2.1
   package_info_plus: ^8.1.0
   youtube_player_flutter: ^9.1.1

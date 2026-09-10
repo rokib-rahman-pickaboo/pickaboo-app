@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:html/parser.dart' as html_parser;
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
+/// Standardized PaymentOptionItem styled as a list tile for grouped container views
+/// (matching dashboard item list pattern).
 class PaymentOptionItem extends StatelessWidget {
   final String id;
   final String title;
@@ -32,43 +33,38 @@ class PaymentOptionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return InkWell(
       onTap: isEnabled ? onTap : null,
-      borderRadius: BorderRadius.circular(12.r),
       child: Opacity(
-        opacity: isEnabled ? 1.0 : 0.6,
+        opacity: isEnabled ? 1.0 : 0.5,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            color: colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(
-              color: isSelected
-                  ? colors.primary
-                  : colors.black.withValues(alpha: 0.1),
-              width: isSelected ? 1.5 : 1,
-            ),
-          ),
+          color: isSelected ? AppColors.surfaceBlue.withValues(alpha: 0.5) : Colors.transparent,
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           child: Row(
             children: [
+              // ── Payment Icon (36x36) ──
               Container(
-                width: 40.w,
-                height: 40.w,
+                width: 36.w,
+                height: 36.w,
                 padding: EdgeInsets.all(4.w),
                 decoration: BoxDecoration(
-                  color: colors.white,
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: colors.gray.withValues(alpha: 0.1)),
+                  color: AppColors.white,
+                  borderRadius: AppRadius.buttonRadius,
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.pickabooBlue.withValues(alpha: 0.4)
+                        : AppColors.border,
+                  ),
                 ),
-                child: SvgPicture.asset(asset, fit: BoxFit.cover),
+                child: SvgPicture.asset(asset, fit: BoxFit.contain),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 12.w),
+
+              // ── Title & Subtitle ──
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -76,10 +72,7 @@ class PaymentOptionItem extends StatelessWidget {
                         Flexible(
                           child: Text(
                             title,
-                            style: textStyle.listSubtitle.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colors.text,
-                            ),
+                            style: AppTypography.cardTitle,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -90,17 +83,19 @@ class PaymentOptionItem extends StatelessWidget {
                       ],
                     ),
                     if (subtitle != null && subtitle!.isNotEmpty) ...[
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 2.h),
                       _HtmlSubtitle(
                         html: subtitle!,
-                        textStyle: textStyle,
-                        colors: colors,
-                        defaultColor: subtitleColor ?? colors.textLight,
+                        defaultColor: subtitleColor ?? AppColors.mutedLight,
                       ),
                     ],
                   ],
                 ),
               ),
+              SizedBox(width: 8.w),
+
+              // ── Radio Dot ──
+              _RadioDot(selected: isSelected),
             ],
           ),
         ),
@@ -109,16 +104,45 @@ class PaymentOptionItem extends StatelessWidget {
   }
 }
 
+class _RadioDot extends StatelessWidget {
+  final bool selected;
+
+  const _RadioDot({required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20.w,
+      height: 20.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: selected ? AppColors.pickabooBlue : AppColors.border,
+          width: 2,
+        ),
+      ),
+      child: selected
+          ? Center(
+              child: Container(
+                width: 10.w,
+                height: 10.w,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.pickabooBlue,
+                ),
+              ),
+            )
+          : null,
+    );
+  }
+}
+
 class _HtmlSubtitle extends StatelessWidget {
   final String html;
-  final AppTextStyles textStyle;
-  final AppColors colors;
   final Color defaultColor;
 
   const _HtmlSubtitle({
     required this.html,
-    required this.textStyle,
-    required this.colors,
     required this.defaultColor,
   });
 
@@ -126,14 +150,14 @@ class _HtmlSubtitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final parsed = _parse(html);
 
-    if (parsed.mainText.isEmpty && parsed.linkText == null) {
-      return Text(
-        html,
-        style: textStyle.listCaption.copyWith(color: defaultColor),
-      );
-    }
+    final baseStyle = AppTypography.bodyMuted.copyWith(
+      color: defaultColor,
+      height: 1.25,
+    );
 
-    final baseStyle = textStyle.listCaption.copyWith(color: defaultColor);
+    if (parsed.mainText.isEmpty && parsed.linkText == null) {
+      return Text(html, style: baseStyle);
+    }
 
     return RichText(
       text: TextSpan(
@@ -159,10 +183,8 @@ class _HtmlSubtitle extends StatelessWidget {
                 child: Text(
                   parsed.linkText!,
                   style: baseStyle.copyWith(
-                    color: colors.primary,
+                    color: AppColors.pickabooBlue,
                     fontWeight: FontWeight.w600,
-                    decoration: TextDecoration.underline,
-                    decorationColor: colors.primary,
                   ),
                 ),
               ),

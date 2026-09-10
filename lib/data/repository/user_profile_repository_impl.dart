@@ -19,9 +19,11 @@ import 'package:pickaboo/domain/repository/user_profile_repository.dart';
 import 'package:pickaboo/data/mapper/order_mapper/order_cancel_mapper.dart';
 import 'package:pickaboo/data/mapper/order_mapper/order_detail_mapper.dart';
 import 'package:pickaboo/domain/entity/order/order_list_entity.dart';
-import 'package:pickaboo/domain/entity/referral/referral_entity.dart';
 import 'package:pickaboo/data/mapper/order_mapper/order_list_mapper.dart';
 import 'package:pickaboo/data/mapper/referral_mapper/referral_mapper.dart';
+import 'package:pickaboo/domain/entity/referral/referral_entity.dart';
+import 'package:pickaboo/data/mapper/error_mapper.dart';
+import 'package:pickaboo/data/model/error_response/error_response.dart';
 
 @LazySingleton(as: UserProfileRepository)
 class UserProfileRepositoryImpl implements UserProfileRepository {
@@ -60,7 +62,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final result = await _apiService.getUserProfile();
     return result.fold(
       (error) async =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) async {
         await _localDataSource.insertUserProfile(response);
         if (response.id != null) {
@@ -86,7 +88,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final result = await _apiService.getUserImage();
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) => Right(response),
     );
   }
@@ -130,7 +132,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
     return result.fold(
       (error) async =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) async {
         await _localDataSource.insertUserProfile(response);
         return Right(response.toEntity());
@@ -139,38 +141,41 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   }
 
   @override
-  Future<Either<AppErrorEntity, UserEntity>> updateEmail({
-    required UserEntity user,
-    required String newEmail,
+  Future<Either<AppErrorEntity, OtpResponse>> sendEmailUpdateOtp({
+    required String email,
   }) async {
     final token = await _authCacheManager.getToken();
     if (token == null) {
       return const Left(AppErrorEntity(message: 'User not authenticated'));
     }
 
-    final Map<String, dynamic> userMap = {
-      'id': user.id,
-      'email': user.email,
-      'firstname': user.firstname,
-      'lastname': user.lastname,
-      'group_id': user.groupId,
-      'store_id': user.storeId,
-      'website_id': user.websiteId,
-    };
-
-    if (user.dob != null) userMap['dob'] = user.dob;
-    if (user.gender != null) userMap['gender'] = user.gender;
-
-    final result = await _apiService.updateEmail(
-      userMap: userMap,
-      newEmail: newEmail,
+    final result = await _apiService.sendEmailUpdateOtp(
+      email: email,
     );
     return result.fold(
-      (error) async =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+      (error) => Left(error.toEntity()),
+      (response) => Right(response),
+    );
+  }
+
+  @override
+  Future<Either<AppErrorEntity, UserEntity>> updateEmail({
+    required String newEmail,
+    required String otp,
+  }) async {
+    final token = await _authCacheManager.getToken();
+    if (token == null) {
+      return const Left(AppErrorEntity(message: 'User not authenticated'));
+    }
+
+    final result = await _apiService.updateEmail(
+      email: newEmail,
+      otp: otp,
+    );
+    return result.fold(
+      (error) => Left(error.toEntity()),
       (response) async {
-        await _localDataSource.insertUserProfile(response);
-        return Right(response.toEntity());
+        return await getProfile(forceRefresh: true);
       },
     );
   }
@@ -178,6 +183,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   @override
   Future<Either<AppErrorEntity, OtpResponse>> sendPhoneUpdateOtp({
     required String mobile,
+    bool resend = false,
   }) async {
     final token = await _authCacheManager.getToken();
     if (token == null) {
@@ -187,21 +193,25 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final String recaptchaToken;
     try {
       recaptchaToken = await _recaptcha.executeAction(
-        AppRecaptchaActions.profilePhoneOtpSend,
+        AppRecaptchaActions.profilePhoneSendOtp,
       );
     } catch (e) {
       return const Left(
-        AppErrorEntity(message: 'Verification failed. Please try again.'),
+        AppErrorEntity(
+          message:
+              'Security verification failed. Please wait a moment and try again.',
+        ),
       );
     }
 
     final result = await _apiService.sendPhoneUpdateOtp(
       mobile: mobile,
+      resend: resend,
       recaptchaToken: recaptchaToken,
     );
     return result.fold(
       (error) {
-        return Left(AppErrorEntity(message: error.message ?? 'Unknown error'));
+        return Left(error.toEntity());
       },
       (response) {
         return Right(response);
@@ -211,7 +221,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
   @override
   Future<Either<AppErrorEntity, UserEntity>> updateMobile({
-    required UserEntity user,
     required String newMobile,
     required String otp,
   }) async {
@@ -220,30 +229,14 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       return const Left(AppErrorEntity(message: 'User not authenticated'));
     }
 
-    final Map<String, dynamic> userMap = {
-      'id': user.id,
-      'email': user.email,
-      'firstname': user.firstname,
-      'lastname': user.lastname,
-      'group_id': user.groupId,
-      'store_id': user.storeId,
-      'website_id': user.websiteId,
-      if (user.dob != null) 'dob': user.dob,
-      if (user.gender != null) 'gender': user.gender,
-    };
-
     final result = await _apiService.updatePhoneNumber(
-      userMap: userMap,
       mobile: newMobile,
       otp: otp,
     );
     return result.fold(
-      (error) async {
-        return Left(AppErrorEntity(message: error.message ?? 'Unknown error'));
-      },
+      (error) => Left(error.toEntity()),
       (response) async {
-        await _localDataSource.insertUserProfile(response);
-        return Right(response.toEntity());
+        return await getProfile(forceRefresh: true);
       },
     );
   }
@@ -266,7 +259,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (success) {
         if (success) {
           _localDataSource.clearUserProfile();
@@ -288,7 +281,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final result = await _apiService.uploadProfileImage(image: image);
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) {
         _localDataSource.clearUserProfile();
         return Right(response);
@@ -312,7 +305,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) => Right(response.toDomain()),
     );
   }
@@ -329,7 +322,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final result = await _apiService.getOrderDetails(orderId: orderId);
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) {
         try {
           return Right(response.toEntity());
@@ -357,7 +350,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) => Right(response.toEntity()),
     );
   }
@@ -384,7 +377,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
         );
         return result.fold(
           (error) =>
-              Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+              Left(error.toEntity()),
           (success) => Right(success),
         );
       },
@@ -403,7 +396,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) => Right(response.toEntity()),
     );
   }
@@ -416,7 +409,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (response) => Right(response),
     );
   }
@@ -433,6 +426,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
     final Map<String, dynamic> body = {
       "customer": {
+        "id": user.id,
         "email": user.email,
         "firstname": user.firstname,
         "lastname": user.lastname,
@@ -445,12 +439,295 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final result = await _apiService.updateAddressList(body);
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (success) {
         if (success) {
           _localDataSource.clearUserProfile();
         }
         return Right(success);
+      },
+    );
+  }
+
+  bool _isRouteNotFound(ErrorResponse error) {
+    final msg = (error.message ?? '').toLowerCase();
+    return msg.contains('request does not match any route') ||
+        msg.contains('404') ||
+        msg.contains('not found');
+  }
+
+  Map<String, dynamic> _formatAddressForLegacy(Map<String, dynamic> raw) {
+    final legacy = Map<String, dynamic>.from(raw);
+    if (raw['region'] is String) {
+      legacy['region'] = {
+        'region': raw['region'],
+        'region_id': raw['region_id'] ?? 0,
+        'region_code': raw['region'],
+      };
+    }
+    return legacy;
+  }
+
+  Future<Either<AppErrorEntity, String>> _fallbackAddAddress(
+    Map<String, dynamic> rawAddress,
+  ) async {
+    if (kDebugMode) {
+      print(
+        '[UserProfileRepository] ⚠️ New endpoint 404 (route not found). Falling back to legacy updateCustomerUrl...',
+      );
+    }
+    try {
+      final profileResult = await _apiService.getUserProfile();
+      return await profileResult.fold(
+        (err) => Left(err.toEntity()),
+        (userResp) async {
+          final existingAddresses = (userResp.addresses ?? [])
+              .map((a) => a.toJson())
+              .toList();
+
+          final isDefaultShipping = rawAddress['default_shipping'] == true;
+          final isDefaultBilling = rawAddress['default_billing'] == true;
+
+          if (isDefaultShipping) {
+            for (var a in existingAddresses) {
+              a['default_shipping'] = false;
+            }
+          }
+          if (isDefaultBilling) {
+            for (var a in existingAddresses) {
+              a['default_billing'] = false;
+            }
+          }
+
+          final legacyAddress = _formatAddressForLegacy(rawAddress);
+          if (userResp.id != null) {
+            legacyAddress['customer_id'] = userResp.id;
+          }
+          existingAddresses.add(legacyAddress);
+
+          final Map<String, dynamic> body = {
+            "customer": {
+              if (userResp.id != null) "id": userResp.id,
+              "email": userResp.email,
+              "firstname": userResp.firstname,
+              "lastname": userResp.lastname,
+              "store_id": userResp.storeId,
+              "website_id": userResp.websiteId,
+              "addresses": existingAddresses,
+            },
+          };
+
+          final updateResult = await _apiService.updateAddressList(body);
+          return updateResult.fold(
+            (err) => Left(err.toEntity()),
+            (success) {
+              _localDataSource.clearUserProfile();
+              return const Right('Address saved successfully.');
+            },
+          );
+        },
+      );
+    } catch (e) {
+      return Left(AppErrorEntity(message: 'Failed to save address: $e'));
+    }
+  }
+
+  Future<Either<AppErrorEntity, String>> _fallbackUpdateAddress(
+    Map<String, dynamic> rawAddress,
+  ) async {
+    if (kDebugMode) {
+      print(
+        '[UserProfileRepository] ⚠️ New endpoint 404 (route not found). Falling back to legacy updateCustomerUrl...',
+      );
+    }
+    try {
+      final profileResult = await _apiService.getUserProfile();
+      return await profileResult.fold(
+        (err) => Left(err.toEntity()),
+        (userResp) async {
+          final targetId = rawAddress['id'];
+          final existingAddresses = (userResp.addresses ?? [])
+              .map((a) => a.toJson())
+              .toList();
+
+          final isDefaultShipping = rawAddress['default_shipping'] == true;
+          final isDefaultBilling = rawAddress['default_billing'] == true;
+
+          if (isDefaultShipping) {
+            for (var a in existingAddresses) {
+              a['default_shipping'] = false;
+            }
+          }
+          if (isDefaultBilling) {
+            for (var a in existingAddresses) {
+              a['default_billing'] = false;
+            }
+          }
+
+          final legacyAddress = _formatAddressForLegacy(rawAddress);
+          if (userResp.id != null) {
+            legacyAddress['customer_id'] = userResp.id;
+          }
+          final index =
+              existingAddresses.indexWhere((a) => a['id'] == targetId);
+          if (index >= 0) {
+            existingAddresses[index] = legacyAddress;
+          } else {
+            existingAddresses.add(legacyAddress);
+          }
+
+          final Map<String, dynamic> body = {
+            "customer": {
+              if (userResp.id != null) "id": userResp.id,
+              "email": userResp.email,
+              "firstname": userResp.firstname,
+              "lastname": userResp.lastname,
+              "store_id": userResp.storeId,
+              "website_id": userResp.websiteId,
+              "addresses": existingAddresses,
+            },
+          };
+
+          final updateResult = await _apiService.updateAddressList(body);
+          return updateResult.fold(
+            (err) => Left(err.toEntity()),
+            (success) {
+              _localDataSource.clearUserProfile();
+              return const Right('Address updated successfully.');
+            },
+          );
+        },
+      );
+    } catch (e) {
+      return Left(AppErrorEntity(message: 'Failed to update address: $e'));
+    }
+  }
+
+  Future<Either<AppErrorEntity, String>> _fallbackDeleteAddress(
+    int addressId,
+  ) async {
+    if (kDebugMode) {
+      print(
+        '[UserProfileRepository] ⚠️ New endpoint 404 (route not found). Falling back to legacy updateCustomerUrl...',
+      );
+    }
+    try {
+      final profileResult = await _apiService.getUserProfile();
+      return await profileResult.fold(
+        (err) => Left(err.toEntity()),
+        (userResp) async {
+          final existingAddresses = (userResp.addresses ?? [])
+              .where((a) => a.id != addressId)
+              .map((a) => a.toJson())
+              .toList();
+
+          final Map<String, dynamic> body = {
+            "customer": {
+              if (userResp.id != null) "id": userResp.id,
+              "email": userResp.email,
+              "firstname": userResp.firstname,
+              "lastname": userResp.lastname,
+              "store_id": userResp.storeId,
+              "website_id": userResp.websiteId,
+              "addresses": existingAddresses,
+            },
+          };
+
+          final updateResult = await _apiService.updateAddressList(body);
+          return updateResult.fold(
+            (err) => Left(err.toEntity()),
+            (success) {
+              _localDataSource.clearUserProfile();
+              return const Right('Address deleted successfully.');
+            },
+          );
+        },
+      );
+    } catch (e) {
+      return Left(AppErrorEntity(message: 'Failed to delete address: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AppErrorEntity, String>> addAddress(
+    Map<String, dynamic> addressData,
+  ) async {
+    final token = await _authCacheManager.getToken();
+    if (token == null) {
+      return const Left(AppErrorEntity(message: 'User not authenticated'));
+    }
+
+    final Map<String, dynamic> body = addressData.containsKey('address')
+        ? addressData
+        : {'address': addressData};
+
+    final result = await _apiService.addAddress(body);
+    return result.fold(
+      (error) async {
+        if (_isRouteNotFound(error)) {
+          return _fallbackAddAddress(
+            addressData['address'] as Map<String, dynamic>? ?? addressData,
+          );
+        }
+        return Left(error.toEntity());
+      },
+      (message) {
+        _localDataSource.clearUserProfile();
+        return Right(message);
+      },
+    );
+  }
+
+  @override
+  Future<Either<AppErrorEntity, String>> updateAddress(
+    Map<String, dynamic> addressData,
+  ) async {
+    final token = await _authCacheManager.getToken();
+    if (token == null) {
+      return const Left(AppErrorEntity(message: 'User not authenticated'));
+    }
+
+    final Map<String, dynamic> body = addressData.containsKey('address')
+        ? addressData
+        : {'address': addressData};
+
+    final result = await _apiService.updateAddress(body);
+    return result.fold(
+      (error) async {
+        if (_isRouteNotFound(error)) {
+          return _fallbackUpdateAddress(
+            addressData['address'] as Map<String, dynamic>? ?? addressData,
+          );
+        }
+        return Left(error.toEntity());
+      },
+      (message) {
+        _localDataSource.clearUserProfile();
+        return Right(message);
+      },
+    );
+  }
+
+  @override
+  Future<Either<AppErrorEntity, String>> deleteAddress(
+    int addressId,
+  ) async {
+    final token = await _authCacheManager.getToken();
+    if (token == null) {
+      return const Left(AppErrorEntity(message: 'User not authenticated'));
+    }
+
+    final result = await _apiService.deleteAddress(addressId);
+    return result.fold(
+      (error) async {
+        if (_isRouteNotFound(error)) {
+          return _fallbackDeleteAddress(addressId);
+        }
+        return Left(error.toEntity());
+      },
+      (message) {
+        _localDataSource.clearUserProfile();
+        return Right(message);
       },
     );
   }
@@ -462,7 +739,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final result = await _apiService.getCities(division);
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (cities) => Right(cities.map((city) => city.toJson()).toList()),
     );
   }
@@ -472,7 +749,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     final result = await _apiService.getAreas(city);
     return result.fold(
       (error) =>
-          Left(AppErrorEntity(message: error.message ?? 'Unknown error')),
+          Left(error.toEntity()),
       (areas) => Right(areas.map((area) => area.toJson()).toList()),
     );
   }

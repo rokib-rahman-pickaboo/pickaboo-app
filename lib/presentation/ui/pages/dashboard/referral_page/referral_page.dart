@@ -1,16 +1,24 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/referral/referral_bloc.dart';
 import 'package:pickaboo/presentation/bloc/referral/referral_event.dart';
 import 'package:pickaboo/presentation/bloc/referral/referral_state.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
-import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 
 class ReferralPage extends StatefulWidget {
   const ReferralPage({super.key});
@@ -20,24 +28,6 @@ class ReferralPage extends StatefulWidget {
 }
 
 class _ReferralPageState extends State<ReferralPage> {
-  final List<EarningRule> _earningRules = [
-    EarningRule(
-      title: 'Referral Signup',
-      message:
-          'Get 100 points when your friend signs up using your referral link',
-    ),
-    EarningRule(
-      title: 'First Purchase',
-      message:
-          'Earn 500 points when your referred friend makes their first purchase',
-    ),
-    EarningRule(
-      title: 'Ongoing Rewards',
-      message:
-          'Get 5% of your friend\'s purchase as points for their first 3 orders',
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -72,35 +62,16 @@ class _ReferralPageState extends State<ReferralPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: const Text('Share & Earn'),
+      backgroundColor: AppColors.pageBg,
+      appBar: const PickabooAppBar(
+        title: 'Share & Earn',
       ),
       body: BlocBuilder<ReferralBloc, ReferralState>(
         builder: (context, state) {
           return state.when(
-            initial: () => Center(
-              child: CircularProgressIndicator(
-                color: colors.primary,
-                strokeWidth: 2.w,
-              ),
-            ),
-            loading: () => Center(
-              child: CircularProgressIndicator(
-                color: colors.primary,
-                strokeWidth: 2.w,
-              ),
-            ),
+            initial: () => const AppLoader.fullPage(),
+            loading: () => const AppLoader.fullPage(),
             referralHistoryLoaded: (referralData, hasReachedMax) {
               final referralCode = referralData.referralCode ?? 'GUEST';
               final pendingCount = referralData.referralPendingCount ?? 0;
@@ -117,18 +88,22 @@ class _ReferralPageState extends State<ReferralPage> {
             inviteSuccess: () => Center(
               child: Text(
                 'Invitation sent successfully!',
-                style: textTheme.bodyLarge.copyWith(color: colors.text),
+                style: AppTypography.cardTitle,
               ),
             ),
             error: (message) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48.sp, color: colors.salmon),
+                  Icon(
+                    Icons.error_outline,
+                    size: 48.sp,
+                    color: AppColors.red,
+                  ),
                   SizedBox(height: 16.h),
                   Text(
                     message,
-                    style: textTheme.bodyMedium.copyWith(color: colors.text),
+                    style: AppTypography.bodyRegular,
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 16.h),
@@ -138,6 +113,10 @@ class _ReferralPageState extends State<ReferralPage> {
                         const ReferralEvent.getReferralHistory(),
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.pickabooBlue,
+                      foregroundColor: AppColors.white,
+                    ),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -154,40 +133,29 @@ class _ReferralPageState extends State<ReferralPage> {
               final referralUrl = _buildReferralUrl(referralCode);
 
               return Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10.r,
-                      offset: Offset(0, -2.h),
-                    ),
-                  ],
-                ),
+                color: AppColors.pageBg,
+                padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
                 child: SafeArea(
                   child: SizedBox(
-                    width: double.infinity,
                     height: 48.h,
                     child: ElevatedButton.icon(
                       onPressed: () => _shareReferralLink(referralUrl),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colors.button,
+                        backgroundColor: AppColors.pickabooBlue,
+                        foregroundColor: AppColors.white,
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
                         ),
-                        elevation: 2,
                       ),
                       icon: Icon(
-                        Icons.share,
-                        color: context.colors.white,
-                        size: 20.sp,
+                        Icons.share_rounded,
+                        color: AppColors.white,
+                        size: 18.sp,
                       ),
                       label: Text(
                         'Share Invitation',
-                        style: textTheme.buttonMedium.copyWith(
-                          color: context.colors.white,
-                        ),
+                        style: AppTypography.buttonPrimary,
                       ),
                     ),
                   ),
@@ -207,437 +175,366 @@ class _ReferralPageState extends State<ReferralPage> {
     required int pendingCount,
     required int completedCount,
   }) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.all(16.w),
-            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: context.colors.white,
-              borderRadius: BorderRadius.circular(16.r),
-              boxShadow: [
-                BoxShadow(
-                  color: context.colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
-            ),
-            child: _buildReferralUrlSection(
-              context,
-              referralUrl: referralUrl,
-              pendingCount: pendingCount,
-              completedCount: completedCount,
-            ),
-          ),
-        ),
-
-        SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.all(16.w),
-            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: context.colors.white,
-              borderRadius: BorderRadius.circular(16.r),
-              boxShadow: [
-                BoxShadow(
-                  color: context.colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
-            ),
-            child: _buildTimelineSection(context, pendingCount: pendingCount),
-          ),
-        ),
-
-        if (_earningRules.isNotEmpty)
-          SliverToBoxAdapter(
-            child: Container(
-              padding: EdgeInsets.all(16.w),
-              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: context.colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: context.colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10.r,
-                    offset: Offset(0, 2.h),
-                  ),
-                ],
-              ),
-              child: _buildEarningRulesSection(context),
-            ),
-          ),
-
-        SliverToBoxAdapter(child: SizedBox(height: 16.h)),
-      ],
-    );
-  }
-
-  Widget _buildReferralUrlSection(
-    BuildContext context, {
-    required String referralUrl,
-    required int pendingCount,
-    required int completedCount,
-  }) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(Icons.share, color: colors.primary, size: 20.sp),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Text(
-                'Share your referral link',
-                style: textTheme.bodyLargeMedium.copyWith(
-                  color: colors.text,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 16.h),
-        Text(
-          'Send this link to your friends and earn rewards',
-          style: textTheme.bodyMedium.copyWith(color: colors.gray),
-        ),
-        SizedBox(height: 16.h),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-          decoration: BoxDecoration(
-            color: colors.grayLight,
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  referralUrl,
-                  style: textTheme.bodySmall.copyWith(
-                    color: colors.text,
-                    fontSize: 12.sp,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Material(
-                color: colors.primary,
-                borderRadius: BorderRadius.circular(8.r),
-                child: InkWell(
-                  onTap: () => _copyToClipboard(referralUrl),
-                  borderRadius: BorderRadius.circular(8.r),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.h,
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.sameGroupItemSpacing.w,
+        0,
+        AppSpacing.sameGroupItemSpacing.w,
+        AppSpacing.sameGroupItemSpacing.h,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── 1. REFERRAL CODE & LINK CARD ──
+          AppCard(
+            padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(7.w),
+                      decoration: const BoxDecoration(
+                        color: AppColors.surfaceBlue,
+                        borderRadius: AppRadius.buttonRadius,
+                      ),
+                      child: Icon(
+                        Icons.share_outlined,
+                        color: AppColors.pickabooBlue,
+                        size: 18.sp,
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.copy, color: colors.white, size: 16.sp),
-                        SizedBox(width: 6.w),
-                        Text(
+                    SizedBox(width: 10.w),
+                    Text(
+                      'Share your referral link',
+                      style: AppTypography.sectionTitle,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Send this link to your friends and earn rewards',
+                  style: AppTypography.bodyMuted,
+                ),
+                SizedBox(height: 12.h),
+
+                // Copy Link Box
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceBlue,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(
+                      color: AppColors.pickabooBlue.withValues(alpha: 0.35),
+                      width: 1.w,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          referralUrl,
+                          style: AppTypography.inputText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      ElevatedButton.icon(
+                        onPressed: () => _copyToClipboard(referralUrl),
+                        icon: Icon(Icons.copy_rounded, size: 14.sp, color: AppColors.white),
+                        label: Text(
                           'Copy',
-                          style: textTheme.bodySmall.copyWith(
-                            color: colors.white,
-                            fontWeight: FontWeight.w600,
+                          style: AppTypography.buttonPrimary,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.pickabooBlue,
+                          foregroundColor: AppColors.white,
+                          elevation: 0,
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 14.h),
+
+                // Pending & Completed Badges
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: AppColors.amber.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: AppColors.amber.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.pending_outlined,
+                              color: AppColors.amber,
+                              size: 20.sp,
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              '$pendingCount',
+                              style: AppTypography.heroTitle.size(18.sp),
+                            ),
+                            Text(
+                              'Pending',
+                              style: AppTypography.bodyTiny,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: AppColors.greenBg,
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: AppColors.green.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.check_circle_outline_rounded,
+                              color: AppColors.green,
+                              size: 20.sp,
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              '$completedCount',
+                              style: AppTypography.heroTitle.size(18.sp),
+                            ),
+                            Text(
+                              'Completed',
+                              style: AppTypography.bodyTiny,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          AppSpacing.groupToGroupGap,
+
+          // ── 2. YOUR REFERRAL JOURNEY STEPPER ──
+          AppCard(
+            padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your Referral Journey',
+                  style: AppTypography.sectionTitle,
+                ),
+                SizedBox(height: 14.h),
+
+                Builder(
+                  builder: (context) {
+                    final hasReferred = pendingCount > 0;
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              width: 22.w,
+                              height: 22.h,
+                              decoration: const BoxDecoration(
+                                color: AppColors.pickabooBlue,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.check_rounded,
+                                  color: AppColors.white,
+                                  size: 14.sp,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 2.w,
+                              height: 28.h,
+                              color: hasReferred
+                                  ? AppColors.pickabooBlue
+                                  : AppColors.border,
+                            ),
+                            Container(
+                              width: 22.w,
+                              height: 22.h,
+                              decoration: BoxDecoration(
+                                color: hasReferred
+                                    ? AppColors.pickabooBlue
+                                    : AppColors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: hasReferred
+                                      ? AppColors.pickabooBlue
+                                      : AppColors.muted,
+                                  width: 2.w,
+                                ),
+                              ),
+                              child: hasReferred
+                                  ? Center(
+                                      child: Icon(
+                                        Icons.check_rounded,
+                                        color: AppColors.white,
+                                        size: 14.sp,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ],
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 1.h),
+                              Text(
+                                'You created an account',
+                                style: AppTypography.cardTitle,
+                              ),
+                              SizedBox(height: 30.h),
+                              Text(
+                                hasReferred
+                                    ? 'You have referred a friend'
+                                    : 'You haven\'t referred a friend yet',
+                                style: hasReferred ? AppTypography.cardTitle : AppTypography.bodyMuted,
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 16.h),
-        Row(
-          children: [
-            Expanded(
-              child: _StatCard(
-                icon: Icons.pending_outlined,
-                label: 'Pending',
-                value: '$pendingCount',
-                color: colors.salmon,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: _StatCard(
-                icon: Icons.check_circle_outline,
-                label: 'Completed',
-                value: '$completedCount',
-                color: colors.shamrock,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimelineSection(
-    BuildContext context, {
-    required int pendingCount,
-  }) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Your Referral Journey',
-          style: textTheme.bodyLargeMedium.copyWith(
-            color: colors.text,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: 24.h),
-        _TimelineItem(
-          isCompleted: true,
-          text: 'You created an account',
-          showConnector: true,
-          colors: colors,
-        ),
-        _TimelineItem(
-          isCompleted: pendingCount > 0,
-          text: pendingCount > 0
-              ? 'You have referred a friend'
-              : 'You haven\'t referred a friend yet',
-          showConnector: false,
-          colors: colors,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEarningRulesSection(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: colors.shamrock.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(Icons.stars, color: colors.shamrock, size: 20.sp),
-            ),
-            SizedBox(width: 12.w),
-            Text(
-              'How to Earn',
-              style: textTheme.bodyLargeMedium.copyWith(
-                color: colors.text,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 16.h),
-        ..._earningRules.asMap().entries.map((entry) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: 16.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 24.w,
-                  height: 24.h,
-                  decoration: BoxDecoration(
-                    color: colors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${entry.key + 1}',
-                    style: textTheme.bodySmall.copyWith(
-                      color: colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Text(
-                    entry.value.message,
-                    style: textTheme.bodyMedium.copyWith(
-                      color: colors.text,
-                      height: 1.4.h,
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ],
             ),
-          );
-        }),
-      ],
-    );
-  }
-}
+          ),
 
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
+          AppSpacing.groupToGroupGap,
 
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+          // ── 3. HOW TO EARN CARD ──
+          AppCard(
+            padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'How to Earn',
+                  style: AppTypography.sectionTitle,
+                ),
+                SizedBox(height: 14.h),
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.w),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24.sp),
-          SizedBox(height: 8.h),
-          Text(
-            value,
-            style: textTheme.headingLarge.copyWith(
-              color: colors.text,
-              fontWeight: FontWeight.bold,
+                _buildHowToEarnTile(
+                  icon: Icons.share_outlined,
+                  title: 'Share Link & Code',
+                  subtitle:
+                      'Get 100 points when your friend signs up using your referral link',
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  child: Divider(
+                    height: 1.h,
+                    indent: 48.w,
+                    color: AppColors.border,
+                  ),
+                ),
+                _buildHowToEarnTile(
+                  icon: Icons.person_add_alt_1_outlined,
+                  title: 'Friend Registers',
+                  subtitle:
+                      'Earn 500 points when your referred friend makes their first purchase',
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  child: Divider(
+                    height: 1.h,
+                    indent: 48.w,
+                    color: AppColors.border,
+                  ),
+                ),
+                _buildHowToEarnTile(
+                  icon: Icons.shopping_bag_outlined,
+                  title: 'Friend Purchases',
+                  subtitle:
+                      'Get 5% of your friend\'s purchase as points for their first 3 orders',
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 4.h),
-          Text(
-            label,
-            style: textTheme.bodySmall.copyWith(
-              color: colors.gray,
-              fontSize: 11.sp,
-            ),
-          ),
+
+          SizedBox(height: 24.h),
         ],
       ),
     );
   }
-}
 
-class _TimelineItem extends StatelessWidget {
-  final bool isCompleted;
-  final String text;
-  final bool showConnector;
-  final AppColors colors;
-
-  const _TimelineItem({
-    required this.isCompleted,
-    required this.text,
-    required this.showConnector,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildHowToEarnTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 20.w,
-              height: 20.h,
-              margin: EdgeInsets.only(right: 12.w, top: 2.h),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isCompleted ? colors.primary : colors.grayLight,
-                border: Border.all(
-                  color: isCompleted ? colors.primary : colors.gray,
-                  width: 2.w,
-                ),
-              ),
-              child: isCompleted
-                  ? Icon(Icons.check, size: 12.sp, color: colors.white)
-                  : null,
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(top: 2.h),
-                child: Text(
-                  text,
-                  style: textTheme.bodyMedium.copyWith(
-                    color: isCompleted ? colors.text : colors.gray,
-                    fontWeight: isCompleted
-                        ? FontWeight.w500
-                        : FontWeight.normal,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        if (showConnector)
-          Container(
-            width: 2.w,
-            height: 32.h,
-            margin: EdgeInsets.only(left: 9.w, top: 1.w, bottom: 1.w),
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [colors.primary, colors.primary.withValues(alpha: 0.3)],
-              ),
+        Container(
+          width: 36.w,
+          height: 36.h,
+          decoration: BoxDecoration(
+            color: AppColors.pickabooBlue.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              color: AppColors.pickabooBlue,
+              size: 18.sp,
             ),
           ),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTypography.cardTitle,
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                subtitle,
+                style: AppTypography.bodyMuted,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
-}
-
-class ReferralData {
-  final String referralCode;
-  final int pendingCount;
-  final int completedCount;
-
-  ReferralData({
-    required this.referralCode,
-    required this.pendingCount,
-    required this.completedCount,
-  });
-}
-
-class EarningRule {
-  final String title;
-  final String message;
-
-  EarningRule({required this.title, required this.message});
 }

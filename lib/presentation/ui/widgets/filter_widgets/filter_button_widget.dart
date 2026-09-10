@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/filter_bloc/filter_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/filter_widgets/filter_bottom_sheet.dart';
 
@@ -23,7 +23,7 @@ class FilterButtonWidget extends StatelessWidget {
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(
           bottom: BorderSide(
-            color: context.colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             width: 1.w,
           ),
         ),
@@ -61,11 +61,11 @@ class FilterButtonWidget extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               left: BorderSide(
-                color: context.colors.black.withValues(alpha: 0.2),
+                color: AppColors.black.withValues(alpha: 0.2),
                 width: 0.2.w,
               ),
               right: BorderSide(
-                color: context.colors.black.withValues(alpha: 0.2),
+                color: AppColors.black.withValues(alpha: 0.2),
                 width: 0.2.w,
               ),
             ),
@@ -93,9 +93,7 @@ class FilterButtonWidget extends StatelessWidget {
     );
 
     if (!hasFilters) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('No filter available')));
+      SnackBarUtils.showRegular(context, 'No filter available');
       return;
     }
 
@@ -103,7 +101,7 @@ class FilterButtonWidget extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: context.colors.black.withValues(alpha: 0.0),
+      backgroundColor: AppColors.black.withValues(alpha: 0.0),
       builder: (context) => BlocProvider.value(
         value: filterBloc,
         child: FilterBottomSheet(

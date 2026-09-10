@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/utils/date_time_utils.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
 
 class TicketInfoCard extends StatelessWidget {
@@ -11,18 +12,17 @@ class TicketInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return Container(
       margin: EdgeInsets.all(16.w),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
+            color: AppColors.black.withValues(alpha: 0.04),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
@@ -42,7 +42,7 @@ class TicketInfoCard extends StatelessWidget {
                       ticket.subject,
                       style: textTheme.bodyLargeMedium.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: colors.text,
+                        color: AppColors.text,
                         height: 1.3.h,
                       ),
                       maxLines: 2,
@@ -52,7 +52,7 @@ class TicketInfoCard extends StatelessWidget {
                     Text(
                       ticket.ticketCode,
                       style: textTheme.bodySmall.copyWith(
-                        color: colors.gray,
+                        color: AppColors.muted,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -69,7 +69,7 @@ class TicketInfoCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: colors.background,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Column(
@@ -109,10 +109,10 @@ class TicketInfoCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             decoration: BoxDecoration(
-              color: _getStatusColor(ticket.status, colors).withAlpha(25),
+              color: _getStatusColor(ticket.status).withAlpha(25),
               borderRadius: BorderRadius.circular(8.r),
               border: Border.all(
-                color: _getStatusColor(ticket.status, colors),
+                color: _getStatusColor(ticket.status),
                 width: 1.w,
               ),
             ),
@@ -123,7 +123,7 @@ class TicketInfoCard extends StatelessWidget {
                   width: 6.w,
                   height: 6.h,
                   decoration: BoxDecoration(
-                    color: _getStatusColor(ticket.status, colors),
+                    color: _getStatusColor(ticket.status),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -131,7 +131,7 @@ class TicketInfoCard extends StatelessWidget {
                 Text(
                   ticket.status,
                   style: textTheme.bodySmall.copyWith(
-                    color: _getStatusColor(ticket.status, colors),
+                    color: _getStatusColor(ticket.status),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -143,38 +143,34 @@ class TicketInfoCard extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String status, AppColors colors) {
+  Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'open':
-        return colors.shamrock;
+        return AppColors.green;
       case 'pending':
-        return colors.salmon;
+        return AppColors.orange;
       case 'closed':
-        return colors.red;
+        return AppColors.red;
       default:
-        return colors.primary;
+        return AppColors.pickabooBlue;
     }
   }
 
   String _formatDate(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return 'N/A';
     try {
-      final date = DateTime.parse(dateStr);
-      const months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-      return '${date.day} ${months[date.month - 1]}, ${date.year}';
+      final hasTime = dateStr.contains(':');
+      if (hasTime) {
+        final date = parseServerDateTime(dateStr) ?? DateTime.parse(dateStr);
+        final formatted = DateFormat('d MMM, yyyy, hh:mm a').format(date);
+        return formatted.replaceAllMapped(
+          RegExp(r'\b(AM|PM)\b'),
+          (match) => match.group(0)!.toLowerCase(),
+        );
+      } else {
+        final date = DateTime.parse(dateStr);
+        return DateFormat('d MMM, yyyy').format(date);
+      }
     } catch (e) {
       return dateStr;
     }
@@ -194,17 +190,16 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return Row(
       children: [
-        Icon(icon, size: 16.sp, color: colors.primary),
+        Icon(icon, size: 16.sp, color: AppColors.pickabooBlue),
         SizedBox(width: 8.w),
         Text(
           '$label:',
           style: textTheme.bodySmall.copyWith(
-            color: colors.gray,
+            color: AppColors.muted,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -213,7 +208,7 @@ class _InfoRow extends StatelessWidget {
           child: Text(
             value,
             style: textTheme.bodySmall.copyWith(
-              color: colors.text,
+              color: AppColors.text,
               fontWeight: FontWeight.w500,
             ),
             maxLines: 1,
@@ -231,18 +226,17 @@ class _PriorityBadge extends StatelessWidget {
   const _PriorityBadge({required this.priority});
 
   Color _getBackgroundColor(BuildContext context) {
-    final colors = context.colors;
     switch (priority.toLowerCase()) {
       case 'high':
-        return colors.ticketNew;
+        return AppColors.red;
       case 'low':
-        return colors.ticketOpen;
+        return AppColors.pickabooBlue;
       case 'critical':
-        return colors.ticketClosed;
+        return AppColors.muted;
       case 'medium':
-        return colors.ticketHold;
+        return AppColors.amber;
       default:
-        return colors.gray;
+        return AppColors.muted;
     }
   }
 
@@ -256,7 +250,7 @@ class _PriorityBadge extends StatelessWidget {
       ),
       child: Text(
         priority,
-        style: context.textStyle.bodySmallBold.withColor(context.colors.white),
+        style: context.textStyle.bodySmallBold.withColor(AppColors.white),
       ),
     );
   }

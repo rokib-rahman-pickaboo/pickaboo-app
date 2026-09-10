@@ -1,8 +1,14 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
+/// Modern RatingInputRow matching Pickaboo-App-UI design language.
 class RatingInputRow extends StatelessWidget {
   final String label;
   final int rating;
@@ -17,20 +23,15 @@ class RatingInputRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         children: [
           Expanded(
             flex: 2,
             child: Text(
               label,
-              style: textTheme.bodyLarge.copyWith(
-                color: colors.text,
-              ),
+              style: AppTypography.cardTitle,
             ),
           ),
           Expanded(
@@ -38,13 +39,17 @@ class RatingInputRow extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: List.generate(5, (index) {
+                final isSelected = index < rating;
                 return GestureDetector(
                   onTap: () => onRatingChanged(index + 1),
+                  behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    padding: EdgeInsets.symmetric(horizontal: 3.w),
                     child: Icon(
-                      index < rating ? Icons.star : Icons.star_border,
-                      color: index < rating ? colors.orange : colors.gray,
+                      isSelected ? Icons.star_rounded : Icons.star_outline_rounded,
+                      color: isSelected
+                          ? AppColors.amber
+                          : AppColors.border,
                       size: 28.sp,
                     ),
                   ),

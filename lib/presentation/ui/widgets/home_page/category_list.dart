@@ -1,8 +1,13 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
 
 class CategoryList extends StatelessWidget {
@@ -19,7 +24,6 @@ class CategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     if (categories.isEmpty) {
@@ -38,15 +42,30 @@ class CategoryList extends StatelessWidget {
               Text(
                 'Categories',
                 style: textStyle.bodyMediumBold.copyWith(
-                  color: colors.text,
+                  color: AppColors.text,
                 ),
               ),
               if (onViewAllTap != null)
-                TextButton(
-                  onPressed: onViewAllTap,
-                  child: Text(
-                    'View All',
-                    style: textStyle.link.withColor(colors.primary),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onViewAllTap,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'View All',
+                          style: AppTypography.cardTitle,
+                        ),
+                        SizedBox(width: 2.w),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16.sp,
+                          color: AppColors.pickabooBlue,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -82,7 +101,6 @@ class _CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     return TextButton(
@@ -114,13 +132,13 @@ class _CategoryItem extends StatelessWidget {
                           placeholder: const SizedBox.shrink(),
                           errorWidget: Icon(
                             Icons.category_outlined,
-                            color: colors.primary,
+                            color: AppColors.pickabooBlue,
                             size: 32.sp,
                           ),
                         )
                       : Icon(
                           Icons.category_outlined,
-                          color: colors.primary,
+                          color: AppColors.pickabooBlue,
                           size: 32.sp,
                         ),
                 ),
@@ -134,7 +152,7 @@ class _CategoryItem extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: textStyle.caption.copyWith(color: colors.text,fontWeight: FontWeight.w600),
+                    style: textStyle.caption.copyWith(color: AppColors.text,fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

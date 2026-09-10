@@ -1,3 +1,9 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
@@ -13,13 +19,16 @@ import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/nav_drawer/nav_drawer_bloc.dart';
 import 'package:pickaboo/presentation/navigation/deep_link_handler.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/nav_drawer/nav_drawer.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
+
+  /// Global notifier allowing uncached offline views to hide the bottom nav bar.
+  static final ValueNotifier<bool> hideBottomNav = ValueNotifier<bool>(false);
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -52,6 +61,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   void navRoute(int index) {
+    MainPage.hideBottomNav.value = false;
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,
@@ -65,35 +75,43 @@ class _MainPageState extends State<MainPage> {
       canPop: widget.navigationShell.currentIndex == 0,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
+        MainPage.hideBottomNav.value = false;
         widget.navigationShell.goBranch(0);
       },
-      child: Scaffold(
-        key: _scaffoldKey,
-        drawer: const NavDrawer(),
-        onDrawerChanged: (isOpened) {
-          context.read<NavDrawerBloc>().add(
-            NavDrawerEvent.drawerChanged(isOpen: isOpened),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: MainPage.hideBottomNav,
+        builder: (context, hideNav, _) {
+          return Scaffold(
+            key: _scaffoldKey,
+            extendBody: true,
+            drawer: const NavDrawer(),
+            onDrawerChanged: (isOpened) {
+              context.read<NavDrawerBloc>().add(
+                NavDrawerEvent.drawerChanged(isOpen: isOpened),
+              );
+            },
+            body: useRail
+                ? Row(
+                    children: [
+                      _buildNavigationRail(context),
+                      const VerticalDivider(width: 1, thickness: 1),
+                      Expanded(child: widget.navigationShell),
+                    ],
+                  )
+                : widget.navigationShell,
+            bottomNavigationBar:
+                (useRail || hideNav) ? null : _buildBottomNavBar(context),
           );
         },
-        body: useRail
-            ? Row(
-                children: [
-                  _buildNavigationRail(context),
-                  const VerticalDivider(width: 1, thickness: 1),
-                  Expanded(child: widget.navigationShell),
-                ],
-              )
-            : widget.navigationShell,
-        bottomNavigationBar: useRail ? null : _buildBottomNavBar(context),
       ),
     );
   }
 
   static const List<({String asset, String label})> _navItems = [
-    (asset: "assets/new/svg/home_icon.svg", label: 'Home'),
-    (asset: "assets/new/svg/discover_icon.svg", label: 'Discover'),
-    (asset: "assets/new/svg/support_icon.svg", label: 'Support'),
-    (asset: "assets/new/svg/profile_icon.svg", label: 'Profile'),
+    (asset: "assets/new/svg/home_icon.svg", label: AppStrings.navHome),
+    (asset: "assets/new/svg/discover_icon.svg", label: AppStrings.navDiscover),
+    (asset: "assets/new/svg/support_icon.svg", label: AppStrings.navSupport),
+    (asset: "assets/new/svg/profile_icon.svg", label: AppStrings.navProfile),
   ];
 
   Widget _navIcon(String asset, {bool selected = false}) {
@@ -103,7 +121,7 @@ class _MainPageState extends State<MainPage> {
       height: 24.h,
       fit: BoxFit.fill,
       colorFilter: selected
-          ? ColorFilter.mode(context.colors.button, BlendMode.srcIn)
+          ? const ColorFilter.mode(AppColors.pickabooBlue, BlendMode.srcIn)
           : null,
     );
   }
@@ -114,13 +132,13 @@ class _MainPageState extends State<MainPage> {
         selectedIndex: widget.navigationShell.currentIndex,
         onDestinationSelected: navRoute,
         labelType: NavigationRailLabelType.all,
-        backgroundColor: context.colors.white,
-        indicatorColor: context.colors.white,
+        backgroundColor: AppColors.white,
+        indicatorColor: AppColors.white,
         selectedLabelTextStyle: context.textStyle.bottomNavActive.withColor(
-          context.colors.button,
+          AppColors.pickabooBlue,
         ),
         unselectedLabelTextStyle: context.textStyle.bottomNavInactive.withColor(
-          context.colors.text,
+          AppColors.muted,
         ),
         destinations: [
           for (final item in _navItems)
@@ -134,53 +152,257 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  // ============================================================================
+  // 🧭 Floating Capsule Bottom Navigation Bar from New UI Application
+  // ============================================================================
   Widget _buildBottomNavBar(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomCenter,
+    final currentIndex = widget.navigationShell.currentIndex;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        NavigationBar(
-          selectedIndex: widget.navigationShell.currentIndex,
-          labelPadding: EdgeInsets.zero,
-          labelTextStyle: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return context.textStyle.bottomNavActive.withColor(
-                context.colors.button,
-              );
-            }
-            return context.textStyle.bottomNavInactive.withColor(
-              context.colors.text,
-            );
-          }),
-          height: 60.h,
-          destinations: [
-            for (final item in _navItems)
-              NavigationDestination(
-                icon: _navIcon(item.asset),
-                selectedIcon: _navIcon(item.asset, selected: true),
-                label: item.label,
-              ),
-          ],
-          onDestinationSelected: navRoute,
-        ),
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          top: 0,
-          left:
-              MediaQuery.of(context).size.width /
-              4 *
-              widget.navigationShell.currentIndex,
-          child: Container(
-            width: MediaQuery.of(context).size.width / 5.5,
-            height: 2.h,
-            margin: EdgeInsets.symmetric(horizontal: 12.w),
-            decoration: BoxDecoration(
-              color: context.colors.button,
-              borderRadius: BorderRadius.circular(3.r),
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
+          child: SizedBox(
+            height: 64.h,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // ── 1. Floating Capsule Bar Container ──
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(26.r),
+                      border: Border.all(color: AppColors.border, width: 1.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.navy.withValues(alpha: 0.08),
+                          blurRadius: 18.r,
+                          spreadRadius: 0,
+                          offset: Offset(0, 6.h),
+                        ),
+                        BoxShadow(
+                          color: AppColors.navy.withValues(alpha: 0.03),
+                          blurRadius: 4.r,
+                          offset: Offset(0, 2.h),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(
+                          child: _buildTabItem(
+                            index: 0,
+                            isSelected: currentIndex == 0,
+                            icon: Icons.home_outlined,
+                            activeIcon: Icons.home_rounded,
+                            label: AppStrings.navHome,
+                            onTap: () => navRoute(0),
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildTabItem(
+                            index: 1,
+                            isSelected: currentIndex == 1,
+                            icon: Icons.grid_view_outlined,
+                            activeIcon: Icons.grid_view_rounded,
+                            label: AppStrings.navDiscover,
+                            onTap: () => navRoute(1),
+                          ),
+                        ),
+                        SizedBox(width: 56.w), // Spacing for Center Raised Diamond Cart
+                        Expanded(
+                          child: _buildTabItem(
+                            index: 2,
+                            isSelected: currentIndex == 2,
+                            icon: Icons.headset_mic_outlined,
+                            activeIcon: Icons.headset_mic_rounded,
+                            label: AppStrings.navSupport,
+                            onTap: () => navRoute(2),
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildTabItem(
+                            index: 3,
+                            isSelected: currentIndex == 3,
+                            icon: Icons.person_outline_rounded,
+                            activeIcon: Icons.person_rounded,
+                            label: AppStrings.navProfile,
+                            onTap: () => navRoute(3),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── 2. Center Floating Raised Diamond Cart Button ──
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: -14.h,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () => context.push(Routes.cart),
+                      behavior: HitTestBehavior.opaque,
+                      child: _buildDiamondCartButton(),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
+
+        // ── 3. Solid Safe Area Under System Navigation Buttons ──
+        if (bottomInset > 0)
+          Container(
+            height: bottomInset,
+            color: AppColors.pageBg,
+          ),
       ],
+    );
+  }
+
+  /// Center Floating Raised Cart Button (Rotated Diamond Shape with Live CartBloc Badge)
+  Widget _buildDiamondCartButton() {
+    return BlocBuilder<CartBloc, CartState>(
+      builder: (context, cartState) {
+        final cartCount = cartState.maybeWhen(
+          loaded: (cart) => cart.itemsCount,
+          itemAdded: (cart, _) => cart.itemsCount,
+          couponApplied: (cart, _) => cart.itemsCount,
+          rewardPointsApplied: (cart, _) => cart.itemsCount,
+          operationInProgress: (cart, _) => cart.itemsCount,
+          orElse: () => 0,
+        );
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Transform.rotate(
+              angle: 0.785398, // 45 degrees
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                width: 48.w,
+                height: 48.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(13.r),
+                  color: AppColors.white,
+                  border: Border.all(
+                    color: AppColors.border,
+                    width: 1.2.w,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.navy.withValues(alpha: 0.08),
+                      blurRadius: 8.r,
+                      offset: Offset(0, 3.h),
+                    ),
+                  ],
+                ),
+                child: Transform.rotate(
+                  angle: -0.785398, // Keep content upright
+                  child: Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(
+                        Icons.shopping_bag_outlined,
+                        color: AppColors.navy,
+                        size: 22.sp,
+                      ),
+                      // Live Cart Count Badge
+                      if (cartCount > 0)
+                        Positioned(
+                          top: -2.h,
+                          right: -2.w,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4.w,
+                              vertical: 2.h,
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 16.w,
+                              minHeight: 16.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.pickabooBlue,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.white,
+                                width: 1.5.w,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$cartCount',
+                                style: AppTypography.buttonPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 3.h),
+            Text(
+              'Cart',
+              style: AppTypography.bottomNavInactive,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Clean Labeled Tab Item (Pickaboo Blue when selected, Slate when inactive)
+  Widget _buildTabItem({
+    required int index,
+    required bool isSelected,
+    required IconData icon,
+    required IconData activeIcon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final color =
+        isSelected ? AppColors.pickabooBlue : AppColors.muted;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20.r),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 6.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedScale(
+              scale: isSelected ? 1.08 : 1.0,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              child: Icon(
+                isSelected ? activeIcon : icon,
+                size: 22.sp,
+                color: color,
+              ),
+            ),
+            SizedBox(height: 3.h),
+            Text(
+              label,
+              style: isSelected
+                  ? AppTypography.bottomNavActive
+                  : AppTypography.bottomNavInactive,
+            ),
+          ],
+        ),
+      ),
     );
   }
 

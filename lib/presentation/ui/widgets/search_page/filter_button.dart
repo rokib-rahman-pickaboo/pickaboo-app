@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pickaboo/core/constants/app_strings.dart';
 import 'package:pickaboo/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/filter_sort_bar.dart';
 
@@ -12,7 +13,7 @@ class FilterButton extends StatelessWidget {
   static final List<SortOptionItem> sortOptions = [
     SortOptionItem(
       id: '1',
-      title: 'Newest First',
+      title: AppStrings.sortNewestFirst,
       param: 'created',
       orderBy: 'desc',
       isDefault: true,
@@ -32,13 +33,13 @@ class FilterButton extends StatelessWidget {
     ),
     SortOptionItem(
       id: '5',
-      title: 'Price High to Low',
+      title: AppStrings.sortPriceHighToLow,
       param: 'price',
       orderBy: 'desc',
     ),
     SortOptionItem(
       id: '6',
-      title: 'Price Low to High',
+      title: AppStrings.sortPriceLowToHigh,
       param: 'price',
       orderBy: 'asc',
     ),

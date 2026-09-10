@@ -1,9 +1,16 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
+/// Standardized SavedWalletItem styled as a list tile for grouped container views
+/// (matching dashboard item list pattern).
 class SavedWalletItem extends StatelessWidget {
   final String linkedMasked;
   final String last4;
@@ -20,55 +27,45 @@ class SavedWalletItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: isSelected
-              ? Border.all(color: colors.primary, width: 2)
-              : Border.all(
-                  color: colors.black.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-        ),
+        color: isSelected ? AppColors.surfaceBlue.withValues(alpha: 0.5) : Colors.transparent,
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         child: Row(
           children: [
+            // ── Wallet Icon (36x36) ──
             Container(
-              width: 40.w,
-              height: 40.w,
+              width: 36.w,
+              height: 36.w,
               padding: EdgeInsets.all(4.w),
               decoration: BoxDecoration(
-                color: colors.white,
-                borderRadius: BorderRadius.circular(8.r),
+                color: AppColors.white,
+                borderRadius: AppRadius.buttonRadius,
                 border: Border.all(
-                  color: colors.black.withValues(alpha: 0.1),
+                  color: isSelected
+                      ? AppColors.pickabooBlue.withValues(alpha: 0.4)
+                      : AppColors.border,
                 ),
               ),
               child: SvgPicture.asset(
                 'assets/new/svg/payment/bkash_icon.svg',
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
               ),
             ),
             SizedBox(width: 12.w),
+
+            // ── Details ──
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
                       Text(
                         'bKash',
-                        style: textStyle.listSubtitle.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: colors.text,
-                        ),
+                        style: AppTypography.cardTitle,
                       ),
                       SizedBox(width: 8.w),
                       Container(
@@ -76,34 +73,65 @@ class SavedWalletItem extends StatelessWidget {
                           horizontal: 6.w,
                           vertical: 2.h,
                         ),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4.r),
+                        decoration: const BoxDecoration(
+                          color: AppColors.surfaceBlue,
+                          borderRadius: AppRadius.badgeRadius,
                         ),
                         child: Text(
                           'Saved',
-                          style: textStyle.bodySmall.copyWith(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                            color: colors.primary,
-                          ),
+                          style: AppTypography.brandTag,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    'Linked: $linkedMasked',
-                    style: textStyle.listCaption.copyWith(
-                      color: colors.textLight,
-                    ),
+                    linkedMasked,
+                    style: AppTypography.bodyMuted,
                   ),
                 ],
               ),
             ),
+            SizedBox(width: 8.w),
+
+            // ── Radio Dot ──
+            _RadioDot(selected: isSelected),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _RadioDot extends StatelessWidget {
+  final bool selected;
+
+  const _RadioDot({required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20.w,
+      height: 20.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: selected ? AppColors.pickabooBlue : AppColors.border,
+          width: 2,
+        ),
+      ),
+      child: selected
+          ? Center(
+              child: Container(
+                width: 10.w,
+                height: 10.w,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.pickabooBlue,
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

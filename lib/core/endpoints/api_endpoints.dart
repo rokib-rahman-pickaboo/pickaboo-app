@@ -1,27 +1,9 @@
 import 'package:injectable/injectable.dart';
+import 'package:pickaboo/core/config/api_config.dart';
 
 @injectable
 class ApiEndpoints {
-  //static const String _productionDomainUrl = 'https://www.pickaboo.com';
-  static const String _productionDomainUrl = 'https://gcpadmin.pickaboo.com';
-  static const String _stagingDomainUrl = 'https://gcpadmin.pickaboo.com';
-  //static const String _stagingDomainUrl = 'https://pickaboo.barikoimaps.dev';
-  //static const String _stagingDomainUrl = 'https://tp.pickaboo.com';
-
-  /// Build-time environment. Defaults to STAGING, so a plain
-  ///   flutter build apk --release
-  /// targets the staging backend (gcpadmin.pickaboo.com) for testers — the
-  /// build mode (debug/release) does NOT change the environment.
-  /// Build the production release explicitly with:
-  ///   flutter build apk --release --dart-define=ENV=production
-  static const String _env = String.fromEnvironment(
-    'ENV',
-    defaultValue: 'staging',
-  );
-
-  static const String baseUrl = _env == 'production'
-      ? _productionDomainUrl
-      : _stagingDomainUrl;
+  static const String baseUrl = ApiConfig.baseUrl;
 
   /// auth endpoints
   static String checkCustomerUrl = '/rest/V1/customer-check/exist';
@@ -74,16 +56,12 @@ class ApiEndpoints {
   static const String searchaniseBaseUrl = 'https://searchserverapi.com';
   static const String searchaniseUrl = '/getresults';
 
-  //static const String _productionSearchaniseApiKey = '6W7Z0N7U0T';
-  static const String _productionSearchaniseApiKey = '4B4B7b3t4J';
+  static const String _productionSearchaniseApiKey = '6W7Z0N7U0T';
   static const String _stagingSearchaniseApiKey = '4B4B7b3t4J';
 
-  /// Switched by the same `ENV` define as [baseUrl] rather than by build mode:
-  /// a plain release build targets staging (and so must use the staging search
-  /// index), while `--dart-define=ENV=production` gets the production key.
-  /// The previous `kReleaseMode` version was commented out and hard-wired to
-  /// staging, which would have pointed production search at the staging index.
-  static const String searchaniseApiKey = _env == 'production'
+  /// Automatically switches to production key (`6W7Z0N7U0T`) when [ApiConfig.isProduction] is true,
+  /// and staging key (`4B4B7b3t4J`) when false.
+  static const String searchaniseApiKey = ApiConfig.isProduction
       ? _productionSearchaniseApiKey
       : _stagingSearchaniseApiKey;
 
@@ -138,7 +116,7 @@ class ApiEndpoints {
 
   // Merge Guest Cart
   static String mergeGuestCartUrl({required String guestCartId}) =>
-      '/default/V1/guest-carts/$guestCartId';
+      '/rest/default/V1/guest-carts/$guestCartId';
 
   /// Authentication endpoints
   static const String loginUrl = '/rest/default/V1/integration/mobile/token';
@@ -188,10 +166,26 @@ class ApiEndpoints {
   static const String uploadProfileImageUrl =
       '/rest/V1/customer/upload/profilepicture/mine';
   static const String changePasswordUrl =
-      '/rest/default/V1/customers/me/password';
+      '/rest/V1/customers/me/password';
   static const String customerMe = getCurrentUserUrl;
 
+  /// Dedicated Profile Phone & Email Update Endpoints
+  static const String sendPhoneUpdateOtpUrl =
+      '/rest/V1/dcastalia-mobilelogin/sendotp';
+  static const String sendPhoneUpdateOtpFallbackUrl =
+      '/rest/V1/sendotp';
+  static const String updateCustomerMobileUrl =
+      '/rest/V1/address/customers/me/mobile';
+  static const String sendEmailVerificationCodeUrl =
+      '/rest/V1/dcastalia-emailverification/sendcode';
+  static const String updateCustomerEmailUrl =
+      '/rest/V1/address/customers/me/email';
+
   /// Address endpoints
+  static const String customerAddressUrl =
+      '/rest/V1/address/customers/me/address';
+  static String deleteCustomerAddressUrl(int id) =>
+      '/rest/V1/address/customers/me/address/$id';
   static const String getCityUrl = '/rest/default/V1/dcastalia-address/getcity';
   static const String getAreaUrl = '/rest/default/V1/dcastalia-address/getarea';
 
@@ -375,20 +369,20 @@ class ApiEndpoints {
   static const String cardBinStatusUrl = '/rest/V1/cardbin/status';
 
   // bKash WebView callback paths — intercepted by PaymentWebView._checkUrl.
-  // Always use the production domain so bKash can redirect to these URLs.
+  // Always use the live domain so bKash can redirect to these URLs.
   static const String bkashAgreementCallbackPath = '/bkash/agreement-callback';
   static const String bkashPaymentCallbackPath = '/bkash/payment-callback';
   static String get bkashAgreementCallbackUrl =>
-      '$_productionDomainUrl$bkashAgreementCallbackPath';
+      '${ApiConfig.productionURL}$bkashAgreementCallbackPath';
   static String get bkashPaymentCallbackUrl =>
-      '$_productionDomainUrl$bkashPaymentCallbackPath';
+      '${ApiConfig.productionURL}$bkashPaymentCallbackPath';
 
   // Nagad WebView callback path.
   // Must match the returnPath sent to Nagad: URL_LIVE + '/payment-status/nagod'
   // Note: slug is misspelled 'nagod' (matches old web codebase exactly).
   static const String nagadCallbackPath = '/payment-status/nagod';
   static String get nagadCallbackUrl =>
-      '$_productionDomainUrl$nagadCallbackPath';
+      '${ApiConfig.productionURL}$nagadCallbackPath';
 
   // Nagad finalize API — called after WebView intercepts the callback.
   // All Nagad callback query params are forwarded as query params to this GET.

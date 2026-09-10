@@ -1,8 +1,13 @@
+import 'package:pickaboo/core/color/app_colors.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/data/model/filter/filter_models.dart';
 import 'package:pickaboo/domain/entity/search/search_facet_entity.dart';
 import 'package:pickaboo/domain/entity/search/search_result_entity.dart';
@@ -10,13 +15,21 @@ import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/filter_bloc/filter_bloc.dart';
 import 'package:pickaboo/presentation/utils/filter_converter.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
-class FilterBottomSheet extends StatelessWidget {
+/// ============================================================================
+/// 🏷️ SEARCH FILTER BOTTOM SHEET
+/// 2-Column split layout:
+/// - Header: "Filters" title (left) & "Clear All" action (right)
+/// - Left Sidebar: Filter Attribute Categories (strict itemExtent: 48.h)
+/// - Middle Section Height = Attributes Count * 48.h (zero clipping & zero extra whitespace)
+/// - Right Pane: Options Checkbox list with persistent visible scrollbar
+/// - Bottom Bar: Full-width "Apply Filters" button directly below middle section
+/// ============================================================================
+class FilterBottomSheet extends StatefulWidget {
   final List<SearchFacetEntity> facets;
   final Function(Map<String, String>) onApply;
-
   final Map<String, List<String>>? initialFilters;
-
   final List<SearchCategoryEntity> searchCategories;
 
   const FilterBottomSheet({
@@ -27,12 +40,27 @@ class FilterBottomSheet extends StatelessWidget {
     this.searchCategories = const [],
   });
 
+  @override
+  State<FilterBottomSheet> createState() => _FilterBottomSheetState();
+}
+
+class _FilterBottomSheetState extends State<FilterBottomSheet> {
+  final ScrollController _optionsScrollController = ScrollController();
+  final ScrollController _categoryScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _optionsScrollController.dispose();
+    _categoryScrollController.dispose();
+    super.dispose();
+  }
+
   List<FilterCategory> _categories() {
     final categories = FilterConverter.fromSearchFacets(
-      facets,
-      categories: searchCategories,
+      widget.facets,
+      categories: widget.searchCategories,
     );
-    final applied = initialFilters;
+    final applied = widget.initialFilters;
     if (applied == null || applied.isEmpty) return categories;
 
     return categories.map((category) {
@@ -46,141 +74,117 @@ class FilterBottomSheet extends StatelessWidget {
     }).toList();
   }
 
-  bool _isInitiallyExpanded(String filterCode) =>
-      initialFilters?[filterCode]?.isNotEmpty ?? false;
-
   void _apply(BuildContext context, Map<String, String> filters) {
     Navigator.of(context).pop();
-    Future.delayed(const Duration(milliseconds: 100), () => onApply(filters));
+    Future.delayed(const Duration(milliseconds: 100), () => widget.onApply(filters));
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyles = context.textStyle;
     final filterCategories = _categories();
 
     return BlocProvider(
-      create: (_) =>
-          getIt<FilterBloc>()
-            ..add(FilterEvent.loadRequested(categories: filterCategories)),
+      create: (_) => getIt<FilterBloc>()
+        ..add(FilterEvent.loadRequested(categories: filterCategories)),
       child: Builder(
         builder: (context) => Material(
-          color: colors.white,
+          color: Colors.white,
           clipBehavior: Clip.antiAlias,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20.r),
-            topRight: Radius.circular(20.r),
-          ),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.85,
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.w,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: colors.gray.withValues(alpha: 0.2),
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Filters',
-                        style: textStyles.appBarTitle.copyWith(
-                          color: colors.text,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          context.read<FilterBloc>().add(
-                            const FilterEvent.cleared(),
-                          );
-                          _apply(context, const {});
-                        },
-                        child: Text(
-                          'Clear All',
-                          style: textStyles.bodyMedium.copyWith(
-                            color: colors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+          child: SafeArea(
+            top: false,
+            child: BlocBuilder<FilterBloc, FilterState>(
+              builder: (context, state) {
+                return state.maybeWhen(
+                  loaded: (categories, selectedCategoryCode, selectionCounts) {
+                    if (categories.isEmpty) {
+                      return _buildNoFilters(context);
+                    }
 
-                Expanded(
-                  child: BlocBuilder<FilterBloc, FilterState>(
-                    builder: (context, state) {
-                      return state.maybeWhen(
-                        loaded: (categories, _, selectionCounts) {
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            itemCount: categories.length,
-                            itemBuilder: (context, index) {
-                              final category = categories[index];
-                              return _buildFilterCategory(
+                    final int attributesCount = categories.length;
+                    final double itemHeight = 48.h;
+                    final double screenHeight =
+                        MediaQuery.of(context).size.height;
+                    final double nonMiddleHeight = 118.h;
+                    final double minMiddleHeight =
+                        (screenHeight * 0.40 - nonMiddleHeight)
+                            .clamp(itemHeight, screenHeight * 0.40);
+                    final double maxMiddleHeight =
+                        (screenHeight * 0.80 - nonMiddleHeight)
+                            .clamp(minMiddleHeight, screenHeight * 0.80);
+                    final double computedMiddleHeight =
+                        attributesCount * itemHeight;
+                    final double middleSectionHeight =
+                        computedMiddleHeight.clamp(
+                          minMiddleHeight,
+                          maxMiddleHeight,
+                        );
+                    final bool isClamped =
+                        computedMiddleHeight > maxMiddleHeight;
+
+                    final totalSelected = selectionCounts.values.fold<int>(
+                      0,
+                      (sum, count) => sum + count,
+                    );
+
+                    final activeCategory = categories.firstWhere(
+                      (c) => c.filterCode == selectedCategoryCode,
+                      orElse: () => categories.first,
+                    );
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // ── 1. HEADER (Filters / Clear All) ──
+                        _buildHeader(context, totalSelected),
+
+                        // ── 2. MIDDLE TWO-COLUMN SECTION (Attributes Count * 48.h) ──
+                        SizedBox(
+                          height: middleSectionHeight,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // ── LEFT SIDEBAR (Tabs with itemExtent: 48.h) ──
+                              _buildLeftSidebar(
                                 context,
-                                category,
-                                selectionCounts[category.filterCode] ?? 0,
-                                colors,
-                                textStyles,
-                              );
-                            },
-                          );
-                        },
-                        orElse: () => filterCategories.isEmpty
-                            ? _buildNoFilters(colors, textStyles)
-                            : Center(
-                                child: CircularProgressIndicator(
-                                  color: colors.primary,
-                                  strokeWidth: 2.w,
+                                categories,
+                                selectedCategoryCode,
+                                selectionCounts,
+                                isClamped,
+                              ),
+
+                              // Divider between columns
+                              Container(
+                                width: 1.w,
+                                color: AppColors.border,
+                              ),
+
+                              // ── RIGHT PANE (Checkboxes with persistent visible scrollbar) ──
+                              Expanded(
+                                child: _buildRightOptionsPane(
+                                  context,
+                                  activeCategory,
                                 ),
                               ),
-                      );
-                    },
-                  ),
-                ),
+                            ],
+                          ),
+                        ),
 
-                Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: SafeArea(
-                    child: BlocBuilder<FilterBloc, FilterState>(
-                      builder: (context, state) {
-                        final totalSelected = state.maybeWhen(
-                          loaded: (_, _, selectionCounts) => selectionCounts
-                              .values
-                              .fold<int>(0, (sum, count) => sum + count),
-                          orElse: () => 0,
-                        );
-
-                        return _buildApplyButton(
-                          context,
-                          totalSelected,
-                          colors,
-                          textStyles,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
+                        // ── 3. BOTTOM BAR (Apply Filters Button) ──
+                        _buildBottomBar(context, totalSelected),
+                      ],
+                    );
+                  },
+                  orElse: () => filterCategories.isEmpty
+                      ? _buildNoFilters(context)
+                      : SizedBox(
+                          height: 180.h,
+                          child: const Center(
+                            child: AppLoader.inline(),
+                          ),
+                        ),
+                );
+              },
             ),
           ),
         ),
@@ -188,152 +192,282 @@ class FilterBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildNoFilters(AppColors colors, AppTextStyles textStyles) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 48.h),
+  Widget _buildNoFilters(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.filter_list_off, size: 64.sp, color: colors.gray),
-          SizedBox(height: 16.h),
+          Icon(Icons.filter_list_off, size: 48.sp, color: AppColors.mutedLight),
+          SizedBox(height: 12.h),
           Text(
             'No filters available',
-            textAlign: TextAlign.center,
-            style: textStyles.bodyLarge.withColor(colors.text),
+            style: AppTypography.bodyLarge,
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 6.h),
           Text(
             'This search has nothing left to narrow down.',
             textAlign: TextAlign.center,
-            style: textStyles.bodySmall.withColor(colors.gray),
+            style: AppTypography.bodyRegular,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterCategory(
-    BuildContext context,
-    FilterCategory category,
-    int selectedCount,
-    AppColors colors,
-    AppTextStyles textStyles,
-  ) {
-    return ExpansionTile(
-      key: PageStorageKey<String>('filter_${category.filterCode}'),
-      initiallyExpanded: _isInitiallyExpanded(category.filterCode),
-      tilePadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.w),
-      childrenPadding: EdgeInsets.symmetric(horizontal: 20.w),
-      leading: _getFilterIcon(category.filterCode, colors),
-      title: Row(
+  Widget _buildHeader(BuildContext context, int totalSelected) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: AppColors.border, width: 1),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: Text(
-              category.filterName,
-              style: textStyles.bodyMediumBold.copyWith(color: colors.text),
-            ),
+          Text(
+            'Filters',
+            style: AppTypography.pageTitle,
           ),
-          if (selectedCount > 0)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: colors.primary,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
+          if (totalSelected > 0)
+            GestureDetector(
+              onTap: () {
+                context.read<FilterBloc>().add(const FilterEvent.cleared());
+              },
+              behavior: HitTestBehavior.opaque,
               child: Text(
-                '$selectedCount',
-                style: textStyles.caption.copyWith(
-                  color: colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11.sp,
-                ),
+                'Clear All',
+                style: AppTypography.brandActionText,
               ),
             ),
         ],
       ),
-      children: category.items.map((option) {
-        return CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          activeColor: colors.primary,
-          value: option.isSelected,
-          onChanged: (_) {
-            context.read<FilterBloc>().add(
-              FilterEvent.optionToggled(
-                filterCode: category.filterCode,
-                option: option,
+    );
+  }
+
+  Widget _buildLeftSidebar(
+    BuildContext context,
+    List<FilterCategory> categories,
+    String? selectedCategoryCode,
+    Map<String, int> selectionCounts,
+    bool isClamped,
+  ) {
+    return Container(
+      width: 125.w,
+      color: AppColors.white,
+      child: ListView.builder(
+        controller: _categoryScrollController,
+        padding: EdgeInsets.zero,
+        itemExtent: 48.h,
+        itemCount: categories.length,
+        physics: isClamped
+            ? const ClampingScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          final isSelected = category.filterCode == selectedCategoryCode;
+          final count = selectionCounts[category.filterCode] ?? 0;
+          final bool isWhite = (categories.length - 1 - index).isEven;
+          final Color backgroundColor = isSelected
+              ? AppColors.surfaceBlue
+              : (isWhite ? AppColors.white : AppColors.pageBg);
+
+          return InkWell(
+            onTap: () {
+              context.read<FilterBloc>().add(
+                    FilterEvent.categoryChanged(
+                      filterCode: category.filterCode,
+                    ),
+                  );
+              if (_optionsScrollController.hasClients) {
+                _optionsScrollController.jumpTo(0);
+              }
+            },
+            child: Container(
+              height: 48.h,
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                border: Border(
+                  left: BorderSide(
+                    color: isSelected
+                        ? AppColors.pickabooBlue
+                        : Colors.transparent,
+                    width: 3.5.w,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      category.filterName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: isSelected
+                          ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
+                          : AppTypography.bodyRegular.withColor(AppColors.navy),
+                    ),
+                  ),
+                  if (count > 0)
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 5.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.pickabooBlue,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: AppTypography.buttonPrimary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildRightOptionsPane(
+    BuildContext context,
+    FilterCategory category,
+  ) {
+    return Container(
+      color: Colors.white,
+      child: RawScrollbar(
+        controller: _optionsScrollController,
+        thumbVisibility: true,
+        trackVisibility: false,
+        thickness: 4.w,
+        radius: Radius.circular(3.r),
+        thumbColor: AppColors.pickabooBlue,
+        child: ListView.builder(
+          controller: _optionsScrollController,
+          padding: EdgeInsets.zero,
+          itemCount: category.items.length,
+          itemBuilder: (context, index) {
+            final option = category.items[index];
+            final isChecked = option.isSelected;
+            final bool isWhite =
+                (category.items.length - 1 - index).isEven;
+            final Color itemBg =
+                isWhite ? AppColors.white : AppColors.pageBg;
+
+            return InkWell(
+              onTap: () {
+                context.read<FilterBloc>().add(
+                      FilterEvent.optionToggled(
+                        filterCode: category.filterCode,
+                        option: option,
+                      ),
+                    );
+              },
+              child: Container(
+                color: itemBg,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14.w,
+                  vertical: 12.h,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Checkbox
+                    Container(
+                      width: 18.w,
+                      height: 18.w,
+                      decoration: BoxDecoration(
+                        color: isChecked
+                            ? AppColors.pickabooBlue
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(3.r),
+                        border: Border.all(
+                          color: isChecked
+                              ? AppColors.pickabooBlue
+                              : AppColors.border,
+                          width: 1.4.w,
+                        ),
+                      ),
+                      child: isChecked
+                          ? Icon(
+                              Icons.check,
+                              size: 13.sp,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                    SizedBox(width: 12.w),
+                    // Option label
+                    Expanded(
+                      child: Text(
+                        option.label.removeHtmlTags,
+                        style: isChecked
+                            ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
+                            : AppTypography.bodyRegular.withColor(AppColors.navy),
+                      ),
+                    ),
+                    if (option.count != null &&
+                        option.count.toString().isNotEmpty &&
+                        option.count.toString() != '0')
+                      Text(
+                        '(${option.count})',
+                        style: AppTypography.bodyTiny,
+                      ),
+                  ],
+                ),
               ),
             );
           },
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  option.label.removeHtmlTags,
-                  style: textStyles.bodyMedium.copyWith(color: colors.text),
-                ),
-              ),
-              if (option.count != null)
-                Text(
-                  '(${option.count})',
-                  style: textStyles.caption.copyWith(color: colors.gray),
-                ),
-            ],
-          ),
-        );
-      }).toList(),
+        ),
+      ),
     );
   }
 
-  Widget _getFilterIcon(String filterCode, AppColors colors) {
-    IconData icon;
-    switch (filterCode.toLowerCase()) {
-      case 'brand':
-      case 'manufacturer':
-        icon = Icons.business;
-        break;
-      case 'price':
-        icon = Icons.attach_money;
-        break;
-      case 'color':
-      case 'colour':
-        icon = Icons.palette;
-        break;
-      case 'size':
-        icon = Icons.straighten;
-        break;
-      default:
-        icon = Icons.filter_list;
-    }
-
-    return Icon(icon, color: colors.primary, size: 24.sp);
-  }
-
-  Widget _buildApplyButton(
-    BuildContext context,
-    int totalSelected,
-    AppColors colors,
-    AppTextStyles textStyles,
-  ) {
-    return ElevatedButton(
-      onPressed: () {
-        final selectedFilters = context.read<FilterBloc>().getSelectedFilters();
-        _apply(
-          context,
-          FilterConverter.toSearchaniseFilters(selectedFilters),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colors.primary,
-        elevation: 2,
-        shadowColor: colors.primary.withValues(alpha: 0.3),
-        minimumSize: Size(double.infinity, 48.h),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+  Widget _buildBottomBar(BuildContext context, int totalSelected) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.border,
+            width: 1,
+          ),
+        ),
       ),
-      child: Text(
-        totalSelected > 0 ? 'Apply Filters ($totalSelected)' : 'Apply Filters',
-        style: textStyles.buttonMedium.copyWith(color: colors.white),
+      child: SizedBox(
+        width: double.infinity,
+        height: 46.h,
+        child: ElevatedButton(
+          onPressed: () {
+            final selectedFilters =
+                context.read<FilterBloc>().getSelectedFilters();
+            _apply(
+              context,
+              FilterConverter.toSearchaniseFilters(selectedFilters),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.pickabooBlue,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          child: Text(
+            totalSelected > 0
+                ? 'Apply Filters ($totalSelected)'
+                : 'Apply Filters',
+            style: AppTypography.buttonPrimary,
+          ),
+        ),
       ),
     );
   }

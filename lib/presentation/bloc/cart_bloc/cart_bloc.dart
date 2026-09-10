@@ -23,6 +23,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   CartEntity? _currentCart;
   String? _guestCartId;
 
+  /// In-memory cached cart getter for immediate instant-open screen rendering
+  CartEntity? get currentCart => _currentCart;
+
   CartBloc(this.repository, this._cacheManager, this._analytics)
     : super(const CartState.initial()) {
     on<_GetCart>(_onGetCart, transformer: restartable());
@@ -46,7 +49,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
   Future<void> _onGetCart(_GetCart event, Emitter<CartState> emit) async {
     if (kDebugMode) print('🔵 CartBloc: _onGetCart called');
-    emit(const CartState.loading());
+    if (_currentCart != null && _currentCart!.items.isNotEmpty) {
+      emit(CartState.loaded(_currentCart!));
+    } else {
+      emit(const CartState.loading());
+    }
 
     final token = await _cacheManager.getToken();
     final isGuest = token == null || token.isEmpty;
@@ -56,14 +63,14 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
 
     if (isGuest) {
-      final guestCartId = await _cacheManager.getGuestCartId();
+      final guestCartId = await _cacheManager.getGuestCartId() ?? _guestCartId;
 
       if (guestCartId != null && guestCartId.isNotEmpty) {
         if (kDebugMode) {
           print('📋 CartBloc: Loading existing guest cart: $guestCartId');
         }
         add(CartEvent.loadGuestCart(guestCartId: guestCartId));
-      } else {
+      } else if (_currentCart == null || _currentCart!.items.isEmpty) {
         if (kDebugMode) print('➕ CartBloc: Creating new guest cart');
         add(const CartEvent.createGuestCart());
       }
@@ -123,7 +130,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final result = await repository.getCartCheckout();
     return result.fold(
       (_) => cart,
-      (checkout) => _checkoutToCartEntity(checkout),
+      (checkout) {
+        final mergedCart = _checkoutToCartEntity(checkout);
+        _currentCart = mergedCart;
+        return mergedCart;
+      },
     );
   }
 
@@ -157,10 +168,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     if (kDebugMode) {
       result.fold(
-        (error) => print(
+        (error) => debugPrint(
           '🎁 CartBloc: point release FAILED ($reason) — ${error.message}',
         ),
-        (_) => print('🎁 CartBloc: points released ($reason) on cart $cartId'),
+        (_) => debugPrint('🎁 CartBloc: points released ($reason) on cart $cartId'),
       );
     }
   }
@@ -176,6 +187,30 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     _RefreshCart event,
     Emitter<CartState> emit,
   ) async {
+    final token = await _cacheManager.getToken();
+    final isGuest = token == null || token.isEmpty;
+
+    if (isGuest) {
+      final guestCartId = await _cacheManager.getGuestCartId() ?? _guestCartId;
+      if (guestCartId != null && guestCartId.isNotEmpty) {
+        final result = await repository.getGuestCart(cartId: guestCartId);
+        result.fold(
+          (error) {},
+          (cart) {
+            _currentCart = cart;
+            _guestCartId = guestCartId;
+            if (cart.items.isEmpty) {
+              emit(const CartState.empty());
+              _forgetCart();
+            } else {
+              emit(CartState.loaded(cart));
+            }
+          },
+        );
+      }
+      return;
+    }
+
     final result = await repository.getBasicCart();
 
     await result.fold(
@@ -204,7 +239,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
           emit(const CartState.empty());
           _forgetCart();
         } else {
-          emit(CartState.loaded(cart));
+          final enrichedCart = await _withCheckoutTotals(cart);
+          _currentCart = enrichedCart;
+          emit(CartState.loaded(enrichedCart));
         }
       },
     );
@@ -225,35 +262,38 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     int customerId = 0;
 
-    if (_currentCart?.customer?.id != null) {
-      customerId = _currentCart!.customer!.id;
-    } else {
-      final cartResult = await repository.getBasicCart();
+    final cachedUserId = await _cacheManager.getUserId();
+    if (cachedUserId != null && cachedUserId.isNotEmpty) {
+      customerId = int.tryParse(cachedUserId) ?? 0;
+    }
 
-      bool cartLoaded = false;
+    if (customerId == 0 && _currentCart?.customer?.id != null) {
+      customerId = _currentCart!.customer!.id;
+    }
+
+    if (customerId == 0) {
+      final cartResult = await repository.getBasicCart();
       await cartResult.fold(
-        (error) async {
-        },
+        (error) async {},
         (cart) async {
           _currentCart = cart;
           if (cart.customer?.id != null) {
             customerId = cart.customer!.id;
-            cartLoaded = true;
           }
         },
       );
+    }
 
-      if (!cartLoaded || customerId == 0) {
-        emit(
-          const CartState.error(
-            error: AppErrorEntity(
-              message:
-                  'Customer ID not found for merge. Please ensure you are logged in.',
-            ),
-          ),
+    if (customerId == 0) {
+      if (kDebugMode) {
+        print(
+          '⚠️ CartBloc: Could not resolve customerId for merge, fetching cart normally',
         );
-        return;
       }
+      await _cacheManager.clearGuestCartId();
+      _guestCartId = null;
+      add(const CartEvent.getCart());
+      return;
     }
 
     emit(const CartState.loading());
@@ -266,21 +306,22 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     await result.fold(
       (error) async {
-        emit(CartState.error(error: error));
-      },
-      (success) async {
-        if (success) {
-          await _cacheManager.clearGuestCartId();
-          _guestCartId = null;
-
-          add(const CartEvent.getCart());
-        } else {
-          emit(
-            const CartState.error(
-              error: AppErrorEntity(message: 'Failed to merge cart'),
-            ),
+        if (kDebugMode) {
+          print(
+            '⚠️ CartBloc: Merge guest cart failed (${error.message}) - fetching cart normally',
           );
         }
+        await _cacheManager.clearGuestCartId();
+        _guestCartId = null;
+        add(const CartEvent.getCart());
+      },
+      (success) async {
+        if (kDebugMode) {
+          print('✅ CartBloc: Guest cart successfully merged!');
+        }
+        await _cacheManager.clearGuestCartId();
+        _guestCartId = null;
+        add(const CartEvent.getCart());
       },
     );
   }
@@ -300,7 +341,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return;
     }
 
-    if (_currentCart != null) {
+    if (_currentCart != null && _currentCart!.items.isNotEmpty) {
       emit(
         CartState.operationInProgress(
           cart: _currentCart!,
@@ -325,11 +366,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       },
       (item) async {
         final cartResult = await repository.getBasicCart();
-        cartResult.fold(
-          (error) =>
+        await cartResult.fold(
+          (error) async =>
               emit(CartState.error(error: error, lastCart: _currentCart)),
-          (cart) {
-            _currentCart = cart;
+          (cart) async {
+            final enrichedCart = await _withCheckoutTotals(cart);
+            _currentCart = enrichedCart;
             _analytics.logAddToCart(
               id: item.sku,
               name: item.name,
@@ -337,10 +379,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
               quantity: item.qty,
             );
             emit(
-              CartState.itemAdded(cart: cart, message: 'Item added to cart'),
+              CartState.itemAdded(cart: enrichedCart, message: 'Item added to cart'),
             );
 
-            emit(CartState.loaded(cart));
+            emit(CartState.loaded(enrichedCart));
           },
         );
       },
@@ -374,7 +416,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     if (isGuest && (guestCartId == null || guestCartId.isEmpty)) {
       emit(CartState.error(
-        error: AppErrorEntity(message: 'Guest cart session not found'),
+        error: const AppErrorEntity(message: 'Guest cart session not found'),
         lastCart: _currentCart,
       ));
       return;
@@ -410,8 +452,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
               emit(const CartState.empty());
               _forgetCart();
             } else {
-              _currentCart = cart;
-              emit(CartState.loaded(cart));
+              final finalCart = isGuest ? cart : await _withCheckoutTotals(cart);
+              _currentCart = finalCart;
+              emit(CartState.loaded(finalCart));
             }
           },
         );
@@ -443,7 +486,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     if (isGuest && (guestCartId == null || guestCartId.isEmpty)) {
       emit(CartState.error(
-        error: AppErrorEntity(message: 'Guest cart session not found'),
+        error: const AppErrorEntity(message: 'Guest cart session not found'),
         lastCart: _currentCart,
       ));
       return;
@@ -477,8 +520,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
               emit(const CartState.empty());
               _forgetCart();
             } else {
-              _currentCart = cart;
-              emit(CartState.loaded(cart));
+              final finalCart = isGuest ? cart : await _withCheckoutTotals(cart);
+              _currentCart = finalCart;
+              emit(CartState.loaded(finalCart));
             }
           },
         );
@@ -778,7 +822,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return;
     }
 
-    if (_currentCart != null) {
+    if (_currentCart != null && _currentCart!.items.isNotEmpty) {
       emit(
         CartState.operationInProgress(
           cart: _currentCart!,
@@ -842,7 +886,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         '🔵 CartBloc: _onLoadGuestCart called with ID: ${event.guestCartId}',
       );
     }
-    emit(const CartState.loading());
+    if (_currentCart != null && _currentCart!.items.isNotEmpty) {
+      emit(CartState.loaded(_currentCart!));
+    } else {
+      emit(const CartState.loading());
+    }
 
     final result = await repository.getGuestCart(cartId: event.guestCartId);
 
@@ -860,7 +908,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
           final createResult = await repository.createGuestCart();
           await createResult.fold(
-            (createError) async => emit(CartState.error(error: createError)),
+            (createError) async => emit(CartState.error(error: createError, lastCart: _currentCart)),
             (cartId) async {
               await _cacheManager.setGuestCartId(cartId: cartId);
               _guestCartId = cartId;
@@ -868,7 +916,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
             },
           );
         } else {
-          emit(CartState.error(error: error));
+          emit(CartState.error(error: error, lastCart: _currentCart));
         }
       },
       (cart) {
@@ -908,7 +956,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     Emitter<CartState> emit,
   ) async {
     emit(
-      _currentCart != null
+      _currentCart != null && _currentCart!.items.isNotEmpty
           ? CartState.operationInProgress(
               cart: _currentCart!,
               operation: 'adding_item',
@@ -1113,12 +1161,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     for (final segment in totals.totalSegments) {
       switch (segment.code) {
         case 'rewards-spend':
+        case 'rewards_spend':
           appliedPoints = segment.value.abs().round();
         case 'rewards-spend-amount':
+        case 'rewards_spend_amount':
           rewardPointsDiscount = segment.value.abs();
         case 'rewards-spend-max-points':
+        case 'rewards_spend_max_points':
           maxSpendablePoints = segment.value.abs().round();
         case 'rewards-spend-min-points':
+        case 'rewards_spend_min_points':
           minSpendablePoints = segment.value.abs().round();
         case 'discount':
           discountTitle = segment.title;

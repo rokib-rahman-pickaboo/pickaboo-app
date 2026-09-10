@@ -1,8 +1,15 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modernized CardBinAppliedView matching Pickaboo-App-UI design language.
 class CardBinAppliedView extends StatelessWidget {
   final int discountAmount;
   final String binCode;
@@ -19,102 +26,103 @@ class CardBinAppliedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textStyle = context.textStyle;
-
     return Container(
       decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFC0EAC6), width: 1.5),
+        color: AppColors.white,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(
+          color: AppColors.green.withValues(alpha: 0.4),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(14.w),
             child: Row(
               children: [
-                Icon(Icons.check_circle_outline, color: const Color(0xFF00C853), size: 24.w),
-                SizedBox(width: 12.w),
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: AppColors.green,
+                  size: 22.sp,
+                ),
+                SizedBox(width: 10.w),
                 Expanded(
                   child: Text(
                     "Discount Applied",
-                    style: textStyle.bodyLargeBold.copyWith(
-                      color: colors.text,
-                      height: 1.2,
-                      fontSize: 18.sp,
-                    ),
+                    style: AppTypography.pageTitle,
                   ),
                 ),
               ],
             ),
           ),
-          Divider(color: colors.borderColor, height: 1),
+          const Divider(color: AppColors.border, height: 1),
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(14.w),
             child: Container(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(14.w),
               decoration: BoxDecoration(
-                color: const Color(0xFFF1FCF4),
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: const Color(0xFFC0EAC6)),
+                color: AppColors.green.withValues(alpha: 0.06),
+                borderRadius: AppRadius.cardRadius,
+                border: Border.all(
+                  color: AppColors.green.withValues(alpha: 0.3),
+                ),
               ),
               child: Column(
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.credit_card, color: const Color(0xFF00C853), size: 20.w),
-                      SizedBox(width: 12.w),
+                      Icon(
+                        Icons.credit_card_rounded,
+                        color: AppColors.green,
+                        size: 20.sp,
+                      ),
+                      SizedBox(width: 10.w),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               "Bank Discount Applied",
-                              style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                              style: AppTypography.cardTitle,
                             ),
-                            SizedBox(height: 4.h),
+                            SizedBox(height: 3.h),
                             Text(
                               "BIN: ......$binCode",
-                              style: textStyle.bodySmall.copyWith(color: colors.textLight),
+                              style: AppTypography.bodyMutedLight,
                             ),
                           ],
                         ),
                       ),
                       Text(
-                        "-৳ $discountAmount",
-                        style: textStyle.bodyMedium.copyWith(color: const Color(0xFF00C853)),
+                        "-৳$discountAmount",
+                        style: AppTypography.savingsText.size(14.sp),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 14.h),
                   SizedBox(
                     width: double.infinity,
-                    height: 40.h,
+                    height: 38.h,
                     child: OutlinedButton(
                       onPressed: isRemoving ? null : onRemove,
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.red,
-                        side: BorderSide(color: colors.red.withOpacity(0.3)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
+                        foregroundColor: AppColors.red,
+                        side: BorderSide(
+                          color: AppColors.red.withValues(alpha: 0.4),
                         ),
-                        backgroundColor: colors.white,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadius.cardRadius,
+                        ),
+                        backgroundColor: AppColors.white,
                       ),
                       child: isRemoving
-                          ? SizedBox(
-                              width: 16.w,
-                              height: 16.w,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colors.red,
-                              ),
-                            )
+                          ? const AppLoader.button(size: 16, color: AppColors.red)
                           : Text(
                               "Remove Discount",
-                              style: textStyle.buttonMedium.copyWith(color: colors.red),
+                              style: AppTypography.brandActionText.withColor(AppColors.red),
                             ),
                     ),
                   ),

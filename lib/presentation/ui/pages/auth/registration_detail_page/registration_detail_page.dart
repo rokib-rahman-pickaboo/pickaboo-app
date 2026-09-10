@@ -1,17 +1,27 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/core/validatator/validator.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/auth/registration_bloc/registration_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modernized Pickaboo Registration Detail Page
+/// Form for entering personal details & password to finalize account creation.
 class RegistrationDetailPage extends StatefulWidget {
   final String phone;
   final String otp;
@@ -48,6 +58,10 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
     super.dispose();
   }
 
+  void _dismissKeyboard() {
+    FocusScope.of(context).unfocus();
+  }
+
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please confirm your password';
@@ -59,7 +73,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
   }
 
   Future<void> _handleRegister() async {
-    FocusScope.of(context).unfocus();
+    _dismissKeyboard();
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -76,53 +90,44 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
     );
   }
 
-  InputDecoration _inputDecoration({
-    required String label,
+  InputDecoration _buildInputDecoration({
     required String hintText,
+    Widget? prefixIcon,
     Widget? suffixIcon,
   }) {
-    final colors = context.colors;
-
     return InputDecoration(
-      labelText: label,
-      labelStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
       hintText: hintText,
-      hintStyle: context.textStyle.bodyMedium.withColor(colors.silverChalice),
-      floatingLabelStyle: context.textStyle.bodyMediumMedium.withColor(
-        colors.primary,
-      ),
+      hintStyle: AppTypography.inputHint,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
       filled: true,
-      fillColor: colors.white,
-      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.primary, width: 2.w),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.redBright),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: colors.redBright, width: 2.w),
-      ),
+      fillColor: AppColors.white,
+      prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
+      border: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
+      ),
+      errorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red),
+      ),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: AppRadius.cardRadius,
+        borderSide: BorderSide(color: AppColors.red, width: 1.5),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = context.textStyle;
-
     return BlocListener<RegistrationBloc, RegistrationState>(
       listener: (context, state) {
         state.maybeWhen(
@@ -133,7 +138,9 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
             TextInput.finishAutofillContext();
             setState(() => _isLoading = false);
             SnackBarUtils.showSuccess(context, message);
-            context.go(Routes.login);
+            context.read<AuthBloc>().add(const AuthEvent.userLoggedIn());
+            MainPage.hideBottomNav.value = false;
+            context.go(Routes.home);
           },
           registrationFailure: (error) {
             setState(() => _isLoading = false);
@@ -142,82 +149,77 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
           orElse: () {},
         );
       },
-      child: Scaffold(
-        body: ResponsiveContainer(
-          child: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 15.w, top: 15.h),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: AppBarButton(
-                        iconPath: 'assets/new/svg/back_nav_icon.svg',
-                        width: 7.w,
-                        height: 14.h,
-                        onPressed: () {
-                          FocusScope.of(context).unfocus();
-                          Navigator.of(context).pop();
-                        },
-                        iconColor: colors.text,
-                      ),
-                    ),
-                  ),
-                ),
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Form(
-                    key: _formKey,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.w),
-                      child: Column(
-                        children: [
-                          SizedBox(height: 20.h),
-                          Image.asset(
-                            'assets/images/logo.png',
-                            width: 188.w,
-                            height: 45.h,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                "assets/images/pickaboo-login-logo.png",
-                                width: 188.w,
-                                height: 45.h,
-                              );
-                            },
+      child: GestureDetector(
+        onTap: _dismissKeyboard,
+        behavior: HitTestBehavior.opaque,
+        child: Scaffold(
+          backgroundColor: AppColors.pageBg,
+          body: ResponsiveContainer(
+            child: SafeArea(
+              child: Stack(
+                children: [
+                  // ── BALANCED MAIN CONTENT ──
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-
-                          Expanded(
-                            child: SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24.w,
+                              vertical: 24.h,
+                            ),
+                            child: Form(
+                              key: _formKey,
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  SizedBox(height: 40.h),
+                                  // Brand Logo
+                                  Image.asset(
+                                    'assets/images/pickaboo_new_logo.png',
+                                    height: 44.h,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/pickaboo-login-logo.png',
+                                        height: 44.h,
+                                        fit: BoxFit.contain,
+                                      );
+                                    },
+                                  ),
 
+                                  SizedBox(height: 20.h),
+
+                                  // Header Text
                                   Text(
                                     'Enter Information for',
-                                    style: textTheme.displayLarge.copyWith(
-                                      color: colors.text,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                                    style: AppTypography.heroTitle,
                                     textAlign: TextAlign.center,
                                   ),
-                                  SizedBox(height: 4.h),
+                                  SizedBox(height: 6.h),
                                   Text(
                                     'Create Account',
-                                    style: textTheme.displayLarge.copyWith(
-                                      color: colors.text,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                                    style: AppTypography.heroTitle,
                                     textAlign: TextAlign.center,
                                   ),
 
-                                  SizedBox(height: 40.h),
+                                  SizedBox(height: 24.h),
 
+                                  // First Name Field
                                   TextFormField(
                                     controller: _firstNameController,
-                                    decoration: _inputDecoration(
-                                      label: 'Enter your first name',
-                                      hintText: 'e.g. John',
+                                    style: AppTypography.inputText,
+                                    decoration: _buildInputDecoration(
+                                      hintText: 'Enter your first name',
+                                      prefixIcon: Icon(
+                                        Icons.person_outline,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
+                                      ),
                                     ),
                                     autofillHints: const [
                                       AutofillHints.givenName,
@@ -225,13 +227,19 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                     validator: validateName,
                                   ),
 
-                                  SizedBox(height: 16.h),
+                                  SizedBox(height: 12.h),
 
+                                  // Last Name Field
                                   TextFormField(
                                     controller: _lastNameController,
-                                    decoration: _inputDecoration(
-                                      label: 'Enter your last name',
-                                      hintText: 'e.g. Doe',
+                                    style: AppTypography.inputText,
+                                    decoration: _buildInputDecoration(
+                                      hintText: 'Enter your last name',
+                                      prefixIcon: Icon(
+                                        Icons.person_outline,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
+                                      ),
                                     ),
                                     autofillHints: const [
                                       AutofillHints.familyName,
@@ -239,32 +247,46 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                     validator: validateName,
                                   ),
 
-                                  SizedBox(height: 16.h),
+                                  SizedBox(height: 12.h),
 
+                                  // Email Field
                                   TextFormField(
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
-                                    decoration: _inputDecoration(
-                                      label: 'Enter your email',
-                                      hintText: 'Example: yourname@gmail.com',
+                                    style: AppTypography.inputText,
+                                    decoration: _buildInputDecoration(
+                                      hintText: 'Enter your email',
+                                      prefixIcon: Icon(
+                                        Icons.email_outlined,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
+                                      ),
                                     ),
                                     autofillHints: const [AutofillHints.email],
                                     validator: validateEmail,
                                   ),
 
-                                  SizedBox(height: 16.h),
+                                  SizedBox(height: 12.h),
 
+                                  // Password Field
                                   TextFormField(
                                     controller: _passwordController,
                                     obscureText: _obscurePassword,
-                                    decoration: _inputDecoration(
-                                      label: 'Enter your password',
-                                      hintText: 'Use at least 6 characters',
+                                    style: AppTypography.inputText,
+                                    decoration: _buildInputDecoration(
+                                      hintText: 'Enter your password (min. 6 chars)',
+                                      prefixIcon: Icon(
+                                        Icons.lock_outline,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
+                                      ),
                                       suffixIcon: IconButton(
                                         icon: Icon(
                                           _obscurePassword
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
+                                              ? Icons.visibility_off_outlined
+                                              : Icons.visibility_outlined,
+                                          size: 18.sp,
+                                          color: AppColors.mutedLight,
                                         ),
                                         onPressed: () {
                                           setState(() {
@@ -280,19 +302,27 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                     validator: validatePassword,
                                   ),
 
-                                  SizedBox(height: 16.h),
+                                  SizedBox(height: 12.h),
 
+                                  // Confirm Password Field
                                   TextFormField(
                                     controller: _confirmPasswordController,
                                     obscureText: _obscureConfirmPassword,
-                                    decoration: _inputDecoration(
-                                      label: 'Confirm your password',
-                                      hintText: 'Re-enter your password',
+                                    style: AppTypography.inputText,
+                                    decoration: _buildInputDecoration(
+                                      hintText: 'Confirm your password',
+                                      prefixIcon: Icon(
+                                        Icons.lock_outline,
+                                        size: 18.sp,
+                                        color: AppColors.mutedLight,
+                                      ),
                                       suffixIcon: IconButton(
                                         icon: Icon(
                                           _obscureConfirmPassword
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
+                                              ? Icons.visibility_off_outlined
+                                              : Icons.visibility_outlined,
+                                          size: 18.sp,
+                                          color: AppColors.mutedLight,
                                         ),
                                         onPressed: () {
                                           setState(() {
@@ -310,112 +340,91 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
 
                                   SizedBox(height: 24.h),
 
-                                  Container(
+                                  // Primary CTA Button (Register)
+                                  SizedBox(
                                     width: double.infinity,
-                                    height: 48.h,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          colors.button,
-                                          colors.button.withValues(alpha: 0.85),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: colors.button.withValues(
-                                            alpha: 0.3,
-                                          ),
-                                          blurRadius: 12.r,
-                                          offset: Offset(0, 4.h),
-                                        ),
-                                      ],
-                                    ),
+                                    height: 50.h,
                                     child: ElevatedButton(
-                                      onPressed: _isLoading
-                                          ? null
-                                          : _handleRegister,
+                                      onPressed:
+                                          _isLoading ? null : _handleRegister,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: colors.black
-                                            .withValues(alpha: 0.0),
-                                        shadowColor: colors.black.withValues(
-                                          alpha: 0.0,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12.r,
-                                          ),
+                                        backgroundColor:
+                                            AppColors.pickabooBlue,
+                                        foregroundColor: AppColors.white,
+                                        elevation: 0,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: AppRadius.cardRadius,
                                         ),
                                       ),
                                       child: _isLoading
-                                          ? SizedBox(
-                                              height: 22.h,
-                                              width: 22.w,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2.5.w,
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                      Color
-                                                    >(colors.white),
-                                              ),
-                                            )
+                                          ? const AppLoader.button()
                                           : Text(
                                               'Register',
-                                              style: context
-                                                  .textStyle
-                                                  .buttonLarge
-                                                  .withColor(colors.white),
+                                              style: AppTypography.buttonPrimary,
                                             ),
                                     ),
                                   ),
 
-                                  SizedBox(height: 12.h),
+                                  SizedBox(height: 18.h),
 
-                                  RichText(
-                                    textAlign: TextAlign.center,
-                                    text: TextSpan(
-                                      style: context.textStyle.bodySmall
-                                          .withColor(colors.gray),
-                                      children: [
-                                        const TextSpan(
-                                          text: 'Already Registered? ',
+                                  // Already Registered Link
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Already Registered? ',
+                                        style: AppTypography.bodyMutedLight,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          _dismissKeyboard();
+                                          context.go(Routes.login);
+                                        },
+                                        child: Text(
+                                          'Sign in here',
+                                          style: AppTypography.brandActionText,
                                         ),
-                                        WidgetSpan(
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              FocusScope.of(context).unfocus();
-                                              context.go('/login');
-                                            },
-                                            child: Text(
-                                              'Sign in here',
-                                              style: context.textStyle.bodySmall
-                                                  .withColor(colors.primary)
-                                                  .copyWith(
-                                                    decoration: TextDecoration
-                                                        .underline,
-                                                    decorationColor:
-                                                        colors.primary,
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-
-                                  SizedBox(height: 20.h),
                                 ],
                               ),
                             ),
                           ),
-                        ],
+                        ),
+                      );
+                    },
+                  ),
+
+                  // ── TOP BACK BUTTON (Positioned ON TOP of Stack) ──
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          _dismissKeyboard();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            context.go(Routes.login);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(20.r),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.r),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.navy,
+                            size: 20.sp,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

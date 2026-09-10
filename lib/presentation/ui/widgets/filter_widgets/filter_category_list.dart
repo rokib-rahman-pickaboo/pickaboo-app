@@ -1,12 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pickaboo/presentation/bloc/filter_bloc/filter_bloc.dart';
 
 class FilterCategoryList extends StatelessWidget {
-  const FilterCategoryList({super.key});
+  final bool isClamped;
+
+  const FilterCategoryList({super.key, this.isClamped = false});
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +22,15 @@ class FilterCategoryList extends StatelessWidget {
         return state.maybeWhen(
           loaded: (categories, selectedCategoryCode, selectionCounts) {
             return Container(
-              width: 117.w,
-              color: const Color(0xFFFBFBFB),
+              width: 125.w,
+              color: AppColors.pageBg,
               child: ListView.builder(
                 padding: EdgeInsets.zero,
+                itemExtent: 48.h,
                 itemCount: categories.length,
+                physics: isClamped
+                    ? const ClampingScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   final category = categories[index];
                   final isSelected =
@@ -27,42 +38,59 @@ class FilterCategoryList extends StatelessWidget {
                   final selectionCount =
                       selectionCounts[category.filterCode] ?? 0;
 
+                  final bool isWhite = (categories.length - 1 - index).isEven;
+                  final Color backgroundColor = isSelected
+                      ? AppColors.surfaceBlue
+                      : (isWhite ? AppColors.white : AppColors.pageBg);
+
                   return InkWell(
                     onTap: () {
                       context.read<FilterBloc>().add(
-                        FilterEvent.categoryChanged(
-                          filterCode: category.filterCode,
-                        ),
-                      );
+                            FilterEvent.categoryChanged(
+                              filterCode: category.filterCode,
+                            ),
+                          );
                     },
                     child: Container(
-                      color: isSelected
-                          ? const Color(0xFFFF5722)
-                          : const Color(0xFFFBFBFB),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 15.w,
-                        vertical: 20.h,
+                      height: 48.h,
+                      padding: EdgeInsets.symmetric(horizontal: 12.w),
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
+                        border: Border(
+                          left: BorderSide(
+                            color: isSelected
+                                ? AppColors.pickabooBlue
+                                : Colors.transparent,
+                            width: 3.5.w,
+                          ),
+                        ),
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             child: Text(
                               category.filterName,
-                              style: context.textStyle.bodyMediumMedium
-                                  .withColor(
-                                    isSelected ? context.colors.white : context.colors.black,
-                                  ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: isSelected
+                                  ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
+                                  : AppTypography.bodyRegular.withColor(AppColors.muted),
                             ),
                           ),
                           if (selectionCount > 0)
-                            Text(
-                              '$selectionCount',
-                              style: isSelected
-                                  ? context.textStyle.bodyMediumMedium
-                                        .withColor(context.colors.white)
-                                  : context.textStyle.bodySmallMedium.withColor(
-                                context.colors.black,
-                                    ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                                vertical: 2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.pickabooBlue,
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: Text(
+                                '$selectionCount',
+                                style: AppTypography.buttonPrimary,
+                              ),
                             ),
                         ],
                       ),
@@ -72,7 +100,7 @@ class FilterCategoryList extends StatelessWidget {
               ),
             );
           },
-          orElse: () => SizedBox(width: 117.w),
+          orElse: () => SizedBox(width: 125.w),
         );
       },
     );

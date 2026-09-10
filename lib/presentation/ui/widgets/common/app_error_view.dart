@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 enum AppErrorType { noInternet, server, empty, generic }
 
@@ -32,9 +31,8 @@ class AppErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textStyle = context.textStyle;
-    final spec = _spec(colors);
+    final spec = _spec();
 
     return Center(
       child: SingleChildScrollView(
@@ -55,13 +53,13 @@ class AppErrorView extends StatelessWidget {
             Text(
               title ?? spec.title,
               textAlign: TextAlign.center,
-              style: textStyle.headingMedium.copyWith(color: colors.text),
+              style: textStyle.headingMedium.copyWith(color: AppColors.text),
             ),
             SizedBox(height: 10.h),
             Text(
               message ?? spec.message,
               textAlign: TextAlign.center,
-              style: textStyle.bodyMedium.copyWith(color: colors.textLight),
+              style: textStyle.bodyMedium.copyWith(color: AppColors.mutedLight),
             ),
             if (onRetry != null) ...[
               SizedBox(height: 26.h),
@@ -69,13 +67,13 @@ class AppErrorView extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: onRetry,
-                  icon: Icon(Icons.refresh, size: 18.w, color: colors.white),
+                  icon: Icon(Icons.refresh, size: 18.w, color: AppColors.white),
                   label: Text(
                     retryLabel ?? spec.retryLabel,
-                    style: textStyle.buttonMedium.copyWith(color: colors.white),
+                    style: textStyle.buttonMedium.copyWith(color: AppColors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
+                    backgroundColor: AppColors.pickabooBlue,
                     minimumSize: Size(double.maxFinite, 48.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.r),
@@ -92,15 +90,15 @@ class AppErrorView extends StatelessWidget {
                   onPressed: onSecondary,
                   style: OutlinedButton.styleFrom(
                     minimumSize: Size(double.maxFinite, 48.h),
-                    side: BorderSide(color: colors.primary),
+                    side: const BorderSide(color: AppColors.pickabooBlue),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                   ),
                   child: Text(
-                    secondaryLabel ?? 'Go Back',
+                    secondaryLabel ?? AppStrings.goBack,
                     style: textStyle.buttonMedium.copyWith(
-                      color: colors.primary,
+                      color: AppColors.pickabooBlue,
                     ),
                   ),
                 ),
@@ -112,39 +110,39 @@ class AppErrorView extends StatelessWidget {
     );
   }
 
-  _ErrorSpec _spec(AppColors colors) {
+  _ErrorSpec _spec() {
     switch (type) {
       case AppErrorType.noInternet:
-        return _ErrorSpec(
+        return const _ErrorSpec(
           icon: Icons.wifi_off_rounded,
-          color: colors.primary,
+          color: AppColors.pickabooBlue,
           title: 'No Internet Connection',
           message: 'Please check your network and try again.',
-          retryLabel: 'Retry',
+          retryLabel: AppStrings.retry,
         );
       case AppErrorType.server:
-        return _ErrorSpec(
+        return const _ErrorSpec(
           icon: Icons.cloud_off_rounded,
-          color: colors.orange,
-          title: 'Something Went Wrong',
+          color: AppColors.orange,
+          title: AppStrings.somethingWentWrong,
           message: 'Our server hit a snag. Give it another go in a moment.',
-          retryLabel: 'Try Again',
+          retryLabel: AppStrings.tryAgain,
         );
       case AppErrorType.empty:
-        return _ErrorSpec(
+        return const _ErrorSpec(
           icon: Icons.inbox_rounded,
-          color: colors.textLight,
+          color: AppColors.mutedLight,
           title: 'Nothing Here Yet',
           message: 'There is nothing to show right now.',
           retryLabel: 'Refresh',
         );
       case AppErrorType.generic:
-        return _ErrorSpec(
+        return const _ErrorSpec(
           icon: Icons.error_outline_rounded,
-          color: colors.red,
+          color: AppColors.red,
           title: 'Oops, an Error Occurred',
           message: "We couldn't complete your request. Please try again.",
-          retryLabel: 'Retry',
+          retryLabel: AppStrings.retry,
         );
     }
   }

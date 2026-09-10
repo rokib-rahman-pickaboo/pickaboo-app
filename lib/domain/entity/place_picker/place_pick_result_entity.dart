@@ -102,4 +102,54 @@ class PlacePickResultEntity {
   @override
   String toString() =>
       'PlacePickResultEntity(lat=$latitude, lon=$longitude, address=$displayAddress)';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'placeId': placeId,
+      'latitude': latitude,
+      'longitude': longitude,
+      'address': address,
+      'placeName': placeName,
+      'house': house,
+      'road': road,
+      'area': area,
+      'subArea': subArea,
+      'city': city,
+      'subDistrict': subDistrict,
+      'district': district,
+      'division': division,
+      'union': union,
+      'country': country,
+      'uCode': uCode,
+      'postCode': postCode,
+      'pType': pType,
+      'subType': subType,
+      'distanceWithinMeters': distanceWithinMeters,
+    };
+  }
+
+  factory PlacePickResultEntity.fromJson(Map<String, dynamic> json) {
+    return PlacePickResultEntity(
+      placeId: json['placeId'] as int?,
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+      address: json['address'] as String?,
+      placeName: json['placeName'] as String?,
+      house: json['house'] as String?,
+      road: json['road'] as String?,
+      area: json['area'] as String?,
+      subArea: json['subArea'] as String?,
+      city: json['city'] as String?,
+      subDistrict: json['subDistrict'] as String?,
+      district: json['district'] as String?,
+      division: json['division'] as String?,
+      union: json['union'] as String?,
+      country: json['country'] as String?,
+      uCode: json['uCode'] as String?,
+      postCode: json['postCode'] as int?,
+      pType: json['pType'] as String?,
+      subType: json['subType'] as String?,
+      distanceWithinMeters: json['distanceWithinMeters'] as int?,
+    );
+  }
 }

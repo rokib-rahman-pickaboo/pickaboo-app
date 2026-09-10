@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ReferralCodePage extends StatefulWidget {
   final String referralCode;
@@ -75,7 +74,6 @@ class _ReferralCodePageState extends State<ReferralCodePage>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return PopScope(
@@ -102,8 +100,8 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                             padding: EdgeInsets.all(24.w),
                             decoration: BoxDecoration(
                               color: _isLoggedIn
-                                  ? colors.salmon.withValues(alpha: 0.1)
-                                  : colors.shamrock.withValues(alpha: 0.1),
+                                  ? AppColors.orange.withValues(alpha: 0.1)
+                                  : AppColors.green.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -112,8 +110,8 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                   : Icons.check_circle,
                               size: 80.sp,
                               color: _isLoggedIn
-                                  ? colors.salmon
-                                  : colors.shamrock,
+                                  ? AppColors.orange
+                                  : AppColors.green,
                             ),
                           ),
                         ),
@@ -129,7 +127,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                     : 'Referral Code Added!',
                                 style: textTheme.headingLarge.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: colors.text,
+                                  color: AppColors.text,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -141,10 +139,10 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                   vertical: 12.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: colors.primary.withValues(alpha: 0.1),
+                                  color: AppColors.pickabooBlue.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12.r),
                                   border: Border.all(
-                                    color: colors.primary.withValues(
+                                    color: AppColors.pickabooBlue.withValues(
                                       alpha: 0.3,
                                     ),
                                     width: 1.w,
@@ -155,14 +153,14 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                   children: [
                                     Icon(
                                       Icons.badge_outlined,
-                                      color: colors.primary,
+                                      color: AppColors.pickabooBlue,
                                       size: 20.sp,
                                     ),
                                     SizedBox(width: 8.w),
                                     Text(
                                       widget.referralCode,
                                       style: textTheme.bodyLargeMedium.copyWith(
-                                        color: colors.primary,
+                                        color: AppColors.pickabooBlue,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -175,11 +173,11 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                 Container(
                                   padding: EdgeInsets.all(16.w),
                                   decoration: BoxDecoration(
-                                    color: colors.white,
+                                    color: AppColors.white,
                                     borderRadius: BorderRadius.circular(12.r),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: colors.black.withValues(
+                                        color: AppColors.black.withValues(
                                           alpha: 0.05,
                                         ),
                                         blurRadius: 10.r,
@@ -191,14 +189,14 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                     children: [
                                       Icon(
                                         Icons.celebration,
-                                        color: colors.shamrock,
+                                        color: AppColors.green,
                                         size: 32.sp,
                                       ),
                                       SizedBox(height: 12.h),
                                       Text(
                                         'Great News!',
                                         style: textTheme.bodyLargeMedium.copyWith(
-                                          color: colors.text,
+                                          color: AppColors.text,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -206,7 +204,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                       Text(
                                         'This referral code will be applied when you sign up. Get ready to enjoy exclusive rewards!',
                                         style: textTheme.bodyMedium.copyWith(
-                                          color: colors.gray,
+                                          color: AppColors.muted,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -217,7 +215,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                 Text(
                                   'This referral code cannot be applied as you already have an account',
                                   style: textTheme.bodyMedium.copyWith(
-                                    color: colors.gray,
+                                    color: AppColors.muted,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -231,7 +229,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
               ),
 
               Container(
-                color: colors.white,
+                color: AppColors.white,
                 padding: EdgeInsets.all(16.w),
                 child: SafeArea(
                   top: false,
@@ -241,7 +239,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                     child: ElevatedButton.icon(
                       onPressed: _continueToHome,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.button,
+                        backgroundColor: AppColors.pickabooBlue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
                         ),
@@ -249,13 +247,13 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                       ),
                       icon: Icon(
                         Icons.shopping_bag_outlined,
-                        color: colors.white,
+                        color: AppColors.white,
                         size: 20.sp,
                       ),
                       label: Text(
                         'Continue Shopping',
                         style: textTheme.buttonMedium.copyWith(
-                          color: colors.white,
+                          color: AppColors.white,
                         ),
                       ),
                     ),

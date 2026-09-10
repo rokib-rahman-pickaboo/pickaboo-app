@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class SettingToggleItem extends StatelessWidget {
   final String title;
@@ -17,7 +16,6 @@ class SettingToggleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return Padding(
@@ -31,7 +29,7 @@ class SettingToggleItem extends StatelessWidget {
                 Text(
                   title,
                   style: textTheme.bodySmall.copyWith(
-                    color: colors.text,
+                    color: AppColors.text,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -41,10 +39,10 @@ class SettingToggleItem extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: colors.white,
-            activeTrackColor: colors.primary,
-            inactiveThumbColor: colors.white,
-            inactiveTrackColor: colors.grayLight,
+            activeThumbColor: AppColors.white,
+            activeTrackColor: AppColors.pickabooBlue,
+            inactiveThumbColor: AppColors.white,
+            inactiveTrackColor: AppColors.pageBg,
           ),
         ],
       ),

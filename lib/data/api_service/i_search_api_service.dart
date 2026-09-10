@@ -23,7 +23,10 @@ class ISearchApiService extends SearchApiService {
         return ErrorResponse.fromJson(errorData);
       }
     }
-    return const ErrorResponse();
+    return ErrorResponse(
+      success: false,
+      message: err.message ?? err.error?.toString() ?? 'Network error (${err.type})',
+    );
   }
 
   @override

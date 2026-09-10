@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
+import 'package:pickaboo/domain/entity/ticket/ticket_issue_type_entity.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_order_entity.dart';
 import 'package:pickaboo/domain/repository/ticket_repository.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -140,8 +141,13 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     final result = await _repository.getTicketOrders();
     result.fold(
       (error) => emit(state.copyWith(status: TicketStatus.error, error: error)),
-      (orders) =>
-          emit(state.copyWith(status: TicketStatus.success, orders: orders)),
+      (info) => emit(
+        state.copyWith(
+          status: TicketStatus.success,
+          orders: info.orders,
+          issueTypes: info.issueTypes,
+        ),
+      ),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class ProductSellerInfo extends StatelessWidget {
   final String sellerName;
@@ -18,12 +17,9 @@ class ProductSellerInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (sellerName.trim().isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
     final textStyle = context.textStyle;
 
     final seller = sellerName;
-    final sellerRating = rating;
 
     return Container(
       padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.w),
@@ -36,12 +32,12 @@ class ProductSellerInfo extends StatelessWidget {
               children: [
                 Text(
                   'Seller',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
                 ),
                 SizedBox(width: 8.w),
                 Text(
                   ':',
-                  style: textStyle.bodyMediumBold.copyWith(color: colors.text),
+                  style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
                 ),
               ],
             ),
@@ -59,7 +55,7 @@ class ProductSellerInfo extends StatelessWidget {
                       Text(
                         seller,
                         style: textStyle.bodyMediumMedium.copyWith(
-                          color: colors.primary,
+                          color: AppColors.pickabooBlue,
                         ),
                       ),
                     ],

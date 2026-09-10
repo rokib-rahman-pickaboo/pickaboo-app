@@ -1,27 +1,43 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/error_filters.dart';
+import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
+import 'package:pickaboo/data/services/analytics_service.dart';
+import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
+import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_bloc.dart';
+import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_event.dart';
+import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_state.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
-import 'package:pickaboo/data/services/analytics_service.dart';
-import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/cart_item_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/cart_checkout_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/empty_cart_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/coupon_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/price_summary_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/reward_points_widget.dart';
-import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/empty_cart_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/cart_checkout_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
+import 'package:pickaboo/presentation/bloc/internet/internet_bloc.dart';
+import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
+import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+/// Modernized CartPage matching Pickaboo-App-UI design language.
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
 
@@ -32,13 +48,25 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   final _cacheManager = getIt<AuthCacheManager>();
   bool _isSavingForLater = false;
+  bool _isBackendVerified = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadCart(context.read<CartBloc>());
-    });
+    final cartBloc = context.read<CartBloc>();
+    final existingCart = cartBloc.currentCart;
+    _isBackendVerified = existingCart != null && existingCart.items.isNotEmpty;
+    _loadCart(cartBloc);
+
+    final isAuthenticated = context.read<AuthBloc>().state.maybeWhen(
+      authenticated: (_, _) => true,
+      orElse: () => false,
+    );
+    if (isAuthenticated) {
+      context.read<ClubPointBloc>().add(
+        const ClubPointEvent.getClubPoints(limit: 5),
+      );
+    }
   }
 
   Future<void> _loadCart(CartBloc bloc) async {
@@ -51,13 +79,19 @@ class _CartPageState extends State<CartPage> {
 
       if (guestCartId != null && guestCartId.isNotEmpty) {
         bloc.add(CartEvent.loadGuestCart(guestCartId: guestCartId));
-      } else {
+      } else if (bloc.currentCart == null) {
         bloc.add(const CartEvent.createGuestCart());
       }
     }
+
+    if (mounted && bloc.state == const CartState.empty() && !_isBackendVerified) {
+      setState(() {
+        _isBackendVerified = true;
+      });
+    }
   }
 
-  void _requireAuth(BuildContext context, VoidCallback action) {
+  void _requireAuth(BuildContext context, VoidCallback action) async {
     final isAuthenticated = context.read<AuthBloc>().state.maybeWhen(
       authenticated: (token, user) => true,
       orElse: () => false,
@@ -65,29 +99,49 @@ class _CartPageState extends State<CartPage> {
     if (isAuthenticated) {
       action();
     } else {
-      context.push(Routes.login);
+      await context.push(Routes.login);
+      if (context.mounted) {
+        final isNowAuth = context.read<AuthBloc>().state.maybeWhen(
+          authenticated: (token, user) => true,
+          orElse: () => false,
+        );
+        if (isNowAuth) {
+          action();
+        }
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: AppBarButton(
-          iconPath: 'assets/new/svg/back_nav_icon.svg',
-          width: 7.w,
-          height: 14.h,
-          onPressed: () => Navigator.of(context).pop(),
-          iconColor: colors.text,
-        ),
-        title: Text(
-          'My Cart',
-          style: context.textStyle.appBarTitle,
-        ),
+    return BlocListener<InternetBloc, InternetState>(
+      listenWhen: (previous, current) =>
+          previous.maybeWhen(disconnected: (_) => true, orElse: () => false) &&
+          current.maybeWhen(connected: (_) => true, orElse: () => false),
+      listener: (context, state) {
+        context.read<CartBloc>().add(const CartEvent.getCart());
+      },
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(Routes.home);
+          }
+        },
+        child: Scaffold(
+        backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        title: 'My Cart',
         actions: [
-          AppBarButton(
+          IconButton(
+            icon: Icon(
+              Icons.favorite_border_rounded,
+              color: AppColors.navy,
+              size: 22.sp,
+            ),
             onPressed: () {
               final isLoggedIn = context.read<AuthBloc>().state.maybeWhen(
                 authenticated: (token, user) => true,
@@ -99,49 +153,77 @@ class _CartPageState extends State<CartPage> {
                 context.push(Routes.login);
               }
             },
-            iconPath: 'assets/new/svg/favorite_icon.svg',
-            width: 22.w,
-            height: 20.h,
-            iconColor: colors.primary,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 4.w),
         ],
       ),
       body: BlocConsumer<CartBloc, CartState>(
         listener: (context, state) {
           state.maybeWhen(
             itemAdded: (cart, message) {
-              SnackBarUtils.showSuccess(context, message);
+              if (!_isBackendVerified) {
+                setState(() => _isBackendVerified = true);
+              }
+              SnackBarUtils.showSuccess(
+                context,
+                message.isNotEmpty ? message : AppStrings.itemAddedToCart,
+              );
             },
             couponApplied: (cart, couponCode) {
-              SnackBarUtils.showSuccess(context, 'Coupon added successfully');
+              SnackBarUtils.showSuccess(
+                context,
+                AppStrings.couponAddedSuccessfully,
+              );
             },
             couponRemoved: (cart) {
-              SnackBarUtils.showSuccess(context, 'Coupon removed successfully');
+              SnackBarUtils.showSuccess(
+                context,
+                AppStrings.couponRemovedSuccessfully,
+              );
             },
             rewardPointsApplied: (cart, pointsUsed) {
-              SnackBarUtils.showSuccess(context, 'Point applied successfully');
+              SnackBarUtils.showSuccess(
+                context,
+                AppStrings.pointAppliedSuccessfully,
+              );
             },
             rewardPointsRemoved: (cart) {
-              SnackBarUtils.showSuccess(context, 'Point canceled successfully');
+              SnackBarUtils.showSuccess(
+                context,
+                AppStrings.pointCanceledSuccessfully,
+              );
             },
             loaded: (cart) {
+              if (!_isBackendVerified) {
+                setState(() => _isBackendVerified = true);
+              }
               if (_isSavingForLater) {
                 _isSavingForLater = false;
                 SnackBarUtils.showSuccess(
                   context,
-                  'Item has saved on wishlist successfully',
+                  AppStrings.itemAddedToWishlist,
                 );
               }
             },
+            empty: () {
+              if (!_isBackendVerified) {
+                setState(() => _isBackendVerified = true);
+              }
+            },
             error: (error, lastCart) {
+              if (!_isBackendVerified) {
+                setState(() => _isBackendVerified = true);
+              }
               if (_isSavingForLater) {
                 _isSavingForLater = false;
               }
               if (isSilentCartError(error.message)) return;
+              if (ConnectivityUtils.isNoInternet(error.message, context)) return;
               SnackBarUtils.showError(
                 context,
-                error.message,
+                error.message.isNotEmpty
+                    ? error.message
+                    : AppStrings.somethingWentWrong,
               );
             },
             orElse: () {},
@@ -149,13 +231,33 @@ class _CartPageState extends State<CartPage> {
         },
         builder: (context, state) {
           return state.when(
-            initial: () => const SizedBox(),
-            loading: () =>
-                Center(child: CircularProgressIndicator(color: colors.primary)),
-            empty: () => const EmptyCartView(),
+            initial: () {
+              final existingCart = context.read<CartBloc>().currentCart;
+              if (existingCart != null && existingCart.items.isNotEmpty) {
+                return _buildCartContent(context, existingCart, false);
+              }
+              return const AppLoader.fullPage();
+            },
+            loading: () {
+              final existingCart = context.read<CartBloc>().currentCart;
+              if (existingCart != null && existingCart.items.isNotEmpty) {
+                return _buildCartContent(context, existingCart, true);
+              }
+              return const AppLoader.fullPage();
+            },
+            empty: () {
+              if (!_isBackendVerified) {
+                return const AppLoader.fullPage();
+              }
+              return const EmptyCartView();
+            },
             loaded: (cart) => _buildCartContent(context, cart, false),
-            operationInProgress: (cart, operation) =>
-                _buildCartContent(context, cart, true),
+            operationInProgress: (cart, operation) {
+              if (cart.items.isEmpty) {
+                return const AppLoader.fullPage();
+              }
+              return _buildCartContent(context, cart, true);
+            },
             itemAdded: (cart, _) => _buildCartContent(context, cart, false),
             couponApplied: (cart, _) => _buildCartContent(context, cart, false),
             couponRemoved: (cart) => _buildCartContent(context, cart, false),
@@ -173,6 +275,10 @@ class _CartPageState extends State<CartPage> {
         top: false,
         child: BlocBuilder<CartBloc, CartState>(
           builder: (context, state) {
+            if (ConnectivityUtils.isOffline(context)) {
+              return const SizedBox.shrink();
+            }
+
             final cart = state.maybeWhen(
               loaded: (cart) => cart,
               operationInProgress: (cart, _) => cart,
@@ -212,177 +318,206 @@ class _CartPageState extends State<CartPage> {
           },
         ),
       ),
-    );
+    ),
+    ),
+  );
   }
 
   Widget _buildError(BuildContext context, String message) {
-    final colors = context.colors;
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, size: 64.sp, color: colors.red),
-          SizedBox(height: 16.h),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: context.textStyle.bodyLarge.withColor(colors.text),
-          ),
-          SizedBox(height: 16.h),
-          ElevatedButton(
-            onPressed: () {
-              context.read<CartBloc>().add(const CartEvent.getCart());
-            },
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
+    final isOffline = ConnectivityUtils.isNoInternet(message, context);
+    if (isOffline) {
+      return NoInternetPage(
+        showAppBar: false,
+        onRetry: () {
+          context.read<CartBloc>().add(const CartEvent.getCart());
+        },
+      );
+    }
+    return AppErrorView(
+      type: AppErrorType.generic,
+      title: 'Unable to Load Cart',
+      message: message,
+      onRetry: () {
+        context.read<CartBloc>().add(const CartEvent.getCart());
+      },
     );
   }
 
-  Widget _buildCartContent(BuildContext context, cart, bool isLoading) {
-    final colors = context.colors;
-
+  Widget _buildCartContent(BuildContext context, CartEntity cart, bool isLoading) {
     if (cart.items.isEmpty) {
+      if (isLoading) {
+        return const AppLoader.fullPage();
+      }
       return const EmptyCartView();
     }
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
+    return Column(
+      children: [
         if (isLoading)
-          SliverToBoxAdapter(
-            child: LinearProgressIndicator(color: colors.primary),
-          ),
-        SliverToBoxAdapter(child: SizedBox(height: 12.h)),
-
-        SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            final item = cart.items[index];
-            return BlocBuilder<UserProfileBloc, UserProfileState>(
-              builder: (context, profileState) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w),
-                  child: CartItemCard(
-                    item: item,
-                    isQuantityModifiable: true,
-                    onQuantityChanged: (qty) {
-                      context.read<CartBloc>().add(
-                        CartEvent.updateItemQuantity(
-                          itemId: item.itemId,
-                          qty: qty,
-                          quoteId: item.quoteId,
-                        ),
-                      );
-                    },
-                    onRemove: () {
-                      context.read<CartBloc>().add(
-                        CartEvent.removeItem(itemId: item.itemId),
-                      );
-                    },
-                    onSaveForLater: () {
-                      _requireAuth(context, () {
-                        final customerId = context
-                            .read<AuthBloc>()
-                            .state
-                            .maybeWhen(
-                              authenticated: (token, user) => user.id,
-                              orElse: () => null,
-                            );
-                        if (customerId == null) return;
-                        setState(() => _isSavingForLater = true);
-                        context.read<CartBloc>().add(
-                          CartEvent.saveForLater(
-                            customerId: customerId,
-                            cartId: cart.id,
-                            itemId: item.itemId,
-                          ),
-                        );
-                      });
-                    },
-                  ),
-                );
-              },
-            );
-          }, childCount: cart.items.length),
-        ),
-
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: CouponWidget(
-              appliedCoupon: cart.couponCode,
-              onApply: (code) {
-                _requireAuth(context, () {
-                  context.read<CartBloc>().add(
-                    CartEvent.applyCoupon(cartId: cart.id, coupon: code),
-                  );
-                });
-              },
-              onCancel: () {
-                _requireAuth(context, () {
-                  context.read<CartBloc>().add(
-                    CartEvent.removeCoupon(cartId: cart.id),
-                  );
-                });
-              },
+          const AppLoader.linear(),
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.sameGroupItemSpacing.w,
+              0,
+              AppSpacing.sameGroupItemSpacing.w,
+              20.h,
             ),
-          ),
-        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── 1. GROUPED CART ITEMS CARD (ALL IN 1 CARD) ──
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadius.cardRadius,
+                    border: Border.all(color: AppColors.border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.navy.withValues(alpha: 0.03),
+                        blurRadius: 8.r,
+                        offset: Offset(0, 2.h),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < cart.items.length; i++) ...[
+                        BlocBuilder<UserProfileBloc, UserProfileState>(
+                          builder: (context, profileState) {
+                            final item = cart.items[i];
+                            return CartItemCard(
+                              item: item,
+                              isQuantityModifiable: true,
+                              showOuterCard: false,
+                              showDivider: i < cart.items.length - 1,
+                              onQuantityChanged: (qty) {
+                                context.read<CartBloc>().add(
+                                  CartEvent.updateItemQuantity(
+                                    itemId: item.itemId,
+                                    qty: qty,
+                                    quoteId: item.quoteId,
+                                  ),
+                                );
+                              },
+                              onRemove: () {
+                                context.read<CartBloc>().add(
+                                  CartEvent.removeItem(itemId: item.itemId),
+                                );
+                              },
+                              onSaveForLater: () {
+                                _requireAuth(context, () {
+                                  final customerId = context
+                                      .read<AuthBloc>()
+                                      .state
+                                      .maybeWhen(
+                                        authenticated: (token, user) => user.id,
+                                        orElse: () => null,
+                                      );
+                                  if (customerId == null) return;
+                                  setState(() => _isSavingForLater = true);
+                                  context.read<CartBloc>().add(
+                                    CartEvent.saveForLater(
+                                      customerId: customerId,
+                                      cartId: cart.id,
+                                      itemId: item.itemId,
+                                    ),
+                                  );
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
 
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            child: Builder(
-              builder: (context) {
-                return RewardPointsWidget(
-                  maxPoints: cart.maxSpendablePoints,
-                  minPoints: cart.minSpendablePoints,
-                  pointsToEarn: cart.pointsToEarn,
-                  appliedPoints: cart.appliedPoints,
-                  onApply: (points) {
+                SizedBox(height: AppSpacing.groupToGroupSpacing.h),
+
+                // ── 2. APPLY DISCOUNT CODE CARD ──
+                CouponWidget(
+                  appliedCoupon: cart.couponCode,
+                  onApply: (code) {
                     _requireAuth(context, () {
                       context.read<CartBloc>().add(
-                        CartEvent.applyRewardPoints(
-                          cartId: cart.id,
-                          pointAmount: points,
-                        ),
+                        CartEvent.applyCoupon(cartId: cart.id, coupon: code),
                       );
                     });
                   },
                   onCancel: () {
                     _requireAuth(context, () {
                       context.read<CartBloc>().add(
-                        CartEvent.removeRewardPoints(cartId: cart.id),
+                        CartEvent.removeCoupon(cartId: cart.id),
                       );
                     });
                   },
-                );
-              },
+                ),
+
+                SizedBox(height: AppSpacing.groupToGroupSpacing.h),
+
+                // ── 3. USE CLUB POINTS CARD ──
+                BlocBuilder<ClubPointBloc, ClubPointState>(
+                  builder: (context, clubPointState) {
+                    final availableClubPoints = clubPointState.maybeWhen(
+                      loaded: (data) => data.myPoints,
+                      orElse: () => 0,
+                    );
+                    final effectiveMaxPoints = cart.maxSpendablePoints > 0
+                        ? cart.maxSpendablePoints
+                        : (availableClubPoints > 0
+                            ? availableClubPoints.clamp(0, cart.subtotal.toInt())
+                            : 0);
+
+                    return RewardPointsWidget(
+                      maxPoints: effectiveMaxPoints,
+                      minPoints: cart.minSpendablePoints,
+                      pointsToEarn: cart.pointsToEarn,
+                      appliedPoints: cart.appliedPoints,
+                      onApply: (points) {
+                        _requireAuth(context, () {
+                          context.read<CartBloc>().add(
+                            CartEvent.applyRewardPoints(
+                              cartId: cart.id,
+                              pointAmount: points,
+                            ),
+                          );
+                        });
+                      },
+                      onCancel: () {
+                        _requireAuth(context, () {
+                          context.read<CartBloc>().add(
+                            CartEvent.removeRewardPoints(cartId: cart.id),
+                          );
+                        });
+                      },
+                    );
+                  },
+                ),
+
+                SizedBox(height: AppSpacing.groupToGroupSpacing.h),
+
+                // ── 4. ORDER SUMMARY CARD ──
+                PriceSummaryWidget(
+                  subtotal: cart.subtotal,
+                  grandTotal: cart.grandTotal,
+                  discountAmount: cart.discountAmount,
+                  shippingAmount: cart.shippingAmount,
+                  discountTitle: cart.discountTitle.isNotEmpty
+                      ? cart.discountTitle
+                      : (cart.couponCode.isNotEmpty
+                            ? 'Discount (${cart.couponCode})'
+                            : 'Discount'),
+                  clubPointDiscount: cart.rewardPointsDiscount,
+                  itemsCount: cart.itemsCount,
+                ),
+
+                SizedBox(height: AppSpacing.groupToGroupSpacing.h),
+              ],
             ),
           ),
         ),
-
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: PriceSummaryWidget(
-              subtotal: cart.subtotal,
-              grandTotal: cart.grandTotal,
-              discountAmount: cart.discountAmount,
-              shippingAmount: cart.shippingAmount,
-              discountTitle: cart.discountTitle.isNotEmpty
-                  ? cart.discountTitle
-                  : (cart.couponCode.isNotEmpty
-                        ? 'Discount (${cart.couponCode})'
-                        : 'Discount'),
-              clubPointDiscount: cart.rewardPointsDiscount,
-              itemsCount: cart.itemsCount,
-            ),
-          ),
-        ),
-
-        SliverToBoxAdapter(child: SizedBox(height: 20.h)),
       ],
     );
   }

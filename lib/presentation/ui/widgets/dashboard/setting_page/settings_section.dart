@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
 
 class SettingsSection extends StatelessWidget {
   final String title;
@@ -15,17 +14,16 @@ class SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final textTheme = context.textStyle;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10.r,
             offset: Offset(0, 2.h),
           ),
@@ -39,14 +37,14 @@ class SettingsSection extends StatelessWidget {
             child: Text(
               title,
               style: textTheme.bodyMediumMedium.copyWith(
-                color: colors.text,
+                color: AppColors.text,
               ),
             ),
           ),
           Divider(
             height: 1.h,
             thickness: 1,
-            color: colors.borderColor.withValues(alpha: 0.3),
+            color: AppColors.border.withValues(alpha: 0.3),
           ),
           ...children,
         ],

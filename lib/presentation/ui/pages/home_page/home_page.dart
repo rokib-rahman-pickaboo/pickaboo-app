@@ -236,12 +236,17 @@ class _HomePageState extends State<HomePage> {
       child: BlocBuilder<HomeContentBloc, HomeContentState>(
         builder: (context, homeContentState) {
           final isUncachedOffline = homeContentState.homeFeed == null &&
-              (ConnectivityUtils.isNoInternet(homeContentState.error, context) ||
-                  homeContentState.status == HomeContentStatus.error);
+              ConnectivityUtils.isOffline(context);
+
+          final isUncachedGenericError = homeContentState.homeFeed == null &&
+              !isUncachedOffline &&
+              homeContentState.status == HomeContentStatus.error;
+
+          final hideBottomNav = isUncachedOffline || isUncachedGenericError;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (MainPage.hideBottomNav.value != isUncachedOffline) {
-              MainPage.hideBottomNav.value = isUncachedOffline;
+            if (MainPage.hideBottomNav.value != hideBottomNav) {
+              MainPage.hideBottomNav.value = hideBottomNav;
             }
           });
 
@@ -252,6 +257,22 @@ class _HomePageState extends State<HomePage> {
               body: SafeArea(
                 child: NoInternetPage(
                   showAppBar: false,
+                  onRetry: () => _onRefresh(),
+                ),
+              ),
+            );
+          }
+
+          if (isUncachedGenericError) {
+            return Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppColors.pageBg,
+              body: SafeArea(
+                child: AppErrorView(
+                  type: AppErrorType.generic,
+                  title: "Couldn't load home content",
+                  message: 'Please try again in a moment.',
+                  retryLabel: 'Retry',
                   onRetry: () => _onRefresh(),
                 ),
               ),
@@ -329,9 +350,22 @@ class _HomePageState extends State<HomePage> {
             }
           }
 
-          return Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: AppColors.pageBg,
+          return PopScope(
+            canPop: _selectedCategory == 'For You',
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) return;
+              if (_selectedCategory != 'For You') {
+                setState(() {
+                  _selectedCategory = 'For You';
+                });
+                if (_scrollController.hasClients) {
+                  _scrollController.jumpTo(0);
+                }
+              }
+            },
+            child: Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppColors.pageBg,
             body: SafeArea(
               bottom: false,
               child: Column(
@@ -436,7 +470,8 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );
