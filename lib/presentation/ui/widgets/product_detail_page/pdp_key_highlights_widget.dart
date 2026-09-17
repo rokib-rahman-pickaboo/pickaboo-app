@@ -15,12 +15,12 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
   });
 
   static const List<String> _defaultFallbackIcons = [
-    'assets/new/svg/detail/brand_icon.svg',
-    'assets/new/svg/detail/dimensions_icon.svg',
-    'assets/new/svg/detail/volume_icon.svg',
-    'assets/new/svg/detail/refrigerator_icon.svg',
-    'assets/new/svg/detail/door_icon.svg',
-    'assets/new/svg/detail/freezer_icon.svg',
+    AppAssets.detailBrand,
+    AppAssets.detailDimensions,
+    AppAssets.detailVolume,
+    AppAssets.detailRefrigerator,
+    AppAssets.detailDoor,
+    AppAssets.detailFreezer,
   ];
 
   int _computeLinesNeeded(String text, TextStyle style, double maxWidth) {
@@ -53,18 +53,19 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Flatten all AttrListEntity from all groups
-    final List<AttrListEntity> allAttrs = [];
+    // Extract only attributes that are explicitly marked isFeatured == true
+    final List<AttrListEntity> topSpecs = [];
     for (final group in moreInformation) {
-      allAttrs.addAll(group.attrList);
+      for (final attr in group.attrList) {
+        if (attr.isFeatured) {
+          topSpecs.add(attr);
+        }
+      }
     }
 
-    if (allAttrs.isEmpty) return const SizedBox.shrink();
+    if (topSpecs.isEmpty) return const SizedBox.shrink();
 
-    // Show up to 4 or 6 highlights
-    final topSpecs = allAttrs.take(4).toList();
-
-    final subtitleStyle = AppTypography.bodyMuted.copyWith(
+    final subtitleStyle = AppTypography.bodySmall.copyWith(
       fontSize: 11.5.sp,
       height: 1.25,
       color: AppColors.muted,
@@ -75,7 +76,7 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
       children: [
         Text(
           'Key Highlights',
-          style: AppTypography.sectionTitle,
+          style: AppTypography.titleMedium,
         ),
         AppSpacing.sameGroupHeightGap,
         LayoutBuilder(
@@ -196,7 +197,10 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
             width: 24.w,
             height: 24.w,
             child: Center(
-              child: _buildIcon(spec, index),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: _buildIcon(spec, index),
+              ),
             ),
           ),
           AppSpacing.sameGroupWidthGap,
@@ -211,7 +215,7 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
                   spec.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.cardTitle.copyWith(
+                  style: AppTypography.titleSmall.copyWith(
                     fontSize: 11.5.sp,
                     fontWeight: FontWeight.w800,
                   ),
@@ -239,6 +243,7 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
           height: 20.h,
           width: 20.w,
           fit: BoxFit.contain,
+          placeholderBuilder: (_) => const SizedBox.shrink(),
         );
       }
       return AppImage(
@@ -246,6 +251,8 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
         height: 20.h,
         width: 20.w,
         fit: BoxFit.contain,
+        placeholder: const SizedBox.shrink(),
+        errorWidget: const SizedBox.shrink(),
       );
     }
 
@@ -256,6 +263,7 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
           height: 20.h,
           width: 20.w,
           fit: BoxFit.contain,
+          placeholderBuilder: (_) => const SizedBox.shrink(),
         );
       }
       return AppImage(
@@ -263,6 +271,8 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
         height: 20.h,
         width: 20.w,
         fit: BoxFit.contain,
+        placeholder: const SizedBox.shrink(),
+        errorWidget: const SizedBox.shrink(),
       );
     }
 

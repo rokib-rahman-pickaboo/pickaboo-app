@@ -16,7 +16,7 @@ void main() {
   });
 
   group('PdpAvailableOffersWidget UI & Parsing Tests', () {
-    Widget buildWidget(String? promoOffer) {
+    Widget buildWidget(String? promoOffer, {bool isLoading = false}) {
       return ScreenUtilInit(
         designSize: const Size(375, 812),
         builder: (context, child) => MaterialApp(
@@ -24,6 +24,7 @@ void main() {
             body: SingleChildScrollView(
               child: PdpAvailableOffersWidget(
                 promoOffer: promoOffer,
+                isLoading: isLoading,
               ),
             ),
           ),
@@ -109,6 +110,25 @@ void main() {
       await tester.pumpWidget(buildWidget(null));
       await tester.pumpAndSettle();
       expect(find.text('Available Offers'), findsNothing);
+    });
+
+    testWidgets('Renders shimmer skeleton and title when isLoading is true', (tester) async {
+      await tester.pumpWidget(buildWidget(null, isLoading: true));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Available Offers'), findsOneWidget);
+      expect(find.byIcon(Icons.local_offer_outlined), findsNWidgets(2));
+      // View All action is replaced by shimmer placeholder
+      expect(find.text('View All'), findsNothing);
+    });
+
+    testWidgets('Discards raw numeric product/offer IDs without rendering fake data', (tester) async {
+      await tester.pumpWidget(buildWidget('117562'));
+      await tester.pumpAndSettle();
+
+      // Must NOT render Available Offers or the numeric ID
+      expect(find.text('Available Offers'), findsNothing);
+      expect(find.text('117562'), findsNothing);
     });
   });
 }

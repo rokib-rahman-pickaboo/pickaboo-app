@@ -35,7 +35,7 @@ class OrderAddressSection extends StatelessWidget {
               SizedBox(width: 6.w),
               Text(
                 address!.name,
-                style: AppTypography.cardTitle,
+                style: AppTypography.titleSmall,
               ),
             ],
           ),
@@ -51,7 +51,7 @@ class OrderAddressSection extends StatelessWidget {
                 SizedBox(width: 6.w),
                 Text(
                   address!.mobile,
-                  style: AppTypography.bodyRegular,
+                  style: AppTypography.bodyMedium,
                 ),
               ],
             ),
@@ -68,7 +68,7 @@ class OrderAddressSection extends StatelessWidget {
                 SizedBox(width: 6.w),
                 Text(
                   address!.email,
-                  style: AppTypography.bodyRegular,
+                  style: AppTypography.bodyMedium,
                 ),
               ],
             ),
@@ -86,7 +86,7 @@ class OrderAddressSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   address!.address,
-                  style: AppTypography.bodyRegular,
+                  style: AppTypography.bodyMedium,
                 ),
               ),
             ],

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pickaboo/core/utils/html_extensions.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
+import 'package:pickaboo/domain/entity/cart/checkout_entity.dart';
 import 'package:pickaboo/domain/entity/checkout/payment_methods_entity.dart';
+import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'route_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,16 +14,56 @@ extension NavigationExtensions on BuildContext {
     String productId, {
     String? slug,
     String? productName,
+    String? productImage,
+    String? productPrice,
+    ProductEntity? product,
   }) {
+    final intId = int.tryParse(productId) ?? 0;
+    final cachedImage = ProductImageResolver.getCachedImage(intId);
+
+    final rawImage = (product?.productImg.isNotEmpty == true)
+        ? product!.productImg
+        : productImage;
+
+    final effectiveImage = (cachedImage != null && !ProductImageResolver.isPlaceholderOrBroken(cachedImage))
+        ? cachedImage
+        : (!ProductImageResolver.isPlaceholderOrBroken(rawImage)
+            ? rawImage
+            : null);
+
+    final effectiveProduct = (product != null && effectiveImage != null && product.productImg != effectiveImage)
+        ? product.copyWith(productImg: effectiveImage)
+        : product;
+
+    final effectiveSlug = (effectiveProduct?.slug.isNotEmpty == true) ? effectiveProduct!.slug : slug;
+    final effectiveName = (effectiveProduct?.productName.isNotEmpty == true) ? effectiveProduct!.productName : productName;
+    final effectivePrice = effectiveProduct != null
+        ? (effectiveProduct.productSpecialPrice > 0 ? effectiveProduct.productSpecialPrice : effectiveProduct.productPrice).toString()
+        : productPrice;
+
     final path = Routes.productDetail.replaceAll(':id', productId);
     final query = <String, String>{};
-    if (slug != null && slug.trim().isNotEmpty) {
-      query['slug'] = slug;
+    if (effectiveSlug != null && effectiveSlug.trim().isNotEmpty) {
+      query['slug'] = effectiveSlug;
     }
-    if (productName != null && productName.trim().isNotEmpty) {
-      query['name'] = productName;
+    if (effectiveName != null && effectiveName.trim().isNotEmpty) {
+      query['name'] = effectiveName;
     }
-    push(Uri(path: path, queryParameters: query.isEmpty ? null : query).toString());
+    if (effectiveImage != null && effectiveImage.trim().isNotEmpty) {
+      query['image'] = effectiveImage;
+    }
+    if (effectivePrice != null && effectivePrice.trim().isNotEmpty) {
+      query['price'] = effectivePrice;
+    }
+    push(
+      Uri(path: path, queryParameters: query.isEmpty ? null : query).toString(),
+      extra: {
+        if (effectiveName != null) 'name': effectiveName,
+        if (effectiveImage != null) 'imageUrl': effectiveImage,
+        if (effectivePrice != null) 'price': effectivePrice,
+        if (effectiveProduct != null) 'product': effectiveProduct,
+      },
+    );
   }
 
   void goToProductReviews(String productId) {
@@ -213,6 +257,7 @@ extension NavigationExtensions on BuildContext {
     String? urlKey,
   }) async {
     final type = linkType.trim().toLowerCase();
+    final sanitizedName = categoryName.isGenericOrPlaceholderTitle ? null : categoryName;
 
     switch (type) {
       case 'product':
@@ -225,19 +270,19 @@ extension NavigationExtensions on BuildContext {
       case 'category':
         pushToCategoryProduct(
           categoryId: (link.isNotEmpty ? link : urlKey) ?? '',
-          categoryName: categoryName,
+          categoryName: sanitizedName,
         );
         return;
       case 'special_category':
         pushToSpecialCategoryProduct(
             categorySlug: _firstNonEmpty([link, urlKey]) ?? '',
-            categoryName: categoryName);
+            categoryName: sanitizedName);
         return;
 
       case 'brand':
         pushToBrandProduct(
             brandKey: _firstNonEmpty([link, urlKey]) ?? '',
-            brandName: categoryName);
+            brandName: sanitizedName);
         return;
 
       case 'page':
@@ -315,6 +360,8 @@ extension NavigationExtensions on BuildContext {
     String? selectedMethod,
     String? cartId,
     List<PaymentMethodEntity>? availablePaymentMethods,
+    CartTotalsEntity? totals,
+    int? itemsCount,
   }) {
     pushReplacement(
       Routes.paymentMethod,
@@ -323,6 +370,8 @@ extension NavigationExtensions on BuildContext {
         'selectedMethod': selectedMethod,
         'cartId': cartId,
         'availablePaymentMethods': availablePaymentMethods,
+        'totals': totals,
+        'itemsCount': itemsCount,
       },
     );
   }

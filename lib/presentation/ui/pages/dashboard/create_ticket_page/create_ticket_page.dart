@@ -24,8 +24,8 @@ import 'package:pickaboo/domain/entity/ticket/ticket_issue_type_entity.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_order_entity.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/ticket_bloc/ticket_bloc.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 
 class CreateTicketPage extends StatefulWidget {
@@ -122,7 +122,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
               children: [
                 Text(
                   'Add Attachment',
-                  style: AppTypography.sectionTitle,
+                  style: AppTypography.titleMedium,
                 ),
                 SizedBox(height: 16.h),
                 ListTile(
@@ -140,11 +140,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                   ),
                   title: Text(
                     'Choose from Gallery',
-                    style: AppTypography.inputText,
+                    style: AppTypography.bodyLarge.regular(),
                   ),
                   subtitle: Text(
                     'JPG, JPEG, PNG (Auto-compressed)',
-                    style: AppTypography.bodyMuted.copyWith(fontSize: 12.sp),
+                    style: AppTypography.bodySmall.copyWith(fontSize: 12.sp),
                   ),
                   contentPadding: EdgeInsets.zero,
                   onTap: () {
@@ -167,11 +167,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                   ),
                   title: Text(
                     'Take a Photo',
-                    style: AppTypography.inputText,
+                    style: AppTypography.bodyLarge.regular(),
                   ),
                   subtitle: Text(
                     'Capture with camera',
-                    style: AppTypography.bodyMuted.copyWith(fontSize: 12.sp),
+                    style: AppTypography.bodySmall.copyWith(fontSize: 12.sp),
                   ),
                   contentPadding: EdgeInsets.zero,
                   onTap: () {
@@ -194,11 +194,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                   ),
                   title: Text(
                     'Choose Document / File',
-                    style: AppTypography.inputText,
+                    style: AppTypography.bodyLarge.regular(),
                   ),
                   subtitle: Text(
                     'PDF, JPG, PNG (Max 10MB)',
-                    style: AppTypography.bodyMuted.copyWith(fontSize: 12.sp),
+                    style: AppTypography.bodySmall.copyWith(fontSize: 12.sp),
                   ),
                   contentPadding: EdgeInsets.zero,
                   onTap: () {
@@ -432,34 +432,20 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
           ),
           child: SafeArea(
             top: false,
-            child: SizedBox(
-              width: double.infinity,
+            child: AppButton.primary(
+              text: 'Submit Ticket',
+              isLoading: _isLoading,
+              isFullWidth: true,
               height: 48.h,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _submitTicket,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.pickabooBlue,
-                  foregroundColor: AppColors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                ),
-                child: _isLoading
-                    ? const AppLoader.button()
-                    : Text(
-                        'Submit Ticket',
-                        style: AppTypography.buttonPrimary,
-                      ),
-              ),
+              borderRadius: BorderRadius.circular(10.r),
+              onPressed: _isLoading ? null : _submitTicket,
             ),
           ),
         ),
         body: BlocListener<TicketBloc, TicketState>(
           bloc: _ticketBloc,
           listener: (context, state) {
-            if (state.status == TicketStatus.loading &&
-                state.orders.isNotEmpty) {
+            if (state.status == TicketStatus.loading && _triedSubmit) {
               setState(() => _isLoading = true);
             } else if (state.status == TicketStatus.success &&
                 state.successMessage != null) {
@@ -470,7 +456,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
               );
               widget.onRefresh?.call();
               context.pop();
-            } else if (state.status == TicketStatus.error) {
+            } else if (state.status == TicketStatus.error && _triedSubmit) {
               setState(() => _isLoading = false);
               SnackBarUtils.showError(
                 context,
@@ -504,7 +490,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                         children: [
                           Text(
                             'Create Support Ticket',
-                            style: AppTypography.pageTitle,
+                            style: AppTypography.titleLarge,
                           ),
                           SizedBox(height: 16.h),
 
@@ -513,12 +499,12 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                             children: [
                               Text(
                                 'Order Number',
-                                style: AppTypography.inputLabel,
+                                style: AppTypography.bodyLarge,
                               ),
                               SizedBox(width: 4.w),
                               Text(
                                 '(Optional)',
-                                style: AppTypography.bodyMuted
+                                style: AppTypography.bodySmall
                                     .copyWith(fontSize: 12.sp),
                               ),
                             ],
@@ -535,7 +521,9 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                               child: DropdownButton2<TicketOrderEntity?>(
                                 isExpanded: true,
                                 hint: Text(
-                                  'Select order number',
+                                  state.status == TicketStatus.loading && orders.isEmpty
+                                      ? 'Loading orders...'
+                                      : 'Select order number',
                                   style: AppTypography.inputHint,
                                 ),
                                 value: _selectedOrder,
@@ -553,7 +541,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                       value: order,
                                       child: Text(
                                         'Order #$number',
-                                        style: AppTypography.inputText,
+                                        style: AppTypography.bodyLarge.regular(),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     );
@@ -573,14 +561,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                               children: [
                                 TextSpan(
                                   text: 'Subject ',
-                                  style: AppTypography.inputLabel,
+                                  style: AppTypography.bodyLarge,
                                 ),
-                                const TextSpan(
+                                TextSpan(
                                   text: '*',
-                                  style: TextStyle(
-                                    color: AppColors.red,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: AppTypography.bodyLarge.red,
                                 ),
                               ],
                             ),
@@ -588,7 +573,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                           SizedBox(height: 6.h),
                           TextField(
                             controller: _subjectController,
-                            style: AppTypography.inputText,
+                            style: AppTypography.bodyLarge.regular(),
                             decoration: InputDecoration(
                               hintText: 'Enter subject',
                               hintStyle: AppTypography.inputHint,
@@ -631,14 +616,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                               children: [
                                 TextSpan(
                                   text: 'Issue Type ',
-                                  style: AppTypography.inputLabel,
+                                  style: AppTypography.bodyLarge,
                                 ),
-                                const TextSpan(
+                                TextSpan(
                                   text: '*',
-                                  style: TextStyle(
-                                    color: AppColors.red,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: AppTypography.bodyLarge.red,
                                 ),
                               ],
                             ),
@@ -670,7 +652,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                     value: issue,
                                     child: Text(
                                       issue.name,
-                                      style: AppTypography.inputText,
+                                      style: AppTypography.bodyLarge.regular(),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   );
@@ -689,14 +671,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                               children: [
                                 TextSpan(
                                   text: 'Message ',
-                                  style: AppTypography.inputLabel,
+                                  style: AppTypography.bodyLarge,
                                 ),
-                                const TextSpan(
+                                TextSpan(
                                   text: '*',
-                                  style: TextStyle(
-                                    color: AppColors.red,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: AppTypography.bodyLarge.red,
                                 ),
                               ],
                             ),
@@ -706,7 +685,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                             controller: _messageController,
                             maxLines: 5,
                             minLines: 4,
-                            style: AppTypography.inputText,
+                            style: AppTypography.bodyLarge.regular(),
                             decoration: InputDecoration(
                               hintText: 'Enter your message',
                               hintStyle: AppTypography.inputHint,
@@ -743,7 +722,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                           // ── 5. Attachments (jpg, jpeg, png, pdf) - Max 5 files ──
                           Text(
                             'Attachments (jpg, jpeg, png, pdf) - Max 5 files',
-                            style: AppTypography.inputLabel,
+                            style: AppTypography.bodyLarge,
                           ),
                           SizedBox(height: 8.h),
 
@@ -788,7 +767,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                       remainingSlots > 0
                                           ? 'Choose Files ($remainingSlots slots remaining)'
                                           : 'Maximum 5 files selected',
-                                      style: AppTypography.cardTitle.withColor(
+                                      style: AppTypography.titleSmall.withColor(
                                         remainingSlots > 0
                                           ? AppColors.pickabooBlue
                                           : AppColors.muted,
@@ -879,7 +858,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                             children: [
                                               Text(
                                                 fileName,
-                                                style: AppTypography.inputText,
+                                                style: AppTypography.bodyLarge.regular(),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -887,7 +866,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                                 SizedBox(height: 2.h),
                                                 Text(
                                                   fileSize,
-                                                  style: AppTypography.bodyMuted
+                                                  style: AppTypography.bodySmall
                                                       .copyWith(fontSize: 11.sp),
                                                 ),
                                               ],

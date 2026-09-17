@@ -38,13 +38,13 @@ class PdpDeliveryLocationSelector extends StatelessWidget {
           children: [
             Text(
               'Delivery Options',
-              style: AppTypography.sectionTitle,
+              style: AppTypography.titleMedium,
             ),
             GestureDetector(
               onTap: onTap,
               child: Text(
                 'CHANGE',
-                style: AppTypography.brandActionText.copyWith(
+                style: AppTypography.brandAction.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                 ),
@@ -85,14 +85,14 @@ class PdpDeliveryLocationSelector extends StatelessWidget {
                         _getDeliveryEstimateText(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.cardTitle,
+                        style: AppTypography.titleSmall,
                       ),
                       SizedBox(height: 2.h),
                       Text(
                         addressText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.bodyMuted,
+                        style: AppTypography.bodySmall,
                       ),
                     ],
                   ),
@@ -101,7 +101,7 @@ class PdpDeliveryLocationSelector extends StatelessWidget {
                   SizedBox(width: 6.w),
                   Text(
                     deliveryCharge!,
-                    style: AppTypography.cardTitle,
+                    style: AppTypography.titleSmall,
                   ),
                 ],
               ],

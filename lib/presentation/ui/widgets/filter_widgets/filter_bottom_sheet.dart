@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pickaboo/presentation/bloc/filter_bloc/filter_bloc.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/filter_widgets/filter_category_list.dart';
 import 'package:pickaboo/presentation/ui/widgets/filter_widgets/filter_options_list.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
@@ -54,9 +56,9 @@ class FilterBottomSheet extends StatelessWidget {
             );
 
             return Material(
-              color: Colors.white,
+              color: AppColors.white,
               clipBehavior: Clip.antiAlias,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+              borderRadius: AppRadius.sheetTop,
               child: SafeArea(
                 top: false,
                 child: Column(
@@ -84,8 +86,8 @@ class FilterBottomSheet extends StatelessWidget {
             );
           },
           orElse: () => Material(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+            color: AppColors.white,
+            borderRadius: AppRadius.sheetTop,
             child: SizedBox(
               height: 180.h,
               child: const AppLoader.inline(),
@@ -100,7 +102,7 @@ class FilterBottomSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         border: Border(
           bottom: BorderSide(color: AppColors.border, width: 1),
         ),
@@ -110,7 +112,7 @@ class FilterBottomSheet extends StatelessWidget {
         children: [
           Text(
             'Filters',
-            style: AppTypography.pageTitle,
+            style: AppTypography.titleLarge,
           ),
           if (totalSelected > 0)
             GestureDetector(
@@ -120,7 +122,7 @@ class FilterBottomSheet extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               child: Text(
                 'Clear All',
-                style: AppTypography.brandActionText,
+                style: AppTypography.brandAction,
               ),
             ),
         ],
@@ -132,37 +134,24 @@ class FilterBottomSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         border: Border(
           top: BorderSide(color: AppColors.border, width: 1),
         ),
       ),
-      child: SizedBox(
-        width: double.infinity,
+      child: AppButton.primary(
         height: 46.h,
-        child: ElevatedButton(
-          onPressed: () {
-            final filterBloc = context.read<FilterBloc>();
-            final selectedFilters = filterBloc.getSelectedFilters();
-            filterBloc.add(const FilterEvent.applied());
-            Navigator.pop(context);
-            onApply?.call(selectedFilters);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.pickabooBlue,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-          ),
-          child: Text(
-            totalSelected > 0
-                ? 'Apply Filters ($totalSelected)'
-                : 'Apply Filters',
-            style: AppTypography.buttonPrimary,
-          ),
-        ),
+        borderRadius: AppRadius.buttonRadius,
+        text: totalSelected > 0
+            ? 'Apply Filters ($totalSelected)'
+            : 'Apply Filters',
+        onPressed: () {
+          final filterBloc = context.read<FilterBloc>();
+          final selectedFilters = filterBloc.getSelectedFilters();
+          filterBloc.add(const FilterEvent.applied());
+          Navigator.pop(context);
+          onApply?.call(selectedFilters);
+        },
       ),
     );
   }

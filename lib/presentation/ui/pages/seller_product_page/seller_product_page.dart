@@ -4,8 +4,8 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
@@ -61,8 +61,6 @@ class _SellerProductPageState extends State<SellerProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     return Scaffold(
       backgroundColor: AppColors.pageBg,
       appBar: PickabooAppBar(
@@ -70,7 +68,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
           builder: (context, state) {
             return Text(
               state.sellerData?.vendorName ?? widget.sellerName,
-              style: AppTypography.pageTitle.copyWith(
+              style: AppTypography.titleLarge.copyWith(
                 fontWeight: FontWeight.w900,
               ),
               maxLines: 1,
@@ -126,8 +124,9 @@ class _SellerProductPageState extends State<SellerProductPage> {
                   state.pagingState.pages?.expand((page) => page).toList() ??
                   [];
 
-              if ((state.pagingState.pages?.isEmpty ?? true) &&
-                  state.pagingState.isLoading) {
+              if (allProducts.isEmpty &&
+                  (state.pagingState.isLoading ||
+                      state.pagingState.pages == null)) {
                 return const AppLoader.fullPage();
               }
 
@@ -160,7 +159,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
                 controller: _scrollController,
                 slivers: [
                   SliverToBoxAdapter(
-                    child: _buildSellerHeader(textStyle, sellerData),
+                    child: _buildSellerHeader(sellerData),
                   ),
 
                   if (sellerData != null)
@@ -174,7 +173,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
                           children: [
                             Text(
                               '${sellerData.totalCount} Products',
-                              style: textStyle.bodyMedium.copyWith(
+                              style: AppTypography.bodyMedium.copyWith(
                                 color: AppColors.muted,
                               ),
                             ),
@@ -205,7 +204,6 @@ class _SellerProductPageState extends State<SellerProductPage> {
   }
 
   Widget _buildSellerHeader(
-    AppTextStyles textStyle,
     dynamic sellerData,
   ) {
     return Container(
@@ -240,11 +238,11 @@ class _SellerProductPageState extends State<SellerProductPage> {
             child: widget.sellerLogo != null && widget.sellerLogo!.isNotEmpty
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.sellerLogo!,
+                    child: AppImage(
+                      imageUrl: widget.sellerLogo,
                       fit: BoxFit.contain,
-                      placeholder: (context, url) => const AppLoader.inline(),
-                      errorWidget: (context, url, error) =>
+                      placeholder: const AppLoader.inline(),
+                      errorWidget:
                           Icon(Icons.store, color: AppColors.muted, size: 32.sp),
                     ),
                   )
@@ -257,7 +255,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
               children: [
                 Text(
                   sellerData?.vendorName ?? widget.sellerName,
-                  style: textStyle.bodyLargeBold.copyWith(color: AppColors.text),
+                  style: AppTypography.bodyLarge.bold().copyWith(color: AppColors.text),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -265,7 +263,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
                   SizedBox(height: 4.h),
                   Text(
                     '${sellerData.totalCount} products available',
-                    style: textStyle.bodySmall.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       color: AppColors.muted,
                     ),
                   ),

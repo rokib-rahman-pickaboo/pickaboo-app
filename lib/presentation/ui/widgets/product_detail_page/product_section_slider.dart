@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/common_product_section_slider.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 class ProductSectionSlider extends StatelessWidget {
   final String title;
   final List<ProductEntity> products;
@@ -23,7 +25,7 @@ class ProductSectionSlider extends StatelessWidget {
       products: products,
       onProductTap: onProductTap,
       onViewAll: onViewAll,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
     );
   }
 }

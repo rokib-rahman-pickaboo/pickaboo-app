@@ -12,7 +12,7 @@ class SectionTitle extends StatelessWidget {
       title,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: AppTypography.sectionTitle.copyWith(
+      style: AppTypography.titleMedium.copyWith(
         fontSize: 14.sp,
         fontWeight: FontWeight.w800,
         color: AppColors.navy,

@@ -245,6 +245,37 @@ class PushNotificationService {
     }
   }
 
+  /// Directly binds authenticated user to Firebase topics & analytics.
+  Future<void> bindUserToFirebase(String userId) async {
+    try {
+      final userTopic = 'user_$userId';
+      final customerTopic = 'customer_$userId';
+      await _firebaseMessaging.subscribeToTopic(userTopic);
+      await _firebaseMessaging.subscribeToTopic(customerTopic);
+      debugPrint('╔═══════════════════════════════════════════════════════════════════════════════════════');
+      debugPrint('║ 🔥 [FIREBASE] Bound device directly to user topics: $userTopic, $customerTopic');
+      debugPrint('╚═══════════════════════════════════════════════════════════════════════════════════════');
+      if (kDebugMode) {
+        print('✅ [FIREBASE] Subscribed device to topics: $userTopic, $customerTopic');
+      }
+    } catch (e) {
+      debugPrint('❌ [FIREBASE] Error subscribing to user topic: $e');
+    }
+  }
+
+  /// Directly unbinds user from Firebase topics upon logout.
+  Future<void> unbindUserFromFirebase(String userId) async {
+    try {
+      final userTopic = 'user_$userId';
+      final customerTopic = 'customer_$userId';
+      await _firebaseMessaging.unsubscribeFromTopic(userTopic);
+      await _firebaseMessaging.unsubscribeFromTopic(customerTopic);
+      debugPrint('🚪 [FIREBASE] Unsubscribed device from user topics: $userTopic, $customerTopic');
+    } catch (e) {
+      debugPrint('❌ [FIREBASE] Error unsubscribing from user topic: $e');
+    }
+  }
+
   Future<void> _requestPermissions() async {
     final status = await Permission.notification.request();
 

@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
+import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/domain/repository/product_repository.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
@@ -76,11 +77,31 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   }
 
   Future<void> _onLoad(_Load event, Emitter<ProductDetailState> emit) async {
-    emit(const ProductDetailState.loading());
+    // 1. Instant Frame 0 hydration from preview product if available
+    bool hasInitialOrCachedData = false;
+    if (event.initialProduct != null) {
+      hasInitialOrCachedData = true;
+      emit(ProductDetailState.loaded(
+        ProductDetailEntity.fromProductEntity(event.initialProduct!),
+      ));
+    } else {
+      emit(const ProductDetailState.loading());
+    }
 
-    final productId = await _resolveProductId(event.productId, emit);
+    // Fast path: bypass slug resolution if productId is numeric or initialProduct has a numeric id
+    String? productId;
+    if (int.tryParse(event.productId) != null) {
+      productId = event.productId;
+    } else if (event.initialProduct != null &&
+        event.initialProduct!.id.isNotEmpty &&
+        int.tryParse(event.initialProduct!.id) != null) {
+      productId = event.initialProduct!.id;
+    } else {
+      productId = await _resolveProductId(event.productId, emit);
+    }
     if (productId == null) return;
 
+    // Retrieve customerId instantly from memory cache
     final customerId = await _getCustomerId();
     if (kDebugMode) {
       print(
@@ -88,13 +109,29 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       );
     }
 
-    final result = await repository.getProductDetail(
+    // Launch network request immediately without waiting for disk Hive cache
+    final networkFuture = repository.getProductDetail(
       productId: productId,
       customerId: customerId,
     );
 
+    // Concurrently check local in-memory/Hive cache for instant SWR hydration
+    final cachedResult = await repository.getSavedProductDetail(productId: productId);
+    cachedResult.fold((_) {}, (cachedProduct) {
+      if (cachedProduct != null) {
+        hasInitialOrCachedData = true;
+        emit(ProductDetailState.loaded(cachedProduct));
+      }
+    });
+
+    final result = await networkFuture;
+
     result.fold(
-      (error) => emit(ProductDetailState.error(error)),
+      (error) {
+        if (!hasInitialOrCachedData) {
+          emit(ProductDetailState.error(error));
+        }
+      },
       (product) {
         final effectivePrice = (product.spacialPrice > 0
                 ? product.spacialPrice

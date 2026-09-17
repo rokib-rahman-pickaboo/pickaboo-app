@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/category_products/category_products_entity.dart';
 import 'package:pickaboo/presentation/bloc/special_category_products_bloc/special_category_products_bloc.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
@@ -26,8 +26,6 @@ class CategoryFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyles = context.textStyle;
-
     if (attribute.items.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -43,7 +41,7 @@ class CategoryFilterChips extends StatelessWidget {
           separatorBuilder: (_, _) => SizedBox(width: 12.w),
           itemBuilder: (context, index) {
             final item = attribute.items[index];
-            return _buildChip(context, item, textStyles);
+            return _buildChip(context, item);
           },
         ),
       ),
@@ -53,7 +51,6 @@ class CategoryFilterChips extends StatelessWidget {
   Widget _buildChip(
     BuildContext context,
     FilterItemEntity item,
-    AppTextStyles textStyles,
   ) {
     final isSelected = currentFilters[attribute.filterCode]?.contains(item.value.toString()) ?? false;
 
@@ -74,12 +71,12 @@ class CategoryFilterChips extends StatelessWidget {
           ),
         );
       },
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: AppRadius.pillRadius,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue : AppColors.white,
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: AppRadius.pillRadius,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.muted.withValues(alpha: 0.3),
             width: 1.w,
@@ -88,7 +85,7 @@ class CategoryFilterChips extends StatelessWidget {
         child: Center(
           child: Text(
             item.label.removeHtmlTags,
-            style: textStyles.bodyMedium.copyWith(
+            style: AppTypography.bodyMedium.copyWith(
               color: isSelected ? AppColors.white : AppColors.text,
             ),
           ),

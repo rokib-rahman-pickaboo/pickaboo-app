@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class TimerBannerWidget extends StatefulWidget {
   final SliderEntity banner;
@@ -68,15 +70,13 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
         color: AppColors.pickabooBlue.withValues(
           alpha: 0.2,
         ),
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: AppRadius.cardRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.pageBg.withValues(alpha: 0.08),
@@ -86,14 +86,14 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: AppRadius.cardRadius,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               flex: 9,
               child: Image.asset(
-                'assets/new/demo/timer_banner_demo.png',
+                AppAssets.timerBannerDemo,
                 fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -115,14 +115,14 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SvgPicture.asset(
-                          'assets/new/svg/token_icon.svg',
+                          AppAssets.token,
                           width: 8.w,
                           height: 8.w,
                         ),
                         SizedBox(width: 4.w),
                         Text(
                           'Deal of the Week',
-                          style: textStyle.bodySmallBold.copyWith(
+                          style: AppTypography.bodySmall.bold().copyWith(
                             color: AppColors.text,
                             fontWeight: FontWeight.w800,
                             fontSize: 10.sp,
@@ -137,7 +137,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                       'Hurry Up! Offer ends in. Get',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: textStyle.bodyMedium.copyWith(
+                      style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.text,
                         fontWeight: FontWeight.w700,
                         fontSize: 13.sp,
@@ -148,7 +148,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                       'UP TO 80% OFF',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: textStyle.bodyMedium.copyWith(
+                      style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.pickabooBlue,
                         fontWeight: FontWeight.w700,
                         fontSize: 13.sp,
@@ -157,34 +157,24 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
 
                     SizedBox(height: 8.h),
 
-                    _buildCountdownTimer(textStyle),
+                    _buildCountdownTimer(),
 
                     SizedBox(height: 12.h),
 
-                    SizedBox(
+                    AppButton.primary(
+                      isFullWidth: false,
                       height: 32.h,
-                      child: ElevatedButton(
-                        onPressed: widget.onShopNow,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.pickabooBlue,
-                          foregroundColor: AppColors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 0,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6.r),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          'Shop Now',
-                          style: textStyle.bodyMedium.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12.sp,
-                          ),
-                        ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 0,
+                      ),
+                      borderRadius: AppRadius.smRadius,
+                      onPressed: widget.onShopNow,
+                      text: 'Shop Now',
+                      textStyle: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12.sp,
                       ),
                     ),
                   ],
@@ -197,7 +187,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
     );
   }
 
-  Widget _buildCountdownTimer(AppTextStyles textStyle) {
+  Widget _buildCountdownTimer() {
     final days = _remainingTime.inDays;
     final hours = _remainingTime.inHours % 24;
     final minutes = _remainingTime.inMinutes % 60;
@@ -210,7 +200,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             days.toString().padLeft(2, '0'),
             'DAYS',
-            textStyle,
           ),
         ),
         SizedBox(width: 2.w),
@@ -218,7 +207,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             hours.toString().padLeft(2, '0'),
             'HRS',
-            textStyle,
           ),
         ),
         SizedBox(width: 2.w),
@@ -226,7 +214,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             minutes.toString().padLeft(2, '0'),
             'MIN',
-            textStyle,
           ),
         ),
         SizedBox(width: 2.w),
@@ -234,7 +221,6 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           child: _buildTimeBox(
             seconds.toString().padLeft(2, '0'),
             'SEC',
-            textStyle,
           ),
         ),
       ],
@@ -244,20 +230,19 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
   Widget _buildTimeBox(
     String value,
     String label,
-    AppTextStyles textStyle,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: AppRadius.cardRadius,
         border: Border.all(color: AppColors.pickabooBlue, width: 2.w),
       ),
       child: Column(
         children: [
           Text(
             value,
-            style: textStyle.bodyMedium.copyWith(
+            style: AppTypography.bodyMedium.copyWith(
               color: AppColors.pickabooBlue,
               fontWeight: FontWeight.w700,
               fontSize: 13.sp,
@@ -265,7 +250,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           ),
           Text(
             label,
-            style: textStyle.bodySmall.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: AppColors.pickabooBlue,
               fontSize: 8.sp,
               fontWeight: FontWeight.w500,

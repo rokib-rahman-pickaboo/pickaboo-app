@@ -18,7 +18,9 @@ import 'package:pickaboo/presentation/bloc/auth/registration_bloc/registration_b
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modernized Pickaboo Registration Detail Page
 /// Form for entering personal details & password to finalize account creation.
@@ -149,13 +151,19 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
           orElse: () {},
         );
       },
-      child: GestureDetector(
-        onTap: _dismissKeyboard,
-        behavior: HitTestBehavior.opaque,
-        child: Scaffold(
-          backgroundColor: AppColors.pageBg,
-          body: ResponsiveContainer(
-            child: SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: AppColors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: GestureDetector(
+          onTap: _dismissKeyboard,
+          behavior: HitTestBehavior.opaque,
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            body: ResponsiveContainer(
+              child: SafeArea(
               child: Stack(
                 children: [
                   // ── BALANCED MAIN CONTENT ──
@@ -180,12 +188,12 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                 children: [
                                   // Brand Logo
                                   Image.asset(
-                                    'assets/images/pickaboo_new_logo.png',
+                                    AppAssets.logoNew,
                                     height: 44.h,
                                     fit: BoxFit.contain,
                                     errorBuilder: (context, error, stackTrace) {
                                       return Image.asset(
-                                        'assets/images/pickaboo-login-logo.png',
+                                        AppAssets.logoLogin,
                                         height: 44.h,
                                         fit: BoxFit.contain,
                                       );
@@ -212,7 +220,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                   // First Name Field
                                   TextFormField(
                                     controller: _firstNameController,
-                                    style: AppTypography.inputText,
+                                    style: AppTypography.bodyLarge.regular(),
                                     decoration: _buildInputDecoration(
                                       hintText: 'Enter your first name',
                                       prefixIcon: Icon(
@@ -232,7 +240,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                   // Last Name Field
                                   TextFormField(
                                     controller: _lastNameController,
-                                    style: AppTypography.inputText,
+                                    style: AppTypography.bodyLarge.regular(),
                                     decoration: _buildInputDecoration(
                                       hintText: 'Enter your last name',
                                       prefixIcon: Icon(
@@ -253,7 +261,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                   TextFormField(
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
-                                    style: AppTypography.inputText,
+                                    style: AppTypography.bodyLarge.regular(),
                                     decoration: _buildInputDecoration(
                                       hintText: 'Enter your email',
                                       prefixIcon: Icon(
@@ -272,7 +280,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                   TextFormField(
                                     controller: _passwordController,
                                     obscureText: _obscurePassword,
-                                    style: AppTypography.inputText,
+                                    style: AppTypography.bodyLarge.regular(),
                                     decoration: _buildInputDecoration(
                                       hintText: 'Enter your password (min. 6 chars)',
                                       prefixIcon: Icon(
@@ -308,7 +316,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                   TextFormField(
                                     controller: _confirmPasswordController,
                                     obscureText: _obscureConfirmPassword,
-                                    style: AppTypography.inputText,
+                                    style: AppTypography.bodyLarge.regular(),
                                     decoration: _buildInputDecoration(
                                       hintText: 'Confirm your password',
                                       prefixIcon: Icon(
@@ -341,28 +349,11 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                   SizedBox(height: 24.h),
 
                                   // Primary CTA Button (Register)
-                                  SizedBox(
-                                    width: double.infinity,
+                                  AppButton.primary(
                                     height: 50.h,
-                                    child: ElevatedButton(
-                                      onPressed:
-                                          _isLoading ? null : _handleRegister,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            AppColors.pickabooBlue,
-                                        foregroundColor: AppColors.white,
-                                        elevation: 0,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: AppRadius.cardRadius,
-                                        ),
-                                      ),
-                                      child: _isLoading
-                                          ? const AppLoader.button()
-                                          : Text(
-                                              'Register',
-                                              style: AppTypography.buttonPrimary,
-                                            ),
-                                    ),
+                                    isLoading: _isLoading,
+                                    onPressed: _handleRegister,
+                                    text: 'Register',
                                   ),
 
                                   SizedBox(height: 18.h),
@@ -373,7 +364,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                     children: [
                                       Text(
                                         'Already Registered? ',
-                                        style: AppTypography.bodyMutedLight,
+                                        style: AppTypography.bodySmall.mutedLight,
                                       ),
                                       GestureDetector(
                                         onTap: () {
@@ -382,7 +373,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                                         },
                                         child: Text(
                                           'Sign in here',
-                                          style: AppTypography.brandActionText,
+                                          style: AppTypography.brandAction,
                                         ),
                                       ),
                                     ],
@@ -401,7 +392,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                     top: 8.h,
                     left: 8.w,
                     child: Material(
-                      color: Colors.transparent,
+                      color: AppColors.transparent,
                       child: InkWell(
                         onTap: () {
                           _dismissKeyboard();
@@ -428,6 +419,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -16,8 +16,6 @@ class SettingToggleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
@@ -28,7 +26,7 @@ class SettingToggleItem extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: textTheme.bodySmall.copyWith(
+                  style: AppTypography.bodySmall.copyWith(
                     color: AppColors.text,
                     fontWeight: FontWeight.w500,
                   ),

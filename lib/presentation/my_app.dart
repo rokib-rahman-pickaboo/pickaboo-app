@@ -35,6 +35,11 @@ import 'package:pickaboo/presentation/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/wishlist/wishlist_bloc.dart';
+import 'dart:async';
+import 'package:go_router/go_router.dart';
+import 'package:pickaboo/core/navigation/app_navigator_key.dart';
+import 'package:pickaboo/core/navigation/session_expiration_notifier.dart';
+import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:provider/provider.dart';
 import 'bloc/internet/internet_bloc.dart';
 import 'bloc/nav_drawer/nav_drawer_bloc.dart';
@@ -50,12 +55,26 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late final AuthService _authService;
   late final AppRouter _appRouter;
+  StreamSubscription<void>? _sessionExpirationSub;
 
   @override
   void initState() {
     super.initState();
     _authService = AuthService();
     _appRouter = AppRouter(_authService);
+    _sessionExpirationSub =
+        SessionExpirationNotifier.onSessionExpired.listen((_) {
+      final context = appNavigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        context.go(Routes.login);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _sessionExpirationSub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -150,7 +169,7 @@ class _MyAppState extends State<MyApp> {
             context.read<UserProfileBloc>().add(
               const UserProfileEvent.clear(),
             );
-            context.read<CartBloc>().add(const CartEvent.getCart());
+            context.read<CartBloc>().add(const CartEvent.clearCartSession());
             context.read<CheckoutBloc>().add(
               const CheckoutEvent.resetCheckout(),
             );
@@ -160,9 +179,7 @@ class _MyAppState extends State<MyApp> {
           builder: (context, constraints) {
             // Android hands out a 0x0 window for the first frame(s)
             // ("FlutterRenderer: Width is zero"). ScreenUtil would derive a
-            // scale of 0 from it, making every `.sp` 0 — and because
-            // AppTextStyles caches its styles in `static final` fields, the
-            // first build permanently freezes fontSize 0 for the session.
+            // scale of 0 from it, making every `.sp` 0.
             // Skip those frames; the native splash is still on screen.
             if (constraints.biggest.isEmpty) {
               return const SizedBox.shrink();

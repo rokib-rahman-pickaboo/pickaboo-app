@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FilterSortOption {
@@ -85,8 +86,8 @@ class _FilterSortBarState extends State<FilterSortBar> {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppRadius.sheetTop,
       ),
       builder: (ctx) {
         return SafeArea(
@@ -107,7 +108,7 @@ class _FilterSortBarState extends State<FilterSortBar> {
                     children: [
                       Text(
                         'Sort Products By',
-                        style: AppTypography.pageTitle,
+                        style: AppTypography.titleLarge,
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(ctx),
@@ -141,10 +142,10 @@ class _FilterSortBarState extends State<FilterSortBar> {
                             title: Text(
                               option.title,
                               style: isSelected
-                                  ? AppTypography.brandActionText.copyWith(
+                                  ? AppTypography.brandAction.copyWith(
                                       fontWeight: FontWeight.w700,
                                     )
-                                  : AppTypography.brandActionText,
+                                  : AppTypography.brandAction,
                             ),
                             trailing: isSelected
                                 ? Icon(
@@ -187,82 +188,65 @@ class _FilterSortBarState extends State<FilterSortBar> {
         children: [
           // ── Sort Button ──
           Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _showSortBottomSheet,
+            child: AppButton.outline(
+              text: hasSort ? widget.activeSortLabel! : 'Sort',
               icon: Icon(
                 Icons.swap_vert_rounded,
                 size: 16.sp,
                 color: hasSort ? AppColors.pickabooBlue : AppColors.navy,
               ),
-              label: Text(
-                hasSort ? widget.activeSortLabel! : 'Sort',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.brandActionText,
-              ),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: AppColors.white,
-                padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 10.w),
-                side: BorderSide(color: AppColors.border, width: 1.2.w),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                elevation: 0,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
+              backgroundColor: AppColors.white,
+              borderColor: AppColors.border,
+              textColor: hasSort ? AppColors.pickabooBlue : AppColors.navy,
+              borderRadius: AppRadius.cardRadius,
+              height: 42.h,
+              onPressed: _showSortBottomSheet,
             ),
           ),
 
-          SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
+          AppSpacing.sameGroupWidthGap,
 
           // ── Filter Button ──
           Expanded(
-            child: OutlinedButton.icon(
+            child: AppButton.outline(
+              backgroundColor: hasFilters
+                  ? AppColors.pickabooBlue.withValues(alpha: 0.06)
+                  : AppColors.white,
+              borderColor: hasFilters ? AppColors.pickabooBlue : AppColors.border,
+              borderRadius: AppRadius.cardRadius,
+              height: 42.h,
               onPressed: widget.onFilterTap,
-              icon: Icon(
-                Icons.tune_rounded,
-                size: 16.sp,
-                color: hasFilters ? AppColors.pickabooBlue : AppColors.navy,
-              ),
-              label: Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Icon(
+                    Icons.tune_rounded,
+                    size: 16.sp,
+                    color: hasFilters ? AppColors.pickabooBlue : AppColors.navy,
+                  ),
+                  SizedBox(width: 8.w),
                   Text(
-                    'Filter',
-                    style: AppTypography.brandActionText,
+                    AppStrings.filter,
+                    style: AppTypography.brandAction,
                   ),
                   if (hasFilters) ...[
                     SizedBox(width: 5.w),
                     Container(
                       constraints: BoxConstraints(minWidth: 16.w),
                       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.pickabooBlue,
-                        borderRadius: BorderRadius.circular(10.r),
+                        borderRadius: AppRadius.chipRadius,
                       ),
                       child: Text(
                         '${widget.activeFilterCount}',
                         textAlign: TextAlign.center,
-                        style: AppTypography.buttonPrimary,
+                        style: AppTypography.button,
                       ),
                     ),
                   ],
                 ],
-              ),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: hasFilters
-                    ? AppColors.pickabooBlue.withValues(alpha: 0.06)
-                    : AppColors.white,
-                padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 10.w),
-                side: BorderSide(
-                  color: hasFilters ? AppColors.pickabooBlue : AppColors.border,
-                  width: 1.2.w,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                elevation: 0,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
           ),
@@ -278,12 +262,12 @@ class _FilterSortBarState extends State<FilterSortBar> {
               _saveViewMode(_isGridView);
               widget.onViewModeChanged?.call(_isGridView);
             },
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: AppRadius.cardRadius,
             child: Container(
               padding: EdgeInsets.all(9.w),
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: AppRadius.cardRadius,
                 border: Border.all(color: AppColors.border, width: 1.2.w),
                 boxShadow: [
                   BoxShadow(

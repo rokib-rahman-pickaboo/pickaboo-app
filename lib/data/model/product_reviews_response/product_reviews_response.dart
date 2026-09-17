@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pickaboo/core/utils/date_time_utils.dart';
 
 part 'product_reviews_response.freezed.dart';
 part 'product_reviews_response.g.dart';
@@ -31,7 +32,8 @@ class ProductReviewsResponse with _$ProductReviewsResponse {
 class ProductReviewItemResponse with _$ProductReviewItemResponse {
   const factory ProductReviewItemResponse({
     @JsonKey(name: "review_id") int? reviewId,
-    @JsonKey(name: "posted_on") DateTime? postedOn,
+    @JsonKey(name: "posted_on", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson)
+    DateTime? postedOn,
     @JsonKey(name: "reviewer_name") String? reviewerName,
     @JsonKey(name: "reviewer_image") String? reviewerImage,
     @JsonKey(name: "reviewer_rating") double? reviewerRating,

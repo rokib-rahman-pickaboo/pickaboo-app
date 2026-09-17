@@ -300,7 +300,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
                                     focusNode: fieldFocusNode,
                                     autofocus: true,
                                     cursorColor: AppColors.pickabooBlue,
-                                    style: AppTypography.bodyRegular,
+                                    style: AppTypography.bodyMedium,
                                     onChanged: (val) {
                                       _onQueryChanged(val);
                                       setState(() {});
@@ -319,7 +319,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
                                       hintText: 'Search what you are looking for...',
                                       hintStyle: AppTypography.inputHint,
                                       filled: true,
-                                      fillColor: Colors.transparent,
+                                      fillColor: AppColors.transparent,
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,

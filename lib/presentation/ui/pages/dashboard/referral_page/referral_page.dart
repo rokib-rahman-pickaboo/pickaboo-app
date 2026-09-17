@@ -15,6 +15,7 @@ import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/referral/referral_bloc.dart';
 import 'package:pickaboo/presentation/bloc/referral/referral_event.dart';
 import 'package:pickaboo/presentation/bloc/referral/referral_state.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
@@ -88,7 +89,7 @@ class _ReferralPageState extends State<ReferralPage> {
             inviteSuccess: () => Center(
               child: Text(
                 'Invitation sent successfully!',
-                style: AppTypography.cardTitle,
+                style: AppTypography.titleSmall,
               ),
             ),
             error: (message) => Center(
@@ -103,21 +104,18 @@ class _ReferralPageState extends State<ReferralPage> {
                   SizedBox(height: 16.h),
                   Text(
                     message,
-                    style: AppTypography.bodyRegular,
+                    style: AppTypography.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
+                  AppSpacing.gapV16,
+                  AppButton.primary(
+                    text: 'Retry',
+                    isFullWidth: false,
                     onPressed: () {
                       context.read<ReferralBloc>().add(
                         const ReferralEvent.getReferralHistory(),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pickabooBlue,
-                      foregroundColor: AppColors.white,
-                    ),
-                    child: const Text('Retry'),
                   ),
                 ],
               ),
@@ -136,28 +134,18 @@ class _ReferralPageState extends State<ReferralPage> {
                 color: AppColors.pageBg,
                 padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
                 child: SafeArea(
-                  child: SizedBox(
-                    height: 48.h,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _shareReferralLink(referralUrl),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.pickabooBlue,
-                        foregroundColor: AppColors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      icon: Icon(
-                        Icons.share_rounded,
-                        color: AppColors.white,
-                        size: 18.sp,
-                      ),
-                      label: Text(
-                        'Share Invitation',
-                        style: AppTypography.buttonPrimary,
-                      ),
+                  top: false,
+                  child: AppButton.primary(
+                    text: 'Share Invitation',
+                    icon: Icon(
+                      Icons.share_rounded,
+                      color: AppColors.white,
+                      size: 18.sp,
                     ),
+                    isFullWidth: true,
+                    height: 48.h,
+                    borderRadius: BorderRadius.circular(12.r),
+                    onPressed: () => _shareReferralLink(referralUrl),
                   ),
                 ),
               );
@@ -209,14 +197,14 @@ class _ReferralPageState extends State<ReferralPage> {
                     SizedBox(width: 10.w),
                     Text(
                       'Share your referral link',
-                      style: AppTypography.sectionTitle,
+                      style: AppTypography.titleMedium,
                     ),
                   ],
                 ),
                 SizedBox(height: 8.h),
                 Text(
                   'Send this link to your friends and earn rewards',
-                  style: AppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
                 SizedBox(height: 12.h),
 
@@ -236,30 +224,21 @@ class _ReferralPageState extends State<ReferralPage> {
                       Expanded(
                         child: Text(
                           referralUrl,
-                          style: AppTypography.inputText,
+                          style: AppTypography.bodyLarge.regular(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SizedBox(width: 8.w),
-                      ElevatedButton.icon(
-                        onPressed: () => _copyToClipboard(referralUrl),
+                      AppSpacing.gapH8,
+                      AppButton.primary(
+                        text: 'Copy',
                         icon: Icon(Icons.copy_rounded, size: 14.sp, color: AppColors.white),
-                        label: Text(
-                          'Copy',
-                          style: AppTypography.buttonPrimary,
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.pickabooBlue,
-                          foregroundColor: AppColors.white,
-                          elevation: 0,
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                        ),
+                        isFullWidth: false,
+                        size: AppButtonSize.sm,
+                        height: 32.h,
+                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                        borderRadius: BorderRadius.circular(8.r),
+                        onPressed: () => _copyToClipboard(referralUrl),
                       ),
                     ],
                   ),
@@ -347,7 +326,7 @@ class _ReferralPageState extends State<ReferralPage> {
               children: [
                 Text(
                   'Your Referral Journey',
-                  style: AppTypography.sectionTitle,
+                  style: AppTypography.titleMedium,
                 ),
                 SizedBox(height: 14.h),
 
@@ -416,14 +395,14 @@ class _ReferralPageState extends State<ReferralPage> {
                               SizedBox(height: 1.h),
                               Text(
                                 'You created an account',
-                                style: AppTypography.cardTitle,
+                                style: AppTypography.titleSmall,
                               ),
                               SizedBox(height: 30.h),
                               Text(
                                 hasReferred
                                     ? 'You have referred a friend'
                                     : 'You haven\'t referred a friend yet',
-                                style: hasReferred ? AppTypography.cardTitle : AppTypography.bodyMuted,
+                                style: hasReferred ? AppTypography.titleSmall : AppTypography.bodySmall,
                               ),
                             ],
                           ),
@@ -446,7 +425,7 @@ class _ReferralPageState extends State<ReferralPage> {
               children: [
                 Text(
                   'How to Earn',
-                  style: AppTypography.sectionTitle,
+                  style: AppTypography.titleMedium,
                 ),
                 SizedBox(height: 14.h),
 
@@ -524,12 +503,12 @@ class _ReferralPageState extends State<ReferralPage> {
             children: [
               Text(
                 title,
-                style: AppTypography.cardTitle,
+                style: AppTypography.titleSmall,
               ),
               SizedBox(height: 2.h),
               Text(
                 subtitle,
-                style: AppTypography.bodyMuted,
+                style: AppTypography.bodySmall,
               ),
             ],
           ),

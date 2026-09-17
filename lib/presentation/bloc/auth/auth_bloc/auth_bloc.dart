@@ -5,6 +5,9 @@ import 'package:injectable/injectable.dart';
 import 'package:pickaboo/domain/entity/auth/user_entity.dart';
 import 'package:pickaboo/domain/repository/auth_repository.dart';
 import 'package:pickaboo/domain/repository/user_profile_repository.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:pickaboo/data/services/push_notification_service.dart';
+import 'package:pickaboo/injection.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -70,6 +73,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               print('✅ AuthBloc: User authenticated - ${user.email}');
             }
             emit(AuthState.authenticated(token: token, user: user));
+            _syncWithFirebase(user.id.toString());
           },
         );
       } else {
@@ -107,6 +111,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             print('✅ AuthBloc: User authenticated - ${user.email}');
           }
           emit(AuthState.authenticated(token: token ?? '', user: user));
+          _syncWithFirebase(user.id.toString());
         },
       );
     } catch (e) {
@@ -120,6 +125,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (kDebugMode) print('🔵 AuthBloc: User logged out — clearing all caches');
+    try {
+      final profileResult = await _userProfileRepository.getProfile();
+      profileResult.fold(
+        (_) {},
+        (user) => getIt<PushNotificationService>().unbindUserFromFirebase(user.id.toString()),
+      );
+    } catch (_) {}
     await _clearAllCaches();
     emit(const AuthState.unauthenticated());
   }
@@ -153,8 +165,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final cached = await _userProfileRepository.getProfile();
           cached.fold(
             (_) => emit(const AuthState.unauthenticated()),
-            (user) =>
-                emit(AuthState.authenticated(token: event.newToken, user: user)),
+            (user) {
+              emit(AuthState.authenticated(token: event.newToken, user: user));
+              _syncWithFirebase(user.id.toString());
+            },
           );
         },
         (user) async {
@@ -162,11 +176,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             print('✅ AuthBloc: Token revalidated — ${user.email}');
           }
           emit(AuthState.authenticated(token: event.newToken, user: user));
+          _syncWithFirebase(user.id.toString());
         },
       );
     } catch (e) {
       if (kDebugMode) print('⚠️ AuthBloc: Token refresh error — keeping token: $e');
       emit(const AuthState.unauthenticated());
+    }
+  }
+
+  Future<void> _syncWithFirebase(String userId) async {
+    try {
+      final pushService = getIt<PushNotificationService>();
+      await pushService.bindUserToFirebase(userId);
+      String? fcmToken = await pushService.getStoredToken();
+      if (fcmToken == null || fcmToken.isEmpty) {
+        fcmToken = await FirebaseMessaging.instance.getToken();
+      }
+
+      debugPrint('╔═══════════════════════════════════════════════════════════════════════════════════════');
+      debugPrint('║ 🔥 [FIREBASE] Device token active and bound directly to user:');
+      debugPrint('║ 👤 User ID: $userId');
+      debugPrint('║ 🔑 Token: $fcmToken');
+      debugPrint('║ 🏷️ Topics: user_$userId, customer_$userId');
+      debugPrint('╚═══════════════════════════════════════════════════════════════════════════════════════');
+      // ignore: avoid_print
+      print('FIREBASE_ACTIVE_USER_TOKEN: $fcmToken');
+    } catch (e) {
+      debugPrint('⚠️ [FIREBASE] Exception while syncing with Firebase: $e');
     }
   }
 }

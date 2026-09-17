@@ -44,7 +44,7 @@ class DeliveryOptionsWidget extends StatelessWidget {
         children: [
           Text(
             "Delivery Options",
-            style: AppTypography.sectionTitle,
+            style: AppTypography.titleMedium,
           ),
           SizedBox(height: 8.h),
           if (methods.isNotEmpty)
@@ -88,7 +88,7 @@ class _DeliveryOptionCard extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: selected ? AppColors.surfaceBlue : AppColors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: AppRadius.cardRadius,
           border: Border.all(
             color: selected ? AppColors.pickabooBlue : AppColors.border,
             width: selected ? 1.5 : 1,
@@ -106,13 +106,13 @@ class _DeliveryOptionCard extends StatelessWidget {
                 children: [
                   Text(
                     method.carrierTitle,
-                    style: AppTypography.cardTitle,
+                    style: AppTypography.titleSmall,
                   ),
                   if (method.methodTitle.isNotEmpty) ...[
                     SizedBox(height: 2.h),
                     Text(
                       method.methodTitle,
-                      style: AppTypography.bodyMuted.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
                         height: 1.25,
                       ),
                     ),

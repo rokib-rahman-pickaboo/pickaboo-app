@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/validatator/validator.dart';
 
 class PhoneTextField extends StatelessWidget {
@@ -28,12 +28,11 @@ class PhoneTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: textStyle.inputLabel.copyWith(color: AppColors.text)),
+        Text(label, style: AppTypography.bodyLarge.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
         TextFormField(
           controller: controller,
@@ -41,20 +40,20 @@ class PhoneTextField extends StatelessWidget {
           inputFormatters: inputFormatters,
           validator: validator ?? validateMobileNumber,
           onChanged: onChanged,
-          style: textStyle.inputText.copyWith(color: AppColors.text),
+          style: AppTypography.bodyLarge.regular().copyWith(color: AppColors.text),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: textStyle.inputPlaceholder.copyWith(
+            hintStyle: AppTypography.inputHint.copyWith(
               color: AppColors.muted.withValues(alpha: 0.5),
             ),
             filled: true,
             fillColor: AppColors.white,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.inputRadius,
               borderSide: BorderSide(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.inputRadius,
               borderSide: BorderSide(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
           ),

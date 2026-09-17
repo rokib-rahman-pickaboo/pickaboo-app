@@ -22,6 +22,7 @@ import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:collection/collection.dart';
 import 'package:pickaboo/presentation/bloc/nav_drawer/nav_drawer_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/home_category_nav.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/primary_home_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/secondary_home_widget.dart';
@@ -42,6 +43,9 @@ import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/bloc/internet/internet_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
+import 'package:pickaboo/core/cache/category_preload_cache.dart';
+import 'package:pickaboo/core/services/category_preload_queue.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -55,7 +59,7 @@ class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
 
   String _selectedCategory = 'For You';
-  bool _isCategoryNavCollapsed = false;
+  final ValueNotifier<bool> _isCategoryNavCollapsed = ValueNotifier<bool>(false);
 
   StreamSubscription<String?>? _fcmTokenSub;
 
@@ -99,6 +103,9 @@ class _HomePageState extends State<HomePage> {
         token,
       ) {
         if (token != null && mounted) {
+          debugPrint('📱 [DEVICE_FCM_TOKEN] $token');
+          // ignore: avoid_print
+          print('DEVICE_TOKEN: $token');
           context.read<NotificationBloc>().add(
             NotificationEvent.saveFcmToken(token: token),
           );
@@ -107,23 +114,51 @@ class _HomePageState extends State<HomePage> {
 
       getIt<PushNotificationService>().getStoredToken().then((token) {
         if (token != null && mounted) {
+          debugPrint('📱 [DEVICE_FCM_TOKEN] $token');
+          // ignore: avoid_print
+          print('DEVICE_TOKEN: $token');
           context.read<NotificationBloc>().add(
             NotificationEvent.saveFcmToken(token: token),
           );
         }
       });
+
+      _logDeviceToken();
     });
+  }
+
+  Future<void> _logDeviceToken() async {
+    try {
+      final token = await getIt<PushNotificationService>().getStoredToken() ??
+          await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        debugPrint('╔═══════════════════════════════════════════════════════════════════════════════════════');
+        debugPrint('║ 📱 [DEVICE_FCM_TOKEN]');
+        debugPrint('║ $token');
+        debugPrint('╚═══════════════════════════════════════════════════════════════════════════════════════');
+        // ignore: avoid_print
+        print('DEVICE_TOKEN: $token');
+        // ignore: avoid_print
+        print('FCM_TOKEN: $token');
+      } else {
+        debugPrint('⚠️ [DEVICE_FCM_TOKEN] Token is null');
+      }
+    } catch (e) {
+      debugPrint('❌ [DEVICE_FCM_TOKEN] Error retrieving FCM token: $e');
+    }
   }
 
   @override
   void dispose() {
     _fcmTokenSub?.cancel();
     _scrollController.dispose();
+    _isCategoryNavCollapsed.dispose();
     MainPage.hideBottomNav.value = false;
     super.dispose();
   }
 
   Future<void> _onRefresh() async {
+    CategoryPreloadQueue.instance.clear();
     context.read<HomeContentBloc>().add(
       const HomeContentEvent.getFeedContent(forceRefresh: true),
     );
@@ -133,6 +168,7 @@ class _HomePageState extends State<HomePage> {
     context.read<PromotionSliderBloc>().add(
       const PromotionSliderEvent.getPromotionSlider(),
     );
+    context.read<JustForYouBloc>().add(const JustForYouEvent.refresh());
   }
 
   @override
@@ -165,7 +201,6 @@ class _HomePageState extends State<HomePage> {
                   print('   Triggering UserProfileBloc.loadUserProfile()');
                 }
 
-                context.read<CartBloc>().add(const CartEvent.getCart());
                 context.read<UserProfileBloc>().add(
                   const UserProfileEvent.loadUserProfile(),
                 );
@@ -182,11 +217,11 @@ class _HomePageState extends State<HomePage> {
               unauthenticated: () {
                 if (kDebugMode) {
                   print('🚪 [AUTH LISTENER] User logged out');
-                  print('   Triggering CartBloc.getCart() as guest');
+                  print('   Resetting CartBloc to guest state');
                   print('   Resetting UserProfileBloc to initial state');
                 }
 
-                context.read<CartBloc>().add(const CartEvent.getCart());
+                context.read<CartBloc>().add(const CartEvent.clearCartSession());
                 context.read<UserProfileBloc>().add(
                   const UserProfileEvent.clear(),
                 );
@@ -235,78 +270,87 @@ class _HomePageState extends State<HomePage> {
       ],
       child: BlocBuilder<HomeContentBloc, HomeContentState>(
         builder: (context, homeContentState) {
-          final isUncachedOffline = homeContentState.homeFeed == null &&
-              ConnectivityUtils.isOffline(context);
+          final hasContent = homeContentState.homeFeed != null;
 
-          final isUncachedGenericError = homeContentState.homeFeed == null &&
-              !isUncachedOffline &&
-              homeContentState.status == HomeContentStatus.error;
-
-          final hideBottomNav = isUncachedOffline || isUncachedGenericError;
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (MainPage.hideBottomNav.value != hideBottomNav) {
-              MainPage.hideBottomNav.value = hideBottomNav;
-            }
-          });
-
-          if (isUncachedOffline) {
-            return Scaffold(
-              key: _scaffoldKey,
-              backgroundColor: AppColors.pageBg,
-              body: SafeArea(
-                child: NoInternetPage(
-                  showAppBar: false,
-                  onRetry: () => _onRefresh(),
-                ),
-              ),
-            );
-          }
-
-          if (isUncachedGenericError) {
-            return Scaffold(
-              key: _scaffoldKey,
-              backgroundColor: AppColors.pageBg,
-              body: SafeArea(
-                child: AppErrorView(
-                  type: AppErrorType.generic,
-                  title: "Couldn't load home content",
-                  message: 'Please try again in a moment.',
-                  retryLabel: 'Retry',
-                  onRetry: () => _onRefresh(),
-                ),
-              ),
-            );
-          }
-
-          if (homeContentState.homeFeed == null &&
-              homeContentState.status == HomeContentStatus.loading) {
-            return Scaffold(
-              key: _scaffoldKey,
-              backgroundColor: AppColors.pageBg,
-              body: SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    HomeTopHeader(
-                      onMenuTap: () => context.read<NavDrawerBloc>().add(
-                        const NavDrawerEvent.openDrawer(),
+          if (!hasContent) {
+            // While initial load is in progress, ALWAYS show loader — never flash error or offline
+            if (homeContentState.status == HomeContentStatus.loading ||
+                homeContentState.status == HomeContentStatus.initial) {
+              return Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: AppColors.pageBg,
+                body: SafeArea(
+                  bottom: false,
+                  child: Column(
+                    children: [
+                      HomeTopHeader(
+                        onMenuTap: () => context.read<NavDrawerBloc>().add(
+                          const NavDrawerEvent.openDrawer(),
+                        ),
+                        categoryName: _selectedCategory,
                       ),
-                      categoryName: _selectedCategory,
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: colors.primary,
-                          strokeWidth: 2.w,
+                      Expanded(
+                        child: Center(
+                          child: AppLoader(
+                            color: AppColors.pickabooBlue,
+                            strokeWidth: 2.w,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
+              );
+            }
+
+            // If loading finished with error and no cached content exists
+            if (homeContentState.status == HomeContentStatus.error) {
+              final isOffline = ConnectivityUtils.isNoInternet(
+                homeContentState.error,
+                context,
+              );
+
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (MainPage.hideBottomNav.value != true) {
+                  MainPage.hideBottomNav.value = true;
+                }
+              });
+
+              if (isOffline) {
+                return Scaffold(
+                  key: _scaffoldKey,
+                  backgroundColor: AppColors.pageBg,
+                  body: SafeArea(
+                    child: NoInternetPage(
+                      showAppBar: false,
+                      onRetry: () => _onRefresh(),
+                    ),
+                  ),
+                );
+              }
+
+              return Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: AppColors.pageBg,
+                body: SafeArea(
+                  child: AppErrorView(
+                    type: AppErrorType.generic,
+                    title: "Couldn't load home content",
+                    message: 'Please try again in a moment.',
+                    retryLabel: 'Retry',
+                    onRetry: () => _onRefresh(),
+                  ),
+                ),
+              );
+            }
           }
+
+          // Content exists — make sure bottom nav is visible
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (MainPage.hideBottomNav.value != false) {
+              MainPage.hideBottomNav.value = false;
+            }
+          });
 
           final homeFeed = homeContentState.homeFeed;
           final drawerCategories = context
@@ -344,9 +388,15 @@ class _HomePageState extends State<HomePage> {
               _lastSections = sections;
               _lastBanners = banners;
 
-              for (final cat in displayCategories) {
-                SecondaryHomeWidget.prewarm(cat);
-              }
+              // Zero-cost instant seeding from home feed products
+              CategoryPreloadCache.instance.seedFromHomeFeed(homeFeed);
+
+              // Enqueue visible categories for controlled sequential background preloading
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  CategoryPreloadQueue.instance.enqueue(displayCategories);
+                }
+              });
             }
           }
 
@@ -377,94 +427,96 @@ class _HomePageState extends State<HomePage> {
                     categoryName: _selectedCategory,
                   ),
                   if (displayCategories.isNotEmpty)
-                    HomeCategoryNav(
-                      categories: displayCategories,
-                      selectedCategory: _selectedCategory,
-                      isCollapsed: _isCategoryNavCollapsed,
-                      onCategorySelected: (cat) {
-                        if (_selectedCategory != cat) {
-                          setState(() {
-                            _selectedCategory = cat;
-                          });
-                          if (_scrollController.hasClients) {
-                            _scrollController.jumpTo(0);
-                          }
-                        }
-                      },
-                      onViewAll: () {
-                        context.go(Routes.discoverCategory);
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _isCategoryNavCollapsed,
+                      builder: (context, isCollapsed, _) {
+                        return HomeCategoryNav(
+                          categories: displayCategories,
+                          selectedCategory: _selectedCategory,
+                          isCollapsed: isCollapsed,
+                          onCategorySelected: (cat) {
+                            if (_selectedCategory != cat) {
+                              setState(() {
+                                _selectedCategory = cat;
+                              });
+                              if (_scrollController.hasClients) {
+                                _scrollController.jumpTo(0);
+                              }
+                            }
+                          },
+                          onViewAll: () {
+                            context.go(Routes.discoverCategory);
+                          },
+                        );
                       },
                     ),
                   Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      color: colors.primary,
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (notification) {
-                          if (notification is ScrollUpdateNotification) {
-                            final metrics = notification.metrics;
-                            if (metrics.axis == Axis.vertical) {
-                              final isDown = (notification.scrollDelta ?? 0) > 2;
-                              final isUp = (notification.scrollDelta ?? 0) < -2;
-                              if (isDown && !_isCategoryNavCollapsed && metrics.pixels > 60) {
-                                setState(() => _isCategoryNavCollapsed = true);
-                              } else if ((isUp || metrics.pixels <= 20) && _isCategoryNavCollapsed) {
-                                setState(() => _isCategoryNavCollapsed = false);
-                              }
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification is ScrollUpdateNotification) {
+                          final metrics = notification.metrics;
+                          if (metrics.axis == Axis.vertical) {
+                            final isDown = (notification.scrollDelta ?? 0) > 2;
+                            final isUp = (notification.scrollDelta ?? 0) < -2;
+                            if (isDown && !_isCategoryNavCollapsed.value && metrics.pixels > 60) {
+                              _isCategoryNavCollapsed.value = true;
+                            } else if ((isUp || metrics.pixels <= 20) && _isCategoryNavCollapsed.value) {
+                              _isCategoryNavCollapsed.value = false;
                             }
                           }
-                          return false;
-                        },
-                        child: CustomScrollView(
-                          controller: _scrollController,
-                          slivers: [
-                            if (homeFeed != null) ...[
-                              if (_selectedCategory == 'For You')
-                                PrimaryHomeWidget(
-                                  homeFeed: homeFeed,
-                                  heroTopBanners: _heroTopBanners,
-                                  heroBottomBanners: _heroBottomBanners,
-                                  insertionMap: _insertionMap,
-                                )
-                              else ...[
-                                Builder(
-                                  builder: (context) {
-                                    final selectedCategoryEntity =
-                                        displayCategories.firstWhereOrNull(
-                                      (c) => c.name == _selectedCategory,
-                                    ) ?? homeFeed.categoryList.firstWhereOrNull(
-                                      (c) => c.name == _selectedCategory,
-                                    );
-                                    if (selectedCategoryEntity != null) {
-                                      return SecondaryHomeWidget(
-                                        category: selectedCategoryEntity,
-                                        onViewAll: () {
-                                          context.pushToCategoryProduct(
-                                            categoryId: selectedCategoryEntity.id,
-                                            categoryName: selectedCategoryEntity.name,
-                                          );
-                                        },
-                                      );
-                                    }
-                                    return const SliverToBoxAdapter(
-                                      child: SizedBox.shrink(),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ] else if (homeContentState.status == HomeContentStatus.error) ...[
-                              SliverFillRemaining(
-                                hasScrollBody: false,
-                                child: AppErrorView(
-                                  type: AppErrorType.server,
-                                  message: homeContentState.error?.message,
-                                  onRetry: () => _onRefresh(),
-                                ),
+                        }
+                        return false;
+                      },
+                      child: _selectedCategory == 'For You'
+                          ? RefreshIndicator(
+                              onRefresh: _onRefresh,
+                              color: colors.primary,
+                              child: CustomScrollView(
+                                controller: _scrollController,
+                                cacheExtent: 1000.0,
+                                slivers: [
+                                  if (homeFeed != null) ...[
+                                    PrimaryHomeWidget(
+                                      homeFeed: homeFeed,
+                                      heroTopBanners: _heroTopBanners,
+                                      heroBottomBanners: _heroBottomBanners,
+                                      insertionMap: _insertionMap,
+                                    ),
+                                  ] else if (homeContentState.status == HomeContentStatus.error) ...[
+                                    SliverFillRemaining(
+                                      hasScrollBody: false,
+                                      child: AppErrorView(
+                                        type: AppErrorType.server,
+                                        message: homeContentState.error?.message,
+                                        onRetry: () => _onRefresh(),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
-                            ],
-                          ],
-                        ),
-                      ),
+                            )
+                          : Builder(
+                              builder: (context) {
+                                final selectedCategoryEntity =
+                                    displayCategories.firstWhereOrNull(
+                                  (c) => c.name == _selectedCategory,
+                                ) ?? homeFeed?.categoryList.firstWhereOrNull(
+                                  (c) => c.name == _selectedCategory,
+                                );
+                                if (selectedCategoryEntity != null) {
+                                  final categoryKey = selectedCategoryEntity.id.isNotEmpty
+                                      ? selectedCategoryEntity.id
+                                      : (selectedCategoryEntity.slug.isNotEmpty
+                                          ? selectedCategoryEntity.slug
+                                          : _selectedCategory);
+                                  return SecondaryHomeWidget(
+                                    key: ValueKey(categoryKey),
+                                    category: selectedCategoryEntity,
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
                     ),
                   ),
                 ],

@@ -16,7 +16,10 @@ import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/presentation/bloc/auth/forgot_password_bloc/forgot_password_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modernized Pickaboo Forgot Password Confirm Page
 /// Allows users to enter OTP and set a new password with a 5-minute expiration timer.
@@ -273,13 +276,19 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
           orElse: () {},
         );
       },
-      child: GestureDetector(
-        onTap: _dismissKeyboard,
-        behavior: HitTestBehavior.opaque,
-        child: Scaffold(
-          backgroundColor: AppColors.pageBg,
-          body: ResponsiveContainer(
-            child: SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: AppColors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: GestureDetector(
+          onTap: _dismissKeyboard,
+          behavior: HitTestBehavior.opaque,
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            body: ResponsiveContainer(
+              child: SafeArea(
               child: Stack(
                 children: [
                   // ── BALANCED MAIN CONTENT ──
@@ -302,12 +311,12 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                               children: [
                                 // Brand Logo
                                 Image.asset(
-                                  'assets/images/pickaboo_new_logo.png',
+                                  AppAssets.logoNew,
                                   height: 44.h,
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Image.asset(
-                                      'assets/images/pickaboo-login-logo.png',
+                                      AppAssets.logoLogin,
                                       height: 44.h,
                                       fit: BoxFit.contain,
                                     );
@@ -333,7 +342,7 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
 
                                 Text(
                                   'Please enter the OTP & set your new password.',
-                                  style: AppTypography.bodyMutedLight,
+                                  style: AppTypography.bodySmall.mutedLight,
                                   textAlign: TextAlign.center,
                                 ),
 
@@ -345,7 +354,7 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                                   keyboardType: TextInputType.number,
                                   maxLength: 6,
                                   enabled: !_isExpired && !_isLoading,
-                                  style: AppTypography.inputText,
+                                  style: AppTypography.bodyLarge.regular(),
                                   decoration: _buildInputDecoration(
                                     hintText: 'Enter your otp',
                                     prefixIcon: Icon(
@@ -374,7 +383,7 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                                   controller: _passwordController,
                                   obscureText: _obscurePassword,
                                   enabled: !_isExpired && !_isLoading,
-                                  style: AppTypography.inputText,
+                                  style: AppTypography.bodyLarge.regular(),
                                   decoration: _buildInputDecoration(
                                     hintText: 'Enter new password',
                                     prefixIcon: Icon(
@@ -412,7 +421,7 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                                   controller: _confirmPasswordController,
                                   obscureText: _obscureConfirmPassword,
                                   enabled: !_isExpired && !_isLoading,
-                                  style: AppTypography.inputText,
+                                  style: AppTypography.bodyLarge.regular(),
                                   decoration: _buildInputDecoration(
                                     hintText: 'Confirm new password',
                                     prefixIcon: Icon(
@@ -460,52 +469,41 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                                           ),
                                           SizedBox(width: 4.w),
                                           Text(
-                                            'Resend OTP in $_formattedCountdown',
-                                            style: AppTypography.bodyMuted,
+                                            AppStrings.resendOtpCountdown(_formattedCountdown),
+                                            style: AppTypography.bodySmall,
                                           ),
                                         ],
                                       )
-                                    : TextButton(
+                                    : AppButton.ghost(
+                                        shrinkWrap: true,
+                                        isDisabled: _isLoading || _isResending,
                                         onPressed:
                                             _isLoading || _isResending
                                                 ? null
                                                 : _handleResendOtp,
-                                        style: TextButton.styleFrom(
-                                          padding: EdgeInsets.zero,
-                                          minimumSize: Size.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
                                         child: _isResending
                                             ? Row(
                                                 mainAxisSize:
                                                     MainAxisSize.min,
                                                 children: [
-                                                  SizedBox(
-                                                    width: 12.w,
-                                                    height: 12.w,
-                                                    child:
-                                                        const CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                              Color>(
-                                                        AppColors.pickabooBlue,
-                                                      ),
-                                                    ),
+                                                  AppLoader.inline(
+                                                    size: 12.w,
+                                                    strokeWidth: 2,
+                                                    color: AppColors.pickabooBlue,
+                                                    padding: EdgeInsets.zero,
                                                   ),
                                                   SizedBox(width: 6.w),
                                                   Text(
                                                     'Resending...',
                                                     style: AppTypography
-                                                        .brandActionText,
+                                                        .brandAction,
                                                   ),
                                                 ],
                                               )
                                             : Text(
-                                                'Resend OTP',
+                                                AppStrings.resendOtp,
                                                 style: AppTypography
-                                                    .brandActionText,
+                                                    .brandAction,
                                               ),
                                       ),
 
@@ -545,27 +543,11 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                                 SizedBox(height: 20.h),
 
                                 // Primary CTA Button
-                                SizedBox(
-                                  width: double.infinity,
+                                AppButton.primary(
                                   height: 50.h,
-                                  child: ElevatedButton(
-                                    onPressed:
-                                        _isLoading ? null : _handleSubmit,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.pickabooBlue,
-                                      foregroundColor: AppColors.white,
-                                      elevation: 0,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: AppRadius.cardRadius,
-                                      ),
-                                    ),
-                                    child: _isLoading
-                                        ? const AppLoader.button()
-                                        : Text(
-                                            'Reset Password',
-                                            style: AppTypography.buttonPrimary,
-                                          ),
-                                  ),
+                                  isLoading: _isLoading,
+                                  onPressed: _handleSubmit,
+                                  text: 'Reset Password',
                                 ),
 
                                 SizedBox(height: 20.h),
@@ -595,7 +577,7 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                                           SizedBox(width: 8.w),
                                           Text(
                                             'Password Requirements',
-                                            style: AppTypography.cardTitle,
+                                            style: AppTypography.titleSmall,
                                           ),
                                         ],
                                       ),
@@ -623,7 +605,7 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
                     top: 8.h,
                     left: 8.w,
                     child: Material(
-                      color: Colors.transparent,
+                      color: AppColors.transparent,
                       child: InkWell(
                         onTap: () {
                           _dismissKeyboard();
@@ -651,6 +633,7 @@ class _ForgotPasswordConfirmPageState extends State<ForgotPasswordConfirmPage> {
           ),
         ),
       ),
+      ),
     );
   }
 }
@@ -672,7 +655,7 @@ class _PasswordRequirementRow extends StatelessWidget {
         SizedBox(width: 6.w),
         Text(
           text,
-          style: AppTypography.bodyMuted,
+          style: AppTypography.bodySmall,
         ),
       ],
     );

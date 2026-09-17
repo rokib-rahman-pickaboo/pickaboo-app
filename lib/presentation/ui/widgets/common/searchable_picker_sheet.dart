@@ -53,7 +53,6 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
     final showSearch = widget.items.length > widget.searchThreshold;
     final filtered = _filtered;
 
@@ -74,17 +73,17 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
         children: [
           Text(
             widget.title,
-            style: textStyle.headingSmall.copyWith(color: AppColors.text),
+            style: AppTypography.titleLarge.copyWith(color: AppColors.text),
           ),
           SizedBox(height: 16.h),
           if (showSearch) ...[
             TextField(
               controller: _searchController,
               onChanged: (v) => setState(() => _query = v.trim()),
-              style: textStyle.inputText.copyWith(color: AppColors.text),
+              style: AppTypography.bodyLarge.regular().copyWith(color: AppColors.text),
               decoration: InputDecoration(
                 hintText: widget.searchHint,
-                hintStyle: textStyle.inputPlaceholder.copyWith(
+                hintStyle: AppTypography.inputHint.copyWith(
                   color: AppColors.muted.withValues(alpha: 0.5),
                 ),
                 prefixIcon: Icon(Icons.search, color: AppColors.muted, size: 20.r),
@@ -104,17 +103,17 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                   horizontal: 12.w,
                   vertical: 10.h,
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
+                border: const OutlineInputBorder(
+                  borderRadius: AppRadius.inputRadius,
                   borderSide: BorderSide.none,
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: AppRadius.inputRadius,
                   borderSide: BorderSide.none,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: const BorderSide(color: AppColors.pickabooBlue),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: AppRadius.inputRadius,
+                  borderSide: BorderSide(color: AppColors.pickabooBlue),
                 ),
               ),
             ),
@@ -126,7 +125,7 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                     padding: EdgeInsets.all(24.h),
                     child: Text(
                       'No results for "$_query"',
-                      style: textStyle.bodyMedium.copyWith(
+                      style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.muted,
                       ),
                     ),
@@ -140,12 +139,12 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                       return ListTile(
                         title: Text(
                           widget.labelBuilder(item),
-                          style: textStyle.bodyMedium,
+                          style: AppTypography.bodyMedium,
                         ),
                         subtitle: subtitle != null && subtitle.isNotEmpty
                             ? Text(
                                 subtitle,
-                                style: textStyle.bodySmall.copyWith(
+                                style: AppTypography.bodySmall.copyWith(
                                   color: AppColors.muted,
                                 ),
                               )

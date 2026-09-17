@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
@@ -140,7 +140,6 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
   }
 
   Widget _buildVariantGroup(BuildContext context, VariantEntity variant) {
-    final textStyle = context.textStyle;
     final bool hasError =
         widget.showError && !_selectedOptions.containsKey(variant.optionId);
 
@@ -172,7 +171,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                         children: [
                           TextSpan(
                             text: variant.optionName,
-                            style: textStyle.bodyMediumMedium.copyWith(
+                            style: AppTypography.bodyMedium.medium().copyWith(
                               color: hasError ? AppColors.red : AppColors.text,
                               fontSize: 13.5.sp,
                               fontWeight: FontWeight.w600,
@@ -180,11 +179,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                           ),
                           TextSpan(
                             text: ' *',
-                            style: TextStyle(
-                              color: AppColors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13.5.sp,
-                            ),
+                            style: AppTypography.bodyLarge.red.bold(),
                           ),
                         ],
                       ),
@@ -192,7 +187,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                     const Spacer(),
                     Text(
                       ':',
-                      style: textStyle.bodyMedium.copyWith(
+                      style: AppTypography.bodyMedium.copyWith(
                         color: hasError ? AppColors.red : AppColors.text,
                       ),
                     ),
@@ -214,7 +209,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
             padding: EdgeInsets.only(left: 16.w, top: 4.h, bottom: 8.h),
             child: Text(
               'Please select ${variant.optionName}',
-              style: textStyle.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: AppColors.red,
                 fontSize: 11.sp,
               ),
@@ -278,7 +273,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                                     : AppColors.border,
                             width: isSelected || groupHasError ? 1.5.w : 1.w,
                           ),
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: AppRadius.buttonRadius,
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
@@ -299,12 +294,12 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                         ),
                         padding: EdgeInsets.all(4.w),
                         child: imageUrl.isNotEmpty
-                            ? CachedNetworkImage(
+                            ? AppImage(
                                 imageUrl: imageUrl,
                                 fit: BoxFit.contain,
-                                placeholder: (context, url) =>
+                                placeholder:
                                     const AppLoader.inline(),
-                                errorWidget: (context, url, error) => const Icon(
+                                errorWidget: const Icon(
                                   Icons.image_not_supported,
                                   size: 20,
                                   color: AppColors.mutedLight,
@@ -340,7 +335,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                     padding: EdgeInsets.only(top: 10.h),
                     child: Text(
                       option.optionText,
-                      style: context.textStyle.bodySmall.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
                         color: isSelected ? AppColors.pickabooBlue : AppColors.text,
                         fontSize: 10.sp,
                         fontWeight: isSelected
@@ -362,7 +357,6 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
     VariantEntity variant,
     List<VariantOptionEntity> options,
   ) {
-    final textStyle = context.textStyle;
     final String? selectedValue = _selectedOptions[variant.optionId];
     final bool groupHasError =
         widget.showError && !_selectedOptions.containsKey(variant.optionId);
@@ -402,7 +396,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                               : AppColors.border,
                       width: isSelected || groupHasError ? 1.5.w : 1.w,
                     ),
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: AppRadius.buttonRadius,
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
@@ -423,7 +417,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                   ),
                   child: Text(
                     option.optionText,
-                    style: textStyle.bodySmall.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       color: isSelected ? AppColors.pickabooBlue : AppColors.text,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       fontSize: 12.sp,

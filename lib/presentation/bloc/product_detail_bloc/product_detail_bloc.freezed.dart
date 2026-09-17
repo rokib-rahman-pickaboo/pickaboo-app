@@ -20,17 +20,18 @@ mixin _$ProductDetailEvent {
   String get productId => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String productId) load,
+    required TResult Function(String productId, ProductEntity? initialProduct)
+    load,
     required TResult Function(String productId) refresh,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String productId)? load,
+    TResult? Function(String productId, ProductEntity? initialProduct)? load,
     TResult? Function(String productId)? refresh,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String productId)? load,
+    TResult Function(String productId, ProductEntity? initialProduct)? load,
     TResult Function(String productId)? refresh,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -105,7 +106,7 @@ abstract class _$$LoadImplCopyWith<$Res>
   ) = __$$LoadImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String productId});
+  $Res call({String productId, ProductEntity? initialProduct});
 }
 
 /// @nodoc
@@ -119,7 +120,7 @@ class __$$LoadImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? productId = null}) {
+  $Res call({Object? productId = null, Object? initialProduct = freezed}) {
     return _then(
       _$LoadImpl(
         productId:
@@ -127,6 +128,11 @@ class __$$LoadImplCopyWithImpl<$Res>
                 ? _value.productId
                 : productId // ignore: cast_nullable_to_non_nullable
                     as String,
+        initialProduct:
+            freezed == initialProduct
+                ? _value.initialProduct
+                : initialProduct // ignore: cast_nullable_to_non_nullable
+                    as ProductEntity?,
       ),
     );
   }
@@ -135,14 +141,16 @@ class __$$LoadImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$LoadImpl with DiagnosticableTreeMixin implements _Load {
-  const _$LoadImpl({required this.productId});
+  const _$LoadImpl({required this.productId, this.initialProduct});
 
   @override
   final String productId;
+  @override
+  final ProductEntity? initialProduct;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'ProductDetailEvent.load(productId: $productId)';
+    return 'ProductDetailEvent.load(productId: $productId, initialProduct: $initialProduct)';
   }
 
   @override
@@ -150,7 +158,8 @@ class _$LoadImpl with DiagnosticableTreeMixin implements _Load {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'ProductDetailEvent.load'))
-      ..add(DiagnosticsProperty('productId', productId));
+      ..add(DiagnosticsProperty('productId', productId))
+      ..add(DiagnosticsProperty('initialProduct', initialProduct));
   }
 
   @override
@@ -159,11 +168,13 @@ class _$LoadImpl with DiagnosticableTreeMixin implements _Load {
         (other.runtimeType == runtimeType &&
             other is _$LoadImpl &&
             (identical(other.productId, productId) ||
-                other.productId == productId));
+                other.productId == productId) &&
+            (identical(other.initialProduct, initialProduct) ||
+                other.initialProduct == initialProduct));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, productId);
+  int get hashCode => Object.hash(runtimeType, productId, initialProduct);
 
   /// Create a copy of ProductDetailEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -176,30 +187,31 @@ class _$LoadImpl with DiagnosticableTreeMixin implements _Load {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String productId) load,
+    required TResult Function(String productId, ProductEntity? initialProduct)
+    load,
     required TResult Function(String productId) refresh,
   }) {
-    return load(productId);
+    return load(productId, initialProduct);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String productId)? load,
+    TResult? Function(String productId, ProductEntity? initialProduct)? load,
     TResult? Function(String productId)? refresh,
   }) {
-    return load?.call(productId);
+    return load?.call(productId, initialProduct);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String productId)? load,
+    TResult Function(String productId, ProductEntity? initialProduct)? load,
     TResult Function(String productId)? refresh,
     required TResult orElse(),
   }) {
     if (load != null) {
-      return load(productId);
+      return load(productId, initialProduct);
     }
     return orElse();
   }
@@ -237,10 +249,14 @@ class _$LoadImpl with DiagnosticableTreeMixin implements _Load {
 }
 
 abstract class _Load implements ProductDetailEvent {
-  const factory _Load({required final String productId}) = _$LoadImpl;
+  const factory _Load({
+    required final String productId,
+    final ProductEntity? initialProduct,
+  }) = _$LoadImpl;
 
   @override
   String get productId;
+  ProductEntity? get initialProduct;
 
   /// Create a copy of ProductDetailEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -332,7 +348,8 @@ class _$RefreshImpl with DiagnosticableTreeMixin implements _Refresh {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String productId) load,
+    required TResult Function(String productId, ProductEntity? initialProduct)
+    load,
     required TResult Function(String productId) refresh,
   }) {
     return refresh(productId);
@@ -341,7 +358,7 @@ class _$RefreshImpl with DiagnosticableTreeMixin implements _Refresh {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String productId)? load,
+    TResult? Function(String productId, ProductEntity? initialProduct)? load,
     TResult? Function(String productId)? refresh,
   }) {
     return refresh?.call(productId);
@@ -350,7 +367,7 @@ class _$RefreshImpl with DiagnosticableTreeMixin implements _Refresh {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String productId)? load,
+    TResult Function(String productId, ProductEntity? initialProduct)? load,
     TResult Function(String productId)? refresh,
     required TResult orElse(),
   }) {

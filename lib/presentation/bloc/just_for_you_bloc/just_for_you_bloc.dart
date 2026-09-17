@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/domain/repository/product_repository.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
 
 part 'just_for_you_event.dart';
@@ -52,6 +53,14 @@ class JustForYouBloc extends Bloc<JustForYouEvent, JustForYouState> {
       (response) {
         final newItems = response.products;
         final bool isLastPage = newItems.length < _productLimit;
+
+        // Proactively pre-warm images in background for instant PDP hydration
+        for (final p in newItems.take(6)) {
+          final intId = int.tryParse(p.id) ?? 0;
+          if (intId > 0 && ProductImageResolver.isPlaceholderOrBroken(p.productImg)) {
+            ProductImageResolver.resolveImage(productId: intId, currentUrl: p.productImg);
+          }
+        }
 
         if (nextPageKey == 1 && newItems.isNotEmpty) {
           _analytics.logEvent(

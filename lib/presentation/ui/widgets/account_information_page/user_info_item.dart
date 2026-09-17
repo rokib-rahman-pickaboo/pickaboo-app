@@ -18,8 +18,6 @@ class UserInfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Column(
       children: [
         Row(
@@ -33,12 +31,12 @@ class UserInfoItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: textTheme.bodySmall.copyWith(color: AppColors.muted),
+                    style: AppTypography.bodySmall.copyWith(color: AppColors.muted),
                   ),
                   SizedBox(height: 4.h),
                   Text(
                     value,
-                    style: textTheme.bodyMedium.copyWith(
+                    style: AppTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w500,
                       color: AppColors.text,
                     ),

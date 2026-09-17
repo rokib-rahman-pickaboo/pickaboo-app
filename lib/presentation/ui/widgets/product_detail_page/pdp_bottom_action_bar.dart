@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// 13. STICKY BOTTOM ACTION BAR (Chat, Add to Cart, Buy Now)
 class PdpBottomActionBar extends StatelessWidget {
@@ -38,7 +40,7 @@ class PdpBottomActionBar extends StatelessWidget {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: AppColors.black.withValues(alpha: 0.06),
             offset: const Offset(0, -3),
             blurRadius: 8,
           ),
@@ -56,7 +58,7 @@ class PdpBottomActionBar extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 color: AppColors.pageBg,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: AppRadius.buttonRadius,
                 border: Border.all(color: AppColors.border),
               ),
               child: IconButton(
@@ -68,27 +70,16 @@ class PdpBottomActionBar extends StatelessWidget {
 
             // ── Outlined ADD TO CART Button ──
             Expanded(
-              child: SizedBox(
+              child: AppButton.secondary(
                 height: 44.h,
-                child: OutlinedButton(
-                  onPressed: isAvailable && !isProcessing ? onAddToCart : null,
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    side: BorderSide(
-                      color: isAvailable ? AppColors.pickabooBlue : AppColors.border,
-                      width: 1.5.w,
-                    ),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                  ),
-                  child: isProcessing
-                      ? const AppLoader.button(color: AppColors.pickabooBlue)
-                      : Text(
-                          'ADD TO CART',
-                          style: AppTypography.buttonPrimary.copyWith(
-                            fontSize: 12.sp,
-                            color: isAvailable ? AppColors.pickabooBlue : AppColors.muted,
-                          ),
-                        ),
+                borderRadius: AppRadius.buttonRadius,
+                isDisabled: !isAvailable || isProcessing,
+                isLoading: isProcessing,
+                onPressed: isAvailable && !isProcessing ? onAddToCart : null,
+                text: AppStrings.pdpAddToCart.toUpperCase(),
+                textStyle: AppTypography.button.copyWith(
+                  fontSize: 12.sp,
+                  color: isAvailable ? AppColors.pickabooBlue : AppColors.muted,
                 ),
               ),
             ),
@@ -96,22 +87,15 @@ class PdpBottomActionBar extends StatelessWidget {
 
             // ── Primary Elevated BUY NOW Button ──
             Expanded(
-              child: SizedBox(
+              child: AppButton.primary(
                 height: 44.h,
-                child: ElevatedButton(
-                  onPressed: isAvailable && !isProcessing ? onBuyNow : null,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    backgroundColor: isAvailable ? AppColors.pickabooBlue : AppColors.muted,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    isAvailable ? 'BUY NOW' : 'STOCK OUT',
-                    style: AppTypography.buttonPrimary.copyWith(
-                      fontSize: 12.sp,
-                    ),
-                  ),
+                borderRadius: AppRadius.buttonRadius,
+                backgroundColor: isAvailable ? AppColors.pickabooBlue : AppColors.muted,
+                isDisabled: !isAvailable || isProcessing,
+                onPressed: isAvailable && !isProcessing ? onBuyNow : null,
+                text: isAvailable ? AppStrings.pdpBuyNow.toUpperCase() : AppStrings.pdpStockOut.toUpperCase(),
+                textStyle: AppTypography.button.copyWith(
+                  fontSize: 12.sp,
                 ),
               ),
             ),

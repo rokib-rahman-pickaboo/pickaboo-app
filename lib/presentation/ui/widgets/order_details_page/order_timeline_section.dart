@@ -71,20 +71,20 @@ class OrderTimelineSection extends StatelessWidget {
                 children: [
                   Text(
                     formatStatusText(status.status),
-                    style: isLatest ? AppTypography.brandActionText : AppTypography.cardTitle,
+                    style: isLatest ? AppTypography.brandAction : AppTypography.titleSmall,
                   ),
                   if (date != null) ...[
                     SizedBox(height: 3.h),
                     Text(
                       DateFormat('MMM dd, yyyy - hh:mm a').format(date),
-                      style: AppTypography.bodyMutedLight,
+                      style: AppTypography.bodySmall.mutedLight,
                     ),
                   ],
                   if (status.comment != null && status.comment!.isNotEmpty) ...[
                     SizedBox(height: 4.h),
                     Text(
                       formatStatusText(status.comment!),
-                      style: AppTypography.bodyMuted.italic(),
+                      style: AppTypography.bodySmall.italic(),
                     ),
                   ],
                 ],

@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// Modernized CardBinAppliedView matching Pickaboo-App-UI design language.
 class CardBinAppliedView extends StatelessWidget {
@@ -51,7 +51,7 @@ class CardBinAppliedView extends StatelessWidget {
                 Expanded(
                   child: Text(
                     "Discount Applied",
-                    style: AppTypography.pageTitle,
+                    style: AppTypography.titleLarge,
                   ),
                 ),
               ],
@@ -86,12 +86,12 @@ class CardBinAppliedView extends StatelessWidget {
                           children: [
                             Text(
                               "Bank Discount Applied",
-                              style: AppTypography.cardTitle,
+                              style: AppTypography.titleSmall,
                             ),
                             SizedBox(height: 3.h),
                             Text(
                               "BIN: ......$binCode",
-                              style: AppTypography.bodyMutedLight,
+                              style: AppTypography.bodySmall.mutedLight,
                             ),
                           ],
                         ),
@@ -102,29 +102,17 @@ class CardBinAppliedView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 14.h),
-                  SizedBox(
-                    width: double.infinity,
+                  AppSpacing.gapV14,
+                  AppButton.outline(
+                    text: "Remove Discount",
+                    textColor: AppColors.red,
+                    borderColor: AppColors.red.withValues(alpha: 0.4),
+                    backgroundColor: AppColors.white,
+                    borderRadius: AppRadius.cardRadius,
+                    isFullWidth: true,
                     height: 38.h,
-                    child: OutlinedButton(
-                      onPressed: isRemoving ? null : onRemove,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.red,
-                        side: BorderSide(
-                          color: AppColors.red.withValues(alpha: 0.4),
-                        ),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: AppRadius.cardRadius,
-                        ),
-                        backgroundColor: AppColors.white,
-                      ),
-                      child: isRemoving
-                          ? const AppLoader.button(size: 16, color: AppColors.red)
-                          : Text(
-                              "Remove Discount",
-                              style: AppTypography.brandActionText.withColor(AppColors.red),
-                            ),
-                    ),
+                    isLoading: isRemoving,
+                    onPressed: isRemoving ? null : onRemove,
                   ),
                 ],
               ),

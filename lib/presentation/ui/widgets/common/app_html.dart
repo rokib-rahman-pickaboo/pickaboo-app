@@ -23,7 +23,6 @@ class AppHtml extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     return Html(
       data: data,
@@ -32,26 +31,26 @@ class AppHtml extends StatelessWidget {
         "body": Style(
           margin: Margins.zero,
           padding: HtmlPaddings.zero,
-          fontSize: FontSize(textStyle.bodySmall.fontSize ?? 12),
+          fontSize: FontSize(AppTypography.bodySmall.fontSize ?? 12),
           fontFamily: GoogleFonts.roboto().fontFamily,
           color: AppColors.text,
           lineHeight: const LineHeight(1.5),
           textAlign: textAlign ?? TextAlign.start,
         ),
         "h1": Style(
-          fontSize: FontSize(textStyle.headingSmall.fontSize ?? 18),
+          fontSize: FontSize(AppTypography.titleLarge.fontSize ?? 18),
           fontWeight: FontWeight.bold,
           margin: Margins.only(bottom: 12),
           fontFamily: GoogleFonts.roboto().fontFamily,
         ),
         "h2": Style(
-          fontSize: FontSize(textStyle.subheading.fontSize ?? 16),
+          fontSize: FontSize(AppTypography.titleMedium.fontSize ?? 16),
           fontWeight: FontWeight.bold,
           margin: Margins.only(bottom: 12),
           fontFamily: GoogleFonts.roboto().fontFamily,
         ),
         "h3": Style(
-          fontSize: FontSize(textStyle.bodyLargeBold.fontSize ?? 16),
+          fontSize: FontSize(AppTypography.bodyLarge.bold().fontSize ?? 16),
           fontWeight: FontWeight.bold,
           margin: Margins.only(top: 16.h, bottom: 8.h),
           fontFamily: GoogleFonts.roboto().fontFamily,

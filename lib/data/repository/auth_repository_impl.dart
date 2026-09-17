@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
+import 'package:pickaboo/core/config/api_config.dart';
 import 'package:pickaboo/core/constants/app_recaptcha_actions.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/auth_api_service.dart';
@@ -70,9 +71,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> saveToken(String token, {bool isProd = false}) async {
+  Future<void> saveToken(String token, {bool? isProd}) async {
     await _cacheManager.setToken(token: token);
-    await _cacheManager.setProdToken(isProd);
+    await _cacheManager.setProdToken(isProd ?? ApiConfig.isProduction);
   }
 
   @override
@@ -334,7 +335,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final result = await apiService.socialLogin(request);
 
     return result.fold((l) => left(l.toEntity()), (r) async {
-      await saveToken(r, isProd: provider.toLowerCase() == 'facebook');
+      await saveToken(r);
       await _saveUserId();
       return right(r);
     });
@@ -400,7 +401,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<AppErrorEntity, String>> loginWithFacebook() async {
     final result = await apiService.loginWithFacebook();
     return result.fold((l) => left(l.toEntity()), (r) async {
-      await saveToken(r, isProd: true);
+      await saveToken(r);
       await _saveUserId();
       return right(r);
     });

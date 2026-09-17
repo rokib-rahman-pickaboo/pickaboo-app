@@ -5,7 +5,7 @@
 // ============================================================================
 
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,7 +22,7 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/pages/dashboard/account_information_page/widgets/change_phone_number_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
@@ -173,7 +173,7 @@ class _EditAccountInformationPageState
           children: [
             Text(
               'Select Gender',
-              style: AppTypography.pageTitle,
+              style: AppTypography.titleLarge,
             ),
             SizedBox(height: 16.h),
             ...Gender.values.map((gender) {
@@ -185,7 +185,7 @@ class _EditAccountInformationPageState
                 tileColor: isSelected ? AppColors.surfaceBlue : null,
                 title: Text(
                   gender.label,
-                  style: isSelected ? AppTypography.brandActionText : AppTypography.bodyRegular,
+                  style: isSelected ? AppTypography.brandAction : AppTypography.bodyMedium,
                 ),
                 trailing: isSelected
                     ? Icon(Icons.check_circle, color: AppColors.pickabooBlue, size: 20.sp)
@@ -335,26 +335,12 @@ class _EditAccountInformationPageState
               ),
               child: SafeArea(
                 top: false,
-                child: SizedBox(
-                  width: double.infinity,
+                child: AppButton.primary(
                   height: 50.h,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _saveProfile,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pickabooBlue,
-                      foregroundColor: AppColors.white,
-                      elevation: 0,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: AppRadius.cardRadius,
-                      ),
-                    ),
-                    child: isLoading
-                        ? const AppLoader.button()
-                        : Text(
-                            'Save Changes',
-                            style: AppTypography.buttonPrimary,
-                          ),
-                  ),
+                  borderRadius: AppRadius.cardRadius,
+                  isLoading: isLoading,
+                  onPressed: _saveProfile,
+                  text: 'Save Changes',
                 ),
               ),
             ),
@@ -404,7 +390,7 @@ class _EditAccountInformationPageState
                                     ),
                                     image: imageUrl != null && imageUrl.isNotEmpty
                                         ? DecorationImage(
-                                            image: CachedNetworkImageProvider(imageUrl),
+                                            image: AppImage.provider(imageUrl),
                                             fit: BoxFit.cover,
                                           )
                                         : null,
@@ -443,7 +429,7 @@ class _EditAccountInformationPageState
                           SizedBox(height: 10.h),
                           Text(
                             'Tap to change photo',
-                            style: AppTypography.bodyMutedLight,
+                            style: AppTypography.bodySmall.mutedLight,
                           ),
                         ],
                       ),
@@ -532,7 +518,7 @@ class _EditAccountInformationPageState
           onTap: _handleNumberChange,
           child: Text(
             _hasExistingNumber ? 'Change mobile number' : 'Add mobile number',
-            style: AppTypography.linkText,
+            style: AppTypography.link,
           ),
         ),
       ],
@@ -551,14 +537,14 @@ class _EditAccountInformationPageState
       children: [
         Text(
           label,
-          style: AppTypography.inputLabel,
+          style: AppTypography.bodyLarge,
         ),
         SizedBox(height: 6.h),
         TextField(
           controller: controller,
           enabled: enabled,
           keyboardType: keyboardType,
-          style: AppTypography.inputText,
+          style: AppTypography.bodyLarge.regular(),
           decoration: InputDecoration(
             hintText: placeholder,
             hintStyle: AppTypography.inputHint,
@@ -603,7 +589,7 @@ class _EditAccountInformationPageState
       children: [
         Text(
           label,
-          style: AppTypography.inputLabel,
+          style: AppTypography.bodyLarge,
         ),
         SizedBox(height: 6.h),
         InkWell(
@@ -624,7 +610,7 @@ class _EditAccountInformationPageState
                 Expanded(
                   child: Text(
                     value,
-                    style: isPlaceholder ? AppTypography.inputHint : AppTypography.inputText,
+                    style: isPlaceholder ? AppTypography.inputHint : AppTypography.bodyLarge.regular(),
                   ),
                 ),
                 Icon(

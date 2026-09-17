@@ -30,7 +30,7 @@ class OrderShippingMethodSection extends StatelessWidget {
           Expanded(
             child: Text(
               shippingMethod,
-              style: AppTypography.bodyRegular,
+              style: AppTypography.bodyMedium,
             ),
           ),
         ],

@@ -29,9 +29,17 @@ mixin _$SupportArticleResponse {
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: "text")
   String? get text => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this SupportArticleResponse to a JSON map.
@@ -55,8 +63,18 @@ abstract class $SupportArticleResponseCopyWith<$Res> {
     @JsonKey(name: "article_id") String? articleId,
     @JsonKey(name: "name") String? name,
     @JsonKey(name: "text") String? text,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? updatedAt,
   });
 }
 
@@ -130,8 +148,18 @@ abstract class _$$SupportArticleResponseImplCopyWith<$Res>
     @JsonKey(name: "article_id") String? articleId,
     @JsonKey(name: "name") String? name,
     @JsonKey(name: "text") String? text,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? updatedAt,
   });
 }
 
@@ -195,8 +223,18 @@ class _$SupportArticleResponseImpl implements _SupportArticleResponse {
     @JsonKey(name: "article_id") this.articleId,
     @JsonKey(name: "name") this.name,
     @JsonKey(name: "text") this.text,
-    @JsonKey(name: "created_at") this.createdAt,
-    @JsonKey(name: "updated_at") this.updatedAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.createdAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.updatedAt,
   });
 
   factory _$SupportArticleResponseImpl.fromJson(Map<String, dynamic> json) =>
@@ -212,10 +250,18 @@ class _$SupportArticleResponseImpl implements _SupportArticleResponse {
   @JsonKey(name: "text")
   final String? text;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? createdAt;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? updatedAt;
 
   @override
@@ -266,8 +312,18 @@ abstract class _SupportArticleResponse implements SupportArticleResponse {
     @JsonKey(name: "article_id") final String? articleId,
     @JsonKey(name: "name") final String? name,
     @JsonKey(name: "text") final String? text,
-    @JsonKey(name: "created_at") final DateTime? createdAt,
-    @JsonKey(name: "updated_at") final DateTime? updatedAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? createdAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? updatedAt,
   }) = _$SupportArticleResponseImpl;
 
   factory _SupportArticleResponse.fromJson(Map<String, dynamic> json) =
@@ -283,10 +339,18 @@ abstract class _SupportArticleResponse implements SupportArticleResponse {
   @JsonKey(name: "text")
   String? get text;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get updatedAt;
 
   /// Create a copy of SupportArticleResponse

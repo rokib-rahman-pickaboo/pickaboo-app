@@ -22,7 +22,9 @@ import 'package:pickaboo/domain/entity/order/order_list_entity.dart';
 import 'package:pickaboo/data/mapper/order_mapper/order_list_mapper.dart';
 import 'package:pickaboo/data/mapper/referral_mapper/referral_mapper.dart';
 import 'package:pickaboo/domain/entity/referral/referral_entity.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/mapper/error_mapper.dart';
+import 'package:collection/collection.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 
 @LazySingleton(as: UserProfileRepository)
@@ -320,16 +322,61 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     }
 
     final result = await _apiService.getOrderDetails(orderId: orderId);
-    return result.fold(
-      (error) =>
-          Left(error.toEntity()),
-      (response) {
-        try {
-          return Right(response.toEntity());
-        } catch (e) {
-          return Left(AppErrorEntity(message: 'Mapping error: $e'));
+    if (result.isRight()) {
+      return result.fold(
+        (error) => Left(error.toEntity()),
+        (response) {
+          try {
+            return Right(response.toEntity());
+          } catch (e) {
+            return Left(AppErrorEntity(
+              message: ApiErrorParser.sanitize(
+                'Mapping error: $e',
+                fallback: 'Failed to process order details. Please try again.',
+              ),
+            ));
+          }
+        },
+      );
+    }
+
+    // Fallback: orderId might be an increment_id (e.g. 1609225531) rather than the entity ID (e.g. 1237650)
+    try {
+      final listResult = await _apiService.getOrderList(limit: 20, currentPage: 1);
+      final matchedOrder = listResult.fold(
+        (_) => null,
+        (listResponse) => listResponse.items?.firstWhereOrNull(
+          (item) => item.orderNumber == orderId || item.orderId?.toString() == orderId,
+        ),
+      );
+
+      if (matchedOrder?.orderId != null && matchedOrder!.orderId.toString() != orderId) {
+        final fallbackResult = await _apiService.getOrderDetails(
+          orderId: matchedOrder.orderId.toString(),
+        );
+        if (fallbackResult.isRight()) {
+          return fallbackResult.fold(
+            (error) => Left(error.toEntity()),
+            (response) {
+              try {
+                return Right(response.toEntity());
+              } catch (e) {
+                return Left(AppErrorEntity(
+                  message: ApiErrorParser.sanitize(
+                    'Mapping error: $e',
+                    fallback: 'Failed to process order details. Please try again.',
+                  ),
+                ));
+              }
+            },
+          );
         }
-      },
+      }
+    } catch (_) {}
+
+    return result.fold(
+      (error) => Left(error.toEntity()),
+      (response) => Right(response.toEntity()),
     );
   }
   @override

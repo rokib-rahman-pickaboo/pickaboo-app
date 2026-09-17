@@ -4,6 +4,8 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,11 +13,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/constants/app_constants.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
+import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/domain/entity/place_picker/place_pick_result_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
 import 'package:pickaboo/domain/entity/auth/user_entity.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/injection.dart';
@@ -23,6 +28,7 @@ import 'package:pickaboo/data/services/analytics_service.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/cms_content_bloc/cms_content_bloc.dart';
 import 'package:pickaboo/presentation/bloc/compare_bloc/compare_bloc.dart';
+import 'package:pickaboo/presentation/bloc/internet/internet_bloc.dart';
 import 'package:pickaboo/presentation/bloc/delivery_charge_bloc/delivery_charge_bloc.dart';
 import 'package:pickaboo/presentation/bloc/emi_bloc/emi_bloc.dart';
 import 'package:pickaboo/presentation/bloc/place_picker_bloc/place_picker_bloc.dart';
@@ -38,7 +44,6 @@ import 'package:pickaboo/presentation/bloc/wishlist/wishlist_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/common/bottom_sheet/delivery_location_sheet.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/cms_content_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/emi_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/product_options_sheet.dart';
@@ -47,37 +52,39 @@ import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/produc
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/draggable_compare_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_available_offers_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_bottom_action_bar.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_delivery_location_selector.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_new_price_section.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_cross_sell_section.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_deals_and_offers_section.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_fulfillment_and_services_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_key_highlights_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_media_gallery_widget.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_pickaboo_assured_card.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/product_section_slider.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_new_price_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_section_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_skeleton_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_tab_section_widget.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_top_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_trust_ribbon_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_variant_selector_section.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/product_frequently_bought_together.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/product_sale_timer_section.dart';
-import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_top_app_bar.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final String productId;
   final String slug;
   final String productName;
+  final String? previewImageUrl;
+  final String? previewPrice;
   final bool embedded;
+  final ProductEntity? previewProduct;
 
   const ProductDetailsPage({
     super.key,
     required this.productId,
     required this.slug,
     required this.productName,
+    this.previewImageUrl,
+    this.previewPrice,
+    this.previewProduct,
     this.embedded = false,
   });
 
@@ -90,6 +97,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   /// Set to false to hide compare UI while preserving 100% of compare implementation logic.
   static const bool _showCompareFeature = false;
 
+  /// Toggle to control the visibility of the top trust ribbon vs price card trust row.
+  /// When true: Top PdpTrustRibbonWidget is displayed, and the 3-item row after warranty is omitted.
+  /// When false: Top trust ribbon is hidden, and the 3-item row is displayed after warranty.
+  static const bool _showTrustRibbon = false;
+
   int _quantity = AppConstants.minCartQuantity;
   int _totalAddonPrice = 0;
   bool _isFavorite = false;
@@ -101,10 +113,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   bool _showVariantError = false;
 
   PlacePickResultEntity? _selectedDeliveryLocation;
-  bool _slugSectionsRequested = false;
+  bool _secondarySectionsLoaded = false;
+  bool _bottomSlidersLoaded = false;
+
+  int _pendingBatchAddCount = 0;
+  int _totalBatchAddCount = 0;
+  Timer? _batchAddTimeoutTimer;
 
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isScrolledPastHeroNotifier = ValueNotifier<bool>(false);
+  final GlobalKey<PdpTabSectionWidgetState> _reviewsTabKey = GlobalKey<PdpTabSectionWidgetState>();
 
   /// The hero image is 1:1 aspect ratio, so its height equals the screen width.
   double get _heroImageHeight => MediaQuery.of(context).size.width;
@@ -114,12 +132,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     super.initState();
     _scrollController.addListener(_onScrollChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 1. Prioritize main product detail request with Frame 0 instant preview hydration
       context.read<ProductDetailBloc>().add(
-        ProductDetailEvent.load(productId: widget.productId),
+        ProductDetailEvent.load(
+          productId: widget.productId,
+          initialProduct: widget.previewProduct,
+        ),
       );
-      context.read<CmsContentBloc>().add(const CmsContentEvent.loadAll());
-      _loadSlugBasedSections(widget.slug);
-      _loadCachedDeliveryLocation();
+      // Read delivery location from local storage
+      _readCachedDeliveryLocation();
+      // 2. Early unblocked secondary loading at Frame 0
+      _initEarlySecondarySections();
     });
   }
 
@@ -134,6 +157,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   void dispose() {
+    _batchAddTimeoutTimer?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
     _isScrolledPastHeroNotifier.dispose();
@@ -164,7 +188,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       final delta = notification.scrollDelta ?? 0;
 
       // Scrolling DOWN and scrolled past 40px:
-      // Show regular top app bar with product name.
+      // Smoothly activate top app bar if scrolling down with noticeable velocity.
       if (delta > 0.5 && pixels > 40.0) {
         if (!_isScrolledPastHeroNotifier.value) {
           _isScrolledPastHeroNotifier.value = true;
@@ -189,14 +213,85 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return false;
   }
 
-  void _loadSlugBasedSections(String slug) {
-    if (_slugSectionsRequested || slug.isEmpty) return;
-    _slugSectionsRequested = true;
+  void _initEarlySecondarySections() {
+    final effectiveSlug = widget.slug.isNotEmpty
+        ? widget.slug
+        : (widget.previewProduct?.slug ?? '');
 
-    context.read<PromoBloc>().add(PromoEvent.fetch(slug: slug));
-    context.read<ProductFlashSaleBloc>().add(
-      ProductFlashSaleEvent.fetch(slug: slug),
-    );
+    // 1. Above-the-fold & interactive info (Flash sale, Promo, EMI, CMS)
+    if (effectiveSlug.isNotEmpty && !_secondarySectionsLoaded) {
+      _secondarySectionsLoaded = true;
+      context.read<ProductFlashSaleBloc>().add(
+        ProductFlashSaleEvent.fetch(slug: effectiveSlug),
+      );
+      context.read<PromoBloc>().add(PromoEvent.fetch(slug: effectiveSlug));
+    }
+
+    if (int.tryParse(widget.productId) != null) {
+      context.read<EmiBloc>().add(
+        EmiEvent.load(productId: widget.productId),
+      );
+      context.read<ReviewBloc>().add(
+        ReviewEvent.load(productId: widget.productId),
+      );
+    }
+    context.read<CmsContentBloc>().add(const CmsContentEvent.loadAll());
+
+    // 2. Defer bottom sliders slightly (200ms) so hero & initial frame paint instantly
+    if (effectiveSlug.isNotEmpty) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (!mounted) return;
+        _loadBottomSliders(effectiveSlug);
+      });
+    }
+  }
+
+  void _loadSecondarySections(ProductDetailEntity product) {
+    final effectiveSlug = product.slug.isNotEmpty
+        ? product.slug
+        : (widget.slug.isNotEmpty
+            ? widget.slug
+            : (widget.previewProduct?.slug ?? ''));
+
+    // 1. Above-the-fold & interactive info (Flash sale, Promo, Delivery charge, EMI)
+    if (effectiveSlug.isNotEmpty && !_secondarySectionsLoaded) {
+      _secondarySectionsLoaded = true;
+      context.read<ProductFlashSaleBloc>().add(
+        ProductFlashSaleEvent.fetch(slug: effectiveSlug),
+      );
+      context.read<PromoBloc>().add(PromoEvent.fetch(slug: effectiveSlug));
+    }
+
+    if (_selectedDeliveryLocation != null && product.stockAvailable) {
+      final pid = product.id > 0 ? product.id.toString() : widget.productId;
+      context.read<DeliveryChargeBloc>().add(
+        DeliveryChargeEvent.fetch(productId: pid),
+      );
+    }
+
+    final effectiveProductId = product.id > 0
+        ? product.id.toString()
+        : (int.tryParse(widget.productId) != null ? widget.productId : '');
+    if (effectiveProductId.isNotEmpty) {
+      context.read<EmiBloc>().add(
+        EmiEvent.load(productId: effectiveProductId),
+      );
+      context.read<ReviewBloc>().add(
+        ReviewEvent.load(productId: effectiveProductId),
+      );
+    }
+    context.read<CmsContentBloc>().add(const CmsContentEvent.loadAll());
+
+    // 2. Load bottom sliders if not already loaded
+    if (!_bottomSlidersLoaded && effectiveSlug.isNotEmpty) {
+      _loadBottomSliders(effectiveSlug);
+    }
+  }
+
+  void _loadBottomSliders(String slug) {
+    if (_bottomSlidersLoaded || slug.isEmpty) return;
+    _bottomSlidersLoaded = true;
+
     context.read<RecommendedProductsBloc>().add(
       RecommendedProductsEvent.load(slug: slug),
     );
@@ -205,7 +300,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Future<void> _loadCachedDeliveryLocation() async {
+  Future<void> _readCachedDeliveryLocation() async {
     final cached = await PdpLocationCache.getLocation();
     if (cached != null && mounted) {
       setState(() => _selectedDeliveryLocation = cached);
@@ -293,6 +388,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         .where((item) => item.typeId == 'configurable')
         .toList();
 
+    if (_pendingBatchAddCount == 0 && addable.length > 1) {
+      _totalBatchAddCount = addable.length;
+      _pendingBatchAddCount = addable.length;
+      _batchAddTimeoutTimer?.cancel();
+      _batchAddTimeoutTimer = Timer(const Duration(seconds: 15), () {
+        _pendingBatchAddCount = 0;
+        _totalBatchAddCount = 0;
+      });
+    }
+
     final cartBloc = context.read<CartBloc>();
     for (final item in addable) {
       final double effectivePrice = (item.specialPrice > 0
@@ -324,6 +429,36 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       );
       return;
     }
+  }
+
+  void _addBundleToCart(
+    ProductDetailEntity mainProduct,
+    List<BuyTogetherEntity> selectedAccessories,
+  ) {
+    if (!mainProduct.stockAvailable) {
+      SnackBarUtils.showWarning(context, 'This product is currently out of stock');
+      return;
+    }
+
+    if (!_validateSelection(mainProduct)) {
+      _openOptionsSheet(mainProduct, isBuyNow: false);
+      return;
+    }
+
+    final addableAccessories = selectedAccessories
+        .where((item) => item.typeId != 'configurable')
+        .toList();
+    final totalCount = 1 + addableAccessories.length;
+    _totalBatchAddCount = totalCount;
+    _pendingBatchAddCount = totalCount;
+    _batchAddTimeoutTimer?.cancel();
+    _batchAddTimeoutTimer = Timer(const Duration(seconds: 15), () {
+      _pendingBatchAddCount = 0;
+      _totalBatchAddCount = 0;
+    });
+
+    _executeAddToCart(mainProduct);
+    _addBuyTogetherToCart(selectedAccessories);
   }
 
 
@@ -475,7 +610,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ..._selectedAddonOptions,
     ];
 
-    context.read<CartBloc>().add(
+    if (product.images.isNotEmpty) {
+      ProductImageResolver.cacheImage(product.id, product.images.first);
+    }
+
+    final cartBloc = context.read<CartBloc>();
+    cartBloc.markAdditionPending();
+    cartBloc.add(
       CartEvent.addItemSmart(
         sku: product.sku,
         qty: _quantity,
@@ -498,7 +639,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ..._selectedAddonOptions,
     ];
 
-    context.read<CartBloc>().add(
+    if (product.images.isNotEmpty) {
+      ProductImageResolver.cacheImage(product.id, product.images.first);
+    }
+
+    final cartBloc = context.read<CartBloc>();
+    cartBloc.markAdditionPending();
+    cartBloc.add(
       CartEvent.addItemSmart(
         sku: product.sku,
         qty: _quantity,
@@ -579,8 +726,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     return MultiBlocListener(
       listeners: [
         BlocListener<PlacePickerBloc, PlacePickerState>(
@@ -611,13 +756,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           listener: (context, state) {
             state.maybeWhen(
               loaded: (product) {
-                context.read<ReviewBloc>().add(
-                  ReviewEvent.load(productId: product.id.toString()),
-                );
-                context.read<EmiBloc>().add(
-                  EmiEvent.load(productId: product.id.toString()),
-                );
-                _loadSlugBasedSections(product.slug);
+                if (product.images.isNotEmpty) {
+                  ProductImageResolver.cacheImage(product.id, product.images.first);
+                }
                 _autoSelectSingleVariants(product);
 
                 if (!_isWishlistProcessing) {
@@ -625,6 +766,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     _isFavorite = product.isWishlisted;
                   });
                 }
+
+                // Stagger secondary requests once hero product is visible
+                _loadSecondarySections(product);
               },
               orElse: () {},
             );
@@ -664,12 +808,30 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           listener: (context, state) {
             state.maybeWhen(
               itemAdded: (cart, message) {
+                if (_pendingBatchAddCount > 1) {
+                  _pendingBatchAddCount--;
+                  return;
+                }
+
+                final int addedCount = _totalBatchAddCount > 0 ? _totalBatchAddCount : 1;
+                _pendingBatchAddCount = 0;
+                _totalBatchAddCount = 0;
+                _batchAddTimeoutTimer?.cancel();
+
+                final finalMessage = addedCount > 1
+                    ? '$addedCount items added to cart'
+                    : (message.isNotEmpty ? message : 'Item added to cart');
+
                 SnackBarUtils.showCartItemAdded(
                   context,
-                  message: message.isNotEmpty ? message : 'Item added to cart',
+                  itemCount: addedCount,
+                  message: finalMessage,
                 );
               },
               error: (error, lastCart) {
+                _pendingBatchAddCount = 0;
+                _totalBatchAddCount = 0;
+                _batchAddTimeoutTimer?.cancel();
                 SnackBarUtils.showError(context, error.message);
               },
               orElse: () {},
@@ -683,8 +845,25 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             authenticated: (token, user) => true,
             orElse: () => false,
           );
+          final cartCount = context.watch<CartBloc>().state.maybeWhen(
+            loaded: (cart) => cart.itemsCount,
+            itemAdded: (cart, _) => cart.itemsCount,
+            couponApplied: (cart, _) => cart.itemsCount,
+            rewardPointsApplied: (cart, _) => cart.itemsCount,
+            operationInProgress: (cart, _) => cart.itemsCount,
+            orElse: () => 0,
+          );
 
-          return BlocBuilder<ProductDetailBloc, ProductDetailState>(
+          return BlocListener<InternetBloc, InternetState>(
+            listenWhen: (previous, current) =>
+                previous.maybeWhen(disconnected: (_) => true, orElse: () => false) &&
+                current.maybeWhen(connected: (_) => true, orElse: () => false),
+            listener: (context, state) {
+              context.read<ProductDetailBloc>().add(
+                ProductDetailEvent.load(productId: widget.productId),
+              );
+            },
+            child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
             builder: (context, state) {
               return PopScope(
                 canPop: widget.embedded,
@@ -703,15 +882,32 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   bottom: false,
                   child: Stack(
                     children: [
-                      state.when(
-                        initial: () => _buildLoadingState(),
-                        loading: () => _buildLoadingState(),
-                        loaded: (product) => _buildLoadedState(
-                          product,
-                          textStyle,
-                          isLoggedIn,
+                      // ── Smooth crossfade: skeleton → loaded ──
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 400),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 0.02),
+                                end: Offset.zero,
+                              ).animate(animation),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: state.when(
+                          initial: () => _buildLoadingState(cartCount, isLoggedIn),
+                          loading: () => _buildLoadingState(cartCount, isLoggedIn),
+                          loaded: (product) => _buildLoadedState(
+                            product,
+                            isLoggedIn,
+                          ),
+                          error: (error) => _buildErrorState(error),
                         ),
-                        error: (error) => _buildErrorState(error),
                       ),
                       if (_showCompareFeature)
                         state.maybeWhen(
@@ -735,54 +931,241 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         ),
                       // ── Floating Top App Bar (Slides in/out based on scroll) ──
                       _buildFloatingAppBar(state),
+                      // ── Top Progressive Loading Bar when syncing full details ──
+                      state.maybeWhen(
+                        loaded: (product) {
+                          if (product.isPartial) {
+                            return const Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              child: SizedBox(
+                                height: 3.0,
+                                child: LinearProgressIndicator(
+                                  backgroundColor: AppColors.surfaceBlue,
+                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.pickabooBlue),
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                        orElse: () => const SizedBox.shrink(),
+                      ),
                     ],
                   ),
                 ),
-                bottomNavigationBar: state.maybeWhen(
-                  loaded: (product) => BlocBuilder<CartBloc, CartState>(
-                    builder: (context, cartState) {
-                      final isProcessing = cartState.maybeWhen(
-                        operationInProgress: (_, __) => true,
-                        loading: () => true,
-                        orElse: () => false,
-                      );
+                bottomNavigationBar: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  switchInCurve: Curves.easeOutCubic,
+                  transitionBuilder: (child, animation) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 1),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: state.maybeWhen(
+                    loaded: (product) => BlocBuilder<CartBloc, CartState>(
+                      key: const ValueKey('pdp_bottom_bar_loaded'),
+                      builder: (context, cartState) {
+                        final isProcessing = cartState.maybeWhen(
+                          operationInProgress: (_, __) => true,
+                          loading: () => true,
+                          orElse: () => false,
+                        );
 
-                      final int basePrice = _calculateBasePrice(product);
-                      final int regularPrice = _calculateRegularPrice(product);
-                      final int computedCurrent = (basePrice + _totalAddonPrice) * _quantity;
-                      final int computedOriginal = (regularPrice + _totalAddonPrice) * _quantity;
+                        final int basePrice = _calculateBasePrice(product);
+                        final int regularPrice = _calculateRegularPrice(product);
+                        final int computedCurrent = (basePrice + _totalAddonPrice) * _quantity;
+                        final int computedOriginal = (regularPrice + _totalAddonPrice) * _quantity;
 
-                      return PdpBottomActionBar(
-                        product: product,
-                        currentPrice: computedCurrent,
-                        originalPrice: computedOriginal,
-                        quantity: _quantity,
-                        isProcessing: isProcessing,
-                        onChatTap: () => context.push(Routes.contactUs),
-                        onAddToCart: () => _executeAddToCart(product),
-                        onBuyNow: () => _executeBuyNow(product),
-                        onQuantityChanged: (q) => setState(() => _quantity = q),
-                      );
-                    },
+                        return PdpBottomActionBar(
+                          product: product,
+                          currentPrice: computedCurrent,
+                          originalPrice: computedOriginal,
+                          quantity: _quantity,
+                          isProcessing: isProcessing,
+                          onChatTap: () => context.push(Routes.contactUs),
+                          onAddToCart: () => _executeAddToCart(product),
+                          onBuyNow: () => _executeBuyNow(product),
+                          onQuantityChanged: (q) => setState(() => _quantity = q),
+                        );
+                      },
+                    ),
+                    orElse: () => _buildSkeletonBottomBar(),
                   ),
-                  orElse: () => const SizedBox.shrink(),
                 ),
               ),
               );
             },
+          ),
+        );
+      },
+    ),
+  );
+}
+
+  Widget _buildLoadingState(int cartCount, bool isLoggedIn) {
+    return PdpSkeletonWidget(
+      key: const ValueKey('pdp_skeleton'),
+      productId: widget.productId,
+      previewProduct: widget.previewProduct,
+      productName: widget.productName.isNotEmpty ? widget.productName : null,
+      previewImageUrl: widget.previewImageUrl,
+      previewPrice: widget.previewPrice,
+      cartCount: cartCount,
+      isFavorite: _isFavorite,
+      showTrustRibbon: _showTrustRibbon,
+      onBack: () {
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go(Routes.home);
+        }
+      },
+      onSearch: () => context.push(Routes.search),
+      onCart: () => context.push(Routes.cart),
+      onFavorite: () {
+        if (isLoggedIn) {
+          if (_isWishlistProcessing) return;
+          setState(() => _isWishlistProcessing = true);
+          if (_isFavorite) {
+            context.read<WishlistBloc>().add(
+              WishlistEvent.removeFromWishlist(widget.productId),
+            );
+          } else {
+            context.read<WishlistBloc>().add(
+              WishlistEvent.addToWishlist(widget.productId),
+            );
+          }
+          setState(() => _isFavorite = !_isFavorite);
+        } else {
+          context.push(Routes.login);
+        }
+      },
+      onShare: () async {
+        if (_isSharing) return;
+        final shareName = (widget.previewProduct?.productName.isNotEmpty == true)
+            ? widget.previewProduct!.productName
+            : widget.productName;
+        final shareSlug = (widget.previewProduct?.slug.isNotEmpty == true)
+            ? widget.previewProduct!.slug
+            : widget.slug;
+        final shareUrl = 'https://www.pickaboo.com/product/$shareSlug';
+        setState(() => _isSharing = true);
+        try {
+          await SharePlus.instance.share(
+            ShareParams(
+              title: "Pickaboo Product",
+              subject: shareName,
+              text: 'Check out $shareName on Pickaboo:\n$shareUrl',
+            ),
           );
-        },
+        } finally {
+          if (mounted) setState(() => _isSharing = false);
+        }
+      },
+    );
+  }
+
+  /// Skeleton bottom action bar matching PdpBottomActionBar button structure.
+  Widget _buildSkeletonBottomBar() {
+    return Container(
+      key: const ValueKey('pdp_bottom_bar_skeleton'),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.06),
+            offset: const Offset(0, -3),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+        vertical: 8.h,
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            // Chat button (functional)
+            GestureDetector(
+              onTap: () => context.push(Routes.contactUs),
+              child: Container(
+                width: 44.w,
+                height: 44.h,
+                decoration: BoxDecoration(
+                  color: AppColors.pageBg,
+                  borderRadius: AppRadius.buttonRadius,
+                  border: Border.all(color: AppColors.border, width: 1.w),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 20.sp,
+                    color: AppColors.navy,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 10.w),
+            // ADD TO CART outline placeholder
+            Expanded(
+              child: Container(
+                height: 44.h,
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: AppRadius.buttonRadius,
+                  border: Border.all(
+                    color: AppColors.pickabooBlue.withValues(alpha: 0.4),
+                    width: 1.2.w,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    'ADD TO CART',
+                    style: AppTypography.button.copyWith(
+                      color: AppColors.pickabooBlue.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 10.w),
+            // BUY NOW filled placeholder
+            Expanded(
+              child: Container(
+                height: 44.h,
+                decoration: BoxDecoration(
+                  color: AppColors.pickabooBlue.withValues(alpha: 0.5),
+                  borderRadius: AppRadius.buttonRadius,
+                ),
+                child: Center(
+                  child: Text(
+                    'BUY NOW',
+                    style: AppTypography.button.copyWith(
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildLoadingState() {
-    return const AppLoader.fullPage();
-  }
-
   Widget _buildLoadedState(
     ProductDetailEntity product,
-    AppTextStyles textStyle,
     bool isLoggedIn,
   ) {
     final activeImages = _resolveImages(product);
@@ -792,7 +1175,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final int originalPrice = (regularPrice + _totalAddonPrice) * _quantity;
     final int saving = originalPrice > currentPrice ? originalPrice - currentPrice : 0;
 
-    return BlocBuilder<CompareBloc, CompareState>(
+    return KeyedSubtree(
+      key: ValueKey('pdp_loaded_${product.id}'),
+      child: BlocBuilder<CompareBloc, CompareState>(
       builder: (context, compareState) {
         final isCompared = compareState.products.any((p) => p.id == product.id);
 
@@ -896,9 +1281,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     ),
 
                     // ── 2. Top Trust Ribbon Strip (Authentic, Return, Seller, Warranty, Free Delivery) ──
-                    PdpTrustRibbonWidget(
-                      product: product,
-                    ),
+                    if (_showTrustRibbon)
+                      PdpTrustRibbonWidget(
+                        product: product,
+                      ),
 
                     // ── 3. Product Header, Stock, Price & EMI Section ──
                     PdpSectionCard(
@@ -907,6 +1293,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         currentPrice: currentPrice,
                         originalPrice: originalPrice,
                         saving: saving,
+                        showTrustRibbon: _showTrustRibbon,
                         onBrandTap: () {
                           context.pushToBrandProduct(
                             brandKey: product.brand.replaceAll(RegExp(r'\s+'), ''),
@@ -914,33 +1301,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           );
                         },
                         onRateTap: () {
-                          if (isLoggedIn) {
-                            if (product.isEligibleForReview) {
-                              context.pushNamed(
-                                'writeReview',
-                                pathParameters: {'id': product.id.toString()},
-                                extra: {
-                                  'productName': product.name,
-                                  'productImage': product.images.isNotEmpty
-                                      ? product.images.first
-                                      : '',
-                                },
-                              );
-                            } else {
-                              SnackBarUtils.showWarning(
-                                context,
-                                'You are not eligible to write a review for this product',
-                              );
-                            }
-                          } else {
-                            context.push(Routes.login);
+                          _reviewsTabKey.currentState?.selectTab(2);
+                          final ctx = _reviewsTabKey.currentContext;
+                          if (ctx != null) {
+                            Scrollable.ensureVisible(
+                              ctx,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeInOutCubic,
+                            );
                           }
                         },
                         onEmiTap: () {
                           showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
+                            backgroundColor: AppColors.transparent,
                             builder: (_) => BlocProvider.value(
                               value: context.read<EmiBloc>(),
                               child: BlocBuilder<EmiBloc, EmiState>(
@@ -970,6 +1345,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             );
                           }
                         },
+                        onSellerTap: () {
+                          final shopUrl = product.soldByVendorUrlKey.trim().isNotEmpty
+                              ? product.soldByVendorUrlKey.trim()
+                              : product.soldBy.trim();
+                          if (shopUrl.isNotEmpty) {
+                            context.pushToSellerProduct(
+                              shopUrl: shopUrl,
+                              sellerName: product.soldBy.trim(),
+                            );
+                          }
+                        },
                       ),
                     ),
 
@@ -989,198 +1375,33 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           onHeaderTap: () => _openOptionsSheet(product, isSelectionOnly: true),
                         ),
                       ),
-
-                    // ── 5. Available Offers & Bank Discounts ──
-                    if (product.offers.trim().isNotEmpty)
-                      PdpSectionCard(
-                        customPadding: EdgeInsets.symmetric(vertical: AppSpacing.sameGroupItemSpacing.h),
-                        child: PdpAvailableOffersWidget(
-                          promoOffer: product.offers,
-                        ),
-                      ),
-
-                    // ── 7. Delivery & Location Selector (Hidden when out of stock) ──
-                    if (product.stockAvailable)
-                      BlocBuilder<DeliveryChargeBloc, DeliveryChargeState>(
-                        builder: (context, deliveryChargeState) {
-                          final hasLocation = _selectedDeliveryLocation != null;
-                          final isInsideDhaka = _isDhakaPlace(_selectedDeliveryLocation);
-
-                          // If location is set and is not Dhaka, or user location is known and not Dhaka, express will not work
-                          final isNonDhaka = (hasLocation && !isInsideDhaka) || _isUserLocationNonDhaka();
-                          final effectiveIsExpress = product.expressDelivery == 1 && !isNonDhaka;
-
-                          final trailingText = deliveryChargeState.maybeWhen(
-                            loaded: (entity) => isInsideDhaka
-                                ? entity.formattedInsideCharge
-                                : entity.formattedOutsideCharge,
-                            orElse: () => null,
-                          );
-
-                          return PdpSectionCard(
-                            child: PdpDeliveryLocationSelector(
-                              selectedAddress: _selectedDeliveryLocation?.displayAddress,
-                              deliveryCharge: trailingText,
-                              isExpress: effectiveIsExpress,
-                              onTap: _onDeliveryInfoTap,
-                            ),
-                          );
-                        },
-                      ),
-
-                    // ── 8. Flash Sale Timer (if active) ──
-                    BlocBuilder<ProductFlashSaleBloc, ProductFlashSaleState>(
-                      builder: (context, flashSaleState) {
-                        if (flashSaleState.status == ProductFlashSaleStatus.success &&
-                            flashSaleState.flashSale != null &&
-                            flashSaleState.flashSale!.inFlashSale &&
-                            flashSaleState.flashSale!.flashSale?.endTime != null) {
-                          final sale = flashSaleState.flashSale!.flashSale!;
-                          return ProductSaleTimerSection(
-                            title: sale.title,
-                            subtitle: sale.shortDescription,
-                            endTime: sale.endTime!,
-                            onLearnMore: () {
-                              final segments = sale.slug.split('/').where((s) => s.trim().isNotEmpty).toList();
-                              if (segments.isNotEmpty) {
-                                context.handleBannerTap(
-                                  linkType: 'special_category',
-                                  link: segments.last.trim(),
-                                  categoryName: sale.title,
-                                  urlKey: segments.last.trim(),
-                                );
-                              }
-                            },
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
+                    // ── 5. Deals & Offers Section (Flash Sale Countdown & Available Offers / Bank Discounts) ──
+                    PdpDealsAndOffersSection(
+                      product: product,
                     ),
 
-                    // ── 9. Key Highlights (2x2 Spec Summary Grid) ──
-                    if (product.moreInformation.isNotEmpty)
+                    // ── 6. Fulfillment & Services Section (Delivery Location, Pickaboo Assured & CMS Banner) ──
+                    PdpFulfillmentAndServicesSection(
+                      product: product,
+                      selectedDeliveryLocation: _selectedDeliveryLocation,
+                      isUserLocationNonDhaka: _isUserLocationNonDhaka(),
+                      isLoggedIn: isLoggedIn,
+                      onDeliveryLocationTap: _onDeliveryInfoTap,
+                    ),
+
+                    // ── 7. Key Highlights (2x2 Spec Summary Grid) ──
+                    if (product.hasKeyHighlights)
                       PdpSectionCard(
                         child: PdpKeyHighlightsWidget(
                           moreInformation: product.moreInformation,
                         ),
                       ),
 
-                    // ── 10. Why Shop on Pickaboo (Assured, Express Delivery & Rewards) ──
-                    PdpSectionCard(
-                      child: PdpPickabooAssuredCard(
-                        product: product,
-                        onAssuredTap: () {
-                          final cmsState = context.read<CmsContentBloc>().state;
-                          if (cmsState.pickabooVerified != null &&
-                              cmsState.pickabooVerified?.active == true) {
-                            CmsContentBottomSheet.show(
-                              context,
-                              cmsState.pickabooVerified!,
-                            );
-                          }
-                        },
-                        onExpressDeliveryTap: () {
-                          final cmsState = context.read<CmsContentBloc>().state;
-                          if (cmsState.expressDelivery != null &&
-                              cmsState.expressDelivery?.active == true) {
-                            CmsContentBottomSheet.show(
-                              context,
-                              cmsState.expressDelivery!,
-                            );
-                          }
-                        },
-                        onClubPointsTap: () {
-                          if (isLoggedIn) {
-                            context.push(Routes.clubPoint);
-                          } else {
-                            context.push(Routes.login);
-                          }
-                        },
-                      ),
-                    ),
-
-                    // ── 10.1 Product Offer Banner (CMS) ──
-                    BlocBuilder<CmsContentBloc, CmsContentState>(
-                      builder: (context, cmsState) {
-                        if (cmsState.productOffer != null &&
-                            cmsState.productOffer?.active == true) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.sameGroupItemSpacing.w,
-                                ),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    final String title =
-                                        cmsState.productOffer?.title ?? "";
-                                    if (!title.contains('&&')) return;
-
-                                    final parts = title.split('&&');
-                                    final type = parts[0];
-                                    final link = parts.length > 1 ? parts[1] : '';
-                                    final name = parts.length > 2 ? parts[2] : null;
-
-                                    context.handleBannerTap(
-                                      linkType: type,
-                                      link: link,
-                                      categoryName: name,
-                                      urlKey: link,
-                                    );
-                                  },
-                                  child: AppHtml(
-                                    data: cmsState.productOffer?.content ?? "",
-                                    onLinkTap: (url, attributes, element) async {
-                                      if (url != null) {
-                                        final trimmedUrl = url.trim();
-                                        if (trimmedUrl.contains('privacy-policy')) {
-                                          context.push(Routes.privacyPolicy);
-                                        } else if (trimmedUrl.contains('slug=')) {
-                                          final uri = Uri.parse(trimmedUrl);
-                                          final slug = uri.queryParameters['slug'];
-                                          if (slug != null) {
-                                            context.pushNamed(
-                                              'knowledgeBaseDetailsStandalone',
-                                              pathParameters: {'id': slug},
-                                              extra: {
-                                                'categoryId': slug,
-                                                'categoryName':
-                                                    element?.text ?? 'Help Articles',
-                                              },
-                                            );
-                                          }
-                                        } else {
-                                          try {
-                                            await launchUrl(
-                                              Uri.parse(trimmedUrl),
-                                              mode: LaunchMode.externalApplication,
-                                            );
-                                          } catch (e) {
-                                            debugPrint('Could not launch $url: $e');
-                                          }
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: AppSpacing.groupToGroupSpacing * 0.5,
-                                color: AppColors.pageBg,
-                              ),
-                            ],
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-
-                    // ── 11. Tabbed Specifications, Overview, Reviews & Q&A ──
+                    // ── 8. Tabbed Specifications, Overview, Reviews & Q&A ──
                     PdpSectionCard(
                       customPadding: EdgeInsets.zero,
                       child: PdpTabSectionWidget(
+                        key: _reviewsTabKey,
                         product: product,
                         onWriteReviewTap: () {
                           if (isLoggedIn) {
@@ -1217,7 +1438,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             context: context,
                             isScrollControlled: true,
                             useSafeArea: true,
-                            backgroundColor: Colors.black,
+                            backgroundColor: AppColors.black,
                             builder: (_) => ReviewImageViewerSheet(
                               imageUrls: product.allReviewImages,
                               initialIndex: idx,
@@ -1227,69 +1448,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       ),
                     ),
 
-                    // ── 12. Frequently Bought Together Accessories ──
-                    if (product.buysTogather.isNotEmpty)
-                      PdpSectionCard(
-                        child: ProductFrequentlyBoughtTogether(
-                          items: product.buysTogather,
-                          onAddToCart: _addBuyTogetherToCart,
-                        ),
-                      ),
-
-                    // ── 13. Related Products Slider ──
-                    BlocBuilder<RelatedProductsBloc, RelatedProductsState>(
-                      builder: (context, relatedState) {
-                        return relatedState.maybeWhen(
-                          loaded: (entity) {
-                            if (entity.relatedProducts.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-                            return PdpSectionCard(
-                              customPadding: EdgeInsets.zero,
-                              child: ProductSectionSlider(
-                                title: 'Related Products',
-                                products: entity.relatedProducts,
-                                onProductTap: (product) {
-                                  context.goToProductDetail(
-                                    product.id.toString(),
-                                    slug: product.slug,
-                                    productName: product.productName,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          orElse: () => const SizedBox.shrink(),
-                        );
-                      },
-                    ),
-
-                    // ── 14. Recommended For You Slider ──
-                    BlocBuilder<RecommendedProductsBloc, RecommendedProductsState>(
-                      builder: (context, recommendedState) {
-                        return recommendedState.maybeWhen(
-                          loaded: (entity) {
-                            if (entity.sellerRecommendedProducts.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-                            return PdpSectionCard(
-                              customPadding: EdgeInsets.zero,
-                              child: ProductSectionSlider(
-                                title: 'Recommended For You',
-                                products: entity.sellerRecommendedProducts,
-                                onProductTap: (product) {
-                                  context.goToProductDetail(
-                                    product.id.toString(),
-                                    slug: product.slug,
-                                    productName: product.productName,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          orElse: () => const SizedBox.shrink(),
-                        );
-                      },
+                    // ── 9. Cross-Sell & Recommendations Section (Bought Together + Related & Recommended Sliders) ──
+                    PdpCrossSellSection(
+                      product: product,
+                      onAddBuyTogetherToCart: _addBuyTogetherToCart,
+                      onAddBundleToCart: (accessories) =>
+                          _addBundleToCart(product, accessories),
                     ),
 
                     SizedBox(height: 24.h),
@@ -1300,13 +1464,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           },
         );
       },
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildErrorState(dynamic error) {
     final isOffline = ConnectivityUtils.isNoInternet(error, context);
     if (isOffline) {
-      return NoInternetPage(
+      return KeyedSubtree(
+        key: const ValueKey('pdp_error_offline'),
+        child: NoInternetPage(
         showAppBar: false,
         onRetry: () {
           context.read<ProductDetailBloc>().add(
@@ -1316,36 +1483,46 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         onBack: Navigator.of(context).canPop()
             ? () => Navigator.of(context).pop()
             : null,
+      ),
       );
     }
 
-    final String message = error is AppErrorEntity && error.message.isNotEmpty
+    const fallbackMessage = 'Something went wrong while loading this product. Please try again in a moment.';
+    final String rawMessage = error is AppErrorEntity && error.message.isNotEmpty
         ? error.message
-        : 'Something went wrong while loading this product. Please try again in a moment.';
+        : fallbackMessage;
+    final String message = ApiErrorParser.sanitize(rawMessage, fallback: fallbackMessage);
 
-    return AppErrorView(
-      type: AppErrorType.generic,
-      title: "Couldn't load this product",
-      message: message,
-      retryLabel: 'Retry',
-      onRetry: () {
-        context.read<ProductDetailBloc>().add(
-          ProductDetailEvent.load(productId: widget.productId),
-        );
-      },
-      onSecondary: Navigator.of(context).canPop()
-          ? () => Navigator.of(context).pop()
-          : null,
-      secondaryLabel: 'Go Back',
+    return KeyedSubtree(
+      key: const ValueKey('pdp_error_generic'),
+      child: AppErrorView(
+        type: AppErrorType.generic,
+        title: "Couldn't load this product",
+        message: message,
+        retryLabel: 'Retry',
+        onRetry: () {
+          context.read<ProductDetailBloc>().add(
+            ProductDetailEvent.load(productId: widget.productId),
+          );
+        },
+        onSecondary: Navigator.of(context).canPop()
+            ? () => Navigator.of(context).pop()
+            : null,
+        secondaryLabel: 'Go Back',
+      ),
     );
   }
 
   Widget _buildFloatingAppBar(ProductDetailState state) {
+    final isLoaded = state.maybeWhen(
+      loaded: (_) => true,
+      orElse: () => false,
+    );
     final isError = state.maybeWhen(
       error: (_) => true,
       orElse: () => false,
     );
-    if (isError) return const SizedBox.shrink();
+    if (!isLoaded || isError) return const SizedBox.shrink();
 
     return BlocBuilder<CartBloc, CartState>(
       builder: (context, cartState) {

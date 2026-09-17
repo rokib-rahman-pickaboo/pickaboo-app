@@ -30,6 +30,10 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   String? _selectedShippingMethodCode;
   List<ShippingMethodEntity> _availableShippingMethods = [];
   List<PaymentMethodEntity> _availablePaymentMethods = [];
+  static List<PaymentMethodEntity> _cachedPaymentMethods = [];
+  static List<PaymentMethodEntity> get cachedPaymentMethods => _cachedPaymentMethods;
+  static String? _cachedCartId;
+  static String? get cachedCartId => _cachedCartId;
 
   int _estimateToken = 0;
 
@@ -105,6 +109,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       },
       (checkout) {
         _currentCheckout = checkout;
+        _cachedCartId = checkout.cart.id.toString();
         _selectedShippingMethodCode = null;
         _availableShippingMethods = [];
         _availablePaymentMethods = [];
@@ -389,8 +394,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       billingAddress: _selectedBillingAddress,
     );
 
-    result.fold(
-      (error) {
+    await result.fold(
+      (error) async {
         _selectedShippingMethodCode = previousCode;
         if (_currentCheckout != null) {
           emit(_checkoutLoadedState());
@@ -400,7 +405,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           );
         }
       },
-      (paymentInfo) {
+      (paymentInfo) async {
         if (_currentCheckout != null && paymentInfo.totals != null) {
           _currentCheckout = CheckoutEntity(
             cart: _currentCheckout!.cart,
@@ -411,7 +416,45 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         if (_currentCheckout != null) {
           _selectedShippingMethodCode = newCode;
           _availablePaymentMethods = paymentInfo.paymentMethods;
+          if (paymentInfo.paymentMethods.isNotEmpty) {
+            _cachedPaymentMethods = paymentInfo.paymentMethods;
+          }
+          _cachedCartId = _currentCheckout!.cart.id.toString();
           emit(_checkoutLoadedState());
+
+          final cartId = _currentCheckout!.cart.id.toString();
+          final hasSubtitles = _availablePaymentMethods.any(
+            (m) => m.subtitle.trim().isNotEmpty,
+          );
+          if (cartId.isNotEmpty && cartId != '0' && !hasSubtitles) {
+            final richInfoResult = await repository.getPaymentInfo(cartId: cartId);
+            richInfoResult.fold(
+              (_) {},
+              (richInfo) {
+                final hasNewSubtitles = richInfo.paymentMethods.any(
+                  (m) => m.subtitle.trim().isNotEmpty,
+                );
+                final hasNewTotals = richInfo.totals != null &&
+                    richInfo.totals != _currentCheckout?.cartTotals;
+                if ((richInfo.paymentMethods.isNotEmpty && hasNewSubtitles) ||
+                    hasNewTotals) {
+                  if (richInfo.paymentMethods.isNotEmpty) {
+                    _availablePaymentMethods = richInfo.paymentMethods;
+                    _cachedPaymentMethods = richInfo.paymentMethods;
+                  }
+                  if (_currentCheckout != null) {
+                    if (richInfo.totals != null) {
+                      _currentCheckout = CheckoutEntity(
+                        cart: _currentCheckout!.cart,
+                        cartTotals: richInfo.totals!,
+                      );
+                    }
+                    emit(_checkoutLoadedState());
+                  }
+                }
+              },
+            );
+          }
         }
       },
     );
@@ -436,6 +479,10 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       },
       (paymentInfo) {
         _availablePaymentMethods = paymentInfo.paymentMethods;
+        if (paymentInfo.paymentMethods.isNotEmpty) {
+          _cachedPaymentMethods = paymentInfo.paymentMethods;
+        }
+        _cachedCartId = event.cartId;
 
         if (_currentCheckout != null && paymentInfo.totals != null) {
           _currentCheckout = CheckoutEntity(
@@ -448,6 +495,11 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           print(
             '✅ CheckoutBloc: getPaymentInfo — ${_availablePaymentMethods.length} methods',
           );
+          for (final m in _availablePaymentMethods) {
+            if (m.subtitle.isNotEmpty) {
+              print('   👉 Method ${m.code}: subtitle="${m.subtitle}", gateway="${m.paymentGateway}"');
+            }
+          }
         }
 
         if (_currentCheckout != null) {
@@ -464,11 +516,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           );
         } else {
           if (kDebugMode) {
-            print('💳 CheckoutBloc: _onLoadPaymentInfo — emitting paymentMethodsLoaded (no checkout)');
+            print(
+              '💳 CheckoutBloc: _onLoadPaymentInfo — emitting paymentMethodsLoaded (no checkout, totals=${paymentInfo.totals?.grandTotal})',
+            );
           }
           emit(
             CheckoutState.paymentMethodsLoaded(
               availablePaymentMethods: _availablePaymentMethods,
+              totals: paymentInfo.totals,
             ),
           );
         }
@@ -499,9 +554,12 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           availablePaymentMethods: _availablePaymentMethods,
         ),
       );
+    }
 
+    final targetCartId = _currentCheckout?.cart.id.toString() ?? _cachedCartId;
+    if (targetCartId != null && targetCartId.isNotEmpty && targetCartId != '0') {
       final result = await repository.selectPaymentMethod(
-        cartId: _currentCheckout!.cart.id.toString(),
+        cartId: targetCartId,
         method: event.paymentMethod,
       );
 
@@ -515,8 +573,11 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         },
         (success) {
           if (kDebugMode) {
-            print('✅ CheckoutBloc: Payment method selected on server');
+            print(
+              '✅ CheckoutBloc: Payment method selected on server (cartId=$targetCartId)',
+            );
           }
+          add(CheckoutEvent.loadPaymentInfo(cartId: targetCartId));
         },
       );
     }
@@ -696,10 +757,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           final url = eblData['url']?.toString() ?? '';
           final formFields =
               (eblData['formFields'] as Map<String, String>?) ?? {};
+          final exactTitle = _resolvePaymentMethodTitle(
+            event.paymentMethod,
+            fallback: 'Pickaboo EBL Mastercard',
+          );
           emit(
             CheckoutState.navigateToPaymentGateway(
               url: url,
-              title: 'EBL Payment',
+              title: exactTitle,
               formFields: formFields.isEmpty ? null : formFields,
             ),
           );
@@ -727,17 +792,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         ),
       ),
       (gatewayUrl) {
-        var gatewayTitle = 'Secure Payment';
-        for (final m in _availablePaymentMethods) {
-          if (m.code == method && m.title.isNotEmpty) {
-            gatewayTitle = m.title;
-            break;
-          }
-        }
+        final exactTitle = _resolvePaymentMethodTitle(
+          event.paymentMethod,
+          fallback: 'Payment',
+        );
         emit(
           CheckoutState.navigateToPaymentGateway(
             url: gatewayUrl,
-            title: gatewayTitle,
+            title: exactTitle,
           ),
         );
       },
@@ -791,10 +853,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       (data) {
         final bkashUrl = data['bkashURL'] as String?;
         if (bkashUrl != null) {
+          final exactTitle = _resolvePaymentMethodTitle(
+            'bkash',
+            fallback: 'bKash Payment',
+          );
           emit(
             CheckoutState.navigateToPaymentGateway(
               url: bkashUrl,
-              title: 'bKash Payment',
+              title: exactTitle,
             ),
           );
         } else {
@@ -865,10 +931,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       (data) {
         final bkashUrl = data['bkashURL'] as String?;
         if (bkashUrl != null) {
+          final exactTitle = _resolvePaymentMethodTitle(
+            'bkash',
+            fallback: 'bKash Payment',
+          );
           emit(
             CheckoutState.navigateToPaymentGateway(
               url: bkashUrl,
-              title: 'bKash Payment',
+              title: exactTitle,
             ),
           );
         } else {
@@ -977,10 +1047,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       (data) {
         final bkashUrl = data['bkashURL'] as String?;
         if (bkashUrl != null) {
+          final exactTitle = _resolvePaymentMethodTitle(
+            'bkash',
+            fallback: 'bKash Payment',
+          );
           emit(
             CheckoutState.navigateToPaymentGateway(
               url: bkashUrl,
-              title: 'bKash Payment',
+              title: exactTitle,
             ),
           );
         } else {
@@ -1340,9 +1414,12 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           final url = eblData['url']?.toString() ?? '';
           final formFields = (eblData['formFields'] as Map<String, String>?) ?? {};
           if (kDebugMode) print('✅ CheckoutBloc: EMI EBL form-post ready — $url');
+          final emiTitle = event.bankName.isNotEmpty
+              ? event.bankName
+              : _resolvePaymentMethodTitle('emi', fallback: 'EMI Payment');
           emit(CheckoutState.navigateToPaymentGateway(
             url: url,
-            title: 'EMI Payment',
+            title: emiTitle,
             formFields: formFields.isEmpty ? null : formFields,
           ));
         },
@@ -1366,12 +1443,48 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       },
       (gatewayUrl) {
         if (kDebugMode) print('✅ CheckoutBloc: EMI gateway URL — $gatewayUrl');
+        final emiTitle = event.bankName.isNotEmpty
+            ? event.bankName
+            : _resolvePaymentMethodTitle('emi', fallback: 'EMI Payment');
         emit(CheckoutState.navigateToPaymentGateway(
           url: gatewayUrl,
-          title: 'EMI Payment',
+          title: emiTitle,
         ));
       },
     );
+  }
+
+  String _resolvePaymentMethodTitle(
+    String methodCode, {
+    String fallback = 'Payment',
+  }) {
+    final cleanCode = methodCode.toLowerCase().trim();
+    for (final m in _availablePaymentMethods) {
+      if (m.code.toLowerCase().trim() == cleanCode && m.title.trim().isNotEmpty) {
+        return m.title.trim();
+      }
+    }
+    for (final m in _cachedPaymentMethods) {
+      if (m.code.toLowerCase().trim() == cleanCode && m.title.trim().isNotEmpty) {
+        return m.title.trim();
+      }
+    }
+    const knownTitles = {
+      'pickabooeblmastercard': 'Pickaboo EBL Mastercard',
+      'visamaster': 'Visa/Master',
+      'bkash': 'bKash Payment',
+      'nagad': 'Nagad',
+      'amex': 'AMEX',
+      'cashondelivery': 'Cash On Delivery',
+      'cardondelivery': 'Card On Delivery',
+    };
+    if (knownTitles.containsKey(cleanCode)) {
+      return knownTitles[cleanCode]!;
+    }
+    if (cleanCode.contains('eblmastercard')) {
+      return 'Pickaboo EBL Mastercard';
+    }
+    return fallback;
   }
 
   void _onResetCheckout(_ResetCheckout event, Emitter<CheckoutState> emit) {

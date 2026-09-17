@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
+import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/domain/entity/slug_resolution/slug_resolution_entity.dart';
 import 'package:pickaboo/domain/repository/product_repository.dart';
@@ -106,6 +107,12 @@ void main() {
     mockRepository = MockProductRepository();
     mockCache = MockAuthCacheManager();
     mockAnalytics = MockAnalyticsService();
+
+    when(
+      () => mockRepository.getSavedProductDetail(
+        productId: any(named: 'productId'),
+      ),
+    ).thenAnswer((_) async => const Right(null));
 
     when(
       () => mockAnalytics.logViewItem(
@@ -522,6 +529,51 @@ void main() {
           ),
         ).called(1);
       },
+    );
+
+    blocTest<ProductDetailBloc, ProductDetailState>(
+      'emits [loaded(initialProduct), loaded(fullProduct)] when initialProduct is provided',
+      build: () {
+        stubUserId(null);
+        stubProductDetail(
+          productId: _tNumericId,
+          customerId: null,
+          result: right(tProduct),
+        );
+        return bloc;
+      },
+      act: (b) => b.add(ProductDetailEvent.load(
+        productId: _tNumericId,
+        initialProduct: const ProductEntity(
+          id: _tNumericId,
+          expressDelivery: false,
+          productName: 'Preview Product',
+          sku: 'SKU123',
+          slug: 'preview-slug',
+          typeId: 'simple',
+          stockAvailable: true,
+          freeDelivery: false,
+          productPrice: 100,
+          productSpecialPrice: 90,
+          productDiscount: 10,
+          offers: '',
+          rating: 4.5,
+          clubPoint: 10,
+          ratingCount: 5,
+          productImg: 'https://example.com/preview.jpg',
+          emiAvailable: false,
+          comingSoon: false,
+        ),
+      )),
+      expect: () => [
+        predicate<ProductDetailState>((state) {
+          return state.maybeWhen(
+            loaded: (p) => p.isPartial && p.name == 'Preview Product' && p.id == 1234,
+            orElse: () => false,
+          );
+        }),
+        ProductDetailState.loaded(tProduct),
+      ],
     );
   });
 }

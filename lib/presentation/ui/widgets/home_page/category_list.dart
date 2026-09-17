@@ -7,7 +7,7 @@
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
 
 class CategoryList extends StatelessWidget {
@@ -24,7 +24,6 @@ class CategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     if (categories.isEmpty) {
       return const SizedBox.shrink();
@@ -41,7 +40,7 @@ class CategoryList extends StatelessWidget {
             children: [
               Text(
                 'Categories',
-                style: textStyle.bodyMediumBold.copyWith(
+                style: AppTypography.bodyMedium.bold().copyWith(
                   color: AppColors.text,
                 ),
               ),
@@ -56,7 +55,7 @@ class CategoryList extends StatelessWidget {
                       children: [
                         Text(
                           'View All',
-                          style: AppTypography.cardTitle,
+                          style: AppTypography.titleSmall,
                         ),
                         SizedBox(width: 2.w),
                         Icon(
@@ -101,14 +100,10 @@ class _CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
-    return TextButton(
-      onPressed: onTap,
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-      ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: AppRadius.buttonRadius,
       child: SizedBox(
         width: 80.w,
         child: Padding(
@@ -119,7 +114,7 @@ class _CategoryItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: AppRadius.cardRadius,
                 child: SizedBox(
                   width: 52.w,
                   height: 52.w,
@@ -152,7 +147,7 @@ class _CategoryItem extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: textStyle.caption.copyWith(color: AppColors.text,fontWeight: FontWeight.w600),
+                    style: AppTypography.bodyTiny.copyWith(color: AppColors.text,fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

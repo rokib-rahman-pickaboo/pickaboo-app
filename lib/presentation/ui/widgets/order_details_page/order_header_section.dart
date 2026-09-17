@@ -10,6 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/date_time_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modern OrderHeaderSection matching Pickaboo-App-UI design language.
 class OrderHeaderSection extends StatelessWidget {
@@ -20,6 +22,8 @@ class OrderHeaderSection extends StatelessWidget {
   final VoidCallback? onCancel;
   final bool showCancel;
   final bool showReview;
+  final bool showPayNow;
+  final VoidCallback? onPayNow;
 
   const OrderHeaderSection({
     super.key,
@@ -30,6 +34,8 @@ class OrderHeaderSection extends StatelessWidget {
     this.onCancel,
     this.showCancel = false,
     this.showReview = true,
+    this.showPayNow = false,
+    this.onPayNow,
   });
 
   @override
@@ -65,12 +71,12 @@ class OrderHeaderSection extends StatelessWidget {
                 children: [
                   Text(
                     "Order #${order.orderNumber}",
-                    style: AppTypography.pageTitle,
+                    style: AppTypography.titleLarge,
                   ),
                   SizedBox(height: 4.h),
                   Text(
                     _formatDate(order.createdAt),
-                    style: AppTypography.bodyMutedLight,
+                    style: AppTypography.bodySmall.mutedLight,
                   ),
                 ],
               ),
@@ -86,7 +92,7 @@ class OrderHeaderSection extends StatelessWidget {
                 ),
                 child: Text(
                   statusAttr.text,
-                  style: AppTypography.badgeStockOut.withColor(statusAttr.backgroundColor),
+                  style: AppTypography.bodyTiny.extraBold().red.withColor(statusAttr.backgroundColor),
                 ),
               ),
             ],
@@ -99,7 +105,7 @@ class OrderHeaderSection extends StatelessWidget {
                 borderRadius: AppRadius.cardRadius,
               ),
               child: Material(
-                color: Colors.transparent,
+                color: AppColors.transparent,
                 child: InkWell(
                   onTap: onReview,
                   borderRadius: AppRadius.cardRadius,
@@ -117,7 +123,7 @@ class OrderHeaderSection extends StatelessWidget {
                         SizedBox(width: 6.w),
                         Text(
                           'Review',
-                          style: AppTypography.brandActionText,
+                          style: AppTypography.brandAction,
                         ),
                       ],
                     ),
@@ -126,30 +132,13 @@ class OrderHeaderSection extends StatelessWidget {
               ),
             ),
           ],
-          if (showCancel && onCancel != null) ...[
+          if (showPayNow && onPayNow != null) ...[
             SizedBox(height: showReview ? 10.h : 16.h),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.red, width: 1.w),
-                borderRadius: AppRadius.cardRadius,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: onCancel,
-                  borderRadius: AppRadius.cardRadius,
-                  splashColor: AppColors.red.withValues(alpha: 0.1),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.h),
-                    child: Center(
-                      child: Text(
-                        'Cancel Order',
-                        style: AppTypography.brandActionText.withColor(AppColors.red),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            AppButton.primary(
+              height: 44.h,
+              borderRadius: AppRadius.cardRadius,
+              text: 'Pay Now',
+              onPressed: onPayNow,
             ),
           ],
         ],

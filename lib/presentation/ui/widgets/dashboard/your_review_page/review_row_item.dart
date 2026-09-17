@@ -4,8 +4,8 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
@@ -30,22 +30,22 @@ class ReviewRowItem extends StatelessWidget {
           children: [
             // ── Product Thumbnail Container ──
             ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.buttonRadius,
               child: Container(
                 width: 64.w,
                 height: 64.h,
                 decoration: BoxDecoration(
                   color: AppColors.white,
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: AppRadius.buttonRadius,
                   border: Border.all(color: AppColors.border),
                 ),
                 child: review.productImage.isNotEmpty
-                    ? CachedNetworkImage(
+                    ? AppImage(
                         imageUrl: review.productImage,
                         fit: BoxFit.contain,
-                        placeholder: (context, url) =>
+                        placeholder:
                             const AppLoader.inline(size: 20),
-                        errorWidget: (context, url, error) => Center(
+                        errorWidget: Center(
                           child: Icon(
                             Icons.shopping_bag_outlined,
                             color: AppColors.pickabooBlue,
@@ -73,7 +73,7 @@ class ReviewRowItem extends StatelessWidget {
                     review.productName,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.cardTitle,
+                    style: AppTypography.titleSmall,
                   ),
                   SizedBox(height: 4.h),
 
@@ -111,12 +111,12 @@ class ReviewRowItem extends StatelessWidget {
             padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.buttonRadius,
               border: Border.all(color: AppColors.border),
             ),
             child: Text(
               review.detail,
-              style: AppTypography.bodyRegular,
+              style: AppTypography.bodyMedium,
             ),
           ),
         ],
@@ -133,8 +133,8 @@ class ReviewRowItem extends StatelessWidget {
                 return Padding(
                   padding: EdgeInsets.only(right: 8.w),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
-                    child: CachedNetworkImage(
+                    borderRadius: AppRadius.buttonRadius,
+                    child: AppImage(
                       imageUrl: review.images[index],
                       height: 60.h,
                       width: 60.w,

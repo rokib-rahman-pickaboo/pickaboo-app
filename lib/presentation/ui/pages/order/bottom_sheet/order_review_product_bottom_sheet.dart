@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
 /// Modern OrderReviewProductBottomSheet matching Pickaboo-App-UI design language.
@@ -52,7 +53,7 @@ class _OrderReviewProductBottomSheetState
             children: [
               Text(
                 "Select Product to Review",
-                style: AppTypography.pageTitle,
+                style: AppTypography.titleLarge,
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
@@ -63,7 +64,7 @@ class _OrderReviewProductBottomSheetState
           SizedBox(height: 4.h),
           Text(
             "Choose one product from your order to write a review.",
-            style: AppTypography.bodyMuted,
+            style: AppTypography.bodySmall,
           ),
           SizedBox(height: 16.h),
           ConstrainedBox(
@@ -127,7 +128,7 @@ class _OrderReviewProductBottomSheetState
                             children: [
                               Text(
                                 item.itemName,
-                                style: AppTypography.cardTitle,
+                                style: AppTypography.titleSmall,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -156,31 +157,18 @@ class _OrderReviewProductBottomSheetState
               },
             ),
           ),
-          SizedBox(height: 20.h),
-          SizedBox(
-            width: double.infinity,
+          AppSpacing.gapV20,
+          AppButton.primary(
+            text: "Continue",
+            isDisabled: selectedItem == null,
+            isFullWidth: true,
             height: 48.h,
-            child: ElevatedButton(
-              onPressed: selectedItem == null
-                  ? null
-                  : () {
-                      Navigator.pop(context);
-                      widget.onProductSelected(selectedItem!);
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                foregroundColor: AppColors.white,
-                disabledBackgroundColor: AppColors.border,
-                elevation: 0,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: AppRadius.cardRadius,
-                ),
-              ),
-              child: Text(
-                "Continue",
-                style: selectedItem == null ? AppTypography.buttonPrimary.withColor(AppColors.mutedLight) : AppTypography.buttonPrimary,
-              ),
-            ),
+            onPressed: selectedItem == null
+                ? null
+                : () {
+                    Navigator.pop(context);
+                    widget.onProductSelected(selectedItem!);
+                  },
           ),
         ],
       ),

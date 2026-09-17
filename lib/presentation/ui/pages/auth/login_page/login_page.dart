@@ -22,11 +22,17 @@ import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/core/validatator/validator.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/auth/login_bloc/login_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/phone_text_field.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:pickaboo/data/services/push_notification_service.dart';
+import 'package:pickaboo/presentation/bloc/notification_bloc/notification_bloc.dart';
+import 'package:pickaboo/injection.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modernized Pickaboo Login Page
 /// Maintains exact requested brand typography, balanced upper & lower margins, and clean inputs.
@@ -327,6 +333,16 @@ class _LoginPageState extends State<LoginPage> {
             loginSuccess: (status, isLogin) {
               context.read<AuthBloc>().add(const AuthEvent.userLoggedIn());
 
+              getIt<PushNotificationService>().getStoredToken().then((token) async {
+                final fcmToken = token ?? await FirebaseMessaging.instance.getToken();
+                if (fcmToken != null && context.mounted) {
+                  debugPrint('📱 [LOGIN_PAGE] Dispatching saveFcmToken on loginSuccess: $fcmToken');
+                  context.read<NotificationBloc>().add(
+                    NotificationEvent.saveFcmToken(token: fcmToken),
+                  );
+                }
+              });
+
               if (widget.redirectToHome) {
                 MainPage.hideBottomNav.value = false;
                 context.go(Routes.home);
@@ -345,13 +361,19 @@ class _LoginPageState extends State<LoginPage> {
             orElse: () {},
           );
         },
-        child: GestureDetector(
-          onTap: _dismissKeyboard,
-          behavior: HitTestBehavior.opaque,
-          child: Scaffold(
-            backgroundColor: AppColors.pageBg,
-            body: ResponsiveContainer(
-              child: SafeArea(
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: AppColors.white,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+          ),
+          child: GestureDetector(
+            onTap: _dismissKeyboard,
+            behavior: HitTestBehavior.opaque,
+            child: Scaffold(
+              backgroundColor: AppColors.white,
+              body: ResponsiveContainer(
+                child: SafeArea(
                 child: Stack(
                   children: [
                     // ── PERFECTLY CENTERED MAIN CONTENT ──
@@ -374,12 +396,12 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   // Brand Logo
                                   Image.asset(
-                                    'assets/images/pickaboo_new_logo.png',
+                                    AppAssets.logoNew,
                                     height: 44.h,
                                     fit: BoxFit.contain,
                                     errorBuilder: (context, error, stackTrace) {
                                       return Image.asset(
-                                        'assets/images/pickaboo-login-logo.png',
+                                        AppAssets.logoLogin,
                                         height: 44.h,
                                         fit: BoxFit.contain,
                                       );
@@ -399,7 +421,7 @@ class _LoginPageState extends State<LoginPage> {
                                 SizedBox(height: 8.h),
                                 Text(
                                   _isUser ? 'for login.' : 'Please login.',
-                                  style: AppTypography.bodyRegular,
+                                  style: AppTypography.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
 
@@ -468,7 +490,7 @@ class _LoginPageState extends State<LoginPage> {
                                                 ),
                                               ],
                                             ),
-                                            style: AppTypography.bodyMuted,
+                                            style: AppTypography.bodySmall,
                                           ),
                                         ],
                                       ),
@@ -487,7 +509,7 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                         child: Text(
                                           'Or',
-                                          style: AppTypography.bodyMutedLight,
+                                          style: AppTypography.bodySmall.mutedLight,
                                         ),
                                       ),
                                       const Expanded(
@@ -512,7 +534,7 @@ class _LoginPageState extends State<LoginPage> {
                                                     _emailOrMobileController,
                                                 keyboardType:
                                                     TextInputType.emailAddress,
-                                                style: AppTypography.inputText,
+                                                style: AppTypography.bodyLarge.regular(),
                                                 decoration:
                                                     _buildInputDecoration(
                                                   hintText: 'Enter your email',
@@ -532,7 +554,7 @@ class _LoginPageState extends State<LoginPage> {
                                               TextFormField(
                                                 controller: _passwordController,
                                                 obscureText: _obscurePassword,
-                                                style: AppTypography.inputText,
+                                                style: AppTypography.bodyLarge.regular(),
                                                 decoration:
                                                     _buildInputDecoration(
                                                   hintText:
@@ -577,7 +599,7 @@ class _LoginPageState extends State<LoginPage> {
                                                       _passwordController,
                                                   obscureText:
                                                       _obscurePassword,
-                                                  style: AppTypography.inputText,
+                                                  style: AppTypography.bodyLarge.regular(),
                                                   decoration:
                                                       _buildInputDecoration(
                                                     hintText:
@@ -619,7 +641,7 @@ class _LoginPageState extends State<LoginPage> {
                                                   inputFormatters:
                                                       PhoneTextField
                                                           .inputFormatters,
-                                                  style: AppTypography.inputText,
+                                                  style: AppTypography.bodyLarge.regular(),
                                                   decoration:
                                                       _buildInputDecoration(
                                                     hintText:
@@ -647,21 +669,14 @@ class _LoginPageState extends State<LoginPage> {
                                   SizedBox(height: 10.h),
                                   Align(
                                     alignment: Alignment.centerRight,
-                                    child: TextButton(
+                                    child: AppButton.ghost(
+                                      shrinkWrap: true,
                                       onPressed: () {
                                         _dismissKeyboard();
                                         context.push(Routes.forgotPassword);
                                       },
-                                      style: TextButton.styleFrom(
-                                        padding: EdgeInsets.zero,
-                                        minimumSize: Size.zero,
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                      child: Text(
-                                        'Forgot password?',
-                                        style: AppTypography.brandActionText,
-                                      ),
+                                      text: AppStrings.forgotPasswordPrompt,
+                                      textStyle: AppTypography.brandAction,
                                     ),
                                   ),
                                 ],
@@ -677,30 +692,13 @@ class _LoginPageState extends State<LoginPage> {
                                       orElse: () => false,
                                     );
 
-                                    return SizedBox(
-                                      width: double.infinity,
+                                    return AppButton.primary(
                                       height: 50.h,
-                                      child: ElevatedButton(
-                                        onPressed:
-                                            isLoading ? null : _handleSignIn,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              AppColors.pickabooBlue,
-                                          foregroundColor: AppColors.white,
-                                          elevation: 0,
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: AppRadius.cardRadius,
-                                          ),
-                                        ),
-                                        child: isLoading
-                                            ? const AppLoader.button()
-                                            : Text(
-                                                _isEmail || _isUser
-                                                    ? 'Login'
-                                                    : 'Continue',
-                                                style: AppTypography.buttonPrimary,
-                                              ),
-                                      ),
+                                      isLoading: isLoading,
+                                      onPressed: _handleSignIn,
+                                      text: _isEmail || _isUser
+                                          ? AppStrings.login
+                                          : AppStrings.continueText,
                                     );
                                   },
                                 ),
@@ -709,17 +707,16 @@ class _LoginPageState extends State<LoginPage> {
 
                                 // Forgot Password Link (Always visible - matches Pickaboo-App-BK and Pickaboo-App-DC)
                                 Center(
-                                  child: TextButton(
+                                  child: AppButton.ghost(
+                                    shrinkWrap: true,
                                     onPressed: () {
                                       _dismissKeyboard();
                                       context.push(Routes.forgotPassword);
                                     },
-                                    child: Text(
-                                      'Forgot Your Password?',
-                                      style: AppTypography.brandActionText.copyWith(
-                                        color: AppColors.muted,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                    text: AppStrings.forgotYourPasswordPrompt,
+                                    textStyle: AppTypography.brandAction.copyWith(
+                                      color: AppColors.muted,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ),
@@ -738,7 +735,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       child: Text(
                                         'Or continue with',
-                                        style: AppTypography.bodyMutedLight,
+                                        style: AppTypography.bodySmall.mutedLight,
                                       ),
                                     ),
                                     const Expanded(
@@ -754,69 +751,35 @@ class _LoginPageState extends State<LoginPage> {
                                   children: [
                                     // Google
                                     Expanded(
-                                      child: OutlinedButton(
+                                      child: AppButton.outline(
+                                        height: 46.h,
+                                        backgroundColor: AppColors.white,
+                                        borderColor: AppColors.border,
                                         onPressed: _signInWithGoogle,
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize:
-                                              Size(double.infinity, 46.h),
-                                          side: const BorderSide(
-                                            color: AppColors.border,
-                                          ),
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: AppRadius.cardRadius,
-                                          ),
-                                          backgroundColor: AppColors.white,
+                                        icon: SvgPicture.asset(
+                                          AppAssets.google,
+                                          width: 18.w,
+                                          height: 18.h,
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            SvgPicture.asset(
-                                              'assets/new/svg/google_icon.svg',
-                                              width: 18.w,
-                                              height: 18.h,
-                                            ),
-                                            SizedBox(width: 8.w),
-                                            Text(
-                                              'Google',
-                                              style: AppTypography.cardTitle,
-                                            ),
-                                          ],
-                                        ),
+                                        text: 'Google',
+                                        textStyle: AppTypography.titleSmall,
                                       ),
                                     ),
                                     SizedBox(width: 12.w),
                                     // Facebook
                                     Expanded(
-                                      child: OutlinedButton(
+                                      child: AppButton.outline(
+                                        height: 46.h,
+                                        backgroundColor: AppColors.white,
+                                        borderColor: AppColors.border,
                                         onPressed: _signInWithFacebook,
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize:
-                                              Size(double.infinity, 46.h),
-                                          side: const BorderSide(
-                                            color: AppColors.border,
-                                          ),
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: AppRadius.cardRadius,
-                                          ),
-                                          backgroundColor: AppColors.white,
+                                        icon: SvgPicture.asset(
+                                          AppAssets.facebook,
+                                          width: 18.w,
+                                          height: 18.h,
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            SvgPicture.asset(
-                                              'assets/new/svg/facebook_icon.svg',
-                                              width: 18.w,
-                                              height: 18.h,
-                                            ),
-                                            SizedBox(width: 8.w),
-                                            Text(
-                                              'Facebook',
-                                              style: AppTypography.cardTitle,
-                                            ),
-                                          ],
-                                        ),
+                                        text: 'Facebook',
+                                        textStyle: AppTypography.titleSmall,
                                       ),
                                     ),
                                   ],
@@ -824,35 +787,21 @@ class _LoginPageState extends State<LoginPage> {
 
                                 if (Platform.isIOS) ...[
                                   SizedBox(height: 12.h),
-                                  OutlinedButton(
+                                  AppButton(
+                                    height: 46.h,
+                                    backgroundColor: AppColors.navy,
                                     onPressed: _signInWithApple,
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: Size(double.infinity, 46.h),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: AppRadius.cardRadius,
+                                    icon: SvgPicture.asset(
+                                      AppAssets.apple,
+                                      width: 18.w,
+                                      height: 18.h,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppColors.white,
+                                        BlendMode.srcIn,
                                       ),
-                                      backgroundColor: AppColors.navy,
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/new/svg/apple_icon.svg',
-                                          width: 18.w,
-                                          height: 18.h,
-                                          colorFilter: const ColorFilter.mode(
-                                            AppColors.white,
-                                            BlendMode.srcIn,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8.w),
-                                        Text(
-                                          'Continue with Apple',
-                                          style: AppTypography.buttonPrimary,
-                                        ),
-                                      ],
-                                    ),
+                                    text: 'Continue with Apple',
+                                    textStyle: AppTypography.button.white,
                                   ),
                                 ],
                               ],
@@ -868,7 +817,7 @@ class _LoginPageState extends State<LoginPage> {
                     top: 8.h,
                     left: 8.w,
                     child: Material(
-                      color: Colors.transparent,
+                      color: AppColors.transparent,
                       child: InkWell(
                         onTap: () {
                           _dismissKeyboard();
@@ -880,7 +829,7 @@ class _LoginPageState extends State<LoginPage> {
                             context.go(Routes.home);
                           }
                         },
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: AppRadius.pillRadius,
                         child: Padding(
                           padding: EdgeInsets.all(8.r),
                           child: Icon(
@@ -898,6 +847,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    ),
     ),
   );
 }

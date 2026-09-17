@@ -11,6 +11,8 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 class OfferItemData {
   final String description;
   final String? termsUrl;
@@ -25,11 +27,13 @@ class OfferItemData {
 class PdpAvailableOffersWidget extends StatefulWidget {
   final String? promoOffer;
   final List<OfferItemData>? customOffers;
+  final bool isLoading;
 
   const PdpAvailableOffersWidget({
     super.key,
     this.promoOffer,
     this.customOffers,
+    this.isLoading = false,
   });
 
   @override
@@ -69,6 +73,11 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
 
   List<OfferItemData> _parseDynamicOffers(String? rawHtml) {
     if (rawHtml == null || rawHtml.trim().isEmpty) return [];
+    final trimmed = rawHtml.trim();
+    // Guard against numeric IDs (e.g. "117562", "69376") and strings without alphabetical text
+    if (RegExp(r'^\d+$').hasMatch(trimmed) || !RegExp(r'[a-zA-Z]').hasMatch(trimmed)) {
+      return [];
+    }
     try {
       final document = html_parser.parse(rawHtml);
       final paragraph = document.querySelector('p');
@@ -107,12 +116,12 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (ctx) => Container(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.75),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.pill)),
         ),
         padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
         child: Column(
@@ -124,9 +133,9 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
               child: Container(
                 width: 40.w,
                 height: 4.h,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2.r),
+                  borderRadius: AppRadius.badgeRadius,
                 ),
               ),
             ),
@@ -138,7 +147,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                 Expanded(
                   child: Text(
                     'All Available Offers',
-                    style: AppTypography.sectionTitle,
+                    style: AppTypography.titleMedium,
                   ),
                 ),
                 IconButton(
@@ -164,7 +173,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                     decoration: BoxDecoration(
                       color: AppColors.pageBg,
-                      borderRadius: BorderRadius.circular(10.r),
+                      borderRadius: AppRadius.chipRadius,
                       border: Border.all(
                         color: AppColors.border,
                         width: 1.w,
@@ -185,7 +194,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                         Expanded(
                           child: Text.rich(
                             TextSpan(
-                              style: AppTypography.cardTitle.copyWith(
+                              style: AppTypography.titleSmall.copyWith(
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.text,
@@ -211,7 +220,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                                       },
                                       child: Text(
                                         'T&C',
-                                        style: AppTypography.bodyMuted.copyWith(
+                                        style: AppTypography.bodySmall.copyWith(
                                           color: AppColors.pickabooBlue,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 12.sp,
@@ -249,7 +258,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
     final effectiveMin = minCardWidth > 150.w ? minCardWidth : 165.w;
     final maxCardWidth = availableWidth * 0.88;
 
-    final detailStyle = AppTypography.bodyMuted.copyWith(
+    final detailStyle = AppTypography.bodySmall.copyWith(
       fontSize: 11.sp,
       fontWeight: FontWeight.w500,
       color: AppColors.text,
@@ -276,6 +285,10 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return _buildShimmerSkeleton(context);
+    }
+
     final offers = widget.customOffers ?? _parseDynamicOffers(widget.promoOffer);
     if (offers.isEmpty) {
       return const SizedBox.shrink();
@@ -307,11 +320,11 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
             children: [
               Text(
                 AppStrings.pdpAvailableOffers,
-                style: AppTypography.sectionTitle,
+                style: AppTypography.titleMedium,
               ),
               InkWell(
                 onTap: () => _showOffersBottomSheet(context, allOffers),
-                borderRadius: BorderRadius.circular(6.r),
+                borderRadius: AppRadius.smRadius,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
                   child: Row(
@@ -319,7 +332,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                     children: [
                       Text(
                         AppStrings.viewAll,
-                        style: AppTypography.brandActionText.copyWith(
+                        style: AppTypography.brandAction.copyWith(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -370,7 +383,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.pageBg,
-                    borderRadius: BorderRadius.circular(AppRadius.card),
+                    borderRadius: AppRadius.cardRadius,
                     border: Border.all(color: AppColors.border, width: 1.w),
                   ),
                   child: Row(
@@ -387,7 +400,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                           offer.description,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTypography.cardTitle.copyWith(
+                          style: AppTypography.titleSmall.copyWith(
                             fontSize: 11.5.sp,
                             fontWeight: FontWeight.w500,
                             color: AppColors.text,
@@ -403,6 +416,113 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildShimmerSkeleton(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Header Row ──
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.sameGroupItemSpacing.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppStrings.pdpAvailableOffers,
+                style: AppTypography.titleMedium,
+              ),
+              Container(
+                width: 48.w,
+                height: 12.h,
+                decoration: BoxDecoration(
+                  color: AppColors.pageBg,
+                  borderRadius: BorderRadius.circular(AppRadius.badge),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 8.h),
+
+        // ── Horizontal Shimmer Offer Cards (matching exact 56.h height) ──
+        SizedBox(
+          height: 56.h,
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.sameGroupItemSpacing.w),
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              _buildShimmerCard(width: 175.w),
+              SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
+              _buildShimmerCard(width: 175.w),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmerCard({required double width}) {
+    return Container(
+      width: width,
+      padding: EdgeInsets.symmetric(
+        horizontal: 10.w,
+        vertical: 8.h,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.pageBg,
+        borderRadius: AppRadius.cardRadius,
+        border: Border.all(color: AppColors.border, width: 1.w),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 22.w,
+            height: 22.w,
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceBlue,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(
+                Icons.local_offer_outlined,
+                color: AppColors.pickabooBlue.withValues(alpha: 0.5),
+                size: 13.sp,
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 10.h,
+                  decoration: const BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: AppRadius.badgeRadius,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Container(
+                  width: 75.w,
+                  height: 8.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.border.withValues(alpha: 0.6),
+                    borderRadius: AppRadius.badgeRadius,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

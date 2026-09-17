@@ -99,8 +99,8 @@ void main() {
     });
   });
 
-  group('PdpPickabooAssuredCard - Sold by Row', () {
-    testWidgets('Renders Sold by merchant row after Pickaboo Assured',
+  group('PdpPickabooAssuredCard - Seller Info Removal', () {
+    testWidgets('Does not render Sold by merchant row in Pickaboo Assured card',
         (WidgetTester tester) async {
       final product = _createTestProduct(soldBy: 'Gadget Park BD');
 
@@ -111,9 +111,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Sold by Gadget Park BD'), findsOneWidget);
-      expect(find.byIcon(Icons.store_mall_directory_outlined), findsOneWidget);
-      expect(find.text('Authorized & verified merchant on Pickaboo'), findsOneWidget);
+      expect(find.text('Sold by Gadget Park BD'), findsNothing);
+      expect(find.byIcon(Icons.store_mall_directory_outlined), findsNothing);
+      expect(find.text('Authorized & verified merchant on Pickaboo'), findsNothing);
     });
 
     testWidgets('Does not render Express Delivery row even when expressDelivery is 1',
@@ -147,9 +147,9 @@ void main() {
       expect(find.textContaining('Sold by Gadget Park BD'), findsNothing);
     });
 
-    testWidgets('Renders Delivery by Today/Tomorrow when expressDelivery is 1',
+    testWidgets('Renders 100% Authentic and Easy Return badges',
         (WidgetTester tester) async {
-      final product = _createTestProduct(expressDelivery: 1, stockAvailable: true);
+      final product = _createTestProduct(stockAvailable: true);
 
       await tester.pumpWidget(
         wrapWidget(
@@ -158,26 +158,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final now = DateTime.now();
-      final expectedTarget =
-          (now.weekday != DateTime.friday && now.hour < 12) ? 'Today' : 'Tomorrow';
-      expect(find.textContaining('Delivery by'), findsOneWidget);
-      expect(find.textContaining(expectedTarget), findsOneWidget);
-    });
-
-    testWidgets('Renders Delivery by 3-4 working days when expressDelivery is 0',
-        (WidgetTester tester) async {
-      final product = _createTestProduct(expressDelivery: 0, stockAvailable: true);
-
-      await tester.pumpWidget(
-        wrapWidget(
-          PdpTrustRibbonWidget(product: product),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.textContaining('Delivery by'), findsOneWidget);
-      expect(find.textContaining('3-4 working days'), findsOneWidget);
+      expect(find.text('100% Authentic'), findsOneWidget);
+      expect(find.text('Easy Return'), findsOneWidget);
     });
   });
 

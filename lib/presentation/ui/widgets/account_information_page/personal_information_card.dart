@@ -49,7 +49,7 @@ class PersonalInformationCard extends StatelessWidget {
             ),
             child: Text(
               AppStrings.personalInformation,
-              style: AppTypography.sectionTitle,
+              style: AppTypography.titleMedium,
             ),
           ),
           Divider(height: 1.h, color: AppColors.border),

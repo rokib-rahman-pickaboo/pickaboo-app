@@ -97,7 +97,7 @@ class ProductEntity {
     );
   }
 
-  /// Returns standard or custom delivery info (e.g. "Delivery by Today", "Delivery by Tomorrow", "Delivery by 3-4 working days")
+  /// Returns standard or custom delivery info (e.g. "Delivery by Today", "Delivery by Tomorrow", "Delivery by 2-3 working days")
   String get displayDeliveryText {
     final info = DeliveryTimeUtils.getProductItemDeliveryInfo(
       isExpress: expressDelivery,
@@ -106,7 +106,7 @@ class ProductEntity {
     return '${info.label}${info.target}';
   }
 
-  /// Target bold text (e.g. "Today", "Tomorrow", "3-4 working days")
+  /// Target bold text (e.g. "Today", "Tomorrow", "2-3 working days")
   String get deliveryTargetText {
     return DeliveryTimeUtils.getProductItemDeliveryInfo(
       isExpress: expressDelivery,

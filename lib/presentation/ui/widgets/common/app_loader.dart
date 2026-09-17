@@ -6,7 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
 enum _LoaderType { circular, fullPage, pagination, button, inline, linear }
 
@@ -101,7 +101,19 @@ class AppLoader extends StatelessWidget {
         padding = null;
 
   // ── 7. Sliver Helper for CustomScrollView ──
-  static Widget sliver({EdgeInsetsGeometry? padding, Color? color}) {
+  static Widget sliver({
+    EdgeInsetsGeometry? padding,
+    Color? color,
+    bool fillRemaining = false,
+  }) {
+    if (fillRemaining) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: AppLoader(padding: padding, color: color),
+        ),
+      );
+    }
     return SliverToBoxAdapter(
       child: AppLoader.pagination(padding: padding, color: color),
     );
@@ -121,8 +133,8 @@ class AppLoader extends StatelessWidget {
         child: Dialog(
           backgroundColor: AppColors.white,
           elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppRadius.dialogRadius,
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
@@ -175,7 +187,7 @@ class AppLoader extends StatelessWidget {
                         EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: AppRadius.cardRadius,
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.navy.withValues(alpha: 0.1),
@@ -189,7 +201,7 @@ class AppLoader extends StatelessWidget {
                         const AppLoader(),
                         if (message != null) ...[
                           SizedBox(height: 10.h),
-                          Text(message, style: AppTypography.brandActionText),
+                          Text(message, style: AppTypography.brandAction),
                         ],
                       ],
                     ),
@@ -200,7 +212,7 @@ class AppLoader extends StatelessWidget {
                       const AppLoader(),
                       if (message != null) ...[
                         SizedBox(height: 10.h),
-                        Text(message, style: AppTypography.brandActionText),
+                        Text(message, style: AppTypography.brandAction),
                       ],
                     ],
                   ),
@@ -249,7 +261,7 @@ class AppLoader extends StatelessWidget {
                   SizedBox(height: 14.h),
                   Text(
                     message!,
-                    style: AppTypography.bodyMuted,
+                    style: AppTypography.bodySmall,
                     textAlign: TextAlign.center,
                   ),
                 ],

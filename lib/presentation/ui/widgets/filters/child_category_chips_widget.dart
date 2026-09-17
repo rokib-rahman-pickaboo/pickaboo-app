@@ -53,13 +53,13 @@ class ChildCategoryChipsWidget extends StatelessWidget {
             padding: EdgeInsets.only(right: AppSpacing.sameGroupItemSpacing.w),
             child: InkWell(
               onTap: () => onChildSelected(child),
-              borderRadius: BorderRadius.circular(6.r),
+              borderRadius: AppRadius.smRadius,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.pickabooBlue : AppColors.white,
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: AppRadius.smRadius,
                   border: Border.all(
                     color: isSelected
                         ? AppColors.pickabooBlue
@@ -70,7 +70,7 @@ class ChildCategoryChipsWidget extends StatelessWidget {
                 child: Center(
                   child: Text(
                     child.name,
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       fontSize: 10.5.sp,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                       color: isSelected ? AppColors.white : AppColors.navy,

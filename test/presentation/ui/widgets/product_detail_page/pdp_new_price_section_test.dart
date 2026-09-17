@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pickaboo/core/constants/app_assets.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_new_price_section.dart';
+
+Finder findExpress() => find.byWidgetPredicate(
+      (w) =>
+          w is SvgPicture &&
+          w.bytesLoader is SvgAssetLoader &&
+          (w.bytesLoader as SvgAssetLoader).assetName == AppAssets.expressPdp,
+    );
 
 ProductDetailEntity _makeProduct({
   int id = 1,
@@ -16,6 +24,7 @@ ProductDetailEntity _makeProduct({
   double ratingSummaryValue = 4.5,
   String warranty = '1 Year Official Warranty',
   double emi = 1200,
+  String soldBy = '',
 }) =>
     ProductDetailEntity(
       id: id,
@@ -44,7 +53,7 @@ ProductDetailEntity _makeProduct({
       brandId: '1',
       brand: 'Realme',
       soldByVendorUrlKey: '',
-      soldBy: '',
+      soldBy: soldBy,
       offers: '',
       warranty: warranty,
       emi: emi,
@@ -70,10 +79,12 @@ ProductDetailEntity _makeProduct({
 void main() {
   Widget createWidgetUnderTest({
     required ProductDetailEntity product,
+    bool showTrustRibbon = true,
     VoidCallback? onBrandTap,
     VoidCallback? onRateTap,
     VoidCallback? onEmiTap,
     VoidCallback? onExpressDeliveryTap,
+    VoidCallback? onSellerTap,
   }) {
     return ScreenUtilInit(
       designSize: const Size(375, 812),
@@ -85,10 +96,12 @@ void main() {
               currentPrice: product.spacialPrice,
               originalPrice: product.regularPrice,
               saving: product.regularPrice - product.spacialPrice,
+              showTrustRibbon: showTrustRibbon,
               onBrandTap: onBrandTap,
               onRateTap: onRateTap,
               onEmiTap: onEmiTap,
               onExpressDeliveryTap: onExpressDeliveryTap,
+              onSellerTap: onSellerTap,
             ),
           ),
         ),
@@ -97,7 +110,7 @@ void main() {
   }
 
   group('PdpNewPriceSection - Card Redesign & Matrix Layout Tests', () {
-    testWidgets('Case 1: All 4 data available -> Row 1: Price - Express, Row 2: Save - Rating',
+    testWidgets('Case 1: All 4 data available -> Row 1: Price - Express, Row 2: Save - Rating (showTrustRibbon: true -> shows warranty box only)',
         (WidgetTester tester) async {
       final product = _makeProduct(
         regularPrice: 13990,
@@ -113,22 +126,47 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('৳12,990'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsOneWidget); // Express in Row 1
-      expect(find.text('You save ৳1,000 today'), findsOneWidget); // Save in Row 2
+      expect(findExpress(), findsOneWidget); // Express in Row 1
+      expect(find.textContaining('You save'), findsNothing); // Save omitted as requested
       expect(find.text('4.5 '), findsOneWidget); // Rating in Row 2
       expect(find.text('(12)'), findsOneWidget);
-      expect(find.text('Warranty: 1 Year Official Warranty'), findsOneWidget);
-      final warrantyFinder = find.byWidgetPredicate((widget) =>
-          widget is Text &&
-          widget.textSpan != null &&
-          widget.textSpan!.toPlainText() == 'Warranty: 1 Year Official Warranty');
-      expect(warrantyFinder, findsOneWidget);
-      final textWidget = tester.widget<Text>(warrantyFinder);
-      final textSpan = textWidget.textSpan! as TextSpan;
-      expect((textSpan.children![0] as TextSpan).text, 'Warranty: ');
-      expect((textSpan.children![0] as TextSpan).style?.fontWeight, FontWeight.w800);
-      expect((textSpan.children![1] as TextSpan).text, '1 Year Official Warranty');
-      expect((textSpan.children![1] as TextSpan).style?.fontWeight, FontWeight.w700);
+      expect(find.textContaining('Warranty:'), findsOneWidget);
+      expect(find.textContaining('1 Year Official Warranty'), findsOneWidget);
+      // When showTrustRibbon is true, "Shop with confidence" header and 3-item row are omitted
+      expect(find.text('Shop with confidence'), findsNothing);
+      expect(find.text('100% Authentic'), findsNothing);
+      expect(find.text('Easy Return'), findsNothing);
+    });
+
+    testWidgets('Trust Ribbon false -> displays Shop with confidence header, warranty box, and 3-item trust row',
+        (WidgetTester tester) async {
+      final product = _makeProduct(
+        regularPrice: 13990,
+        spacialPrice: 12990,
+        expressDelivery: 1,
+        reviewsCount: 12,
+        ratingSummaryValue: 4.5,
+        warranty: '1 Year Official Warranty',
+        emi: 1200,
+        soldBy: 'Gadget Park BD',
+      );
+
+      await tester.pumpWidget(createWidgetUnderTest(product: product, showTrustRibbon: false));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Shop with confidence'), findsOneWidget);
+      expect(find.textContaining('Sold by'), findsOneWidget);
+      expect(find.textContaining('Gadget Park BD'), findsOneWidget);
+      expect(find.textContaining('Warranty:'), findsOneWidget);
+      expect(find.textContaining('1 Year Official Warranty'), findsOneWidget);
+      expect(find.text('100% Authentic'), findsOneWidget);
+      expect(find.text('Easy Return'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((w) =>
+            w is Text &&
+            (w.data == 'Delivery by Today' || w.data == 'Delivery by Tomorrow')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Case 2a: Price and Express only (no save, no rating) -> Row 1: Price - Express',
@@ -145,7 +183,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('৳12,990'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsOneWidget);
+      expect(findExpress(), findsOneWidget);
       expect(find.textContaining('You save'), findsNothing);
       expect(find.textContaining('('), findsNothing);
     });
@@ -164,7 +202,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('৳12,990'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsNothing);
+      expect(findExpress(), findsNothing);
       expect(find.text('4.2 '), findsOneWidget);
       expect(find.text('(8)'), findsOneWidget);
       expect(find.textContaining('You save'), findsNothing);
@@ -184,7 +222,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('৳12,990'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsOneWidget);
+      expect(findExpress(), findsOneWidget);
       expect(find.text('4.6 '), findsOneWidget);
       expect(find.text('(15)'), findsOneWidget);
       expect(find.textContaining('You save'), findsNothing);
@@ -204,13 +242,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('৳12,000'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsOneWidget);
-      expect(find.text('You save ৳3,000 today'), findsOneWidget);
+      expect(findExpress(), findsOneWidget);
+      expect(find.textContaining('You save'), findsNothing);
       expect(find.text('4.9 '), findsOneWidget);
       expect(find.text('(20)'), findsOneWidget);
     });
 
-    testWidgets('Case 5a: Price & discount and Express (no rating) -> Row 1: Price - Express, Row 2: Save',
+    testWidgets('Case 5a: Price & discount and Express (no rating) -> Row 1: Price - Express, Row 2: None',
         (WidgetTester tester) async {
       final product = _makeProduct(
         regularPrice: 15000,
@@ -224,12 +262,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('৳12,000'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsOneWidget);
-      expect(find.text('You save ৳3,000 today'), findsOneWidget);
+      expect(findExpress(), findsOneWidget);
+      expect(find.textContaining('You save'), findsNothing);
       expect(find.textContaining('('), findsNothing);
     });
 
-    testWidgets('Case 5b: Price & discount and Rating (no express) -> Row 1: Price - Rating, Row 2: Save',
+    testWidgets('Case 5b: Price & discount and Rating (no express) -> Row 1: Price - Rating, Row 2: None',
         (WidgetTester tester) async {
       final product = _makeProduct(
         regularPrice: 15000,
@@ -243,10 +281,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('৳12,000'), findsOneWidget);
-      expect(find.byType(SvgPicture), findsNothing);
+      expect(findExpress(), findsNothing);
       expect(find.text('4.7 '), findsOneWidget);
       expect(find.text('(10)'), findsOneWidget);
-      expect(find.text('You save ৳3,000 today'), findsOneWidget);
+      expect(find.textContaining('You save'), findsNothing);
     });
 
     testWidgets('Does not render Express badge, Warranty, or Write a review when not provided',
@@ -267,9 +305,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(SvgPicture), findsNothing);
+      expect(findExpress(), findsNothing);
       expect(find.textContaining('Warranty:'), findsNothing);
-      expect(find.textContaining("EMI's From:"), findsNothing);
+      expect(find.textContaining('EMI available from'), findsNothing);
       expect(find.text('Write a review'), findsNothing);
     });
 
@@ -277,8 +315,13 @@ void main() {
       bool brandTapped = false;
       bool emiTapped = false;
       bool expressTapped = false;
+      bool sellerTapped = false;
 
-      final product = _makeProduct(expressDelivery: 1, emi: 1500);
+      final product = _makeProduct(
+        expressDelivery: 1,
+        emi: 1500,
+        soldBy: 'Oraimo Official',
+      );
 
       await tester.pumpWidget(
         createWidgetUnderTest(
@@ -286,6 +329,8 @@ void main() {
           onBrandTap: () => brandTapped = true,
           onEmiTap: () => emiTapped = true,
           onExpressDeliveryTap: () => expressTapped = true,
+          onSellerTap: () => sellerTapped = true,
+          showTrustRibbon: false,
         ),
       );
       await tester.pumpAndSettle();
@@ -293,11 +338,15 @@ void main() {
       await tester.tap(find.text('REALME'));
       expect(brandTapped, isTrue);
 
-      await tester.tap(find.byType(SvgPicture));
+      await tester.tap(findExpress());
       expect(expressTapped, isTrue);
 
-      await tester.tap(find.text("EMI's From: ৳1500 / month"));
+      expect(find.text('Compare 36 banks & tenures'), findsOneWidget);
+      await tester.tap(find.textContaining('EMI available from ৳1,500/month'));
       expect(emiTapped, isTrue);
+
+      await tester.tap(find.textContaining('Oraimo Official'));
+      expect(sellerTapped, isTrue);
     });
   });
 }

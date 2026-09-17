@@ -16,6 +16,7 @@ import 'package:pickaboo/core/validatator/validator.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class ChangePhoneNumberBottomSheet extends StatefulWidget {
   final BuildContext pageContext;
@@ -34,7 +35,7 @@ class ChangePhoneNumberBottomSheet extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (bottomSheetContext) => BlocProvider.value(
         value: context.read<UserProfileBloc>(),
         child: ChangePhoneNumberBottomSheet(
@@ -259,7 +260,7 @@ class _ChangePhoneNumberBottomSheetState
             children: [
               Text(
                 'Change Phone Number',
-                style: AppTypography.pageTitle,
+                style: AppTypography.titleLarge,
               ),
               IconButton(
                 onPressed: isUpdating ? null : () => Navigator.of(context).pop(),
@@ -276,21 +277,21 @@ class _ChangePhoneNumberBottomSheetState
           SizedBox(height: 4.h),
           Text(
             'Enter your new mobile number to receive an OTP.',
-            style: AppTypography.bodyMuted,
+            style: AppTypography.bodySmall,
           ),
           SizedBox(height: 20.h),
 
           // New Phone Number Label
           Text(
             'New Phone Number',
-            style: AppTypography.inputLabel,
+            style: AppTypography.bodyLarge,
           ),
           SizedBox(height: 6.h),
           TextFormField(
             controller: _phoneController,
             enabled: !isUpdating,
             keyboardType: TextInputType.phone,
-            style: AppTypography.inputText,
+            style: AppTypography.bodyLarge.regular(),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[\d+]')),
               LengthLimitingTextInputFormatter(14),
@@ -323,40 +324,16 @@ class _ChangePhoneNumberBottomSheetState
             ),
             validator: validateMobileNumber,
           ),
-          SizedBox(height: 24.h),
+          AppSpacing.gapV24,
 
           // Submit Button
-          SizedBox(
-            width: double.infinity,
+          AppButton.primary(
+            text: 'Send OTP',
+            isLoading: isUpdating,
+            isFullWidth: true,
             height: 48.h,
-            child: ElevatedButton(
-              onPressed: isUpdating ? null : _sendOtp,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                foregroundColor: AppColors.white,
-                disabledBackgroundColor:
-                    AppColors.pickabooBlue.withValues(alpha: 0.6),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              child: isUpdating
-                  ? SizedBox(
-                      height: 20.h,
-                      width: 20.h,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.white,
-                        ),
-                      ),
-                    )
-                  : Text(
-                      'Send OTP',
-                      style: AppTypography.buttonPrimary,
-                    ),
-            ),
+            borderRadius: BorderRadius.circular(12.r),
+            onPressed: isUpdating ? null : _sendOtp,
           ),
         ],
       ),
@@ -393,7 +370,7 @@ class _ChangePhoneNumberBottomSheetState
             children: [
               Text(
                 'Verify Phone Number',
-                style: AppTypography.pageTitle,
+                style: AppTypography.titleLarge,
               ),
               IconButton(
                 onPressed: isUpdating ? null : () => Navigator.of(context).pop(),
@@ -413,7 +390,7 @@ class _ChangePhoneNumberBottomSheetState
               Expanded(
                 child: Text(
                   'OTP sent to $phone',
-                  style: AppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
               ),
               GestureDetector(
@@ -429,7 +406,7 @@ class _ChangePhoneNumberBottomSheetState
                       },
                 child: Text(
                   'Change',
-                  style: AppTypography.brandActionText,
+                  style: AppTypography.brandAction,
                 ),
               ),
             ],
@@ -439,14 +416,14 @@ class _ChangePhoneNumberBottomSheetState
           // ── OTP LABEL (Strictly "OTP", not "OTP Code") ──
           Text(
             'OTP',
-            style: AppTypography.inputLabel,
+            style: AppTypography.bodyLarge,
           ),
           SizedBox(height: 6.h),
           TextFormField(
             controller: _otpController,
             enabled: !isUpdating,
             keyboardType: TextInputType.number,
-            style: AppTypography.inputText,
+            style: AppTypography.bodyLarge.regular(),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(4),
@@ -503,58 +480,30 @@ class _ChangePhoneNumberBottomSheetState
                       ),
                       SizedBox(width: 4.w),
                       Text(
-                        'Resend OTP in $_formattedCountdown',
-                        style: AppTypography.bodyMuted,
+                        AppStrings.resendOtpCountdown(_formattedCountdown),
+                        style: AppTypography.bodySmall,
                       ),
                     ],
                   )
-                : TextButton(
+                : AppButton.ghost(
+                    shrinkWrap: true,
+                    text: AppStrings.resendOtp,
+                    textStyle: AppTypography.brandAction,
+                    isDisabled: isUpdating,
                     onPressed: isUpdating ? null : _sendOtp,
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      'Resend OTP',
-                      style: AppTypography.brandActionText,
-                    ),
                   ),
           ),
-          SizedBox(height: 20.h),
+          AppSpacing.gapV20,
 
           // Verify & Update Button
-          SizedBox(
-            width: double.infinity,
+          AppButton.primary(
+            text: 'Verify & Update',
+            isLoading: isUpdating,
+            isDisabled: !isOtpValid,
+            isFullWidth: true,
             height: 48.h,
-            child: ElevatedButton(
-              onPressed: (isUpdating || !isOtpValid) ? null : _verifyOtp,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                foregroundColor: AppColors.white,
-                disabledBackgroundColor:
-                    AppColors.pickabooBlue.withValues(alpha: 0.6),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              child: isUpdating
-                  ? SizedBox(
-                      height: 20.h,
-                      width: 20.h,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.white,
-                        ),
-                      ),
-                    )
-                  : Text(
-                      'Verify & Update',
-                      style: AppTypography.buttonPrimary,
-                    ),
-            ),
+            borderRadius: BorderRadius.circular(12.r),
+            onPressed: (isUpdating || !isOtpValid) ? null : _verifyOtp,
           ),
         ],
       ),

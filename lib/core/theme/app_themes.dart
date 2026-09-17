@@ -23,7 +23,8 @@ class AppTheme {
         surface: AppColors.white,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
+        surfaceTintColor: AppColors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
@@ -33,7 +34,11 @@ class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.w700,
         ),
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: AppColors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
       ),
       cardTheme: CardThemeData(
         color: AppColors.white,
@@ -125,7 +130,6 @@ class AppTheme {
         backgroundColor: AppColors.pickabooBlue,
         textColor: AppColors.white,
       ),
-      extensions: [AppTextStyles.build(Brightness.light)],
     );
   }
 

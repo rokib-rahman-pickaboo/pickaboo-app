@@ -66,6 +66,7 @@ class _CategoryProductResultsState extends State<CategoryProductResults> {
         product.id.toString(),
         slug: product.slug,
         productName: product.productName,
+        product: product,
       );
     }
   }
@@ -163,7 +164,7 @@ class _CategoryProductResultsState extends State<CategoryProductResults> {
               child: Center(
                 child: Text(
                   "Couldn't load more items",
-                  style: context.textStyle.caption.copyWith(color: AppColors.muted),
+                  style: AppTypography.bodyTiny.copyWith(color: AppColors.muted),
                 ),
               ),
             ),
@@ -184,8 +185,9 @@ class _CategoryProductResultsState extends State<CategoryProductResults> {
     if (allItems.isEmpty) return const [];
 
     final allQuestions = _extractQuestionAttributes(state.facetAttributes);
+    // NOTE: Filter out answered questions and any question with <= 1 option
     final unansweredQuestions = allQuestions
-        .where((q) => !(state.currentFilters?.containsKey(q.filterCode) ?? false))
+        .where((q) => q.items.length > 1 && !(state.currentFilters?.containsKey(q.filterCode) ?? false))
         .toList();
 
     // 2 Products -> Q1, + 4 Products (6) -> Q2, + 8 Products (14) -> Q3
@@ -245,34 +247,37 @@ class _CategoryProductResultsState extends State<CategoryProductResults> {
             currentServerAttributes: state.categoryData?.filterableAttributes,
           );
 
-          rows.add(
-            Padding(
-              key: ValueKey('cat_question_filter_${filter.filterCode}'),
-              padding: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
-              child: QuestionFilterWidget(
-                questionTitle: _formatQuestionTitle(filter),
-                options: filter.items.map((i) => i.label).toList(),
-                selectedOption: null,
-                onOptionSelected: (opt) {
-                  if (opt != null) {
-                    final match = filter.items.firstWhereOrNull((i) => i.label == opt);
-                    if (match != null) {
-                      final updatedFilters =
-                          Map<String, List<String>>.from(state.currentFilters ?? {});
-                      updatedFilters[filter.filterCode] = [match.value.toString()];
-                      context.read<CategoryProductsBloc>().add(
-                        CategoryProductsEvent.applyFilters(
-                          categoryKey: state.categoryKey,
-                          filters: updatedFilters,
-                        ),
-                      );
+          // NOTE: Skip question if it has <= 1 option
+          if (filter.items.length > 1) {
+            rows.add(
+              Padding(
+                key: ValueKey('cat_question_filter_${filter.filterCode}'),
+                padding: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
+                child: QuestionFilterWidget(
+                  questionTitle: _formatQuestionTitle(filter),
+                  options: filter.items.map((i) => i.label).toList(),
+                  selectedOption: null,
+                  onOptionSelected: (opt) {
+                    if (opt != null) {
+                      final match = filter.items.firstWhereOrNull((i) => i.label == opt);
+                      if (match != null) {
+                        final updatedFilters =
+                            Map<String, List<String>>.from(state.currentFilters ?? {});
+                        updatedFilters[filter.filterCode] = [match.value.toString()];
+                        context.read<CategoryProductsBloc>().add(
+                          CategoryProductsEvent.applyFilters(
+                            categoryKey: state.categoryKey,
+                            filters: updatedFilters,
+                          ),
+                        );
+                      }
                     }
-                  }
-                },
-                isSecondary: true,
+                  },
+                  isSecondary: true,
+                ),
               ),
-            ),
-          );
+            );
+          }
           currentInsertedQuestions++;
         }
       }
@@ -293,8 +298,14 @@ class _CategoryProductResultsState extends State<CategoryProductResults> {
 
   Widget _buildListView(CategoryProductsState state, BuildContext context) {
     final allQuestions = _extractQuestionAttributes(state.facetAttributes);
+    // ========================================================================
+    // 🛑 NOTE: Filter out already-answered questions AND any questions that
+    // have <= 1 option (e.g. price with single range "30 - 922990"),
+    // because a question with only 1 option cannot offer a meaningful choice.
+    // This rule must always be maintained in future updates.
+    // ========================================================================
     final unansweredQuestions = allQuestions
-        .where((q) => !(state.currentFilters?.containsKey(q.filterCode) ?? false))
+        .where((q) => q.items.length > 1 && !(state.currentFilters?.containsKey(q.filterCode) ?? false))
         .toList();
 
     const insertionThresholds = [2, 6, 14];
@@ -324,33 +335,36 @@ class _CategoryProductResultsState extends State<CategoryProductResults> {
                 currentServerAttributes: state.categoryData?.filterableAttributes,
               );
 
-              questionWidget = Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 4.h,
-                ),
-                child: QuestionFilterWidget(
-                  questionTitle: _formatQuestionTitle(filter),
-                  options: filter.items.map((i) => i.label).toList(),
-                  selectedOption: null,
-                  onOptionSelected: (opt) {
-                    if (opt != null) {
-                      final match = filter.items.firstWhereOrNull((i) => i.label == opt);
-                      if (match != null) {
-                        final updatedFilters =
-                            Map<String, List<String>>.from(state.currentFilters ?? {});
-                        updatedFilters[filter.filterCode] = [match.value.toString()];
-                        context.read<CategoryProductsBloc>().add(
-                          CategoryProductsEvent.applyFilters(
-                            categoryKey: state.categoryKey,
-                            filters: updatedFilters,
-                          ),
-                        );
+              // NOTE: Skip question if it has <= 1 option
+              if (filter.items.length > 1) {
+                questionWidget = Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 4.h,
+                  ),
+                  child: QuestionFilterWidget(
+                    questionTitle: _formatQuestionTitle(filter),
+                    options: filter.items.map((i) => i.label).toList(),
+                    selectedOption: null,
+                    onOptionSelected: (opt) {
+                      if (opt != null) {
+                        final match = filter.items.firstWhereOrNull((i) => i.label == opt);
+                        if (match != null) {
+                          final updatedFilters =
+                              Map<String, List<String>>.from(state.currentFilters ?? {});
+                          updatedFilters[filter.filterCode] = [match.value.toString()];
+                          context.read<CategoryProductsBloc>().add(
+                            CategoryProductsEvent.applyFilters(
+                              categoryKey: state.categoryKey,
+                              filters: updatedFilters,
+                            ),
+                          );
+                        }
                       }
-                    }
-                  },
-                  isSecondary: true,
-                ),
-              );
+                    },
+                    isSecondary: true,
+                  ),
+                );
+              }
               break;
             }
           }

@@ -33,14 +33,8 @@ _$OrderCancelResponseImpl _$$OrderCancelResponseImplFromJson(
   baseToGlobalRate: (json['base_to_global_rate'] as num?)?.toInt(),
   baseToOrderRate: (json['base_to_order_rate'] as num?)?.toInt(),
   billingAddressId: (json['billing_address_id'] as num?)?.toInt(),
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  customerDob:
-      json['customer_dob'] == null
-          ? null
-          : DateTime.parse(json['customer_dob'] as String),
+  createdAt: safeDateTimeFromJson(json['created_at']),
+  customerDob: safeDateTimeFromJson(json['customer_dob']),
   customerEmail: json['customer_email'] as String?,
   customerFirstname: json['customer_firstname'] as String?,
   customerGender: (json['customer_gender'] as num?)?.toInt(),
@@ -87,10 +81,7 @@ _$OrderCancelResponseImpl _$$OrderCancelResponseImplFromJson(
   totalDue: (json['total_due'] as num?)?.toInt(),
   totalItemCount: (json['total_item_count'] as num?)?.toInt(),
   totalQtyOrdered: (json['total_qty_ordered'] as num?)?.toInt(),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+  updatedAt: safeDateTimeFromJson(json['updated_at']),
   weight: (json['weight'] as num?)?.toDouble(),
   xForwardedFor: json['x_forwarded_for'] as String?,
   items:
@@ -312,10 +303,7 @@ _$ItemImpl _$$ItemImplFromJson(Map<String, dynamic> json) => _$ItemImpl(
   baseRowTotalInclTax: (json['base_row_total_incl_tax'] as num?)?.toInt(),
   baseTaxAmount: (json['base_tax_amount'] as num?)?.toInt(),
   baseTaxInvoiced: (json['base_tax_invoiced'] as num?)?.toInt(),
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
+  createdAt: safeDateTimeFromJson(json['created_at']),
   discountAmount: (json['discount_amount'] as num?)?.toInt(),
   discountInvoiced: (json['discount_invoiced'] as num?)?.toInt(),
   discountPercent: (json['discount_percent'] as num?)?.toInt(),
@@ -348,10 +336,7 @@ _$ItemImpl _$$ItemImplFromJson(Map<String, dynamic> json) => _$ItemImpl(
   taxAmount: (json['tax_amount'] as num?)?.toInt(),
   taxInvoiced: (json['tax_invoiced'] as num?)?.toInt(),
   taxPercent: (json['tax_percent'] as num?)?.toInt(),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+  updatedAt: safeDateTimeFromJson(json['updated_at']),
   weight: (json['weight'] as num?)?.toDouble(),
   discountTaxCompensationCanceled:
       (json['discount_tax_compensation_canceled'] as num?)?.toInt(),
@@ -506,10 +491,7 @@ Map<String, dynamic> _$$PaymentImplToJson(_$PaymentImpl instance) =>
 _$StatusHistoryImpl _$$StatusHistoryImplFromJson(Map<String, dynamic> json) =>
     _$StatusHistoryImpl(
       comment: json['comment'] as String?,
-      createdAt:
-          json['created_at'] == null
-              ? null
-              : DateTime.parse(json['created_at'] as String),
+      createdAt: safeDateTimeFromJson(json['created_at']),
       entityId: (json['entity_id'] as num?)?.toInt(),
       entityName: json['entity_name'] as String?,
       isCustomerNotified: (json['is_customer_notified'] as num?)?.toInt(),

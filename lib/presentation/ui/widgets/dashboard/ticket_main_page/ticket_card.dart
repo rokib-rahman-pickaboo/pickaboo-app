@@ -47,14 +47,14 @@ class TicketCard extends StatelessWidget {
             // ── Ticket Title & ID ──
             Text(
               ticket.subject,
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: 2.h),
             Text(
               ticket.ticketCode,
-              style: AppTypography.bodyMuted,
+              style: AppTypography.bodySmall,
             ),
 
             SizedBox(height: 12.h),
@@ -73,11 +73,11 @@ class TicketCard extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'Department: ',
-                        style: AppTypography.bodyMuted,
+                        style: AppTypography.bodySmall,
                       ),
                       TextSpan(
                         text: ticket.department,
-                        style: AppTypography.cardTitle,
+                        style: AppTypography.titleSmall,
                       ),
                     ],
                   ),
@@ -102,11 +102,11 @@ class TicketCard extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: 'Last Activity: ',
-                          style: AppTypography.bodyMuted,
+                          style: AppTypography.bodySmall,
                         ),
                         TextSpan(
                           text: _formatDate(ticket.lastReplyAt),
-                          style: AppTypography.cardTitle,
+                          style: AppTypography.titleSmall,
                         ),
                       ],
                     ),
@@ -127,7 +127,7 @@ class TicketCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: statusBgColor,
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: AppRadius.buttonRadius,
                     border: Border.all(color: statusBgColor),
                   ),
                   child: Row(
@@ -144,7 +144,7 @@ class TicketCard extends StatelessWidget {
                       SizedBox(width: 6.w),
                       Text(
                         ticket.status,
-                        style: AppTypography.cardTitle.withColor(statusColor),
+                        style: AppTypography.titleSmall.withColor(statusColor),
                       ),
                     ],
                   ),
@@ -154,7 +154,7 @@ class TicketCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'by ${ticket.lastReplyName}',
-                      style: AppTypography.bodyMuted,
+                      style: AppTypography.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

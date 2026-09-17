@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
@@ -30,7 +31,7 @@ class BrandFilterPromoScroller extends StatelessWidget {
             if (image.isEmpty) return const SizedBox.shrink();
 
             final tile = ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.buttonRadius,
               child: AppImage(
                 imageUrl: image,
                 width: 150.w,

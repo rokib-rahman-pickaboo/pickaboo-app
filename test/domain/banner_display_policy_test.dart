@@ -26,7 +26,7 @@ void main() {
     test('home page behaviour is unchanged', () {
       expect(
         BannerDisplayPolicyX.fromIdentifier('home-banner-right'),
-        BannerDisplayPolicy.skip,
+        BannerDisplayPolicy.full,
       );
       expect(
         BannerDisplayPolicyX.fromIdentifier('home-banner-xl'),

@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/club_point/club_point_entity.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
@@ -79,7 +79,7 @@ class _PointBadge extends StatelessWidget {
               color: isPositive
                   ? AppColors.greenBg
                   : AppColors.redBg,
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: AppRadius.chipRadius,
               border: Border.all(
                 color: isPositive
                     ? AppColors.green.withValues(alpha: 0.4)
@@ -89,7 +89,7 @@ class _PointBadge extends StatelessWidget {
             ),
             child: Text(
               isPositive ? '+${history.amount}' : history.amount,
-              style: isPositive ? AppTypography.badgeInStock : AppTypography.badgeStockOut,
+              style: isPositive ? AppTypography.bodyTiny.extraBold().green : AppTypography.bodyTiny.extraBold().red,
             ),
           ),
         ),
@@ -113,7 +113,7 @@ class _PointContents extends StatelessWidget {
         children: [
           Text(
             history.comment,
-            style: AppTypography.cardTitle,
+            style: AppTypography.titleSmall,
           ),
           SizedBox(height: 3.h),
           Text(

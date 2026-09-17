@@ -4,8 +4,8 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +17,7 @@ import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
@@ -102,11 +103,11 @@ class _ReviewState extends State<Review> {
                       children: [
                         Text(
                           'Your Submitted Reviews',
-                          style: AppTypography.sectionTitle,
+                          style: AppTypography.titleMedium,
                         ),
                         Text(
                           'Verified Purchases',
-                          style: AppTypography.badgeInStock,
+                          style: AppTypography.bodyTiny.extraBold().green,
                         ),
                       ],
                     ),
@@ -164,7 +165,7 @@ class _ReviewState extends State<Review> {
                       children: [
                         Text(
                           avgRating.toStringAsFixed(1),
-                          style: AppTypography.pageTitle.copyWith(
+                          style: AppTypography.titleLarge.copyWith(
                             color: AppColors.pickabooBlue,
                             fontSize: 20.sp,
                           ),
@@ -193,12 +194,12 @@ class _ReviewState extends State<Review> {
                   children: [
                     Text(
                       'Reviewer Community',
-                      style: AppTypography.cardTitle,
+                      style: AppTypography.titleSmall,
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
                     Text(
                       'Your authentic reviews help fellow buyers make informed decisions and earn you Club Points!',
-                      style: AppTypography.bodyMuted,
+                      style: AppTypography.bodySmall,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -278,12 +279,12 @@ class _ReviewState extends State<Review> {
                       border: Border.all(color: AppColors.border),
                     ),
                     child: review.productImage.isNotEmpty
-                        ? CachedNetworkImage(
+                        ? AppImage(
                             imageUrl: review.productImage,
                             fit: BoxFit.contain,
-                            placeholder: (context, url) =>
+                            placeholder:
                                 const AppLoader.inline(size: 18),
-                            errorWidget: (context, url, error) => Center(
+                            errorWidget: Center(
                               child: Icon(
                                 Icons.shopping_bag_outlined,
                                 color: AppColors.mutedLight,
@@ -311,16 +312,16 @@ class _ReviewState extends State<Review> {
                         review.productName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.productCardTitle,
+                        style: AppTypography.titleMicro,
                       ),
                       SizedBox(height: 4.h),
                       Row(
                         children: [
                           Text(
                             'View Product',
-                            style: AppTypography.brandActionText,
+                            style: AppTypography.brandAction,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios_rounded,
                             size: 10,
                             color: AppColors.pickabooBlue,
@@ -389,7 +390,7 @@ class _ReviewState extends State<Review> {
             SizedBox(height: 8.h),
             Text(
               review.title,
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
           ],
 
@@ -398,7 +399,7 @@ class _ReviewState extends State<Review> {
             SizedBox(height: 4.h),
             Text(
               review.detail,
-              style: AppTypography.bodyRegular.copyWith(
+              style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.navy,
                 height: 1.35,
               ),
@@ -424,12 +425,12 @@ class _ReviewState extends State<Review> {
                         border: Border.all(color: AppColors.border),
                         borderRadius: AppRadius.badgeRadius,
                       ),
-                      child: CachedNetworkImage(
+                      child: AppImage(
                         imageUrl: review.images[imgIndex],
                         fit: BoxFit.cover,
-                        placeholder: (context, url) =>
+                        placeholder:
                             const AppLoader.inline(size: 16),
-                        errorWidget: (context, url, error) => Icon(
+                        errorWidget: Icon(
                           Icons.image_not_supported_outlined,
                           color: AppColors.mutedLight,
                           size: 20.sp,
@@ -454,15 +455,15 @@ class _ReviewState extends State<Review> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.verified_rounded,
                       size: 12,
                       color: AppColors.green,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
                       'Verified Purchase',
-                      style: AppTypography.badgeInStock,
+                      style: AppTypography.bodyTiny.extraBold().green,
                     ),
                   ],
                 ),
@@ -499,30 +500,25 @@ class _ReviewState extends State<Review> {
               SizedBox(height: 16.h),
               Text(
                 'No Reviews Yet',
-                style: AppTypography.pageTitle,
+                style: AppTypography.titleLarge,
               ),
               SizedBox(height: 6.h),
               Text(
                 'You haven\'t submitted any product reviews yet. Leave reviews on your purchased products to help the community and win Club Points!',
                 textAlign: TextAlign.center,
-                style: AppTypography.bodyMuted,
+                style: AppTypography.bodySmall,
               ),
-              SizedBox(height: 20.h),
-              ElevatedButton.icon(
-                onPressed: () => context.push(Routes.orderList),
-                icon: Icon(Icons.shopping_bag_outlined, size: 18.sp),
-                label: const Text('View Your Orders'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.pickabooBlue,
-                  foregroundColor: AppColors.white,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 10.h,
-                  ),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: AppRadius.buttonRadius,
-                  ),
+              AppSpacing.gapV20,
+              AppButton.primary(
+                text: 'View Your Orders',
+                icon: Icon(Icons.shopping_bag_outlined, size: 18.sp, color: AppColors.white),
+                isFullWidth: false,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                  vertical: 10.h,
                 ),
+                borderRadius: AppRadius.buttonRadius,
+                onPressed: () => context.push(Routes.orderList),
               ),
             ],
           ),

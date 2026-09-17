@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 import 'package:pickaboo/data/model/home_banner_response/home_banner_response.dart';
 import 'i_home_banner_api_service.dart';
@@ -14,13 +15,7 @@ class IHomeBannerApiService extends HomeBannerApiService {
   IHomeBannerApiService(this._client);
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
-    }
-    return const ErrorResponse();
+    return ApiErrorParser.parse(err);
   }
 
   @override

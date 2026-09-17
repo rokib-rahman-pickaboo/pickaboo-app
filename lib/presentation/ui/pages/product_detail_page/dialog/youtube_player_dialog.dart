@@ -12,7 +12,7 @@ class YoutubePlayerDialog extends StatefulWidget {
   static Future<void> show(BuildContext context, {required String videoId}) {
     return showDialog(
       context: context,
-      barrierColor: Colors.black87,
+      barrierColor: AppColors.black87,
       builder: (_) => YoutubePlayerDialog(videoId: videoId),
     );
   }
@@ -65,7 +65,7 @@ class _YoutubePlayerDialogState extends State<YoutubePlayerDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 12.w),
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.black,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(

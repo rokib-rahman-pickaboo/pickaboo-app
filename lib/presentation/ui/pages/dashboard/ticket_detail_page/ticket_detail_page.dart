@@ -6,8 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
-import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_bloc.dart';
-import 'package:pickaboo/presentation/bloc/photo_picker_bloc/photo_picker_event.dart';
 import 'package:pickaboo/presentation/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_detail_page/ticket_info_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_detail_page/ticket_message_item.dart';
@@ -15,6 +13,7 @@ import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_detail_page/ti
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
@@ -41,13 +40,12 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
 
   late String _ticketId;
   TicketEntity? _initialTicket;
-  late PhotoPickerBloc _photoPickerBloc;
+  final List<File> _selectedFiles = [];
 
   @override
   void initState() {
     super.initState();
     _ticketId = widget.ticketId;
-    _photoPickerBloc = context.read<PhotoPickerBloc>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TicketBloc>().add(TicketEvent.getTicketDetails(_ticketId));
@@ -61,38 +59,38 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
     super.dispose();
   }
 
-  Future<void> _addPhotos() async {
-    _photoPickerBloc.add(
-      const PhotoPickerEvent.pickFromGallery(maxWidth: 500, maxHeight: 500),
-    );
-  }
-
-  void _deletePhoto(int index) {
-    _photoPickerBloc.add(PhotoPickerEvent.removeImageAtIndex(index));
-  }
-
   Future<void> _postReply() async {
     if (_replyController.text.trim().isEmpty) {
       SnackBarUtils.showError(context, AppStrings.enterMessage);
       return;
     }
 
-    final images = _photoPickerBloc.state.images ?? [];
+    int totalBytes = 0;
+    for (final f in _selectedFiles) {
+      if (f.existsSync()) {
+        totalBytes += f.lengthSync();
+      }
+    }
+    if (totalBytes > 25 * 1024 * 1024) {
+      SnackBarUtils.showWarning(
+        context,
+        'Total attachment size exceeds 25MB limit. Please remove or reduce files.',
+      );
+      return;
+    }
+
+    FocusManager.instance.primaryFocus?.unfocus();
 
     context.read<TicketBloc>().add(
       TicketEvent.replyTicket(
         _ticketId,
         _replyController.text.trim(),
-        attachments: images.isNotEmpty
-            ? images.map((e) => File(e.path)).toList()
-            : null,
+        attachments: _selectedFiles.isNotEmpty ? _selectedFiles : null,
       ),
     );
   }
 
   Future<void> _closeTicket() async {
-    final textTheme = context.textStyle;
-
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -101,38 +99,31 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
         ),
         title: Text(
           'Close Ticket',
-          style: textTheme.headingMedium.copyWith(
+          style: AppTypography.titleMedium.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.text,
           ),
         ),
         content: Text(
           'Are you sure you want to close this ticket?',
-          style: textTheme.bodyMedium.copyWith(color: AppColors.muted),
+          style: AppTypography.bodyMedium.copyWith(color: AppColors.muted),
         ),
         actions: [
-          TextButton(
+          AppButton.ghost(
+            text: 'Cancel',
+            textColor: AppColors.muted,
+            isFullWidth: false,
+            size: AppButtonSize.sm,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              'Cancel',
-              style: textTheme.bodyMedium.copyWith(color: AppColors.muted),
-            ),
           ),
-          ElevatedButton(
+          AppButton(
+            text: 'Close Ticket',
+            backgroundColor: AppColors.orange,
+            textColor: AppColors.white,
+            isFullWidth: false,
+            size: AppButtonSize.sm,
+            borderRadius: BorderRadius.circular(8.r),
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            child: Text(
-              'Close Ticket',
-              style: textTheme.bodyMedium.copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
           ),
         ],
       ),
@@ -178,7 +169,9 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
               context.read<TicketBloc>().add(const TicketEvent.clearMessage());
               if (msg.contains('Reply posted')) {
                 _replyController.clear();
-                _photoPickerBloc.add(const PhotoPickerEvent.clear());
+                setState(() {
+                  _selectedFiles.clear();
+                });
               } else if (msg.contains('closed')) {
                 if (!widget.embedded) {
                   Navigator.of(context).pop();
@@ -245,8 +238,13 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                         child: TicketReplySection(
                           replyController: _replyController,
                           replyFocusNode: _replyFocusNode,
-                          onAddPhotos: _addPhotos,
-                          onDeletePhoto: _deletePhoto,
+                          selectedFiles: _selectedFiles,
+                          onFilesChanged: (files) {
+                            setState(() {
+                              _selectedFiles.clear();
+                              _selectedFiles.addAll(files);
+                            });
+                          },
                           onCloseTicket: _closeTicket,
                           onPostReply: _postReply,
                           isSubmitting: isSubmitting,

@@ -57,12 +57,12 @@ class BrandFilterWidget extends StatelessWidget {
                   EdgeInsets.only(right: AppSpacing.sameGroupItemSpacing.w),
               child: InkWell(
                 onTap: () => onBrandSelected(null),
-                borderRadius: BorderRadius.circular(6.r),
+                borderRadius: AppRadius.smRadius,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
                     color: AppColors.redBg,
-                    borderRadius: BorderRadius.circular(6.r),
+                    borderRadius: AppRadius.smRadius,
                     border: Border.all(
                       color: AppColors.red.withValues(alpha: 0.5),
                       width: 1.w,
@@ -72,8 +72,8 @@ class BrandFilterWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'ALL BRANDS',
-                        style: AppTypography.badgeStockOut.copyWith(
+                        AppStrings.allBrands.toUpperCase(),
+                        style: AppTypography.bodyTiny.extraBold().red.copyWith(
                           fontSize: 10.sp,
                           letterSpacing: 0.2,
                         ),
@@ -97,13 +97,13 @@ class BrandFilterWidget extends StatelessWidget {
               onTap: () {
                 onBrandSelected(isSelected ? null : brandName);
               },
-              borderRadius: BorderRadius.circular(6.r),
+              borderRadius: AppRadius.smRadius,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.pickabooBlue : AppColors.white,
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: AppRadius.smRadius,
                   border: Border.all(
                     color: isSelected ? AppColors.pickabooBlue : AppColors.border,
                     width: 1.w,
@@ -112,7 +112,7 @@ class BrandFilterWidget extends StatelessWidget {
                 child: Center(
                   child: Text(
                     brandName.toUpperCase(),
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       fontSize: 10.5.sp,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                       color: isSelected ? AppColors.white : AppColors.navy,

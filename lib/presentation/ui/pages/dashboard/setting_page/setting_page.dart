@@ -17,7 +17,6 @@ import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/permission_prompt.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
@@ -50,83 +49,98 @@ class _SettingsPageState extends State<SettingsPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed || !_sentToSettings) return;
+    if (state != AppLifecycleState.resumed) return;
     _sentToSettings = false;
-    Permission.notification.status.then((status) {
-      if (!mounted || !status.isGranted) return;
-      _toggleNotifications(true);
-    });
+    _syncNotificationSettings();
   }
 
   Future<void> _loadNotificationSettings() async {
     setState(() => _isLoading = true);
+    await _syncNotificationSettings();
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
 
+  Future<void> _syncNotificationSettings() async {
     try {
       final notificationService = getIt<PushNotificationService>();
-      final isEnabled = await notificationService.isNotificationsEnabled();
+      final isPrefEnabled = await notificationService.isNotificationsEnabled();
+      final status = await Permission.notification.status;
 
+      if (!status.isGranted && isPrefEnabled) {
+        await notificationService.disableNotifications();
+      } else if (status.isGranted && !isPrefEnabled && _sentToSettings) {
+        await notificationService.enableNotifications();
+      }
+
+      final updatedPref = await notificationService.isNotificationsEnabled();
       if (mounted) {
-        setState(() => _notificationsEnabled = isEnabled);
+        setState(() {
+          _notificationsEnabled = status.isGranted && updatedPref;
+        });
       }
     } catch (e) {
-      debugPrint('Error loading notification settings: $e');
-      if (mounted) {
-        setState(() => _notificationsEnabled = true);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      debugPrint('Error syncing notification settings: $e');
     }
   }
 
   Future<void> _toggleNotifications(bool value) async {
+    final notificationService = getIt<PushNotificationService>();
+
     if (value) {
       final status = await Permission.notification.status;
-      if (status.isPermanentlyDenied || status.isDenied) {
+      if (!status.isGranted) {
         final requested = await Permission.notification.request();
         if (!mounted) return;
-        if (requested.isPermanentlyDenied) {
-          _sentToSettings = await PermissionPrompt.notifications(context);
+        if (!requested.isGranted) {
+          _sentToSettings = true;
+          await openAppSettings();
           return;
         }
-        if (!requested.isGranted) return;
       }
-    }
 
-    setState(() => _isLoading = true);
-
-    try {
-      final notificationService = getIt<PushNotificationService>();
-
-      if (value) {
+      setState(() => _isLoading = true);
+      try {
         await notificationService.enableNotifications();
-      } else {
+        if (mounted) {
+          setState(() => _notificationsEnabled = true);
+          SnackBarUtils.showSuccess(
+            context,
+            'Notifications enabled successfully',
+          );
+        }
+      } catch (e) {
+        debugPrint('Error enabling notifications: $e');
+        if (mounted) {
+          SnackBarUtils.showError(
+            context,
+            'Failed to update notification settings',
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    } else {
+      // User is turning OFF notifications
+      try {
         await notificationService.disableNotifications();
+      } catch (e) {
+        debugPrint('Error disabling notifications: $e');
       }
 
       if (mounted) {
-        setState(() => _notificationsEnabled = value);
+        setState(() => _notificationsEnabled = false);
+        SnackBarUtils.showRegular(
+          context,
+          'Opening App Settings to disable notifications...',
+        );
+      }
 
-        SnackBarUtils.showSuccess(
-          context,
-          value
-              ? 'Notifications enabled successfully'
-              : 'Notifications disabled successfully',
-        );
-      }
-    } catch (e) {
-      debugPrint('Error toggling notifications: $e');
-      if (mounted) {
-        SnackBarUtils.showError(
-          context,
-          'Failed to update notification settings',
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      _sentToSettings = true;
+      await openAppSettings();
     }
   }
 
@@ -167,7 +181,7 @@ class _SettingsPageState extends State<SettingsPage>
                           ),
                           child: Text(
                             AppStrings.notifications,
-                            style: AppTypography.sectionTitle,
+                            style: AppTypography.titleMedium,
                           ),
                         ),
                         Divider(height: 1.h, color: AppColors.border),
@@ -175,6 +189,10 @@ class _SettingsPageState extends State<SettingsPage>
                           icon: Icons.notifications_none_rounded,
                           title: 'All Notifications',
                           subtitle: 'Push notification alerts & updates',
+                          onTap: () async {
+                            _sentToSettings = true;
+                            await openAppSettings();
+                          },
                           trailing: Switch(
                             value: _notificationsEnabled,
                             activeTrackColor: AppColors.pickabooBlue,
@@ -202,7 +220,7 @@ class _SettingsPageState extends State<SettingsPage>
                           ),
                           child: Text(
                             AppStrings.appInformation,
-                            style: AppTypography.sectionTitle,
+                            style: AppTypography.titleMedium,
                           ),
                         ),
                         Divider(height: 1.h, color: AppColors.border),

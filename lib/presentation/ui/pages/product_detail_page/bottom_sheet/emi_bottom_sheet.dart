@@ -4,14 +4,18 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/emi/emi_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
-/// Modern EmiBottomSheet matching Pickaboo-App-UI design language.
-class EmiBottomSheet extends StatelessWidget {
+/// Modern interactive EmiBottomSheet matching Pickaboo Web & App UI design language.
+class EmiBottomSheet extends StatefulWidget {
   final List<EmiEntity> emiOptions;
   final String productPrice;
 
@@ -22,58 +26,106 @@ class EmiBottomSheet extends StatelessWidget {
   });
 
   @override
+  State<EmiBottomSheet> createState() => _EmiBottomSheetState();
+}
+
+class _EmiBottomSheetState extends State<EmiBottomSheet> {
+  int _selectedBankIndex = 0;
+  int _selectedTenureIndex = 0;
+  bool _isBankDropdownOpen = false;
+
+  static final RegExp _thousandsSeparator = RegExp(
+    r'(\d{1,3})(?=(\d{3})+(?!\d))',
+  );
+
+  String _formatCurrency(String value) {
+    if (value.trim().isEmpty) return '৳0';
+    final clean = value.replaceAll('৳', '').replaceAll(',', '').trim();
+    final numVal = double.tryParse(clean);
+    if (numVal == null) return value.startsWith('৳') ? value : '৳$value';
+    final isWhole = numVal % 1 == 0;
+    final formatted = isWhole
+        ? numVal.toInt().toString().replaceAllMapped(_thousandsSeparator, (Match m) => '${m[1]},')
+        : numVal.toStringAsFixed(2).replaceAllMapped(_thousandsSeparator, (Match m) => '${m[1]},');
+    return '৳$formatted';
+  }
+
+  void _openTerms() {
+    context.push(Routes.terms);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.white,
-      clipBehavior: Clip.antiAlias,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: 0.85.sh),
+      child: Material(
+        color: AppColors.white,
+        clipBehavior: Clip.antiAlias,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── Blue Header Bar ──
+              _buildHeader(context),
+
+              // ── Modal Body Content ──
+              if (widget.emiOptions.isEmpty)
+                _buildEmptyState(context)
+              else
+                _buildContent(context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      color: AppColors.pickabooBlue,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          Icon(
+            Icons.credit_card_outlined,
+            color: AppColors.white,
+            size: 20.sp,
+          ),
+          SizedBox(width: 8.w),
+          Text(
+            'EMI Plans',
+            style: AppTypography.titleMedium.bold().white,
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: _openTerms,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'EMI Details',
-                  style: AppTypography.pageTitle,
+                  'T&C',
+                  style: AppTypography.bodySmall.bold().white,
                 ),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: const BoxDecoration(
-                      color: AppColors.surfaceBlue,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.close,
-                      color: AppColors.navy,
-                      size: 20.sp,
-                    ),
-                  ),
+                SizedBox(width: 3.w),
+                Icon(
+                  Icons.open_in_new_rounded,
+                  color: AppColors.white,
+                  size: 14.sp,
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.border),
-
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 0.7.sh),
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).padding.bottom + 16.h,
-              ),
-              itemCount: emiOptions.length,
-              separatorBuilder: (context, index) =>
-                  const Divider(height: 1, color: AppColors.border),
-              itemBuilder: (context, index) {
-                return _buildBankItem(context, emiOptions[index]);
-              },
+          SizedBox(width: 14.w),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Icon(
+              Icons.close_rounded,
+              color: AppColors.white,
+              size: 22.sp,
             ),
           ),
         ],
@@ -81,152 +133,370 @@ class EmiBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildBankItem(BuildContext context, EmiEntity emi) {
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-        title: Row(
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (emi.bankIcon.isNotEmpty)
-              CachedNetworkImage(
-                imageUrl: emi.bankIcon,
-                width: 24.w,
-                height: 24.w,
-                fit: BoxFit.contain,
-                errorWidget: (_, _, _) => Icon(
-                  Icons.account_balance_outlined,
-                  size: 24.w,
-                  color: AppColors.pickabooBlue,
-                ),
-              )
-            else
-              Icon(
-                Icons.account_balance_outlined,
-                size: 24.w,
-                color: AppColors.pickabooBlue,
-              ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Text(
-                emi.bankName,
-                style: AppTypography.sectionTitle,
-              ),
+            Icon(
+              Icons.credit_card_off_outlined,
+              size: 48.sp,
+              color: AppColors.muted,
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'No EMI plans available for this product',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMedium.withColor(AppColors.muted),
             ),
           ],
         ),
-        iconColor: AppColors.pickabooBlue,
-        collapsedIconColor: AppColors.mutedLight,
-        children: emi.tenureOptions.map((option) {
-          return _buildTenureItem(context, option);
-        }).toList(),
       ),
     );
   }
 
-  Widget _buildTenureItem(BuildContext context, EmiTenureEntity option) {
-    return CustomExpansionTile(
-      title: Text(
-        '${option.tenure} EMIs | Convenience Fee (${option.convenienceFee}%) ${option.monthlyPayable}/m',
-        style: AppTypography.bodyRegular,
-      ),
+  Widget _buildContent(BuildContext context) {
+    final validBankIndex = _selectedBankIndex.clamp(0, widget.emiOptions.length - 1);
+    final selectedBank = widget.emiOptions[validBankIndex];
+    final tenureList = selectedBank.tenureOptions;
+    final validTenureIndex = _selectedTenureIndex.clamp(0, tenureList.isEmpty ? 0 : tenureList.length - 1);
+    final currentTenure = tenureList.isNotEmpty ? tenureList[validTenureIndex] : null;
+
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
+        // ── Main Content (Base Layer, dictates natural sheet height) ──
         Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 14.h),
-          child: Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceBlue,
-              borderRadius: AppRadius.cardRadius,
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                _buildDetailRow("Price", option.price),
-                SizedBox(height: 6.h),
-                _buildDetailRow("Convenience Fee", option.conveniencePrice),
-                SizedBox(height: 6.h),
-                const Divider(height: 12, color: AppColors.border),
-                _buildDetailRow(
-                  "Total Amount Payable",
-                  option.total,
-                  isBold: true,
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Section 1: Select Bank ──
+              Text(
+                'Select Bank',
+                style: AppTypography.titleSmall.bold().withColor(AppColors.navy),
+              ),
+              SizedBox(height: 8.h),
+              _buildBankSelector(selectedBank),
+
+              SizedBox(height: 18.h),
+
+              // ── Section 2: Select Tenure ──
+              if (tenureList.isNotEmpty) ...[
+                Text(
+                  'Select Tenure',
+                  style: AppTypography.titleSmall.bold().withColor(AppColors.navy),
                 ),
+                SizedBox(height: 10.h),
+                _buildTenureChips(tenureList, validTenureIndex),
+                SizedBox(height: 18.h),
               ],
-            ),
+
+              // ── Section 3: Calculation Card ──
+              if (currentTenure != null) ...[
+                _buildCalculationCard(selectedBank, currentTenure),
+                SizedBox(height: 14.h),
+              ],
+
+              // ── Section 4: Indicative Disclaimer Footer ──
+              _buildFooterDisclaimer(),
+            ],
           ),
         ),
+
+        // ── Overlapping Floating Dropdown List (Overlay Layer) ──
+        if (_isBankDropdownOpen) ...[
+          // Backdrop: tap outside dropdown to dismiss
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                setState(() {
+                  _isBankDropdownOpen = false;
+                });
+              },
+            ),
+          ),
+          // Floating dropdown container positioned directly below the bank selector
+          Positioned(
+            top: 96.h,
+            left: 16.w,
+            right: 16.w,
+            bottom: 16.h,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: _buildBankDropdownList(),
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildDetailRow(
-    String label,
-    String value, {
-    bool isBold = false,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppTypography.bodyMuted,
+  Widget _buildBankSelector(EmiEntity selectedBank) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isBankDropdownOpen = !_isBankDropdownOpen;
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: _isBankDropdownOpen ? AppColors.pickabooBlue : AppColors.border,
+            width: 1.2.w,
+          ),
         ),
-        Text(
-          value,
-          style: AppTypography.brandActionText,
+        child: Row(
+          children: [
+            _buildBankLogo(selectedBank.bankIcon),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    selectedBank.bankName,
+                    style: AppTypography.titleSmall.bold().withColor(AppColors.navy),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    '${selectedBank.tenureOptions.length} tenure options available',
+                    style: AppTypography.bodyTiny.withColor(AppColors.muted),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              _isBankDropdownOpen
+                  ? Icons.keyboard_arrow_up_rounded
+                  : Icons.keyboard_arrow_down_rounded,
+              color: AppColors.navy,
+              size: 22.sp,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
-}
 
-class CustomExpansionTile extends StatefulWidget {
-  final Widget title;
-  final List<Widget> children;
+  Widget _buildBankDropdownList() {
+    return Container(
+      constraints: BoxConstraints(maxHeight: 280.h),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.r),
+        child: ListView.separated(
+          shrinkWrap: true,
+          padding: EdgeInsets.symmetric(vertical: 4.h),
+          itemCount: widget.emiOptions.length,
+          separatorBuilder: (_, __) => Divider(height: 1.h, color: AppColors.border),
+          itemBuilder: (context, index) {
+            final bank = widget.emiOptions[index];
+            final isSelected = index == _selectedBankIndex;
 
-  const CustomExpansionTile({
-    super.key,
-    required this.title,
-    required this.children,
-  });
+            return InkWell(
+              onTap: () {
+                setState(() {
+                  _selectedBankIndex = index;
+                  _selectedTenureIndex = 0;
+                  _isBankDropdownOpen = false;
+                });
+              },
+              child: Container(
+                color: isSelected ? AppColors.surfaceBlue : AppColors.white,
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                child: Row(
+                  children: [
+                    _buildBankLogo(bank.bankIcon),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            bank.bankName,
+                            style: AppTypography.titleSmall
+                                .bold()
+                                .withColor(isSelected ? AppColors.pickabooBlue : AppColors.navy),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            '${bank.tenureOptions.length} tenure plans available',
+                            style: AppTypography.bodyTiny.withColor(AppColors.muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isSelected)
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.pickabooBlue,
+                        size: 18.sp,
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
-  @override
-  State<CustomExpansionTile> createState() => _CustomExpansionTileState();
-}
+  Widget _buildBankLogo(String iconUrl) {
+    if (iconUrl.isNotEmpty) {
+      return AppImage(
+        imageUrl: iconUrl,
+        width: 30.w,
+        height: 30.w,
+        fit: BoxFit.contain,
+        errorWidget: Icon(
+          Icons.account_balance_outlined,
+          size: 26.w,
+          color: AppColors.pickabooBlue,
+        ),
+      );
+    }
+    return Icon(
+      Icons.account_balance_outlined,
+      size: 26.w,
+      color: AppColors.pickabooBlue,
+    );
+  }
 
-class _CustomExpansionTileState extends State<CustomExpansionTile> {
-  bool _isExpanded = false;
+  Widget _buildTenureChips(List<EmiTenureEntity> tenureList, int activeIndex) {
+    return Wrap(
+      spacing: 8.w,
+      runSpacing: 8.h,
+      children: List.generate(tenureList.length, (index) {
+        final tenure = tenureList[index];
+        final isSelected = index == activeIndex;
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
+        return GestureDetector(
           onTap: () {
             setState(() {
-              _isExpanded = !_isExpanded;
+              _selectedTenureIndex = index;
             });
           },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.surfaceBlue : AppColors.white,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: isSelected ? AppColors.pickabooBlue : AppColors.border,
+                width: isSelected ? 1.5.w : 1.w,
+              ),
+            ),
+            child: Text(
+              '${tenure.tenure} Months',
+              style: isSelected
+                  ? AppTypography.bodyMedium.bold().withColor(AppColors.pickabooBlue)
+                  : AppTypography.bodyMedium.withColor(AppColors.navy),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildCalculationCard(EmiEntity bank, EmiTenureEntity tenure) {
+    final feeText = tenure.convenienceFee.contains('%')
+        ? tenure.convenienceFee
+        : '${tenure.convenienceFee}%';
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Monthly Rate
+          Text.rich(
+            TextSpan(
               children: [
-                Expanded(child: widget.title),
-                SizedBox(width: 8.w),
-                Icon(
-                  _isExpanded ? Icons.remove_circle_outline : Icons.add_circle_outline,
-                  color: AppColors.pickabooBlue,
-                  size: 20.sp,
+                TextSpan(
+                  text: _formatCurrency(tenure.monthlyPayable),
+                  style: AppTypography.priceLarge.withColor(AppColors.navy),
+                ),
+                TextSpan(
+                  text: ' /mo',
+                  style: AppTypography.bodySmall.withColor(AppColors.muted),
                 ),
               ],
             ),
           ),
-        ),
-        if (_isExpanded) ...widget.children,
-      ],
+          SizedBox(height: 6.h),
+          // Plan Subtitle
+          Text(
+            '${bank.bankName} · ${tenure.tenure} months tenure',
+            style: AppTypography.bodySmall.bold().withColor(AppColors.navy),
+          ),
+          SizedBox(height: 4.h),
+          // Convenience Fee
+          Text(
+            'Convenience Fee: $feeText (${_formatCurrency(tenure.conveniencePrice)})',
+            style: AppTypography.bodyTiny.withColor(AppColors.muted),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.h),
+            child: Divider(height: 1.h, thickness: 0.8.h, color: AppColors.border),
+          ),
+          // Total Payable Amount
+          Text(
+            'Total Payable Amount: ${_formatCurrency(tenure.total)}',
+            style: AppTypography.titleSmall.bold().withColor(AppColors.navy),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFooterDisclaimer() {
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text:
+                'EMI figures are indicative. Final tenure & fees confirmed by your bank at checkout. ',
+            style: AppTypography.bodyTiny.withColor(AppColors.muted),
+          ),
+          TextSpan(
+            text: 'Read EMI T&C',
+            style: AppTypography.bodyTiny.bold().withColor(AppColors.pickabooBlue),
+            recognizer: TapGestureRecognizer()..onTap = _openTerms,
+          ),
+        ],
+      ),
     );
   }
 }

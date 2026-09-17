@@ -70,4 +70,6 @@ class CartEvent with _$CartEvent {
       _MergeGuestCart;
 
   const factory CartEvent.initializeSession() = _InitializeSession;
+
+  const factory CartEvent.clearCartSession() = _ClearCartSession;
 }

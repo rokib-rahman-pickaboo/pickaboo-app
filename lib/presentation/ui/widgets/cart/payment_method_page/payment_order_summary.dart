@@ -39,9 +39,9 @@ class PaymentOrderSummary extends StatelessWidget {
   ) =>
       tenure?.convenienceFeeOn(totals.grandTotal) ?? 0;
 
-  String _formatPrice(double value) {
-    final absVal = value.abs();
-    final formatted = absVal.toStringAsFixed(0);
+  String _formatPrice(double value, {bool floor = false}) {
+    final absVal = floor ? value.abs().floor() : value.abs().round();
+    final formatted = absVal.toString();
     final result = formatted.replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (match) => '${match[1]},',
@@ -101,7 +101,7 @@ class PaymentOrderSummary extends StatelessWidget {
             _buildRow(
               Icons.local_offer_outlined,
               discountLabel,
-              "-${_formatPrice(totalDiscount.abs())}",
+              "-${_formatPrice(totalDiscount.abs(), floor: true)}",
               isDiscount: true,
             ),
           ],
@@ -127,7 +127,7 @@ class PaymentOrderSummary extends StatelessWidget {
             _buildRow(
               Icons.stars_rounded,
               "Club Point Discount",
-              "-${_formatPrice(clubPointDiscount)}",
+              "-${_formatPrice(clubPointDiscount, floor: true)}",
               isDiscount: true,
             ),
           ],
@@ -162,7 +162,7 @@ class PaymentOrderSummary extends StatelessWidget {
             children: [
               Text(
                 "Total Payable",
-                style: AppTypography.sectionTitle,
+                style: AppTypography.titleMedium,
               ),
               Text(
                 _formatPrice(displayGrandTotal),
@@ -194,8 +194,8 @@ class PaymentOrderSummary extends StatelessWidget {
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
-                      "You're saving ${_formatPrice(totalDiscount.abs())} on this order! 🎉",
-                      style: AppTypography.bodyMuted.copyWith(
+                      "You're saving ${_formatPrice(totalDiscount.abs(), floor: true)} on this order!",
+                      style: AppTypography.bodySmall.copyWith(
                         color: AppColors.amber,
                         fontWeight: FontWeight.w700,
                       ),
@@ -229,7 +229,7 @@ class PaymentOrderSummary extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: AppTypography.bodyMuted,
+            style: AppTypography.bodySmall,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

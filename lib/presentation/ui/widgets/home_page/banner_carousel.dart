@@ -5,6 +5,7 @@ import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
 import 'package:pickaboo/injection.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/banner_item_view.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -12,9 +13,10 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 ///
 /// Configured according to specifications:
 /// - Core: Native CarouselSlider.builder + smooth_page_indicator
+/// - Dynamic Resolution: Reads image resolution and adjusts height proportionally
 /// - Non-Swipeable: User cannot manually drag (scrollPhysics: NeverScrollableScrollPhysics)
 /// - Auto-Slide: Fixed rotation every 3.6s with 400ms easeInOutCubic animation
-/// - Sizing & Peek: height 160.h, viewportFraction 0.95, enlargeCenterPage true (0.15 factor)
+/// - Sizing & Peek: Dynamic height based on intrinsic aspect ratio, viewportFraction 0.95, enlargeCenterPage true (0.15 factor)
 /// - Indicator: Overlaid inside image at bottom
 /// - Smart Indicator: Hidden when banner count <= 1
 class BannerCarousel extends StatefulWidget {
@@ -34,11 +36,28 @@ class _BannerCarouselState extends State<BannerCarousel> {
 
   final Set<String> _viewedBannerIds = {};
 
+  // Intrinsic resolution cache across banner URLs
+  static final Map<String, double> _aspectRatioCache = {};
+
+  // Standard Pickaboo big banner intrinsic resolution is 1116x725 (~1.5393)
+  static const double _kDefaultAspectRatio = 1116.0 / 725.0;
+
+  double _currentAspectRatio = _kDefaultAspectRatio;
+
   @override
   void initState() {
     super.initState();
+    _resolveBanners();
     if (widget.banners.isNotEmpty) {
       _logBannerView(widget.banners.first);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant BannerCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.banners != oldWidget.banners) {
+      _resolveBanners();
     }
   }
 
@@ -46,6 +65,79 @@ class _BannerCarouselState extends State<BannerCarousel> {
   void dispose() {
     _currentIndex.dispose();
     super.dispose();
+  }
+
+  String _getBannerImageUrl(SliderEntity banner) {
+    return banner.mobileImage.isNotEmpty ? banner.mobileImage : banner.image;
+  }
+
+  String _getActiveBannerUrl() {
+    if (widget.banners.isEmpty) return '';
+    final idx = _currentIndex.value.clamp(0, widget.banners.length - 1);
+    final rawUrl = _getBannerImageUrl(widget.banners[idx]);
+    if (rawUrl.isEmpty) return '';
+    return AppImage.provider(rawUrl).url;
+  }
+
+  void _resolveBanners() {
+    if (widget.banners.isEmpty) return;
+
+    final activeUrl = _getActiveBannerUrl();
+    if (activeUrl.isNotEmpty && _aspectRatioCache.containsKey(activeUrl)) {
+      _currentAspectRatio = _aspectRatioCache[activeUrl]!;
+    }
+
+    for (final banner in widget.banners) {
+      final rawUrl = _getBannerImageUrl(banner);
+      _resolveImageResolution(rawUrl);
+    }
+  }
+
+  void _resolveImageResolution(String rawUrl) {
+    if (rawUrl.isEmpty) return;
+    final normalizedUrl = AppImage.provider(rawUrl).url;
+    if (normalizedUrl.isEmpty) return;
+
+    if (_aspectRatioCache.containsKey(normalizedUrl)) {
+      final cached = _aspectRatioCache[normalizedUrl]!;
+      if ((cached - _currentAspectRatio).abs() > 0.005) {
+        if (mounted) {
+          setState(() {
+            _currentAspectRatio = cached;
+          });
+        }
+      }
+      return;
+    }
+
+    final ImageProvider provider = AppImage.provider(rawUrl);
+    final ImageStream stream = provider.resolve(ImageConfiguration.empty);
+    late ImageStreamListener listener;
+    listener = ImageStreamListener(
+      (ImageInfo info, bool synchronousCall) {
+        final int w = info.image.width;
+        final int h = info.image.height;
+        if (w > 0 && h > 0) {
+          final double ratio = w / h;
+          _aspectRatioCache[normalizedUrl] = ratio;
+          if (mounted) {
+            final activeUrl = _getActiveBannerUrl();
+            if (normalizedUrl == activeUrl ||
+                (_currentAspectRatio == _kDefaultAspectRatio &&
+                    (ratio - _currentAspectRatio).abs() > 0.005)) {
+              setState(() {
+                _currentAspectRatio = ratio;
+              });
+            }
+          }
+        }
+        stream.removeListener(listener);
+      },
+      onError: (exception, stackTrace) {
+        stream.removeListener(listener);
+      },
+    );
+    stream.addListener(listener);
   }
 
   void _logBannerView(SliderEntity banner) {
@@ -80,6 +172,10 @@ class _BannerCarouselState extends State<BannerCarousel> {
     }
 
     final bool hasMultipleBanners = widget.banners.length > 1;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    const double viewportFraction = 0.95;
+    final double itemWidth = screenWidth * viewportFraction;
+    final double calculatedHeight = itemWidth / _currentAspectRatio;
 
     return RepaintBoundary(
       child: Stack(
@@ -93,6 +189,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
               final banner = widget.banners[index];
               return BannerItemView(
                 banner: banner,
+                width: itemWidth,
+                height: calculatedHeight,
+                fit: BoxFit.cover,
                 onTap: (slider) {
                   _logBannerClick(slider);
                   widget.onBannerTap?.call(slider);
@@ -100,8 +199,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
               );
             },
             options: CarouselOptions(
-              height: 160.h,
-              viewportFraction: 0.95,
+              height: calculatedHeight,
+              viewportFraction: viewportFraction,
+              enableInfiniteScroll: hasMultipleBanners,
               scrollPhysics:
                   const NeverScrollableScrollPhysics(), // Non-swipeable by user
               autoPlay: hasMultipleBanners,
@@ -116,7 +216,20 @@ class _BannerCarouselState extends State<BannerCarousel> {
               onPageChanged: (index, reason) {
                 _currentIndex.value = index;
                 if (index >= 0 && index < widget.banners.length) {
-                  _logBannerView(widget.banners[index]);
+                  final banner = widget.banners[index];
+                  _logBannerView(banner);
+                  final rawUrl = _getBannerImageUrl(banner);
+                  final normalized = AppImage.provider(rawUrl).url;
+                  if (_aspectRatioCache.containsKey(normalized)) {
+                    final cached = _aspectRatioCache[normalized]!;
+                    if ((cached - _currentAspectRatio).abs() > 0.005) {
+                      setState(() {
+                        _currentAspectRatio = cached;
+                      });
+                    }
+                  } else {
+                    _resolveImageResolution(rawUrl);
+                  }
                 }
               },
             ),
@@ -125,7 +238,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
           // ── 2. Indicator (Inside image, only shown if banners > 1) ──
           if (hasMultipleBanners)
             Positioned(
-              bottom: 10.h,
+              bottom: 8.h,
               child: ValueListenableBuilder<int>(
                 valueListenable: _currentIndex,
                 builder: (context, currentIndex, _) => AnimatedSmoothIndicator(

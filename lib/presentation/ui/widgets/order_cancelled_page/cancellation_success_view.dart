@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/date_time_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_cancel_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:timelines_plus/timelines_plus.dart';
@@ -60,13 +62,13 @@ class CancellationSuccessView extends StatelessWidget {
                 SizedBox(height: 12.h),
                 Text(
                   "Cancellation Successful",
-                  style: AppTypography.pageTitle,
+                  style: AppTypography.titleLarge,
                 ),
                 SizedBox(height: 6.h),
                 Text(
                   "Your order has been cancelled successfully",
                   textAlign: TextAlign.center,
-                  style: AppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
               ],
             ),
@@ -108,7 +110,7 @@ class CancellationSuccessView extends StatelessWidget {
                     final history = order.statusHistories.reversed.toList();
                     final status = history[index];
                     final isLatest = index == 0;
-                    final date = DateTime.tryParse(status.createdAt);
+                    final date = parseServerDateTime(status.createdAt);
 
                     return Padding(
                       padding: EdgeInsets.only(left: 12.w, bottom: 20.h),
@@ -117,20 +119,20 @@ class CancellationSuccessView extends StatelessWidget {
                         children: [
                           Text(
                             _formatStatusText(status.status),
-                            style: isLatest ? AppTypography.brandActionText : AppTypography.cardTitle,
+                            style: isLatest ? AppTypography.brandAction : AppTypography.titleSmall,
                           ),
                           if (date != null) ...[
                             SizedBox(height: 3.h),
                             Text(
                               DateFormat('MMM dd, yyyy - hh:mm a').format(date),
-                              style: AppTypography.bodyMutedLight,
+                              style: AppTypography.bodySmall.mutedLight,
                             ),
                           ],
                           if (status.comment != null && status.comment!.isNotEmpty) ...[
                             SizedBox(height: 4.h),
                             Text(
                               status.comment!,
-                              style: AppTypography.bodyMuted.italic(),
+                              style: AppTypography.bodySmall.italic(),
                             ),
                           ],
                         ],
@@ -161,26 +163,17 @@ class CancellationSuccessView extends StatelessWidget {
           // ── ITEM CARDS ──
           ...order.items.map((item) => _buildItemCard(item)),
 
-          SizedBox(height: 12.h),
+          AppSpacing.gapV12,
 
           // ── VIEW DETAILS BUTTON ──
-          SizedBox(
-            width: double.infinity,
+          AppButton.outline(
+            text: "View Details",
+            textColor: AppColors.pickabooBlue,
+            borderColor: AppColors.pickabooBlue,
+            isFullWidth: true,
             height: 48.h,
-            child: OutlinedButton(
-              onPressed: onViewDetails,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.pickabooBlue,
-                side: const BorderSide(color: AppColors.pickabooBlue),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: AppRadius.cardRadius,
-                ),
-              ),
-              child: Text(
-                "View Details",
-                style: AppTypography.brandActionText,
-              ),
-            ),
+            borderRadius: AppRadius.cardRadius,
+            onPressed: onViewDetails,
           ),
           SizedBox(height: 20.h),
         ],
@@ -251,7 +244,7 @@ class CancellationSuccessView extends StatelessWidget {
                   item.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                 ),
                 SizedBox(height: 4.h),
                 Row(
@@ -259,7 +252,7 @@ class CancellationSuccessView extends StatelessWidget {
                   children: [
                     Text(
                       "Qty: ${item.qtyOrdered}",
-                      style: AppTypography.bodyMutedLight,
+                      style: AppTypography.bodySmall.mutedLight,
                     ),
                     Text(
                       "৳${item.price.toStringAsFixed(0)}",

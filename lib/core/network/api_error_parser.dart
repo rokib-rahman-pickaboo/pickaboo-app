@@ -31,6 +31,13 @@ class ApiErrorParser {
     return sanitize(error.toString(), fallback: defaultMessage);
   }
 
+  /// Convenience alias for [parseDioError].
+  static ErrorResponse parse(
+    DioException err, {
+    String defaultMessage = 'Something went wrong. Please try again.',
+  }) =>
+      parseDioError(err, defaultMessage: defaultMessage);
+
   /// Parses a [DioException] into an [ErrorResponse] with a sanitized, friendly message.
   static ErrorResponse parseDioError(
     DioException err, {
@@ -38,6 +45,12 @@ class ApiErrorParser {
   }) {
     // 1. Try extracting message from response data
     if (err.type == DioExceptionType.badResponse && err.response != null) {
+      if (err.response?.statusCode == 413) {
+        return const ErrorResponse(
+          success: false,
+          message: 'Attachments or upload size is too large. Please reduce the file size.',
+        );
+      }
       final data = err.response?.data;
 
       if (data is Map<String, dynamic>) {
@@ -93,7 +106,7 @@ class ApiErrorParser {
       case DioExceptionType.connectionError:
         return const ErrorResponse(
           success: false,
-          message: 'Unable to connect to server. Please check your internet connection.',
+          message: 'Please check your internet connection.',
         );
       case DioExceptionType.cancel:
         return const ErrorResponse(
@@ -107,9 +120,14 @@ class ApiErrorParser {
         );
       case DioExceptionType.unknown:
         final msg = err.message ?? '';
+        final errStr = err.error?.toString().toLowerCase() ?? '';
         if (msg.toLowerCase().contains('socket') ||
             msg.toLowerCase().contains('host lookup') ||
-            msg.toLowerCase().contains('network')) {
+            msg.toLowerCase().contains('network') ||
+            msg.toLowerCase().contains('broken pipe') ||
+            msg.toLowerCase().contains('connection reset') ||
+            errStr.contains('broken pipe') ||
+            errStr.contains('connection reset')) {
           return const ErrorResponse(
             success: false,
             message: 'Network issue encountered. Please check your internet connection.',
@@ -241,14 +259,9 @@ class ApiErrorParser {
       return 'Security verification failed. Please wait a moment and try again.';
     }
 
-    // Map raw PHP / Magento internal stack traces to a user-friendly message
-    if (lower.contains('type error occurred when creating object') ||
-        lower.contains('abstractfactory.php') ||
-        lower.contains('interceptor.php') ||
-        lower.contains('argument #') ||
-        lower.contains('uncaught typeerror') ||
-        lower.contains('fatal error')) {
-      return 'Service is temporarily unavailable. Please try again later.';
+    // Strictly intercept any raw PHP, Magento, backend crash, or stack trace
+    if (isTechnicalOrServerCrash(msg)) {
+      return fallback;
     }
 
     // If message was completely wiped or is only symbols, return fallback
@@ -283,5 +296,101 @@ class ApiErrorParser {
       default:
         return defaultMessage;
     }
+  }
+
+  /// Checks whether an error string is a raw technical error, PHP/Magento crash,
+  /// server stack trace, SQL dump, or internal file path that should NEVER be shown to users.
+  static bool isTechnicalOrServerCrash(String? text) {
+    if (text == null || text.trim().isEmpty) return false;
+    final lower = text.toLowerCase();
+
+    // 1. Stack traces & call frames
+    if (lower.contains('stack trace:') ||
+        lower.contains('traceback (most recent call last):') ||
+        lower.contains('{main}') ||
+        lower.contains('caused by:') ||
+        lower.contains('exception in thread') ||
+        RegExp(r'#\d+\s+(/\w+|[a-zA-Z]:\\)').hasMatch(text) ||
+        RegExp(r'\b(at|in)\s+([/\\][\w.-]+)+:\d+').hasMatch(text) ||
+        RegExp(r'^\s*at\s+[\w$./\\<>]+\s*\(', multiLine: true).hasMatch(text)) {
+      return true;
+    }
+
+    // 2. Server file paths & source code files
+    if (lower.contains('/var/www/') ||
+        lower.contains('/vendor/') ||
+        lower.contains('/pub/index.php') ||
+        lower.contains('node_modules/') ||
+        RegExp(r'\.php(\(\d+\)|:\d+|\b)').hasMatch(lower) ||
+        RegExp(r'([a-zA-Z]:\\|\b(var|usr|etc|opt|home)/)\w+').hasMatch(lower) ||
+        RegExp(r'\bon line \d+\b').hasMatch(lower)) {
+      return true;
+    }
+
+    // 3. Low-level exceptions, language runtime errors & crashes
+    if (lower.contains('reflectionexception') ||
+        lower.contains('pdoexception') ||
+        lower.contains('sqlexception') ||
+        lower.contains('nullpointerexception') ||
+        lower.contains('classnotfoundexception') ||
+        lower.contains('formatexception') ||
+        lower.contains('invalid date format') ||
+        lower.contains('argumenterror') ||
+        lower.contains('invalid argument') ||
+        lower.contains('not one of the supported values') ||
+        lower.contains('rangeerror') ||
+        lower.contains('nosuchmethoderror') ||
+        lower.contains('assertionerror') ||
+        lower.contains('stateerror') ||
+        lower.contains('unsupportederror') ||
+        lower.contains('typeerror') ||
+        lower.contains('fatal error') ||
+        lower.contains('parse error') ||
+        lower.contains('uncaught exception') ||
+        lower.contains('uncaught error') ||
+        lower.contains('uncaught ') ||
+        lower.contains('call to undefined method') ||
+        lower.contains('call to a member function') ||
+        lower.contains('cannot redeclare') ||
+        lower.contains('maximum execution time') ||
+        lower.contains('allowed memory size') ||
+        lower.contains('argument 1 passed to') ||
+        lower.contains('must be compatible with') ||
+        RegExp(r'class\s+["\x27].*?["\x27]\s+(does not exist|not found)', caseSensitive: false).hasMatch(text)) {
+      return true;
+    }
+
+    // 4. Magento / Framework internals
+    if (lower.contains('magento\\') ||
+        lower.contains('magento/') ||
+        lower.contains('objectmanager') ||
+        lower.contains('interceptor') ||
+        lower.contains('classreader') ||
+        lower.contains('abstractfactory') ||
+        lower.contains('laminas\\') ||
+        lower.contains('zend_') ||
+        lower.contains('symfony\\') ||
+        lower.contains('type error occurred when creating object')) {
+      return true;
+    }
+
+    // 5. Database / SQL errors
+    if (lower.contains('sqlstate') ||
+        lower.contains('syntax error or access violation') ||
+        lower.contains('integrity constraint violation') ||
+        lower.contains('query failed') ||
+        lower.contains('unknown column') ||
+        lower.contains("table doesn't exist") ||
+        lower.contains('deadlock found') ||
+        lower.contains('lock wait timeout exceeded')) {
+      return true;
+    }
+
+    // 6. Generic code dumps: e.g. "ReflectionClass->__construct()"
+    if (text.contains('->') && text.contains('(') && text.contains(')')) {
+      return true;
+    }
+
+    return false;
   }
 }

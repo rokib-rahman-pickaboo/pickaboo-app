@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -49,10 +50,17 @@ class _SplashPageState extends State<SplashPage> {
           orElse: () {},
         );
       },
-      child: Scaffold(
-        body: SizedBox.expand(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: AppColors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: Scaffold(
+          backgroundColor: AppColors.white,
+          body: SizedBox.expand(
           child: Image.asset(
-            'assets/gif/splash-image.gif',
+            AppAssets.splashGif,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -68,6 +76,7 @@ class _SplashPageState extends State<SplashPage> {
             },
           ),
         ),
+      ),
       ),
     );
   }

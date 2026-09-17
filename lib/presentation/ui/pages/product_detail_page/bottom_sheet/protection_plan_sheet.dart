@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/selected_extra_option_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
 
 /// Modern ProtectionPlanSheet matching Pickaboo-App-UI design language.
@@ -57,7 +58,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                 SizedBox(width: 10.w),
                 Text(
                   'Added to cart',
-                  style: AppTypography.pageTitle,
+                  style: AppTypography.titleLarge,
                 ),
                 const Spacer(),
                 GestureDetector(
@@ -81,7 +82,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SvgPicture.asset(
-                    'assets/new/svg/detail/pickaboo_protection_icon.svg',
+                    AppAssets.detailProtection,
                     height: 100.h,
                     fit: BoxFit.fitHeight,
                   ),
@@ -92,7 +93,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                     child: Text(
                       'Pickaboo Protection Plan by Allstate',
                       textAlign: TextAlign.center,
-                      style: AppTypography.pageTitle,
+                      style: AppTypography.titleLarge,
                     ),
                   ),
                   SizedBox(height: 12.h),
@@ -103,7 +104,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                       child: Text(
                         'Protect it today. Enjoy it for years. Plan covers:',
                         textAlign: TextAlign.center,
-                        style: AppTypography.cardTitle,
+                        style: AppTypography.titleSmall,
                       ),
                     ),
                     SizedBox(height: 12.h),
@@ -127,7 +128,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                         onTap: () {},
                         child: Text(
                           'View all details',
-                          style: AppTypography.brandActionText,
+                          style: AppTypography.brandAction,
                         ),
                       ),
                     ),
@@ -139,33 +140,20 @@ class ProtectionPlanSheet extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          SizedBox(
-                            width: double.infinity,
+                          AppButton.primary(
                             height: 48.h,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                final selection = SelectedExtraOptionEntity(
-                                  optionId: firstOption!.optionId,
-                                  optionTypeId: firstValue.optionTypeId,
-                                  title: firstValue.title,
-                                  price: firstValue.price,
-                                );
-                                Navigator.of(context).pop();
-                                onPlanSelected?.call([selection]);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.pickabooBlue,
-                                foregroundColor: AppColors.white,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: AppRadius.cardRadius,
-                                ),
-                                elevation: 0,
-                              ),
-                              child: Text(
-                                '${firstValue.title} - ${firstValue.price}',
-                                style: AppTypography.buttonPrimary,
-                              ),
-                            ),
+                            borderRadius: AppRadius.cardRadius,
+                            text: '${firstValue.title} - ${firstValue.price}',
+                            onPressed: () {
+                              final selection = SelectedExtraOptionEntity(
+                                optionId: firstOption!.optionId,
+                                optionTypeId: firstValue.optionTypeId,
+                                title: firstValue.title,
+                                price: firstValue.price,
+                              );
+                              Navigator.of(context).pop();
+                              onPlanSelected?.call([selection]);
+                            },
                           ),
                           SizedBox(height: 12.h),
 
@@ -176,7 +164,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                             },
                             child: Text(
                               'No Thanks',
-                              style: AppTypography.bodyMuted,
+                              style: AppTypography.bodySmall,
                             ),
                           ),
                         ],
@@ -196,7 +184,7 @@ class ProtectionPlanSheet extends StatelessWidget {
               child: Text(
                 'pickaboo.com',
                 textAlign: TextAlign.center,
-                style: AppTypography.bodyMuted,
+                style: AppTypography.bodySmall,
               ),
             ),
           ),

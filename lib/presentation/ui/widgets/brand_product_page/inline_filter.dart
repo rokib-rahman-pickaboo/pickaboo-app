@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/presentation/bloc/brand_products_bloc/brand_products_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/brand_product_page/bottom_sheet/brand_filter_bottom_sheet.dart';
@@ -22,16 +22,20 @@ class BrandInlineFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyles = context.textStyle;
-
     final attributes = context
         .select<BrandProductsBloc, List<FilterAttributeEntity>>(
           (bloc) => bloc.state.facetAttributes,
         );
 
+    // ============================================================================
+    // 🛑 SKIP SINGLE-OPTION QUESTIONS:
+    // A question with only 1 choice (e.g. price range "30 - 922990") makes no sense.
+    // Skip price or ANY filter attribute that has only 1 option (items.length <= 1).
+    // NOTE: This rule must always be maintained in future updates.
+    // ============================================================================
     final availableFilters = attributes
         .where(
-          (filter) => filter.items.isNotEmpty && filter.filterCode.isNotEmpty,
+          (filter) => filter.items.length > 1 && filter.filterCode.isNotEmpty,
         )
         .toList();
 
@@ -45,9 +49,9 @@ class BrandInlineFilter extends StatelessWidget {
     return RepaintBoundary(
       child: Container(
         padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surfaceBlue,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: AppRadius.buttonRadius,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,21 +60,21 @@ class BrandInlineFilter extends StatelessWidget {
               targetFilter.filterCode.toLowerCase() == 'price'
                   ? 'Which budget are you looking for ?'
                   : 'Choose your preferred ${targetFilter.filterName}',
-              style: textStyles.bodyMedium.copyWith(
+              style: AppTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w500,
                 color: AppColors.text,
               ),
             ),
             SizedBox(height: 12.h),
 
-            _buildFilterGrid(targetFilter, textStyles, context),
+            _buildFilterGrid(targetFilter, context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFilterGrid(FilterAttributeEntity targetFilter, AppTextStyles textStyles, BuildContext context) {
+  Widget _buildFilterGrid(FilterAttributeEntity targetFilter, BuildContext context) {
     final filterItems = targetFilter.items;
     final bool showSeeMore = filterItems.length > 6;
     final int displayCount = showSeeMore ? 6 : filterItems.length;
@@ -87,15 +91,15 @@ class BrandInlineFilter extends StatelessWidget {
       itemCount: displayCount,
       itemBuilder: (context, index) {
         if (showSeeMore && index == 5) {
-          return _buildSeeMoreButton(targetFilter, textStyles, context);
+          return _buildSeeMoreButton(targetFilter, context);
         }
         final item = filterItems[index];
-        return _buildFilterButton(targetFilter.filterCode, item, textStyles, context);
+        return _buildFilterButton(targetFilter.filterCode, item, context);
       },
     );
   }
 
-  Widget _buildSeeMoreButton(FilterAttributeEntity targetFilter, AppTextStyles textStyles, BuildContext context) {
+  Widget _buildSeeMoreButton(FilterAttributeEntity targetFilter, BuildContext context) {
     return InkWell(
       onTap: () {
         final state = context.read<BrandProductsBloc>().state;
@@ -123,18 +127,18 @@ class BrandInlineFilter extends StatelessWidget {
           );
         }
       },
-      borderRadius: BorderRadius.circular(6.r),
+      borderRadius: AppRadius.smRadius,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
         decoration: BoxDecoration(
           color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(6.r),
+          borderRadius: AppRadius.smRadius,
           border: Border.all(color: AppColors.pickabooBlue, width: 1),
         ),
         child: Center(
           child: Text(
             'See more',
-            style: textStyles.bodyTiny.copyWith(
+            style: AppTypography.bodyTiny.copyWith(
               color: AppColors.pickabooBlue,
               fontWeight: FontWeight.bold,
             ),
@@ -147,7 +151,7 @@ class BrandInlineFilter extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterButton(String filterCode, FilterItemEntity filterItem, AppTextStyles textStyles, BuildContext context) {
+  Widget _buildFilterButton(String filterCode, FilterItemEntity filterItem, BuildContext context) {
     return InkWell(
       onTap: () {
         final bloc = context.read<BrandProductsBloc>();
@@ -174,17 +178,17 @@ class BrandInlineFilter extends StatelessWidget {
           ),
         );
       },
-      borderRadius: BorderRadius.circular(6.r),
+      borderRadius: AppRadius.smRadius,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(6.r),
+          borderRadius: AppRadius.smRadius,
         ),
         child: Center(
           child: Text(
             filterItem.label.removeHtmlTags,
-            style: textStyles.bodyTiny.copyWith(color: AppColors.text),
+            style: AppTypography.bodyTiny.copyWith(color: AppColors.text),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

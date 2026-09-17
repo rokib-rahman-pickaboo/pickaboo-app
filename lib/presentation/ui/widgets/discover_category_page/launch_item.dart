@@ -6,8 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/app_typography.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/discover_category_page/discover_grid.dart';
 
@@ -37,7 +36,7 @@ class LaunchItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: AppRadius.cardRadius,
             child: Padding(
               padding: EdgeInsets.all(6.w),
               child: AppImage(
@@ -51,7 +50,7 @@ class LaunchItem extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.pageTitle,
+                    style: AppTypography.titleLarge,
                   ),
                 ),
               ),

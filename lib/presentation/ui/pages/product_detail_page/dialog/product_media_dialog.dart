@@ -143,8 +143,6 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -156,11 +154,11 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
           height: MediaQuery.of(context).size.height * 0.75,
           child: Column(
             children: [
-              _buildHeader(context, textStyle),
+              _buildHeader(context),
               const Divider(height: 1),
 
               SizedBox(height: 16.h),
-              _buildFilterChips(textStyle),
+              _buildFilterChips(),
               SizedBox(height: 16.h),
 
               Expanded(child: _buildMainViewer()),
@@ -177,7 +175,6 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
 
   Widget _buildHeader(
     BuildContext context,
-    AppTextStyles textStyle,
   ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.w),
@@ -186,7 +183,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
         children: [
           Text(
             _title,
-            style: textStyle.headingMedium.copyWith(
+            style: AppTypography.titleMedium.copyWith(
               color: AppColors.text,
               fontWeight: FontWeight.w700,
             ),
@@ -202,7 +199,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
     );
   }
 
-  Widget _buildFilterChips(AppTextStyles textStyle) {
+  Widget _buildFilterChips() {
     final chips = <Widget>[
       if (widget.productImages.isNotEmpty)
         _CategoryChip(
@@ -403,8 +400,6 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -419,7 +414,7 @@ class _CategoryChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: textStyle.bodySmall.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             color: isSelected ? AppColors.pickabooBlue : AppColors.text,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
           ),

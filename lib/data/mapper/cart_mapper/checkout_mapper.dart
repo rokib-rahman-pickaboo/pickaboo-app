@@ -6,6 +6,7 @@ import 'package:pickaboo/domain/entity/cart/checkout_entity.dart';
 import 'package:pickaboo/domain/entity/checkout/payment_methods_entity.dart';
 import 'package:pickaboo/domain/entity/checkout/shipping_method_entity.dart';
 import 'package:pickaboo/domain/entity/common/region_entity.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
 
 extension CheckoutResponseMapper on CheckoutResponse {
   CheckoutEntity toEntity() {
@@ -67,7 +68,8 @@ extension ShippingAssignmentItemMapper on ShippingAssignmentItem {
       regularPrice: (extAttrs?.regularPrice ?? 0).toDouble(),
       specialPrice: (extAttrs?.spacialPrice ?? 0).toDouble(),
       discount: extAttrs?.discount ?? '0',
-      imageUrl: extAttrs?.imageUrl ?? '',
+      imageUrl: ProductImageResolver.getCachedImage(extAttrs?.productId ?? 0) ??
+          extAttrs?.imageUrl ?? '',
       productUrlKey: extAttrs?.productUrlKey ?? '',
       productId: extAttrs?.productId ?? 0,
       brand: extAttrs?.brand ?? '',

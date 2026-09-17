@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 
 class AddressItem extends StatelessWidget {
@@ -17,18 +17,17 @@ class AddressItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     final street = address.street.isNotEmpty ? address.street.join(", ") : "";
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: AppRadius.cardRadius,
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue.withValues(alpha: 0.05) : AppColors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: AppRadius.cardRadius,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: isSelected ? 2 : 1,
@@ -70,7 +69,7 @@ class AddressItem extends StatelessWidget {
                       Expanded(
                         child: Text(
                           "${address.firstname} ${address.lastname}",
-                          style: textStyle.bodyLarge.copyWith(
+                          style: AppTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.text,
                           ),
@@ -84,12 +83,12 @@ class AddressItem extends StatelessWidget {
                   SizedBox(height: 4.h),
                   Text(
                     address.telephone ?? "N/A",
-                    style: textStyle.bodyMedium.copyWith(color: AppColors.muted),
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.muted),
                   ),
                   SizedBox(height: 8.h),
                   Text(
                     "$street, ${address.city}",
-                    style: textStyle.bodyMedium.copyWith(
+                    style: AppTypography.bodyMedium.copyWith(
                       color: AppColors.muted.withValues(alpha: 0.8),
                       height: 1.4.h,
                     ),

@@ -65,9 +65,17 @@ mixin _$OrderCancelResponse {
   int? get baseToOrderRate => throw _privateConstructorUsedError;
   @JsonKey(name: "billing_address_id")
   int? get billingAddressId => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: "customer_dob")
+  @JsonKey(
+    name: "customer_dob",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get customerDob => throw _privateConstructorUsedError;
   @JsonKey(name: "customer_email")
   String? get customerEmail => throw _privateConstructorUsedError;
@@ -158,7 +166,11 @@ mixin _$OrderCancelResponse {
   int? get totalItemCount => throw _privateConstructorUsedError;
   @JsonKey(name: "total_qty_ordered")
   int? get totalQtyOrdered => throw _privateConstructorUsedError;
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   @JsonKey(name: "weight")
   double? get weight => throw _privateConstructorUsedError;
@@ -219,8 +231,18 @@ abstract class $OrderCancelResponseCopyWith<$Res> {
     @JsonKey(name: "base_to_global_rate") int? baseToGlobalRate,
     @JsonKey(name: "base_to_order_rate") int? baseToOrderRate,
     @JsonKey(name: "billing_address_id") int? billingAddressId,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "customer_dob") DateTime? customerDob,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
+    @JsonKey(
+      name: "customer_dob",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? customerDob,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_firstname") String? customerFirstname,
     @JsonKey(name: "customer_gender") int? customerGender,
@@ -267,7 +289,12 @@ abstract class $OrderCancelResponseCopyWith<$Res> {
     @JsonKey(name: "total_due") int? totalDue,
     @JsonKey(name: "total_item_count") int? totalItemCount,
     @JsonKey(name: "total_qty_ordered") int? totalQtyOrdered,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? updatedAt,
     @JsonKey(name: "weight") double? weight,
     @JsonKey(name: "x_forwarded_for") String? xForwardedFor,
     @JsonKey(name: "items") List<Item>? items,
@@ -835,8 +862,18 @@ abstract class _$$OrderCancelResponseImplCopyWith<$Res>
     @JsonKey(name: "base_to_global_rate") int? baseToGlobalRate,
     @JsonKey(name: "base_to_order_rate") int? baseToOrderRate,
     @JsonKey(name: "billing_address_id") int? billingAddressId,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "customer_dob") DateTime? customerDob,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
+    @JsonKey(
+      name: "customer_dob",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? customerDob,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_firstname") String? customerFirstname,
     @JsonKey(name: "customer_gender") int? customerGender,
@@ -883,7 +920,12 @@ abstract class _$$OrderCancelResponseImplCopyWith<$Res>
     @JsonKey(name: "total_due") int? totalDue,
     @JsonKey(name: "total_item_count") int? totalItemCount,
     @JsonKey(name: "total_qty_ordered") int? totalQtyOrdered,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? updatedAt,
     @JsonKey(name: "weight") double? weight,
     @JsonKey(name: "x_forwarded_for") String? xForwardedFor,
     @JsonKey(name: "items") List<Item>? items,
@@ -1402,8 +1444,18 @@ class _$OrderCancelResponseImpl implements _OrderCancelResponse {
     @JsonKey(name: "base_to_global_rate") this.baseToGlobalRate,
     @JsonKey(name: "base_to_order_rate") this.baseToOrderRate,
     @JsonKey(name: "billing_address_id") this.billingAddressId,
-    @JsonKey(name: "created_at") this.createdAt,
-    @JsonKey(name: "customer_dob") this.customerDob,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.createdAt,
+    @JsonKey(
+      name: "customer_dob",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.customerDob,
     @JsonKey(name: "customer_email") this.customerEmail,
     @JsonKey(name: "customer_firstname") this.customerFirstname,
     @JsonKey(name: "customer_gender") this.customerGender,
@@ -1450,7 +1502,12 @@ class _$OrderCancelResponseImpl implements _OrderCancelResponse {
     @JsonKey(name: "total_due") this.totalDue,
     @JsonKey(name: "total_item_count") this.totalItemCount,
     @JsonKey(name: "total_qty_ordered") this.totalQtyOrdered,
-    @JsonKey(name: "updated_at") this.updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.updatedAt,
     @JsonKey(name: "weight") this.weight,
     @JsonKey(name: "x_forwarded_for") this.xForwardedFor,
     @JsonKey(name: "items") final List<Item>? items,
@@ -1529,10 +1586,18 @@ class _$OrderCancelResponseImpl implements _OrderCancelResponse {
   @JsonKey(name: "billing_address_id")
   final int? billingAddressId;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? createdAt;
   @override
-  @JsonKey(name: "customer_dob")
+  @JsonKey(
+    name: "customer_dob",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? customerDob;
   @override
   @JsonKey(name: "customer_email")
@@ -1667,7 +1732,11 @@ class _$OrderCancelResponseImpl implements _OrderCancelResponse {
   @JsonKey(name: "total_qty_ordered")
   final int? totalQtyOrdered;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? updatedAt;
   @override
   @JsonKey(name: "weight")
@@ -2008,8 +2077,18 @@ abstract class _OrderCancelResponse implements OrderCancelResponse {
     @JsonKey(name: "base_to_global_rate") final int? baseToGlobalRate,
     @JsonKey(name: "base_to_order_rate") final int? baseToOrderRate,
     @JsonKey(name: "billing_address_id") final int? billingAddressId,
-    @JsonKey(name: "created_at") final DateTime? createdAt,
-    @JsonKey(name: "customer_dob") final DateTime? customerDob,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? createdAt,
+    @JsonKey(
+      name: "customer_dob",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? customerDob,
     @JsonKey(name: "customer_email") final String? customerEmail,
     @JsonKey(name: "customer_firstname") final String? customerFirstname,
     @JsonKey(name: "customer_gender") final int? customerGender,
@@ -2057,7 +2136,12 @@ abstract class _OrderCancelResponse implements OrderCancelResponse {
     @JsonKey(name: "total_due") final int? totalDue,
     @JsonKey(name: "total_item_count") final int? totalItemCount,
     @JsonKey(name: "total_qty_ordered") final int? totalQtyOrdered,
-    @JsonKey(name: "updated_at") final DateTime? updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? updatedAt,
     @JsonKey(name: "weight") final double? weight,
     @JsonKey(name: "x_forwarded_for") final String? xForwardedFor,
     @JsonKey(name: "items") final List<Item>? items,
@@ -2136,10 +2220,18 @@ abstract class _OrderCancelResponse implements OrderCancelResponse {
   @JsonKey(name: "billing_address_id")
   int? get billingAddressId;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt;
   @override
-  @JsonKey(name: "customer_dob")
+  @JsonKey(
+    name: "customer_dob",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get customerDob;
   @override
   @JsonKey(name: "customer_email")
@@ -2274,7 +2366,11 @@ abstract class _OrderCancelResponse implements OrderCancelResponse {
   @JsonKey(name: "total_qty_ordered")
   int? get totalQtyOrdered;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get updatedAt;
   @override
   @JsonKey(name: "weight")
@@ -3672,7 +3768,11 @@ mixin _$Item {
   int? get baseTaxAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_tax_invoiced")
   int? get baseTaxInvoiced => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: "discount_amount")
   int? get discountAmount => throw _privateConstructorUsedError;
@@ -3736,7 +3836,11 @@ mixin _$Item {
   int? get taxInvoiced => throw _privateConstructorUsedError;
   @JsonKey(name: "tax_percent")
   int? get taxPercent => throw _privateConstructorUsedError;
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   @JsonKey(name: "weight")
   double? get weight => throw _privateConstructorUsedError;
@@ -3775,7 +3879,12 @@ abstract class $ItemCopyWith<$Res> {
     @JsonKey(name: "base_row_total_incl_tax") int? baseRowTotalInclTax,
     @JsonKey(name: "base_tax_amount") int? baseTaxAmount,
     @JsonKey(name: "base_tax_invoiced") int? baseTaxInvoiced,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
     @JsonKey(name: "discount_amount") int? discountAmount,
     @JsonKey(name: "discount_invoiced") int? discountInvoiced,
     @JsonKey(name: "discount_percent") int? discountPercent,
@@ -3808,7 +3917,12 @@ abstract class $ItemCopyWith<$Res> {
     @JsonKey(name: "tax_amount") int? taxAmount,
     @JsonKey(name: "tax_invoiced") int? taxInvoiced,
     @JsonKey(name: "tax_percent") int? taxPercent,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? updatedAt,
     @JsonKey(name: "weight") double? weight,
     @JsonKey(name: "discount_tax_compensation_canceled")
     int? discountTaxCompensationCanceled,
@@ -4157,7 +4271,12 @@ abstract class _$$ItemImplCopyWith<$Res> implements $ItemCopyWith<$Res> {
     @JsonKey(name: "base_row_total_incl_tax") int? baseRowTotalInclTax,
     @JsonKey(name: "base_tax_amount") int? baseTaxAmount,
     @JsonKey(name: "base_tax_invoiced") int? baseTaxInvoiced,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
     @JsonKey(name: "discount_amount") int? discountAmount,
     @JsonKey(name: "discount_invoiced") int? discountInvoiced,
     @JsonKey(name: "discount_percent") int? discountPercent,
@@ -4190,7 +4309,12 @@ abstract class _$$ItemImplCopyWith<$Res> implements $ItemCopyWith<$Res> {
     @JsonKey(name: "tax_amount") int? taxAmount,
     @JsonKey(name: "tax_invoiced") int? taxInvoiced,
     @JsonKey(name: "tax_percent") int? taxPercent,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? updatedAt,
     @JsonKey(name: "weight") double? weight,
     @JsonKey(name: "discount_tax_compensation_canceled")
     int? discountTaxCompensationCanceled,
@@ -4530,7 +4654,12 @@ class _$ItemImpl implements _Item {
     @JsonKey(name: "base_row_total_incl_tax") this.baseRowTotalInclTax,
     @JsonKey(name: "base_tax_amount") this.baseTaxAmount,
     @JsonKey(name: "base_tax_invoiced") this.baseTaxInvoiced,
-    @JsonKey(name: "created_at") this.createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.createdAt,
     @JsonKey(name: "discount_amount") this.discountAmount,
     @JsonKey(name: "discount_invoiced") this.discountInvoiced,
     @JsonKey(name: "discount_percent") this.discountPercent,
@@ -4563,7 +4692,12 @@ class _$ItemImpl implements _Item {
     @JsonKey(name: "tax_amount") this.taxAmount,
     @JsonKey(name: "tax_invoiced") this.taxInvoiced,
     @JsonKey(name: "tax_percent") this.taxPercent,
-    @JsonKey(name: "updated_at") this.updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.updatedAt,
     @JsonKey(name: "weight") this.weight,
     @JsonKey(name: "discount_tax_compensation_canceled")
     this.discountTaxCompensationCanceled,
@@ -4613,7 +4747,11 @@ class _$ItemImpl implements _Item {
   @JsonKey(name: "base_tax_invoiced")
   final int? baseTaxInvoiced;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? createdAt;
   @override
   @JsonKey(name: "discount_amount")
@@ -4709,7 +4847,11 @@ class _$ItemImpl implements _Item {
   @JsonKey(name: "tax_percent")
   final int? taxPercent;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? updatedAt;
   @override
   @JsonKey(name: "weight")
@@ -4921,7 +5063,12 @@ abstract class _Item implements Item {
     @JsonKey(name: "base_row_total_incl_tax") final int? baseRowTotalInclTax,
     @JsonKey(name: "base_tax_amount") final int? baseTaxAmount,
     @JsonKey(name: "base_tax_invoiced") final int? baseTaxInvoiced,
-    @JsonKey(name: "created_at") final DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? createdAt,
     @JsonKey(name: "discount_amount") final int? discountAmount,
     @JsonKey(name: "discount_invoiced") final int? discountInvoiced,
     @JsonKey(name: "discount_percent") final int? discountPercent,
@@ -4954,7 +5101,12 @@ abstract class _Item implements Item {
     @JsonKey(name: "tax_amount") final int? taxAmount,
     @JsonKey(name: "tax_invoiced") final int? taxInvoiced,
     @JsonKey(name: "tax_percent") final int? taxPercent,
-    @JsonKey(name: "updated_at") final DateTime? updatedAt,
+    @JsonKey(
+      name: "updated_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? updatedAt,
     @JsonKey(name: "weight") final double? weight,
     @JsonKey(name: "discount_tax_compensation_canceled")
     final int? discountTaxCompensationCanceled,
@@ -5003,7 +5155,11 @@ abstract class _Item implements Item {
   @JsonKey(name: "base_tax_invoiced")
   int? get baseTaxInvoiced;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt;
   @override
   @JsonKey(name: "discount_amount")
@@ -5099,7 +5255,11 @@ abstract class _Item implements Item {
   @JsonKey(name: "tax_percent")
   int? get taxPercent;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(
+    name: "updated_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get updatedAt;
   @override
   @JsonKey(name: "weight")
@@ -6322,7 +6482,11 @@ StatusHistory _$StatusHistoryFromJson(Map<String, dynamic> json) {
 mixin _$StatusHistory {
   @JsonKey(name: "comment")
   String? get comment => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: "entity_id")
   int? get entityId => throw _privateConstructorUsedError;
@@ -6356,7 +6520,12 @@ abstract class $StatusHistoryCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: "comment") String? comment,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
     @JsonKey(name: "entity_id") int? entityId,
     @JsonKey(name: "entity_name") String? entityName,
     @JsonKey(name: "is_customer_notified") int? isCustomerNotified,
@@ -6449,7 +6618,12 @@ abstract class _$$StatusHistoryImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: "comment") String? comment,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
     @JsonKey(name: "entity_id") int? entityId,
     @JsonKey(name: "entity_name") String? entityName,
     @JsonKey(name: "is_customer_notified") int? isCustomerNotified,
@@ -6534,7 +6708,12 @@ class __$$StatusHistoryImplCopyWithImpl<$Res>
 class _$StatusHistoryImpl implements _StatusHistory {
   const _$StatusHistoryImpl({
     @JsonKey(name: "comment") this.comment,
-    @JsonKey(name: "created_at") this.createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.createdAt,
     @JsonKey(name: "entity_id") this.entityId,
     @JsonKey(name: "entity_name") this.entityName,
     @JsonKey(name: "is_customer_notified") this.isCustomerNotified,
@@ -6550,7 +6729,11 @@ class _$StatusHistoryImpl implements _StatusHistory {
   @JsonKey(name: "comment")
   final String? comment;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? createdAt;
   @override
   @JsonKey(name: "entity_id")
@@ -6628,7 +6811,12 @@ class _$StatusHistoryImpl implements _StatusHistory {
 abstract class _StatusHistory implements StatusHistory {
   const factory _StatusHistory({
     @JsonKey(name: "comment") final String? comment,
-    @JsonKey(name: "created_at") final DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? createdAt,
     @JsonKey(name: "entity_id") final int? entityId,
     @JsonKey(name: "entity_name") final String? entityName,
     @JsonKey(name: "is_customer_notified") final int? isCustomerNotified,
@@ -6644,7 +6832,11 @@ abstract class _StatusHistory implements StatusHistory {
   @JsonKey(name: "comment")
   String? get comment;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt;
   @override
   @JsonKey(name: "entity_id")

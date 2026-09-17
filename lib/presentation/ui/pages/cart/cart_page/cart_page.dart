@@ -37,6 +37,26 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
+// ============================================================================
+// 🛒 CART PAGE — GOLDEN UX RULE (DO NOT VIOLATE!)
+// ============================================================================
+// ❌ NEVER show EmptyCartView while the cart is still loading or unverified.
+// ❌ NEVER allow the flow: Empty Cart → Loading → Cart with Items.
+//    This "flash of empty" destroys user confidence.
+//
+// ✅ ALWAYS show a loader (AppLoader.fullPage) until the backend has responded
+//    at least once and we are 100% certain the cart is empty.
+// ✅ Only AFTER backend confirmation (_isBackendVerified == true) AND the
+//    cart truly has zero items, show EmptyCartView.
+//
+// The flag [_isBackendVerified] tracks whether the backend has responded at
+// least once in this page session. It starts as false and is set to true
+// only when we receive a definitive state (loaded, empty, itemAdded, error).
+//
+// If you are fixing any cart bug in the future, ensure this invariant holds:
+//   "A user must NEVER see an empty cart that then fills with items."
+// ============================================================================
+
 /// Modernized CartPage matching Pickaboo-App-UI design language.
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -48,15 +68,24 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   final _cacheManager = getIt<AuthCacheManager>();
   bool _isSavingForLater = false;
+
+  /// Whether the backend has confirmed the cart state at least once in this
+  /// page session. Until this is true, we MUST show a loader — never
+  /// EmptyCartView. See GOLDEN UX RULE above.
   bool _isBackendVerified = false;
 
   @override
   void initState() {
     super.initState();
     final cartBloc = context.read<CartBloc>();
-    final existingCart = cartBloc.currentCart;
-    _isBackendVerified = existingCart != null && existingCart.items.isNotEmpty;
-    _loadCart(cartBloc);
+    if (cartBloc.isPendingAddition) {
+      _isBackendVerified = false;
+    } else {
+      final existingCart = cartBloc.currentCart;
+      _isBackendVerified = (existingCart != null && existingCart.items.isNotEmpty) ||
+          cartBloc.state.maybeWhen(error: (_, __) => true, orElse: () => false);
+      _loadCart(cartBloc);
+    }
 
     final isAuthenticated = context.read<AuthBloc>().state.maybeWhen(
       authenticated: (_, _) => true,
@@ -79,15 +108,9 @@ class _CartPageState extends State<CartPage> {
 
       if (guestCartId != null && guestCartId.isNotEmpty) {
         bloc.add(CartEvent.loadGuestCart(guestCartId: guestCartId));
-      } else if (bloc.currentCart == null) {
+      } else {
         bloc.add(const CartEvent.createGuestCart());
       }
-    }
-
-    if (mounted && bloc.state == const CartState.empty() && !_isBackendVerified) {
-      setState(() {
-        _isBackendVerified = true;
-      });
     }
   }
 
@@ -206,11 +229,17 @@ class _CartPageState extends State<CartPage> {
               }
             },
             empty: () {
+              if (context.read<CartBloc>().isPendingAddition) {
+                return;
+              }
               if (!_isBackendVerified) {
                 setState(() => _isBackendVerified = true);
               }
             },
             error: (error, lastCart) {
+              if (context.read<CartBloc>().isPendingAddition) {
+                return;
+              }
               if (!_isBackendVerified) {
                 setState(() => _isBackendVerified = true);
               }
@@ -230,8 +259,10 @@ class _CartPageState extends State<CartPage> {
           );
         },
         builder: (context, state) {
+          final isPending = context.read<CartBloc>().isPendingAddition;
           return state.when(
             initial: () {
+              if (isPending) return const AppLoader.fullPage();
               final existingCart = context.read<CartBloc>().currentCart;
               if (existingCart != null && existingCart.items.isNotEmpty) {
                 return _buildCartContent(context, existingCart, false);
@@ -239,6 +270,7 @@ class _CartPageState extends State<CartPage> {
               return const AppLoader.fullPage();
             },
             loading: () {
+              if (isPending) return const AppLoader.fullPage();
               final existingCart = context.read<CartBloc>().currentCart;
               if (existingCart != null && existingCart.items.isNotEmpty) {
                 return _buildCartContent(context, existingCart, true);
@@ -246,14 +278,22 @@ class _CartPageState extends State<CartPage> {
               return const AppLoader.fullPage();
             },
             empty: () {
-              if (!_isBackendVerified) {
+              if (!_isBackendVerified || isPending) {
                 return const AppLoader.fullPage();
               }
               return const EmptyCartView();
             },
-            loaded: (cart) => _buildCartContent(context, cart, false),
-            operationInProgress: (cart, operation) {
+            loaded: (cart) {
+              if (isPending || (cart.items.isEmpty && !_isBackendVerified)) {
+                return const AppLoader.fullPage();
+              }
               if (cart.items.isEmpty) {
+                return const EmptyCartView();
+              }
+              return _buildCartContent(context, cart, false);
+            },
+            operationInProgress: (cart, operation) {
+              if (cart.items.isEmpty || isPending) {
                 return const AppLoader.fullPage();
               }
               return _buildCartContent(context, cart, true);
@@ -265,9 +305,15 @@ class _CartPageState extends State<CartPage> {
                 _buildCartContent(context, cart, false),
             rewardPointsRemoved: (cart) =>
                 _buildCartContent(context, cart, false),
-            error: (error, lastCart) => lastCart != null
-                ? _buildCartContent(context, lastCart, false)
-                : _buildError(context, error.message),
+            error: (error, lastCart) {
+              if (isPending || !_isBackendVerified) {
+                return const AppLoader.fullPage();
+              }
+              if (lastCart != null && lastCart.items.isNotEmpty) {
+                return _buildCartContent(context, lastCart, false);
+              }
+              return _buildError(context, error.message);
+            },
           );
         },
       ),
@@ -297,6 +343,13 @@ class _CartPageState extends State<CartPage> {
             return CartCheckoutButton(
               grandTotal: cart.grandTotal,
               onCheckout: () {
+                if (ConnectivityUtils.isOffline(context)) {
+                  SnackBarUtils.showError(
+                    context,
+                    AppStrings.noInternetConnection,
+                  );
+                  return;
+                }
                 getIt<AnalyticsService>().logBeginCheckout(
                   value: cart.grandTotal,
                   coupon: cart.couponCode.isNotEmpty ? cart.couponCode : null,
@@ -345,7 +398,9 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildCartContent(BuildContext context, CartEntity cart, bool isLoading) {
     if (cart.items.isEmpty) {
-      if (isLoading) {
+      // GOLDEN RULE: Show loader if still loading OR backend hasn't confirmed
+      // the cart is truly empty, OR an addition is in flight. Never flash EmptyCartView prematurely.
+      if (isLoading || !_isBackendVerified || context.read<CartBloc>().isPendingAddition) {
         return const AppLoader.fullPage();
       }
       return const EmptyCartView();

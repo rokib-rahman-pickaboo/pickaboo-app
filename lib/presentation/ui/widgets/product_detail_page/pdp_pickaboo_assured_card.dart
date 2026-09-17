@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 
@@ -25,7 +26,7 @@ class PdpPickabooAssuredCard extends StatelessWidget {
       children: [
         Text(
           'Why Shop on Pickaboo',
-          style: AppTypography.sectionTitle,
+          style: AppTypography.titleMedium,
         ),
         AppSpacing.sameGroupHeightGap,
         Container(
@@ -43,17 +44,11 @@ class PdpPickabooAssuredCard extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 child: Row(
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w * 0.75),
-                      decoration: const BoxDecoration(
-                        color: AppColors.surfaceBlue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.verified_user_outlined,
-                        color: AppColors.pickabooBlue,
-                        size: 16.sp,
-                      ),
+                    SvgPicture.asset(
+                      AppAssets.pickabooAssured,
+                      width: 24.w,
+                      height: 24.h,
+                      fit: BoxFit.contain,
                     ),
                     AppSpacing.sameGroupWidthGap,
                     Expanded(
@@ -64,7 +59,7 @@ class PdpPickabooAssuredCard extends StatelessWidget {
                             children: [
                               Text(
                                 AppStrings.pdpPickabooAssured,
-                                style: AppTypography.cardTitle,
+                                style: AppTypography.titleSmall,
                               ),
                               SizedBox(width: 4.w),
                               Icon(
@@ -77,7 +72,7 @@ class PdpPickabooAssuredCard extends StatelessWidget {
                           SizedBox(height: AppSpacing.sameGroupItemSpacing.h * 0.25),
                           Text(
                             '100% Authentic, quality checked & securely packed',
-                            style: AppTypography.bodyMuted,
+                            style: AppTypography.bodySmall,
                           ),
                         ],
                       ),
@@ -86,43 +81,6 @@ class PdpPickabooAssuredCard extends StatelessWidget {
                 ),
               ),
 
-              // ── 2. Sold By Merchant Row (Transferred from Trust Ribbon) ──
-              if (product.soldBy.trim().isNotEmpty) ...[
-                Divider(height: 20.h, thickness: 1.w, color: AppColors.border),
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w * 0.75),
-                      decoration: const BoxDecoration(
-                        color: AppColors.surfaceBlue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.store_mall_directory_outlined,
-                        color: AppColors.pickabooBlue,
-                        size: 16.sp,
-                      ),
-                    ),
-                    AppSpacing.sameGroupWidthGap,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Sold by ${product.soldBy.trim()}',
-                            style: AppTypography.cardTitle,
-                          ),
-                          SizedBox(height: AppSpacing.sameGroupItemSpacing.h * 0.25),
-                          Text(
-                            'Authorized & verified merchant on Pickaboo',
-                            style: AppTypography.bodyMuted,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
 
               // ── 3. Club Points Reward Banner ──
               if (product.clubPoints > 0) ...[
@@ -145,14 +103,14 @@ class PdpPickabooAssuredCard extends StatelessWidget {
                             children: [
                               Text(
                                 'Earn ${product.clubPoints.toInt()} Club Points',
-                                style: AppTypography.cardTitle.copyWith(
+                                style: AppTypography.titleSmall.copyWith(
                                   color: AppColors.green,
                                 ),
                               ),
                               SizedBox(height: 2.h),
                               Text(
                                 '≈ ৳${(product.clubPoints * 0.10).toStringAsFixed(2)} reward towards your next order',
-                                style: AppTypography.bodyMuted.copyWith(
+                                style: AppTypography.bodySmall.copyWith(
                                   color: AppColors.green,
                                   fontWeight: FontWeight.w500,
                                 ),

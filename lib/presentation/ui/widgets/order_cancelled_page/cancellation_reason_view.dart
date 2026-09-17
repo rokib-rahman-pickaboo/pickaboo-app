@@ -7,9 +7,12 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/date_time_utils.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
@@ -84,7 +87,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           // ── 1. ORDER INFORMATION CARD ──
           Text(
             "Order Information",
-            style: AppTypography.sectionTitle,
+            style: AppTypography.titleMedium,
           ),
           SizedBox(height: 8.h),
           Container(
@@ -110,7 +113,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                   children: [
                     Text(
                       "Order #${widget.order.orderNumber}",
-                      style: AppTypography.brandActionText,
+                      style: AppTypography.brandAction,
                     ),
                     Text(
                       "৳${widget.order.orderSummary.grandTotal.toStringAsFixed(0)}",
@@ -120,8 +123,8 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                 ),
                 SizedBox(height: 6.h),
                 Text(
-                  "${widget.order.items.length} Items • Placed on ${widget.order.createdAt}",
-                  style: AppTypography.bodyMutedLight,
+                  "${widget.order.items.length} Items • Placed on ${_formatDate(widget.order.createdAt)}",
+                  style: AppTypography.bodySmall.mutedLight,
                 ),
               ],
             ),
@@ -137,7 +140,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           // ── 3. REASON SELECTION ──
           Text(
             "Reason for Cancellation *",
-            style: AppTypography.sectionTitle,
+            style: AppTypography.titleMedium,
           ),
           SizedBox(height: 8.h),
           DropdownButtonHideUnderline(
@@ -173,7 +176,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                       Expanded(
                         child: Text(
                           item,
-                          style: isSelected ? AppTypography.brandActionText : AppTypography.bodyRegular,
+                          style: isSelected ? AppTypography.brandAction : AppTypography.bodyMedium,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -244,14 +247,14 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           // ── 4. ADDITIONAL INFORMATION ──
           Text(
             "Additional Information *",
-            style: AppTypography.sectionTitle,
+            style: AppTypography.titleMedium,
           ),
           SizedBox(height: 8.h),
           TextField(
             controller: _additionalInfoController,
             maxLines: 3,
             maxLength: 250,
-            style: AppTypography.inputText,
+            style: AppTypography.bodyLarge.regular(),
             decoration: InputDecoration(
               hintText: "e.g. Need to change item color or delivery time",
               hintStyle: AppTypography.inputHint,
@@ -286,7 +289,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           // ── 5. CANCELLATION POLICY ──
           Text(
             "Cancellation Policy",
-            style: AppTypography.sectionTitle,
+            style: AppTypography.titleMedium,
           ),
           SizedBox(height: 8.h),
           Container(
@@ -303,7 +306,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
               children: [
                 Text(
                   "Before cancelling the order, kindly read and accept the following terms & conditions:",
-                  style: AppTypography.bodyRegular.bold(),
+                  style: AppTypography.bodyMedium.bold(),
                 ),
                 SizedBox(height: 10.h),
                 _buildPolicyItem(
@@ -346,7 +349,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                   Expanded(
                     child: Text(
                       "Please accept the cancellation policy.",
-                      style: (_triedSubmit && !_policyAccepted) ? AppTypography.bodyMuted.withColor(AppColors.red) : AppTypography.bodyMuted,
+                      style: (_triedSubmit && !_policyAccepted) ? AppTypography.bodySmall.withColor(AppColors.red) : AppTypography.bodySmall,
                     ),
                   ),
                 ],
@@ -366,24 +369,11 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           SizedBox(height: 24.h),
 
           // ── 7. SUBMIT BUTTON ──
-          SizedBox(
-            width: double.infinity,
+          AppButton.primary(
             height: 48.h,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                foregroundColor: AppColors.white,
-                elevation: 0,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: AppRadius.cardRadius,
-                ),
-              ),
-              onPressed: _submit,
-              child: Text(
-                "Submit",
-                style: AppTypography.buttonPrimary,
-              ),
-            ),
+            borderRadius: AppRadius.cardRadius,
+            text: "Submit",
+            onPressed: _submit,
           ),
           SizedBox(height: 30.h),
         ],
@@ -440,12 +430,12 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                   item.itemName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                 ),
                 SizedBox(height: 3.h),
                 Text(
                   "Qty: ${item.qty} • ৳${item.finalPrice.toStringAsFixed(0)}",
-                  style: AppTypography.bodyMutedLight,
+                  style: AppTypography.bodySmall.mutedLight,
                 ),
               ],
             ),
@@ -463,16 +453,22 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
         children: [
           Text(
             "• ",
-            style: AppTypography.brandActionText,
+            style: AppTypography.brandAction,
           ),
           Expanded(
             child: Text(
               text,
-              style: AppTypography.bodyMuted.withColor(AppColors.navy.withValues(alpha: 0.85)),
+              style: AppTypography.bodySmall.withColor(AppColors.navy.withValues(alpha: 0.85)),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateString) {
+    final date = parseServerDateTime(dateString);
+    if (date == null) return dateString;
+    return DateFormat('dd MMMM yyyy').format(date);
   }
 }

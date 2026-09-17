@@ -24,11 +24,13 @@ class BillingAddressToggle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "Same as shipping address",
-            style: AppTypography.cardTitle.copyWith(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              "Same as shipping address",
+              style: AppTypography.titleSmall.copyWith(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           Switch(

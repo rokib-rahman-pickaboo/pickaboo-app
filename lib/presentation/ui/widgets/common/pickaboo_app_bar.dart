@@ -5,10 +5,13 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Universal Pickaboo Top App Bar for sub-pages and root tabs.
 /// - If [shouldShowBack] is true: Title is centered ([centerTitle] = true).
@@ -37,7 +40,7 @@ class PickabooAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.showBackButton,
     this.leading,
     this.actions,
-    this.backgroundColor = AppColors.pageBg,
+    this.backgroundColor = AppColors.white,
     this.showBottomDivider,
     this.centerTitle,
     this.titleSpacing,
@@ -128,21 +131,21 @@ class _PickabooAppBarState extends State<PickabooAppBar> {
           children: [
             Text(
               widget.title,
-              style: AppTypography.pageTitle.copyWith(
+              style: AppTypography.titleLarge.copyWith(
                 fontWeight: FontWeight.w900,
               ),
             ),
             SizedBox(height: 2.h),
             Text(
               widget.subtitle!,
-              style: AppTypography.bodyMuted,
+              style: AppTypography.bodySmall,
             ),
           ],
         );
       } else {
         titleContent = Text(
           widget.title,
-          style: AppTypography.pageTitle.copyWith(
+          style: AppTypography.titleLarge.copyWith(
             fontWeight: FontWeight.w900,
           ),
         );
@@ -151,6 +154,12 @@ class _PickabooAppBarState extends State<PickabooAppBar> {
 
     return AppBar(
       backgroundColor: widget.backgroundColor,
+      surfaceTintColor: widget.backgroundColor,
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        statusBarColor: AppColors.white,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
@@ -164,7 +173,7 @@ class _PickabooAppBarState extends State<PickabooAppBar> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           height: 1.0.h,
-          color: shouldShowDivider ? AppColors.border : Colors.transparent,
+          color: shouldShowDivider ? AppColors.border : AppColors.transparent,
         ),
       ),
     );

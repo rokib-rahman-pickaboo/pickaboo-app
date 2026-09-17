@@ -10,7 +10,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/product_card_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/rating_stars.dart';
 
 /// ─────────────────────────────────────────────────────────────
@@ -60,7 +61,14 @@ class ListProductView extends StatelessWidget {
     final bool hasAttributes = displayAttributes.isNotEmpty;
 
     return GestureDetector(
-      onTap: () => onTap.call(product),
+      onTap: () {
+        final intId = int.tryParse(product.id) ?? 0;
+        final cachedImg = ProductImageResolver.getCachedImage(intId);
+        final effectiveProduct = (cachedImg != null && !ProductImageResolver.isPlaceholderOrBroken(cachedImg))
+            ? product.copyWith(productImg: cachedImg)
+            : product;
+        onTap.call(effectiveProduct);
+      },
       child: Container(
         margin: EdgeInsets.symmetric(
           horizontal: AppSpacing.sameGroupItemSpacing.w,
@@ -101,7 +109,8 @@ class ListProductView extends StatelessWidget {
                     height: 115.w,
                     child: Container(
                       color: AppColors.pageBg,
-                      child: AppImage(
+                      child: ProductCardImage(
+                        productId: int.tryParse(product.id) ?? 0,
                         imageUrl: product.productImg,
                         fit: BoxFit.cover,
                       ),
@@ -128,7 +137,7 @@ class ListProductView extends StatelessWidget {
                                   brandText.toUpperCase(),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: AppTypography.brandActionText,
+                                  style: AppTypography.brandAction,
                                 ),
                               )
                             else
@@ -136,7 +145,7 @@ class ListProductView extends StatelessWidget {
                             if (product.expressDelivery) ...[
                               SizedBox(width: 4.w),
                               SvgPicture.asset(
-                                'assets/new/svg/express_icon.svg',
+                                AppAssets.express,
                                 width: 72.w,
                                 height: 24.h,
                                 fit: BoxFit.contain,
@@ -151,7 +160,7 @@ class ListProductView extends StatelessWidget {
                           product.productName,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTypography.cardTitle,
+                          style: AppTypography.titleSmall,
                         ),
 
                         SizedBox(height: 4.h),
@@ -170,7 +179,7 @@ class ListProductView extends StatelessWidget {
                               const Spacer(),
                               Text(
                                 'Sponsored',
-                                style: AppTypography.sponsoredLabel,
+                                style: AppTypography.bodyTiny.semiBold(),
                               ),
                             ],
                           ],
@@ -194,7 +203,7 @@ class ListProductView extends StatelessWidget {
                                   SizedBox(width: 4.w),
                                   Text(
                                     '৳${_formatPrice(product.originalPrice)}',
-                                    style: AppTypography.priceStrikethrough,
+                                    style: AppTypography.priceStrike,
                                   ),
                                   SizedBox(width: 4.w),
                                   Container(
@@ -202,13 +211,13 @@ class ListProductView extends StatelessWidget {
                                       horizontal: 5.w,
                                       vertical: 2.h,
                                     ),
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: AppColors.redBg,
-                                      borderRadius: BorderRadius.circular(3.r),
+                                      borderRadius: AppRadius.badgeRadius,
                                     ),
                                     child: Text(
-                                      '-$discount%',
-                                      style: AppTypography.badgeDiscountItem,
+                                      AppStrings.discountTag(discount),
+                                      style: AppTypography.bodyMedium.extraBold().red,
                                     ),
                                   ),
                                 ],
@@ -221,13 +230,13 @@ class ListProductView extends StatelessWidget {
                               horizontal: 5.w,
                               vertical: 1.5.h,
                             ),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: AppColors.redBg,
-                              borderRadius: BorderRadius.circular(3.r),
+                              borderRadius: AppRadius.badgeRadius,
                             ),
                             child: Text(
-                              'Out of Stock',
-                              style: AppTypography.badgeStockOut,
+                              AppStrings.outOfStock,
+                              style: AppTypography.bodyTiny.extraBold().red,
                             ),
                           ),
 
@@ -238,10 +247,11 @@ class ListProductView extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.local_shipping_outlined,
-                                  size: 11.5.sp,
-                                  color: AppColors.green,
+                                SvgPicture.asset(
+                                  AppAssets.fastDelivery,
+                                  width: 14.w,
+                                  height: 12.h,
+                                  fit: BoxFit.contain,
                                 ),
                                 SizedBox(width: 3.5.w),
                                 Expanded(
@@ -250,11 +260,11 @@ class ListProductView extends StatelessWidget {
                                       children: [
                                         TextSpan(
                                           text: product.deliveryLabelText,
-                                          style: AppTypography.deliveryByLabel,
+                                          style: AppTypography.bodyTiny,
                                         ),
                                         TextSpan(
                                           text: product.deliveryTargetText,
-                                          style: AppTypography.deliveryByDate,
+                                          style: AppTypography.bodyTiny.bold().navy,
                                         ),
                                       ],
                                     ),
@@ -330,7 +340,7 @@ class ListProductView extends StatelessWidget {
           color: AppColors.border.withValues(alpha: 0.8),
           width: 1.w,
         ),
-        borderRadius: BorderRadius.circular(3.r),
+        borderRadius: AppRadius.badgeRadius,
       ),
       child: Text.rich(
         TextSpan(

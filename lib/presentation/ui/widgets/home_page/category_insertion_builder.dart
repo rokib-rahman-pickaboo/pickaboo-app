@@ -8,6 +8,8 @@ import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/banner_item_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/category_deals_grid.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 class CategoryInsertionBuilder {
   static Widget build(
     BuildContext context,
@@ -32,7 +34,7 @@ class CategoryInsertionBuilder {
         widget = _buildCustomWidget(context, item.data);
         break;
     }
-    return RepaintBoundary(child: widget);
+    return widget;
   }
 
   static Widget _buildBanner(
@@ -119,10 +121,10 @@ class CategoryInsertionBuilder {
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.card),
+              borderRadius: AppRadius.cardRadius,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: AppColors.black.withValues(alpha: 0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -131,7 +133,7 @@ class CategoryInsertionBuilder {
             child: BannerItemView(
               banner: sliderEntity,
               naturalHeight: true,
-              borderRadius: BorderRadius.circular(AppRadius.card),
+              borderRadius: AppRadius.cardRadius,
               onTap: handleTap,
             ),
           ),

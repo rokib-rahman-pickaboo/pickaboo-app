@@ -17,7 +17,7 @@ class DiscoverCategoryBloc extends Bloc<DiscoverCategoryEvent, DiscoverCategoryS
     on<DiscoverCategoryEvent>((event, emit) async {
       await event.map(
         getDiscoverCategories: (_GetDiscoverCategories req) async {
-          emit(state.copyWith(status: DiscoverCategoryStatus.loading));
+          emit(state.copyWith(status: DiscoverCategoryStatus.loading, error: null));
 
           final result = await repository.getDiscoverCategories();
           result.fold(
@@ -36,7 +36,7 @@ class DiscoverCategoryBloc extends Bloc<DiscoverCategoryEvent, DiscoverCategoryS
         },
 
         refresh: (_Refresh req) async {
-          emit(state.copyWith(status: DiscoverCategoryStatus.loading));
+          emit(state.copyWith(status: DiscoverCategoryStatus.loading, error: null));
           await Future.delayed(const Duration(milliseconds: 100));
           add(const DiscoverCategoryEvent.getDiscoverCategories());
         },

@@ -30,6 +30,43 @@ class MainPage extends StatefulWidget {
   /// Global notifier allowing uncached offline views to hide the bottom nav bar.
   static final ValueNotifier<bool> hideBottomNav = ValueNotifier<bool>(false);
 
+  /// Tab history tracking to allow natural back-navigation across bottom bar tabs.
+  static final List<int> tabHistory = [0];
+  static void Function(int index)? switchTab;
+
+  /// Handles popping back:
+  /// 1. If screen can pop (nested route pushed on top), pop it.
+  /// 2. If user navigated through tabs, pop back to the previous tab.
+  /// 3. Otherwise, go to Home (tab 0).
+  static void popTab(BuildContext context) {
+    MainPage.hideBottomNav.value = false;
+    final router = GoRouter.maybeOf(context);
+    if (router != null && router.canPop()) {
+      router.pop();
+      return;
+    }
+    final nav = Navigator.maybeOf(context);
+    if (nav != null && nav.canPop()) {
+      nav.pop();
+      return;
+    }
+    if (tabHistory.length > 1) {
+      tabHistory.removeLast();
+      final previousTab = tabHistory.last;
+      if (switchTab != null) {
+        switchTab!(previousTab);
+      } else {
+        context.go(Routes.home);
+      }
+    } else {
+      if (switchTab != null) {
+        switchTab!(0);
+      } else {
+        context.go(Routes.home);
+      }
+    }
+  }
+
   @override
   State<MainPage> createState() => _MainPageState();
 }
@@ -42,6 +79,10 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+
+    MainPage.tabHistory.clear();
+    MainPage.tabHistory.add(widget.navigationShell.currentIndex);
+    MainPage.switchTab = (index) => navRoute(index, recordHistory: false);
 
     _navDrawerBloc = context.read<NavDrawerBloc>();
 
@@ -60,8 +101,24 @@ class _MainPageState extends State<MainPage> {
         });
   }
 
-  void navRoute(int index) {
+  @override
+  void didUpdateWidget(covariant MainPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final newIndex = widget.navigationShell.currentIndex;
+    if (newIndex != oldWidget.navigationShell.currentIndex) {
+      if (MainPage.tabHistory.isEmpty || MainPage.tabHistory.last != newIndex) {
+        MainPage.tabHistory.add(newIndex);
+      }
+    }
+  }
+
+  void navRoute(int index, {bool recordHistory = true}) {
     MainPage.hideBottomNav.value = false;
+    if (recordHistory) {
+      if (MainPage.tabHistory.isEmpty || MainPage.tabHistory.last != index) {
+        MainPage.tabHistory.add(index);
+      }
+    }
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,
@@ -72,11 +129,10 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final useRail = context.isTablet;
     return PopScope(
-      canPop: widget.navigationShell.currentIndex == 0,
+      canPop: widget.navigationShell.currentIndex == 0 && MainPage.tabHistory.length <= 1,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        MainPage.hideBottomNav.value = false;
-        widget.navigationShell.goBranch(0);
+        MainPage.popTab(context);
       },
       child: ValueListenableBuilder<bool>(
         valueListenable: MainPage.hideBottomNav,
@@ -108,10 +164,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   static const List<({String asset, String label})> _navItems = [
-    (asset: "assets/new/svg/home_icon.svg", label: AppStrings.navHome),
-    (asset: "assets/new/svg/discover_icon.svg", label: AppStrings.navDiscover),
-    (asset: "assets/new/svg/support_icon.svg", label: AppStrings.navSupport),
-    (asset: "assets/new/svg/profile_icon.svg", label: AppStrings.navProfile),
+    (asset: AppAssets.navHome, label: AppStrings.navHome),
+    (asset: AppAssets.navDiscover, label: AppStrings.navDiscover),
+    (asset: AppAssets.navSupport, label: AppStrings.navSupport),
+    (asset: AppAssets.navProfile, label: AppStrings.navProfile),
   ];
 
   Widget _navIcon(String asset, {bool selected = false}) {
@@ -134,10 +190,10 @@ class _MainPageState extends State<MainPage> {
         labelType: NavigationRailLabelType.all,
         backgroundColor: AppColors.white,
         indicatorColor: AppColors.white,
-        selectedLabelTextStyle: context.textStyle.bottomNavActive.withColor(
+        selectedLabelTextStyle: AppTypography.bodyTiny.bold().blue.withColor(
           AppColors.pickabooBlue,
         ),
-        unselectedLabelTextStyle: context.textStyle.bottomNavInactive.withColor(
+        unselectedLabelTextStyle: AppTypography.bodyTiny.medium().withColor(
           AppColors.muted,
         ),
         destinations: [
@@ -341,7 +397,7 @@ class _MainPageState extends State<MainPage> {
                             child: Center(
                               child: Text(
                                 '$cartCount',
-                                style: AppTypography.buttonPrimary,
+                                style: AppTypography.button,
                               ),
                             ),
                           ),
@@ -351,10 +407,10 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ),
-            SizedBox(height: 3.h),
+            SizedBox(height: 5.h),
             Text(
               'Cart',
-              style: AppTypography.bottomNavInactive,
+              style: AppTypography.bodyTiny.medium(),
             ),
           ],
         );
@@ -397,8 +453,8 @@ class _MainPageState extends State<MainPage> {
             Text(
               label,
               style: isSelected
-                  ? AppTypography.bottomNavActive
-                  : AppTypography.bottomNavInactive,
+                  ? AppTypography.bodyTiny.bold().blue
+                  : AppTypography.bodyTiny.medium(),
             ),
           ],
         ),
@@ -408,6 +464,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
+    MainPage.switchTab = null;
     _deepLinkSubscription?.cancel();
     _navDrawerBloc.unregisterScaffold();
     super.dispose();

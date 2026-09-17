@@ -18,40 +18,67 @@ class HomeContentBloc extends Bloc<HomeContentEvent, HomeContentState> {
     on<HomeContentEvent>((event, emit) async {
       await event.map(
         getFeedContent: (req) async {
-          emit(state.copyWith(status: HomeContentStatus.loading));
+          // 1. Instant Frame 0 hydration from cache if not already in state
+          if (state.homeFeed == null && !req.forceRefresh) {
+            final cachedResult = await repository.getHomeFeedContent(
+              productLimit: 5,
+              forceRefresh: false,
+            );
+            cachedResult.fold((_) {}, (cachedFeed) {
+              emit(state.copyWith(
+                status: HomeContentStatus.success,
+                homeFeed: cachedFeed,
+              ));
+            });
+          }
 
-          // Anything thrown below (cache decode, mapper, …) would otherwise
-          // leave the state on `loading` forever — the page renders a spinner
-          // for that status, so a single throw meant a permanently loading
-          // home screen with no retry affordance.
+          // 2. Determine if network revalidation is required
+          final isStale = await repository.isHomeContentStale();
+          final needsNetwork =
+              req.forceRefresh || state.homeFeed == null || isStale;
+
+          if (!needsNetwork) return;
+
+          // Only show full loading spinner if no content is currently visible
+          if (state.homeFeed == null) {
+            emit(state.copyWith(status: HomeContentStatus.loading));
+          }
+
           try {
             final result = await repository.getHomeFeedContent(
               productLimit: 5,
-              forceRefresh: req.forceRefresh,
+              forceRefresh: true,
             );
             result.fold(
-              (l) => emit(
-                state.copyWith(error: l, status: HomeContentStatus.error),
-              ),
+              (l) {
+                // If content is already displaying, don't flash an error screen
+                if (state.homeFeed == null) {
+                  emit(
+                    state.copyWith(error: l, status: HomeContentStatus.error),
+                  );
+                }
+              },
               (r) => emit(
                 state.copyWith(status: HomeContentStatus.success, homeFeed: r),
               ),
             );
           } catch (e, s) {
             CrashReporter.record(e, s);
-            emit(
-              state.copyWith(
-                status: HomeContentStatus.error,
-                error: AppErrorEntity(message: e.toString()),
-              ),
-            );
+            if (state.homeFeed == null) {
+              emit(
+                state.copyWith(
+                  status: HomeContentStatus.error,
+                  error: AppErrorEntity(message: e.toString()),
+                ),
+              );
+            }
           }
         },
 
         refresh: (_Refresh req) async {
           emit(state.copyWith(status: HomeContentStatus.loading));
           await Future.delayed(const Duration(milliseconds: 100));
-          add(const HomeContentEvent.getFeedContent());
+          add(const HomeContentEvent.getFeedContent(forceRefresh: true));
         },
       );
     });

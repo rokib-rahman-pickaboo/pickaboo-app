@@ -15,6 +15,8 @@ import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
+import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 /// Modern OrderPlacedPage matching Pickaboo-App-UI design language.
@@ -47,7 +49,12 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CartBloc>().add(const CartEvent.refreshCart());
-      _loadOrderDetails();
+      if (widget.orderNumber.isEmpty || widget.orderNumber == 'Unknown') {
+        _listFallbackRequested = true;
+        context.read<OrderBloc>().add(const OrderEvent.refresh());
+      } else {
+        _loadOrderDetails();
+      }
     });
   }
 
@@ -114,7 +121,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
         if (!didPop) widget.onContinueShopping();
       },
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         body: SafeArea(
           child: BlocConsumer<OrderBloc, OrderState>(
             listener: (context, orderState) {
@@ -138,6 +145,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
               final orderDetails = orderState.orderDetails;
 
               String? listOrderNumber;
+              int? listOrderId;
               if (orderDetails == null && _listFallbackRequested) {
                 final items = orderState.pagingState.pages
                     ?.expand((page) => page)
@@ -148,6 +156,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                   );
                   if (newest.orderNumber.isNotEmpty) {
                     listOrderNumber = newest.orderNumber;
+                    listOrderId = newest.orderId;
                   }
                 }
               }
@@ -188,7 +197,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                           SizedBox(height: 20.h),
                           // ── Success Image / Graphic ──
                           Image.asset(
-                            'assets/images/success_cart.png',
+                            AppAssets.successCart,
                             height: 140.h,
                             width: 140.w,
                             errorBuilder: (_, __, ___) => Container(
@@ -225,7 +234,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                               SizedBox(width: 6.w),
                               Text(
                                 "Order placed successfully",
-                                style: AppTypography.badgeInStock,
+                                style: AppTypography.bodyTiny.extraBold().green,
                               ),
                             ],
                           ),
@@ -257,32 +266,78 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                                   const AppLoader.inline(size: 20),
                                 ] else if (failedToLoad) ...[
                                   Text(
-                                    "We couldn't load your order number right now.",
-                                    style: AppTypography.bodyMuted,
+                                    AppStrings.couldNotLoadOrderNumber,
+                                    style: AppTypography.bodySmall,
                                     textAlign: TextAlign.center,
                                   ),
                                   SizedBox(height: 6.h),
-                                  TextButton(
+                                  AppButton.ghost(
+                                    shrinkWrap: true,
                                     onPressed: _onManualRetry,
-                                    child: Text(
-                                      "Retry",
-                                      style: AppTypography.brandActionText,
-                                    ),
+                                    text: AppStrings.retry,
+                                    textStyle: AppTypography.brandAction,
                                   ),
                                 ] else ...[
-                                  RichText(
-                                    textAlign: TextAlign.center,
-                                    text: TextSpan(
-                                      style: AppTypography.bodyLarge,
-                                      children: [
-                                        const TextSpan(
-                                          text: "Your order number is: ",
-                                        ),
-                                        TextSpan(
-                                          text: displayOrderNumber ?? '',
-                                          style: AppTypography.brandActionText,
-                                        ),
-                                      ],
+                                  InkWell(
+                                    onTap: () {
+                                      final targetOrderId = (orderDetails != null && orderDetails.orderId > 0)
+                                          ? orderDetails.orderId.toString()
+                                          : (listOrderId != null && listOrderId > 0)
+                                              ? listOrderId.toString()
+                                              : (widget.orderNumber.isNotEmpty && widget.orderNumber != 'Unknown'
+                                                  ? widget.orderNumber
+                                                  : (displayOrderNumber ?? ''));
+                                      if (targetOrderId.isNotEmpty) {
+                                        context.goToOrderDetails(targetOrderId);
+                                      }
+                                    },
+                                    borderRadius: AppRadius.cardRadius,
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 2.h),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          RichText(
+                                            textAlign: TextAlign.center,
+                                            text: TextSpan(
+                                              style: AppTypography.bodyLarge,
+                                              children: [
+                                                const TextSpan(
+                                                  text: AppStrings.yourOrderNumberIs,
+                                                ),
+                                                TextSpan(
+                                                  text: displayOrderNumber ?? '',
+                                                  style: AppTypography.brandAction.copyWith(
+                                                    decoration: TextDecoration.underline,
+                                                    decorationColor: AppColors.pickabooBlue,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(height: 6.h),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'Tap to view order details',
+                                                style: AppTypography.bodySmall.copyWith(
+                                                  color: AppColors.pickabooBlue,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 11.5.sp,
+                                                ),
+                                              ),
+                                              SizedBox(width: 4.w),
+                                              Icon(
+                                                Icons.arrow_forward_ios_rounded,
+                                                size: 11.sp,
+                                                color: AppColors.pickabooBlue,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -316,7 +371,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                                     child: Text(
                                       "You earned $earnedPoints Club Points for this order.\n"
                                       "Earned points will be enrolled to your account after we finish processing your order.",
-                                      style: AppTypography.bodyRegular,
+                                      style: AppTypography.bodyMedium,
                                     ),
                                   ),
                                 ],
@@ -328,7 +383,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                           // ── Email confirmation note ──
                           Text(
                             "We'll email you an order confirmation with the order details.",
-                            style: AppTypography.bodyMutedLight,
+                            style: AppTypography.bodySmall.mutedLight,
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -348,24 +403,16 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                     ),
                     child: SafeArea(
                       top: false,
-                      child: SizedBox(
-                        width: double.infinity,
+                      child: AppButton.primary(
                         height: 48.h,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.pickabooBlue,
-                            foregroundColor: AppColors.white,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: AppRadius.cardRadius,
-                            ),
-                            elevation: 0,
-                          ),
-                          onPressed: widget.onContinueShopping,
-                          child: Text(
-                            "Continue Shopping",
-                            style: AppTypography.buttonPrimary,
-                          ),
+                        onPressed: widget.onContinueShopping,
+                        text: "Continue Shopping",
+                        icon: Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 18.sp,
+                          color: AppColors.white,
                         ),
+                        borderRadius: AppRadius.cardRadius,
                       ),
                     ),
                   ),

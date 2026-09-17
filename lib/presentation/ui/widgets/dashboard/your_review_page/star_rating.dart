@@ -19,7 +19,7 @@ class StarRating extends StatelessWidget {
           return Padding(
             padding: EdgeInsets.only(right: 2.w),
             child: SvgPicture.asset(
-              "assets/new/svg/star_icon.svg",
+              AppAssets.star,
               width: size.w,
               height: size.w,
             ),

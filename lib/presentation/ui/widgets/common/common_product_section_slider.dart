@@ -5,6 +5,8 @@ import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_section_header.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/slider_product_view.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 /// ─────────────────────────────────────────────────────────────
 /// 🎠 CENTRALIZED REUSABLE PRODUCT SECTION SLIDER
 /// Unifies Section Title, "View All >" Action, and horizontal
@@ -26,9 +28,9 @@ class CommonProductSectionSlider extends StatelessWidget {
     required this.products,
     this.onProductTap,
     this.onViewAll,
-    this.backgroundColor = Colors.transparent,
+    this.backgroundColor = AppColors.transparent,
     this.padding,
-    this.cardWidth = 140.0,
+    this.cardWidth = 147.0,
     this.railHeight,
   });
 
@@ -63,26 +65,22 @@ class CommonProductSectionSlider extends StatelessWidget {
           RepaintBoundary(
             child: SizedBox(
               height: computedRailHeight,
-              child: SingleChildScrollView(
+              child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.symmetric(
                   horizontal: AppSpacing.sameGroupItemSpacing.w,
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (int i = 0; i < products.length; i++) ...[
-                      if (i > 0)
-                        SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
-                      SliderProductView(
-                        product: products[i],
-                        width: cardWidth,
-                        onTap: (p) => onProductTap?.call(p),
-                      ),
-                    ],
-                  ],
-                ),
+                itemCount: products.length,
+                separatorBuilder: (context, index) =>
+                    SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
+                itemBuilder: (context, index) {
+                  return SliderProductView(
+                    product: products[index],
+                    width: cardWidth,
+                    onTap: (p) => onProductTap?.call(p),
+                  );
+                },
               ),
             ),
           ),

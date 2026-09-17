@@ -51,7 +51,7 @@ class AppBarButton extends StatelessWidget {
       showBadge: badgeCount > 0,
       badgeContent: Text(
         '$badgeCount',
-        style: context.textStyle.badgeSmall.copyWith(color: AppColors.white),
+        style: AppTypography.bodyTiny.copyWith(color: AppColors.white),
       ),
       position: badges.BadgePosition.topEnd(top: -2, end: 0),
       badgeAnimation: const badges.BadgeAnimation.fade(),

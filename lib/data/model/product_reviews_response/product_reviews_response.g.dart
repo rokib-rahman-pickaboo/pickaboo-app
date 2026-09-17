@@ -64,10 +64,7 @@ _$ProductReviewItemResponseImpl _$$ProductReviewItemResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$ProductReviewItemResponseImpl(
   reviewId: (json['review_id'] as num?)?.toInt(),
-  postedOn:
-      json['posted_on'] == null
-          ? null
-          : DateTime.parse(json['posted_on'] as String),
+  postedOn: safeDateTimeFromJson(json['posted_on']),
   reviewerName: json['reviewer_name'] as String?,
   reviewerImage: json['reviewer_image'] as String?,
   reviewerRating: (json['reviewer_rating'] as num?)?.toDouble(),
@@ -81,7 +78,7 @@ Map<String, dynamic> _$$ProductReviewItemResponseImplToJson(
   _$ProductReviewItemResponseImpl instance,
 ) => <String, dynamic>{
   'review_id': instance.reviewId,
-  'posted_on': instance.postedOn?.toIso8601String(),
+  'posted_on': safeDateTimeToJson(instance.postedOn),
   'reviewer_name': instance.reviewerName,
   'reviewer_image': instance.reviewerImage,
   'reviewer_rating': instance.reviewerRating,

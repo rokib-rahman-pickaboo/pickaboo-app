@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/date_time_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_cancel_entity.dart';
 import 'package:pickaboo/presentation/ui/pages/order/order_details_page/order_details_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
@@ -59,12 +60,12 @@ class CancellationSummaryView extends StatelessWidget {
                   children: [
                     Text(
                       "Order #${order.incrementId}",
-                      style: AppTypography.pageTitle,
+                      style: AppTypography.titleLarge,
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       "Cancelled on $cancelDate",
-                      style: AppTypography.bodyMutedLight,
+                      style: AppTypography.bodySmall.mutedLight,
                     ),
                   ],
                 ),
@@ -82,7 +83,7 @@ class CancellationSummaryView extends StatelessWidget {
                   ),
                   child: Text(
                     _getStatusAttributes(order.status).text,
-                    style: AppTypography.badgeStockOut,
+                    style: AppTypography.bodyTiny.extraBold().red,
                   ),
                 ),
               ],
@@ -124,7 +125,7 @@ class CancellationSummaryView extends StatelessWidget {
                     final history = order.statusHistories.reversed.toList();
                     final status = history[index];
                     final isLatest = index == 0;
-                    final date = DateTime.tryParse(status.createdAt);
+                    final date = parseServerDateTime(status.createdAt);
 
                     return Padding(
                       padding: EdgeInsets.only(left: 12.w, bottom: 20.h),
@@ -133,20 +134,20 @@ class CancellationSummaryView extends StatelessWidget {
                         children: [
                           Text(
                             _formatStatusText(status.status),
-                            style: isLatest ? AppTypography.brandActionText : AppTypography.cardTitle,
+                            style: isLatest ? AppTypography.brandAction : AppTypography.titleSmall,
                           ),
                           if (date != null) ...[
                             SizedBox(height: 3.h),
                             Text(
                               DateFormat('MMM dd, yyyy - hh:mm a').format(date),
-                              style: AppTypography.bodyMutedLight,
+                              style: AppTypography.bodySmall.mutedLight,
                             ),
                           ],
                           if (status.comment != null && status.comment!.isNotEmpty) ...[
                             SizedBox(height: 4.h),
                             Text(
                               status.comment!,
-                              style: AppTypography.bodyMuted.italic(),
+                              style: AppTypography.bodySmall.italic(),
                             ),
                           ],
                         ],
@@ -243,7 +244,7 @@ class CancellationSummaryView extends StatelessWidget {
                   item.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                 ),
                 SizedBox(height: 4.h),
                 Row(
@@ -251,7 +252,7 @@ class CancellationSummaryView extends StatelessWidget {
                   children: [
                     Text(
                       "Qty: ${item.qtyOrdered}",
-                      style: AppTypography.bodyMutedLight,
+                      style: AppTypography.bodySmall.mutedLight,
                     ),
                     Text(
                       "৳${item.price.toStringAsFixed(0)}",

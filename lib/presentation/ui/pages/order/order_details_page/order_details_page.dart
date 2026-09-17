@@ -20,6 +20,7 @@ import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/order/bottom_sheet/order_review_product_bottom_sheet.dart';
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
@@ -30,6 +31,8 @@ import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_paymen
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_shipping_method_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_summary_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_timeline_section.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modernized OrderDetailsPage matching Pickaboo-App-UI design language.
 class OrderDetailsPage extends StatefulWidget {
@@ -93,7 +96,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         builder: (context, state) {
           if (state.orderDetails == null) return const SizedBox.shrink();
           final order = state.orderDetails!;
-          final showPayNow = _shouldShowPayNow(order);
+          final showCancel = _shouldShowCancel(order);
 
           return Container(
             padding: EdgeInsets.symmetric(
@@ -113,83 +116,43 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             ),
             child: SafeArea(
               top: false,
-              child: showPayNow
+              child: showCancel
                   ? Row(
                       children: [
                         Expanded(
                           flex: 1,
-                          child: SizedBox(
+                          child: AppButton.outline(
                             height: 48.h,
-                            child: OutlinedButton(
-                              onPressed: () => _handleReorder(
-                                context,
-                                order.orderId.toString(),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.pickabooBlue,
-                                side: const BorderSide(color: AppColors.pickabooBlue),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: AppRadius.cardRadius,
-                                ),
-                              ),
-                              child: Text(
-                                'Buy Again',
-                                style: AppTypography.brandActionText,
-                              ),
-                            ),
+                            borderRadius: AppRadius.cardRadius,
+                            borderColor: AppColors.red,
+                            textColor: AppColors.red,
+                            text: 'Cancel Order',
+                            onPressed: () {
+                              context.push(Routes.orderCancelled, extra: order);
+                            },
                           ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
                           flex: 1,
-                          child: SizedBox(
+                          child: AppButton.primary(
                             height: 48.h,
-                            child: ElevatedButton(
-                              onPressed: () => context.goToOrderPayment(
-                                orderId: order.orderId.toString(),
-                                selectedMethod: order.paymentMethod,
-                                grandTotal: order.orderSummary.grandTotal,
-                                subtotal: order.orderSummary.subtotal,
-                                shippingAmount: order.orderSummary.shippingFee,
-                                discountAmount: order.orderSummary.discountAmount,
-                                itemsCount: order.orderSummary.totalOrderQty,
-                                quoteId: order.paymentAddress?.quoteId,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.pickabooBlue,
-                                foregroundColor: AppColors.white,
-                                elevation: 0,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: AppRadius.cardRadius,
-                                ),
-                              ),
-                              child: Text(
-                                'Pay Now',
-                                style: AppTypography.buttonPrimary,
-                              ),
+                            borderRadius: AppRadius.cardRadius,
+                            text: 'Buy Again',
+                            onPressed: () => _handleReorder(
+                              context,
+                              order.orderId.toString(),
                             ),
                           ),
                         ),
                       ],
                     )
-                  : SizedBox(
+                  : AppButton.primary(
                       height: 48.h,
-                      child: ElevatedButton(
-                        onPressed: () =>
-                            _handleReorder(context, order.orderId.toString()),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.pickabooBlue,
-                          foregroundColor: AppColors.white,
-                          elevation: 0,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: AppRadius.cardRadius,
-                          ),
-                        ),
-                        child: Text(
-                          'Buy Again',
-                          style: AppTypography.buttonPrimary,
-                        ),
-                      ),
+                      borderRadius: AppRadius.cardRadius,
+                      text: 'Buy Again',
+                      onPressed: () =>
+                          _handleReorder(context, order.orderId.toString()),
                     ),
             ),
           );
@@ -198,7 +161,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
           if (state.successMessage != null) {
-            context.read<CartBloc>().add(const CartEvent.getCart());
+            final cartBloc = context.read<CartBloc>();
+            cartBloc.markAdditionPending();
+            cartBloc.add(const CartEvent.getCart());
             SnackBarUtils.showSuccess(
               context,
               state.successMessage ?? AppStrings.operationSuccessful,
@@ -247,11 +212,24 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                   child: OrderHeaderSection(
                     order: order,
                     getStatusAttributes: _getStatusAttributes,
+                    showPayNow: _shouldShowPayNow(order),
+                    onPayNow: () {
+                      context.goToOrderPayment(
+                        orderId: order.orderId.toString(),
+                        selectedMethod: order.paymentMethod,
+                        grandTotal: order.orderSummary.grandTotal,
+                        subtotal: order.orderSummary.subtotal,
+                        shippingAmount: order.orderSummary.shippingFee,
+                        discountAmount: order.orderSummary.discountAmount,
+                        itemsCount: order.orderSummary.totalOrderQty,
+                        quoteId: order.paymentAddress?.quoteId,
+                      );
+                    },
                     onReview: () {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: AppColors.transparent,
                         builder: (context) => OrderReviewProductBottomSheet(
                           items: order.items,
                           onProductSelected: (item) {
@@ -269,11 +247,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                         ),
                       );
                     },
-                    showCancel: _shouldShowCancel(order),
                     showReview: _shouldShowReview(order),
-                    onCancel: () {
-                      context.push(Routes.orderCancelled, extra: order);
-                    },
                   ),
                 ),
               ),
@@ -319,6 +293,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 child: OrderPaymentSection(
                   paymentMethod: order.paymentMethod,
                   formatPaymentMethod: _formatPaymentMethod,
+                  paymentInformation: order.paymentInformation,
                 ),
               ),
               SliverToBoxAdapter(child: SizedBox(height: 24.h)),

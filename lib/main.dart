@@ -31,6 +31,16 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -40,11 +50,16 @@ void main() async {
   await getIt<AuthCacheManager>().warmUp();
 
   unawaited(getIt<AnalyticsService>().init());
+  unawaited(getIt<PushNotificationService>().initialize());
 
-  final pushNotificationService = getIt<PushNotificationService>();
-  pushNotificationService.initialize();
-
-  await getIt<RecaptchaService>().initialize();
+  try {
+    await getIt<RecaptchaService>().initialize();
+  } catch (error, stack) {
+    CrashReporter.record(error, stack, fatal: false);
+    if (kDebugMode) {
+      print('⚠️ Non-fatal Recaptcha init bypass: $error');
+    }
+  }
 
   if (kDebugMode) {
     print('main: Initialization complete, calling runApp');

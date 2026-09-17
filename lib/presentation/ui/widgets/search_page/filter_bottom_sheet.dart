@@ -13,6 +13,8 @@ import 'package:pickaboo/domain/entity/search/search_facet_entity.dart';
 import 'package:pickaboo/domain/entity/search/search_result_entity.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/filter_bloc/filter_bloc.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/utils/filter_converter.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
@@ -88,9 +90,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         ..add(FilterEvent.loadRequested(categories: filterCategories)),
       child: Builder(
         builder: (context) => Material(
-          color: Colors.white,
+          color: AppColors.white,
           clipBehavior: Clip.antiAlias,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+          borderRadius: AppRadius.sheetTop,
           child: SafeArea(
             top: false,
             child: BlocBuilder<FilterBloc, FilterState>(
@@ -208,7 +210,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           Text(
             'This search has nothing left to narrow down.',
             textAlign: TextAlign.center,
-            style: AppTypography.bodyRegular,
+            style: AppTypography.bodyMedium,
           ),
         ],
       ),
@@ -219,7 +221,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         border: Border(
           bottom: BorderSide(color: AppColors.border, width: 1),
         ),
@@ -229,7 +231,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         children: [
           Text(
             'Filters',
-            style: AppTypography.pageTitle,
+            style: AppTypography.titleLarge,
           ),
           if (totalSelected > 0)
             GestureDetector(
@@ -239,7 +241,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               behavior: HitTestBehavior.opaque,
               child: Text(
                 'Clear All',
-                style: AppTypography.brandActionText,
+                style: AppTypography.brandAction,
               ),
             ),
         ],
@@ -294,7 +296,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   left: BorderSide(
                     color: isSelected
                         ? AppColors.pickabooBlue
-                        : Colors.transparent,
+                        : AppColors.transparent,
                     width: 3.5.w,
                   ),
                 ),
@@ -307,8 +309,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: isSelected
-                          ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
-                          : AppTypography.bodyRegular.withColor(AppColors.navy),
+                          ? AppTypography.titleSmall.withColor(AppColors.pickabooBlue)
+                          : AppTypography.bodyMedium.withColor(AppColors.navy),
                     ),
                   ),
                   if (count > 0)
@@ -319,11 +321,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.pickabooBlue,
-                        borderRadius: BorderRadius.circular(10.r),
+                        borderRadius: AppRadius.chipRadius,
                       ),
                       child: Text(
                         '$count',
-                        style: AppTypography.buttonPrimary,
+                        style: AppTypography.button,
                       ),
                     ),
                 ],
@@ -340,13 +342,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     FilterCategory category,
   ) {
     return Container(
-      color: Colors.white,
+      color: AppColors.white,
       child: RawScrollbar(
         controller: _optionsScrollController,
         thumbVisibility: true,
         trackVisibility: false,
         thickness: 4.w,
-        radius: Radius.circular(3.r),
+        radius: const Radius.circular(AppRadius.badge),
         thumbColor: AppColors.pickabooBlue,
         child: ListView.builder(
           controller: _optionsScrollController,
@@ -385,8 +387,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       decoration: BoxDecoration(
                         color: isChecked
                             ? AppColors.pickabooBlue
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(3.r),
+                            : AppColors.white,
+                        borderRadius: AppRadius.badgeRadius,
                         border: Border.all(
                           color: isChecked
                               ? AppColors.pickabooBlue
@@ -398,7 +400,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                           ? Icon(
                               Icons.check,
                               size: 13.sp,
-                              color: Colors.white,
+                              color: AppColors.white,
                             )
                           : null,
                     ),
@@ -408,8 +410,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       child: Text(
                         option.label.removeHtmlTags,
                         style: isChecked
-                            ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
-                            : AppTypography.bodyRegular.withColor(AppColors.navy),
+                            ? AppTypography.titleSmall.withColor(AppColors.pickabooBlue)
+                            : AppTypography.bodyMedium.withColor(AppColors.navy),
                       ),
                     ),
                     if (option.count != null &&
@@ -433,7 +435,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         border: Border(
           top: BorderSide(
             color: AppColors.border,
@@ -441,33 +443,20 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           ),
         ),
       ),
-      child: SizedBox(
-        width: double.infinity,
+      child: AppButton.primary(
         height: 46.h,
-        child: ElevatedButton(
-          onPressed: () {
-            final selectedFilters =
-                context.read<FilterBloc>().getSelectedFilters();
-            _apply(
-              context,
-              FilterConverter.toSearchaniseFilters(selectedFilters),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.pickabooBlue,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-          ),
-          child: Text(
-            totalSelected > 0
-                ? 'Apply Filters ($totalSelected)'
-                : 'Apply Filters',
-            style: AppTypography.buttonPrimary,
-          ),
-        ),
+        borderRadius: AppRadius.buttonRadius,
+        text: totalSelected > 0
+            ? 'Apply Filters ($totalSelected)'
+            : 'Apply Filters',
+        onPressed: () {
+          final selectedFilters =
+              context.read<FilterBloc>().getSelectedFilters();
+          _apply(
+            context,
+            FilterConverter.toSearchaniseFilters(selectedFilters),
+          );
+        },
       ),
     );
   }

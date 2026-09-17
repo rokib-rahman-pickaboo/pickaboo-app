@@ -52,6 +52,7 @@ class ProductDetailEntity {
   final List<ProductEntity> recentlyViewedProducts;
   final DateTime cacheTime;
   final bool isEligibleForReview;
+  final bool isPartial;
 
   const ProductDetailEntity({
     required this.id,
@@ -103,7 +104,78 @@ class ProductDetailEntity {
     required this.recentlyViewedProducts,
     required this.cacheTime,
     required this.isEligibleForReview,
+    this.isPartial = false,
   });
+
+  /// Instant Frame 0 hydration from a lightweight [ProductEntity] card/feed model.
+  factory ProductDetailEntity.fromProductEntity(ProductEntity p) {
+    final intId = int.tryParse(p.id) ?? 0;
+    return ProductDetailEntity(
+      id: intId,
+      sku: p.sku,
+      slug: p.slug,
+      typeId: p.typeId,
+      name: p.productName,
+      prodOfferPrice: 0,
+      bestPrice: 0,
+      freeDelivery: p.freeDelivery ? 1 : 0,
+      categoryIds: const [],
+      metaTitle: p.productName,
+      metaKeywords: '',
+      metaDescription: '',
+      images: p.productImg.isNotEmpty ? [p.productImg] : const [],
+      youtubeVideos: const [],
+      isWishlisted: false,
+      shareUrl: 'https://www.pickaboo.com/product/${p.slug}',
+      regularPrice: p.productPrice,
+      spacialPrice: p.productSpecialPrice,
+      discount: p.productDiscount,
+      stockAvailable: p.stockAvailable,
+      expressDelivery: p.expressDelivery ? 1 : 0,
+      comingSoon: p.comingSoon,
+      clubPoints: p.clubPoint,
+      brandId: '',
+      brand: '',
+      soldByVendorUrlKey: '',
+      soldBy: '',
+      offers: '',
+      warranty: '',
+      emi: 0,
+      varient: const [],
+      variantMatrix: const VariantMatrixEntity(),
+      extraOptions: const [],
+      buysTogather: const [],
+      productDetails: '',
+      moreInformation: p.attributes.isNotEmpty
+          ? [
+              MoreInformationEntity(
+                groupLabel: 'Overview',
+                attrList: p.attributes
+                    .map((a) => AttrListEntity(
+                          label: a.label,
+                          value: a.value,
+                          isFeatured: true,
+                        ))
+                    .toList(),
+              )
+            ]
+          : const [],
+      ratingSummaryValue: p.rating,
+      ratingSummary: (p.rating * 20).toInt(),
+      reviewsCount: p.ratingCount,
+      detailedRatings: const [],
+      detailedSummary: const [0, 0, 0, 0, 0],
+      allReviewImages: const [],
+      reviewsCollection: const [],
+      similarProducts: const [],
+      youMayAlsoLike: const [],
+      otherBrands: const [],
+      recentlyViewedProducts: const [],
+      cacheTime: DateTime.now(),
+      isEligibleForReview: false,
+      isPartial: true,
+    );
+  }
 
   List<VariantEntity> get variantGroups {
     final rawGroups =
@@ -127,6 +199,27 @@ class ProductDetailEntity {
   }
 
   bool get hasVariants => variantGroups.isNotEmpty;
+
+  /// Extracts all featured attributes (isFeatured == true) across all groups for "At a glance" / Key Highlights.
+  List<AttrListEntity> get featuredHighlights {
+    final List<AttrListEntity> highlights = [];
+    for (final group in moreInformation) {
+      for (final attr in group.attrList) {
+        if (attr.isFeatured) {
+          highlights.add(attr);
+        }
+      }
+    }
+    return highlights;
+  }
+
+  /// Whether the product has any featured attributes to display in the Key Highlights card.
+  bool get hasKeyHighlights => featuredHighlights.isNotEmpty;
+
+  /// Returns all specification groups that have at least one attribute.
+  List<MoreInformationEntity> get specificationGroups {
+    return moreInformation.where((group) => group.attrList.isNotEmpty).toList();
+  }
 }
 
 class DetailedRatingEntity {
@@ -151,12 +244,14 @@ class AttrListEntity {
   final String value;
   final String iconUrl;
   final String icon;
+  final bool isFeatured;
 
   const AttrListEntity({
     required this.label,
     required this.value,
     this.iconUrl = '',
     this.icon = '',
+    this.isFeatured = false,
   });
 }
 

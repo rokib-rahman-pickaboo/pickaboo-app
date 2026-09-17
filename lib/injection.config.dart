@@ -19,6 +19,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart'
 
 import 'core/cache/auth_cache_manager.dart' as _i475;
 import 'core/cache/category_facet_cache.dart' as _i655;
+import 'core/cache/category_preload_cache.dart' as _i656;
 import 'core/cache/category_filter_store.dart' as _i226;
 import 'core/cache/special_category_filter_store.dart' as _i568;
 import 'core/endpoints/api_endpoints.dart' as _i560;
@@ -227,6 +228,9 @@ Future<_i174.GetIt> $initGetIt(
     () => _i568.SpecialCategoryFilterStore(),
   );
   gh.lazySingleton<_i655.CategoryFacetCache>(() => _i655.CategoryFacetCache());
+  gh.lazySingleton<_i656.CategoryPreloadCache>(
+    () => _i656.CategoryPreloadCache(),
+  );
   gh.lazySingleton<_i475.AuthCacheManager>(() => _i475.AuthCacheManager());
   gh.lazySingleton<_i40.EncryptionHelper>(() => _i40.EncryptionHelper());
   gh.lazySingleton<_i462.SavedPaymentMapper>(() => _i462.SavedPaymentMapper());

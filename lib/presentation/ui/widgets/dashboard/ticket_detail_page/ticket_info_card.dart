@@ -12,14 +12,12 @@ class TicketInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Container(
       margin: EdgeInsets.all(16.w),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: AppRadius.dialogRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.04),
@@ -40,7 +38,7 @@ class TicketInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       ticket.subject,
-                      style: textTheme.bodyLargeMedium.copyWith(
+                      style: AppTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.text,
                         height: 1.3.h,
@@ -51,7 +49,7 @@ class TicketInfoCard extends StatelessWidget {
                     SizedBox(height: 4.h),
                     Text(
                       ticket.ticketCode,
-                      style: textTheme.bodySmall.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
                         color: AppColors.muted,
                         fontWeight: FontWeight.w500,
                       ),
@@ -68,9 +66,9 @@ class TicketInfoCard extends StatelessWidget {
 
           Container(
             padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.white,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: AppRadius.cardRadius,
             ),
             child: Column(
               children: [
@@ -110,7 +108,7 @@ class TicketInfoCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: _getStatusColor(ticket.status).withAlpha(25),
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.buttonRadius,
               border: Border.all(
                 color: _getStatusColor(ticket.status),
                 width: 1.w,
@@ -130,7 +128,7 @@ class TicketInfoCard extends StatelessWidget {
                 SizedBox(width: 6.w),
                 Text(
                   ticket.status,
-                  style: textTheme.bodySmall.copyWith(
+                  style: AppTypography.bodySmall.copyWith(
                     color: _getStatusColor(ticket.status),
                     fontWeight: FontWeight.w600,
                   ),
@@ -190,15 +188,13 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Row(
       children: [
         Icon(icon, size: 16.sp, color: AppColors.pickabooBlue),
         SizedBox(width: 8.w),
         Text(
           '$label:',
-          style: textTheme.bodySmall.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             color: AppColors.muted,
             fontWeight: FontWeight.w500,
           ),
@@ -207,7 +203,7 @@ class _InfoRow extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: textTheme.bodySmall.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: AppColors.text,
               fontWeight: FontWeight.w500,
             ),
@@ -246,11 +242,11 @@ class _PriorityBadge extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(6.r),
+        borderRadius: AppRadius.smRadius,
       ),
       child: Text(
         priority,
-        style: context.textStyle.bodySmallBold.withColor(AppColors.white),
+        style: AppTypography.bodySmall.bold().withColor(AppColors.white),
       ),
     );
   }

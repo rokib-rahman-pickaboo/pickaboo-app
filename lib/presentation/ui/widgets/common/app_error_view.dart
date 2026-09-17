@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 enum AppErrorType { noInternet, server, empty, generic }
 
@@ -29,13 +32,55 @@ class AppErrorView extends StatelessWidget {
     this.secondaryLabel,
   });
 
+  /// Sliver helper for [CustomScrollView].
+  /// When [fillRemaining] is true, centers the error view in the remaining viewport space.
+  static Widget sliver({
+    Key? key,
+    AppErrorType type = AppErrorType.generic,
+    String? title,
+    String? message,
+    VoidCallback? onRetry,
+    String? retryLabel,
+    VoidCallback? onSecondary,
+    String? secondaryLabel,
+    bool fillRemaining = true,
+  }) {
+    final view = AppErrorView(
+      key: key,
+      type: type,
+      title: title,
+      message: message,
+      onRetry: onRetry,
+      retryLabel: retryLabel,
+      onSecondary: onSecondary,
+      secondaryLabel: secondaryLabel,
+    );
+    if (fillRemaining) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: view),
+      );
+    }
+    return SliverToBoxAdapter(child: view);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
     final spec = _spec();
+    final rawTitle = title ?? spec.title;
+    final displayTitle = ApiErrorParser.isTechnicalOrServerCrash(rawTitle)
+        ? spec.title
+        : rawTitle;
+    final rawMessage = message ?? spec.message;
+    final displayMessage = ApiErrorParser.isTechnicalOrServerCrash(rawMessage)
+        ? spec.message
+        : rawMessage;
 
     return Center(
       child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
         padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 24.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -51,57 +96,33 @@ class AppErrorView extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
             Text(
-              title ?? spec.title,
+              displayTitle,
               textAlign: TextAlign.center,
-              style: textStyle.headingMedium.copyWith(color: AppColors.text),
+              style: AppTypography.titleMedium.copyWith(color: AppColors.text),
             ),
             SizedBox(height: 10.h),
             Text(
-              message ?? spec.message,
+              displayMessage,
               textAlign: TextAlign.center,
-              style: textStyle.bodyMedium.copyWith(color: AppColors.mutedLight),
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.mutedLight),
             ),
             if (onRetry != null) ...[
               SizedBox(height: 26.h),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: onRetry,
-                  icon: Icon(Icons.refresh, size: 18.w, color: AppColors.white),
-                  label: Text(
-                    retryLabel ?? spec.retryLabel,
-                    style: textStyle.buttonMedium.copyWith(color: AppColors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.pickabooBlue,
-                    minimumSize: Size(double.maxFinite, 48.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                  ),
-                ),
+              AppButton.primary(
+                height: 48.h,
+                borderRadius: AppRadius.buttonRadius,
+                icon: Icon(Icons.refresh, size: 18.w, color: AppColors.white),
+                text: retryLabel ?? spec.retryLabel,
+                onPressed: onRetry,
               ),
             ],
             if (onSecondary != null) ...[
               SizedBox(height: 10.h),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: onSecondary,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: Size(double.maxFinite, 48.h),
-                    side: const BorderSide(color: AppColors.pickabooBlue),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                  ),
-                  child: Text(
-                    secondaryLabel ?? AppStrings.goBack,
-                    style: textStyle.buttonMedium.copyWith(
-                      color: AppColors.pickabooBlue,
-                    ),
-                  ),
-                ),
+              AppButton.secondary(
+                height: 48.h,
+                borderRadius: AppRadius.buttonRadius,
+                text: secondaryLabel ?? AppStrings.goBack,
+                onPressed: onSecondary,
               ),
             ],
           ],

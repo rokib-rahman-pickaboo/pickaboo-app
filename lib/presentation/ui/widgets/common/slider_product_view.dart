@@ -4,7 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/product_card_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/rating_stars.dart';
 
 /// ─────────────────────────────────────────────────────────────
@@ -20,7 +21,7 @@ class SliderProductView extends StatelessWidget {
     super.key,
     required this.product,
     required this.onTap,
-    this.width = 150.0,
+    this.width = 147.0,
     bool isLast = false,
     bool isFirst = false,
   });
@@ -36,6 +37,8 @@ class SliderProductView extends StatelessWidget {
     );
   }
 
+  static final Map<String, bool> _singleLineCache = <String, bool>{};
+
   static bool _isSingleLineTitle(
     String text,
     TextStyle style,
@@ -43,13 +46,23 @@ class SliderProductView extends StatelessWidget {
     TextScaler textScaler,
   ) {
     if (text.isEmpty || maxWidth <= 0 || maxWidth.isInfinite) return true;
+    final key = '$text|${maxWidth.toInt()}|${textScaler.scale(1.0)}';
+    final cached = _singleLineCache[key];
+    if (cached != null) return cached;
+
+    if (_singleLineCache.length > 500) {
+      _singleLineCache.clear();
+    }
+
     final textPainter = TextPainter(
       text: TextSpan(text: text, style: style),
       maxLines: 2,
       textDirection: TextDirection.ltr,
       textScaler: textScaler,
     )..layout(maxWidth: maxWidth);
-    return textPainter.computeLineMetrics().length <= 1;
+    final result = textPainter.computeLineMetrics().length <= 1;
+    _singleLineCache[key] = result;
+    return result;
   }
 
   /// Dynamically computes the exact card height needed to cleanly display all
@@ -59,18 +72,18 @@ class SliderProductView extends StatelessWidget {
     final double actualCardWidth = cardWidth.w;
     final double imageHeight = actualCardWidth; // 1:1 AspectRatio
 
-    final double cardPadTop = (4.0.h).clamp(3.0, 5.0);
-    final double cardPadBottom = (4.0.h).clamp(3.0, 5.0);
-    final double gapSmall = (2.0.h).clamp(2.0, 3.5);
-    final double gapMedium = (3.5.h).clamp(3.0, 5.0);
-    final double deliveryPaddingV = (3.5.h).clamp(3.0, 5.0);
+    final double cardPadTop = 6.0.h;
+    const double cardPadBottom = 0.0;
+    final double gapSmall = 2.0.h;
+    final double gapMedium = 5.0.h;
+    final double deliveryPaddingV = 5.5.h;
 
-    final double brandHeight = (22.5.h).clamp(20.0, 26.0);
-    final double titleHeight = (34.0.h * textScale).clamp(32.0, 44.0);
-    final double ratingHeight = (14.0.h).clamp(13.0, 16.0);
-    final double priceHeight = (20.0.h * textScale).clamp(18.0, 26.0);
-    final double dividerHeight = (1.0.h).clamp(1.0, 2.0);
-    final double deliveryHeight = (15.0.h * textScale).clamp(14.0, 20.0);
+    final double brandHeight = 24.0.h;
+    final double titleHeight = (38.0.h * textScale).clamp(34.0, 44.0);
+    final double ratingHeight = 16.0.h;
+    final double priceHeight = (24.0.h * textScale).clamp(20.0, 28.0);
+    final double dividerHeight = 1.0.h;
+    final double deliveryHeight = 14.0.h;
 
     final double bordersAndShadow = (2 * 1.w) + 6.0;
 
@@ -100,34 +113,40 @@ class SliderProductView extends StatelessWidget {
     final double devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final int imageCacheWidth =
         (width.w * devicePixelRatio).round().clamp(180, 300);
-    final double availableTitleWidth = (width - 14).w;
+    final double availableTitleWidth = (width - 16).w;
     final TextScaler textScaler = MediaQuery.textScalerOf(context);
     final double textScale = textScaler.scale(1.0);
     final bool isSingleLine = _isSingleLineTitle(
       product.productName,
-      AppTypography.productCardTitle,
+      AppTypography.titleMicro,
       availableTitleWidth,
       textScaler,
     );
 
-    final double cardPadTop = (4.0.h).clamp(3.0, 5.0);
-    final double cardPadBottom = (4.0.h).clamp(3.0, 5.0);
-    final double gapSmall = (2.0.h).clamp(2.0, 3.5);
-    final double gapMedium = (3.5.h).clamp(3.0, 5.0);
-    final double deliveryPaddingV = (3.5.h).clamp(3.0, 5.0);
+    final double cardPadTop = 6.0.h;
+    const double cardPadBottom = 0.0;
+    final double gapSmall = 2.0.h;
+    final double gapMedium = 5.0.h;
+    final double deliveryPaddingV = 5.5.h;
 
-    final double brandHeight = (22.5.h).clamp(20.0, 26.0);
-    final double titleTwoLineHeight = (34.0.h * textScale).clamp(32.0, 44.0);
+    final double brandHeight = 24.0.h;
+    final double titleTwoLineHeight = (38.0.h * textScale).clamp(34.0, 44.0);
     final double titleSingleLineHeight = titleTwoLineHeight / 2;
-    final double ratingHeight = (14.0.h).clamp(13.0, 16.0);
-    final double priceHeight = (20.0.h * textScale).clamp(18.0, 26.0);
-    final double dividerHeight = (1.0.h).clamp(1.0, 2.0);
-    final double deliveryHeight = (15.0.h * textScale).clamp(14.0, 20.0);
+    final double ratingHeight = 16.0.h;
+    final double priceHeight = (24.0.h * textScale).clamp(20.0, 28.0);
+    final double dividerHeight = 1.0.h;
+    final double deliveryHeight = 14.0.h;
 
-    return RepaintBoundary(
-      child: GestureDetector(
+    return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onTap.call(product),
+        onTap: () {
+          final intId = int.tryParse(product.id) ?? 0;
+          final cachedImg = ProductImageResolver.getCachedImage(intId);
+          final effectiveProduct = (cachedImg != null && !ProductImageResolver.isPlaceholderOrBroken(cachedImg))
+              ? product.copyWith(productImg: cachedImg)
+              : product;
+          onTap.call(effectiveProduct);
+        },
         child: Container(
           width: width.w,
           decoration: BoxDecoration(
@@ -156,7 +175,8 @@ class SliderProductView extends StatelessWidget {
                   aspectRatio: 1.0,
                   child: Container(
                     color: AppColors.pageBg,
-                    child: AppImage(
+                    child: ProductCardImage(
+                      productId: int.tryParse(product.id) ?? 0,
                       imageUrl: product.productImg,
                       fit: BoxFit.cover,
                       cacheWidth: imageCacheWidth,
@@ -190,7 +210,7 @@ class SliderProductView extends StatelessWidget {
               //    -> Empty Space (compensates for Divider) -> Empty Space (compensates for Delivery Info)
               // ============================================================================
               Padding(
-                padding: EdgeInsets.fromLTRB(7.w, cardPadTop, 7.w, cardPadBottom),
+                padding: EdgeInsets.fromLTRB(8.w, cardPadTop, 8.w, cardPadBottom),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -217,7 +237,7 @@ class SliderProductView extends StatelessWidget {
                           if (product.expressDelivery) ...[
                             SizedBox(width: 4.w),
                             SvgPicture.asset(
-                              'assets/new/svg/express_icon.svg',
+                              AppAssets.express,
                               width: 66.w,
                               height: brandHeight,
                               fit: BoxFit.contain,
@@ -236,14 +256,14 @@ class SliderProductView extends StatelessWidget {
                         product.productName,
                         maxLines: isSingleLine ? 1 : 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.productCardTitle.copyWith(
+                        style: AppTypography.titleMicro.copyWith(
                           height: 1.2,
                         ),
                       ),
                     ),
                     SizedBox(height: gapSmall),
 
-                    // Rating Bar & Review Count
+                    // Star Rating (Left) & Rating Count
                     SizedBox(
                       width: double.infinity,
                       height: ratingHeight,
@@ -253,21 +273,24 @@ class SliderProductView extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            RatingStars(rating: product.rating, size: 9.5.sp),
-                            SizedBox(width: 3.w),
-                            Text(
-                              '(${product.ratingCount})',
-                              style: AppTypography.bodyMuted,
+                            RatingStars(
+                              rating: product.rating,
+                              size: 9.5.sp,
                             ),
+                            if (product.ratingCount > 0) ...[
+                              SizedBox(width: 3.w),
+                              Text(
+                                '(${product.ratingCount})',
+                                style: AppTypography.bodySmall,
+                              ),
+                            ],
                           ],
                         ),
                       ),
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: gapSmall),
 
-                    // Price Row:
-                    // In Stock: Price + Strikethrough + Discount Badge
-                    // Out of Stock: Price + Out of Stock Tag
+                    // Product Price (or Out of Stock Tag)
                     SizedBox(
                       width: double.infinity,
                       height: priceHeight,
@@ -287,7 +310,7 @@ class SliderProductView extends StatelessWidget {
                                         SizedBox(width: 4.w),
                                         Text(
                                           '৳${_formatPrice(product.originalPrice)}',
-                                          style: AppTypography.priceStrikethrough,
+                                          style: AppTypography.priceStrike,
                                         ),
                                         SizedBox(width: 4.w),
                                         Container(
@@ -295,13 +318,13 @@ class SliderProductView extends StatelessWidget {
                                             horizontal: 5.w,
                                             vertical: 2.h,
                                           ),
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: AppColors.redBg,
-                                            borderRadius: BorderRadius.circular(3.r),
+                                            borderRadius: AppRadius.badgeRadius,
                                           ),
                                           child: Text(
-                                            '-$discount%',
-                                            style: AppTypography.badgeDiscountItem,
+                                            AppStrings.discountTag(discount),
+                                            style: AppTypography.bodyMedium.extraBold().red,
                                           ),
                                         ),
                                       ],
@@ -314,10 +337,10 @@ class SliderProductView extends StatelessWidget {
                                     ),
                                     decoration: BoxDecoration(
                                       color: AppColors.primary.withValues(alpha: 0.08),
-                                      borderRadius: BorderRadius.circular(3.r),
+                                      borderRadius: AppRadius.badgeRadius,
                                     ),
                                     child: Text(
-                                      'View Price',
+                                      AppStrings.viewPrice,
                                       style: AppTypography.brandTag.copyWith(
                                         color: AppColors.primary,
                                         fontWeight: FontWeight.w700,
@@ -329,13 +352,13 @@ class SliderProductView extends StatelessWidget {
                                   horizontal: 5.w,
                                   vertical: 1.5.h,
                                 ),
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: AppColors.redBg,
-                                  borderRadius: BorderRadius.circular(3.r),
+                                  borderRadius: AppRadius.badgeRadius,
                                 ),
                                 child: Text(
-                                  'Out of Stock',
-                                  style: AppTypography.badgeStockOut,
+                                  AppStrings.outOfStock,
+                                  style: AppTypography.bodyTiny.extraBold().red,
                                 ),
                               ),
                       ),
@@ -371,29 +394,24 @@ class SliderProductView extends StatelessWidget {
                             ? Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    Icons.local_shipping_outlined,
-                                    size: (11.0.sp * textScale).clamp(10.0, 14.0),
-                                    color: AppColors.green,
+                                  SvgPicture.asset(
+                                    AppAssets.fastDelivery,
+                                    width: 14.w,
+                                    height: 12.h,
+                                    fit: BoxFit.contain,
                                   ),
-                                  SizedBox(width: 2.5.w),
+                                  SizedBox(width: 4.w),
                                   Expanded(
                                     child: Text.rich(
                                       TextSpan(
                                         children: [
                                           TextSpan(
                                             text: product.deliveryLabelText,
-                                            style: AppTypography.deliveryByLabel.copyWith(
-                                              fontSize: (8.5.sp).clamp(8.0, 10.0),
-                                              letterSpacing: -0.15,
-                                            ),
+                                            style: AppTypography.bodyTiny,
                                           ),
                                           TextSpan(
                                             text: product.deliveryTargetText,
-                                            style: AppTypography.deliveryByDate.copyWith(
-                                              fontSize: (8.5.sp).clamp(8.0, 10.0),
-                                              letterSpacing: -0.15,
-                                            ),
+                                            style: AppTypography.bodyTiny.bold().navy,
                                           ),
                                         ],
                                       ),
@@ -412,6 +430,6 @@ class SliderProductView extends StatelessWidget {
           ],
         ),
       ),
-    ));
+    );
   }
 }

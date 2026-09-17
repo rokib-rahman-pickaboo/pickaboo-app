@@ -1,4 +1,4 @@
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 // ============================================================================
 // ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
 // All text styles in this file originate from [AppTypography] design tokens.
@@ -60,7 +60,7 @@ class FilterCategoryList extends StatelessWidget {
                           left: BorderSide(
                             color: isSelected
                                 ? AppColors.pickabooBlue
-                                : Colors.transparent,
+                                : AppColors.transparent,
                             width: 3.5.w,
                           ),
                         ),
@@ -73,8 +73,8 @@ class FilterCategoryList extends StatelessWidget {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: isSelected
-                                  ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
-                                  : AppTypography.bodyRegular.withColor(AppColors.muted),
+                                  ? AppTypography.titleSmall.withColor(AppColors.pickabooBlue)
+                                  : AppTypography.bodyMedium.withColor(AppColors.muted),
                             ),
                           ),
                           if (selectionCount > 0)
@@ -85,11 +85,11 @@ class FilterCategoryList extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.pickabooBlue,
-                                borderRadius: BorderRadius.circular(10.r),
+                                borderRadius: AppRadius.chipRadius,
                               ),
                               child: Text(
                                 '$selectionCount',
-                                style: AppTypography.buttonPrimary,
+                                style: AppTypography.button,
                               ),
                             ),
                         ],

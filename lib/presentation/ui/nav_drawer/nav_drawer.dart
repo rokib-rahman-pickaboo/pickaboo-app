@@ -21,6 +21,7 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 
@@ -181,7 +182,7 @@ class NavDrawer extends StatelessWidget {
     String? profileImage,
     String mobileNumber,
   ) {
-    final borderRadius = BorderRadius.circular(12.r);
+    final borderRadius = AppRadius.cardRadius;
 
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
@@ -225,14 +226,14 @@ class NavDrawer extends StatelessWidget {
               children: [
                 Text(
                   '${user.firstname} ${user.lastname}',
-                  style: AppTypography.pageTitle,
+                  style: AppTypography.titleLarge,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 3.h),
                 Text(
                   'ID # ${user.id}',
-                  style: AppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
               ],
             ),
@@ -256,9 +257,9 @@ class NavDrawer extends StatelessWidget {
             Container(
               width: 50.w,
               height: 50.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.surfaceBlue,
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: AppRadius.cardRadius,
               ),
               child: Icon(
                 Icons.person_outline_rounded,
@@ -274,14 +275,14 @@ class NavDrawer extends StatelessWidget {
                 children: [
                   Text(
                     'Welcome to Pickaboo!',
-                    style: AppTypography.pageTitle,
+                    style: AppTypography.titleLarge,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 3.h),
                   Text(
                     'Sign in or Register',
-                    style: AppTypography.brandActionText,
+                    style: AppTypography.brandAction,
                   ),
                 ],
               ),
@@ -416,66 +417,57 @@ class NavDrawer extends StatelessWidget {
   Widget _buildAuthButton(BuildContext context, bool isLoggedIn) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: SizedBox(
-        width: double.infinity,
+      child: AppButton(
         height: 46.h,
-        child: ElevatedButton(
-          onPressed: () {
-            if (isLoggedIn) {
-              if (kDebugMode) {
-                print('🚪 [LOGOUT] Logout button pressed');
-              }
-
-              final authBloc = context.read<AuthBloc>();
-              context.pop();
-
-              showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        authBloc.add(const AuthEvent.userLoggedOut());
-                        SnackBarUtils.showSuccess(
-                          context,
-                          'Logged out successfully',
-                        );
-                        context.go(Routes.home);
-                      },
-                      child: Text(
-                        'Logout',
-                        style: AppTypography.inputError,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            } else {
-              context.pop();
-              context.push('${Routes.login}?from=drawer');
+        borderRadius: AppRadius.buttonRadius,
+        type: isLoggedIn ? AppButtonType.danger : AppButtonType.primary,
+        backgroundColor:
+            isLoggedIn ? AppColors.red : AppColors.pickabooBlue,
+        textColor: AppColors.white,
+        text: isLoggedIn ? AppStrings.logout : AppStrings.login,
+        onPressed: () {
+          if (isLoggedIn) {
+            if (kDebugMode) {
+              print('🚪 [LOGOUT] Logout button pressed');
             }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isLoggedIn ? AppColors.red : AppColors.pickabooBlue,
-            foregroundColor: AppColors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            elevation: 0,
-          ),
-          child: Text(
-            isLoggedIn ? 'Logout' : 'Login',
-            style: AppTypography.buttonPrimary,
-          ),
-        ),
+
+            final authBloc = context.read<AuthBloc>();
+            context.pop();
+
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text(AppStrings.logout),
+                content: const Text(AppStrings.logoutConfirmMessage),
+                actions: [
+                  AppButton.ghost(
+                    text: AppStrings.cancel,
+                    size: AppButtonSize.sm,
+                    textColor: AppColors.muted,
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                  AppButton.ghost(
+                    text: AppStrings.logout,
+                    size: AppButtonSize.sm,
+                    textColor: AppColors.red,
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      authBloc.add(const AuthEvent.userLoggedOut());
+                      SnackBarUtils.showSuccess(
+                        context,
+                        AppStrings.loggedOutSuccess,
+                      );
+                      context.go(Routes.home);
+                    },
+                  ),
+                ],
+              ),
+            );
+          } else {
+            context.pop();
+            context.push('${Routes.login}?from=drawer');
+          }
+        },
       ),
     );
   }
@@ -491,7 +483,7 @@ class NavDrawer extends StatelessWidget {
             if (version.isEmpty) return const SizedBox.shrink();
             return Text(
               'Version $version',
-              style: AppTypography.bodyMuted,
+              style: AppTypography.bodySmall,
             );
           },
         ),
@@ -525,7 +517,7 @@ class _DrawerSection extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTypography.cardTitle,
+            style: AppTypography.titleSmall,
           ),
           SizedBox(height: 6.h),
           ...children,
@@ -551,7 +543,7 @@ class _DrawerMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: AppRadius.buttonRadius,
       splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
       highlightColor: AppColors.pickabooBlue.withValues(alpha: 0.05),
       onTap: () {
@@ -572,7 +564,7 @@ class _DrawerMenuItem extends StatelessWidget {
               height: 36.w,
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: AppRadius.buttonRadius,
               ),
               child: Center(
                 child: Icon(icon, color: iconColor, size: 19.sp),
@@ -583,7 +575,7 @@ class _DrawerMenuItem extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: AppTypography.cardTitle,
+                style: AppTypography.titleSmall,
               ),
             ),
             Icon(
@@ -624,7 +616,7 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: AppRadius.buttonRadius,
           splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
           highlightColor: AppColors.pickabooBlue.withValues(alpha: 0.05),
           onTap: () {
@@ -646,8 +638,8 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
                       width: 36.w,
                       height: 36.w,
                       padding: EdgeInsets.all(6.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
+                      decoration: const BoxDecoration(
+                        borderRadius: AppRadius.buttonRadius,
                         color: AppColors.surfaceBlue,
                       ),
                       child: AppImage(
@@ -664,8 +656,8 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
                     Container(
                       width: 36.w,
                       height: 36.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
+                      decoration: const BoxDecoration(
+                        borderRadius: AppRadius.buttonRadius,
                         color: AppColors.surfaceBlue,
                       ),
                       child: Icon(
@@ -696,7 +688,7 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
                         : EdgeInsets.zero,
                     child: Text(
                       widget.category.name,
-                      style: AppTypography.cardTitle,
+                      style: AppTypography.titleSmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -743,7 +735,7 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InkWell(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: AppRadius.buttonRadius,
                 splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
                 highlightColor:
                     AppColors.pickabooBlue.withValues(alpha: 0.05),
@@ -768,7 +760,7 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
                           padding: EdgeInsets.only(top: 10.h, bottom: 10.h),
                           child: Text(
                             'All in ${widget.category.name}',
-                            style: AppTypography.brandActionText,
+                            style: AppTypography.brandAction,
                           ),
                         ),
                       ),

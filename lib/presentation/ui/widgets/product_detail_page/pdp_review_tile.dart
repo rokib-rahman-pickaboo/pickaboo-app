@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +10,8 @@ import 'package:pickaboo/domain/entity/review/review_entity.dart';
 import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/review_image_viewer_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// POLISHED NEW-UI PDP CUSTOMER REVIEW TILE
 /// Matches Pickaboo-App-UI design system:
@@ -85,12 +87,12 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                       reviewerName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.cardTitle,
+                      style: AppTypography.titleSmall,
                     ),
                     const SizedBox(height: AppSpacing.sameGroupItemSpacing / 4),
                     Text(
                       formattedDate,
-                      style: AppTypography.bodyMuted,
+                      style: AppTypography.bodySmall,
                     ),
                   ],
                 ),
@@ -106,7 +108,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                   children: [
                     Text(
                       ratingVal,
-                      style: AppTypography.badgeStockOut.copyWith(
+                      style: AppTypography.bodyTiny.extraBold().red.copyWith(
                         color: AppColors.white,
                         fontSize: 10.5.sp,
                       ),
@@ -126,7 +128,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
           ],
 
@@ -138,7 +140,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
               builder: (context, constraints) {
                 final span = TextSpan(
                   text: detail,
-                  style: AppTypography.bodyRegular,
+                  style: AppTypography.bodyMedium,
                 );
 
                 final tp = TextPainter(
@@ -155,7 +157,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                   children: [
                     Text(
                       detail,
-                      style: AppTypography.bodyRegular,
+                      style: AppTypography.bodyMedium,
                       maxLines: _isExpanded ? null : 3,
                       overflow: _isExpanded
                           ? TextOverflow.visible
@@ -167,7 +169,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                         onTap: () => setState(() => _isExpanded = !_isExpanded),
                         child: Text(
                           _isExpanded ? 'Show Less' : 'More',
-                          style: AppTypography.brandActionText,
+                          style: AppTypography.brandAction,
                         ),
                       ),
                     ],
@@ -192,7 +194,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
-                        backgroundColor: Colors.black,
+                        backgroundColor: AppColors.black,
                         useSafeArea: true,
                         builder: (_) => ReviewImageViewerSheet(
                           imageUrls: widget.review.images,
@@ -201,19 +203,19 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                       );
                     },
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4.r),
+                      borderRadius: AppRadius.badgeRadius,
                       child: Container(
                         width: 48.w,
                         height: 48.w,
                         decoration: BoxDecoration(
                           border: Border.all(color: AppColors.border),
-                          borderRadius: BorderRadius.circular(4.r),
+                          borderRadius: AppRadius.badgeRadius,
                         ),
-                        child: CachedNetworkImage(
+                        child: AppImage(
                           imageUrl: widget.review.images[index],
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => const AppLoader.inline(),
-                          errorWidget: (_, __, ___) => Icon(
+                          placeholder: const AppLoader.inline(),
+                          errorWidget: Icon(
                             Icons.broken_image,
                             color: AppColors.muted,
                             size: 16.sp,
@@ -246,22 +248,22 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
       ),
       child: ClipOval(
         child: widget.review.reviwerImage.isNotEmpty
-            ? CachedNetworkImage(
+            ? AppImage(
                 imageUrl: widget.review.reviwerImage,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => SvgPicture.asset(
-                  'assets/new/svg/detail/review_avatar_icon.svg',
+                placeholder: SvgPicture.asset(
+                  AppAssets.detailReviewAvatar,
                   fit: BoxFit.contain,
                 ),
-                errorWidget: (_, __, ___) => SvgPicture.asset(
-                  'assets/new/svg/detail/review_avatar_icon.svg',
+                errorWidget: SvgPicture.asset(
+                  AppAssets.detailReviewAvatar,
                   fit: BoxFit.contain,
                 ),
               )
             : Padding(
                 padding: EdgeInsets.all(6.w),
                 child: SvgPicture.asset(
-                  'assets/new/svg/detail/review_avatar_icon.svg',
+                  AppAssets.detailReviewAvatar,
                   fit: BoxFit.contain,
                 ),
               ),
@@ -311,7 +313,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SvgPicture.asset(
-                'assets/new/svg/detail/thum_up_icon.svg',
+                AppAssets.detailThumbUp,
                 width: 15.w,
                 height: 15.h,
                 colorFilter: ColorFilter.mode(likeColor, BlendMode.srcIn),
@@ -319,7 +321,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
               SizedBox(width: 5.w),
               Text(
                 '${widget.review.likeCount}',
-                style: AppTypography.bodyMuted.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   fontWeight: FontWeight.w700,
                   color: likeColor,
                 ),
@@ -338,7 +340,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SvgPicture.asset(
-                'assets/new/svg/detail/thum_down.svg',
+                AppAssets.detailThumbDown,
                 width: 15.w,
                 height: 15.h,
                 colorFilter: ColorFilter.mode(dislikeColor, BlendMode.srcIn),
@@ -346,7 +348,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
               SizedBox(width: 5.w),
               Text(
                 '${widget.review.dislikesCount}',
-                style: AppTypography.bodyMuted.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   fontWeight: FontWeight.w700,
                   color: dislikeColor,
                 ),

@@ -139,6 +139,8 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                 selectedMethod: paymentMethod,
                 cartId: checkout.cart.id.toString(),
                 availablePaymentMethods: availablePaymentMethods,
+                totals: checkout.cartTotals,
+                itemsCount: checkout.cart.itemsCount,
               );
             },
             paymentFailed: (orderId, errorMessage) {
@@ -481,7 +483,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
             orElse: () => Center(
               child: Text(
                 "Something went wrong",
-                style: AppTypography.bodyRegular,
+                style: AppTypography.bodyMedium,
               ),
             ),
           );

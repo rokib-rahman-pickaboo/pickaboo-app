@@ -62,7 +62,7 @@ class ProfileGridTile extends StatelessWidget {
                     title,
                     maxLines: hasSubtitle ? 1 : 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.cardTitle.copyWith(
+                    style: AppTypography.titleSmall.copyWith(
                       fontSize: 12.5.sp,
                       height: 1.2,
                     ),
@@ -73,7 +73,7 @@ class ProfileGridTile extends StatelessWidget {
                       subtitle!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodyMuted,
+                      style: AppTypography.bodySmall,
                     ),
                   ],
                 ],

@@ -15,6 +15,7 @@ import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_item_entity.dart';
 import 'package:pickaboo/injection.dart';
+import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/just_for_you_bloc/just_for_you_bloc.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
@@ -81,7 +82,7 @@ class _OrderListPageState extends State<OrderListPage> {
                 context: context,
                 isScrollControlled: true,
                 useSafeArea: true,
-                backgroundColor: Colors.transparent,
+                backgroundColor: AppColors.transparent,
                 builder: (context) => OrderReviewProductBottomSheet(
                   items: state.orderDetails!.items,
                   onProductSelected: (item) {
@@ -100,6 +101,9 @@ class _OrderListPageState extends State<OrderListPage> {
 
             if (state.successMessage != null) {
               if (state.successMessage == 'Items added to cart') {
+                final cartBloc = context.read<CartBloc>();
+                cartBloc.markAdditionPending();
+                cartBloc.add(const CartEvent.getCart());
                 context.push(Routes.cart);
               } else {
                 SnackBarUtils.showPositive(
@@ -190,6 +194,11 @@ class _OrderListPageState extends State<OrderListPage> {
                             onPay: () {
                               context.goToOrderPayment(
                                 orderId: order.orderId.toString(),
+                                selectedMethod: order.paymentMethod,
+                                grandTotal: order.grandtotal,
+                                subtotal: order.subtotal,
+                                shippingAmount: order.shipping,
+                                discountAmount: order.discountAmount,
                               );
                             },
                             onReview: () {
@@ -236,7 +245,7 @@ class _OrderListPageState extends State<OrderListPage> {
       return Center(
         child: Text(
           'Select an order to see details',
-          style: AppTypography.bodyMuted,
+          style: AppTypography.bodySmall,
         ),
       );
     }

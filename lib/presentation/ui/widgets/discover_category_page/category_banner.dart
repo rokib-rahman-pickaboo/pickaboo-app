@@ -27,7 +27,6 @@ class CategoryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (banners.isEmpty) return const SizedBox.shrink();
-    final textStyles = context.textStyle;
     final banner = banners.first;
 
     return GestureDetector(
@@ -53,7 +52,7 @@ class CategoryBanner extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     menuName,
-                    style: textStyles.headingSmall
+                    style: AppTypography.titleLarge
                         .withColor(AppColors.pickabooBlue)
                         .copyWith(
                           fontSize: 17.sp,

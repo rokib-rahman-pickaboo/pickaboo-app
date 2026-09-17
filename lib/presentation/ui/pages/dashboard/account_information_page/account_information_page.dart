@@ -20,10 +20,11 @@ import 'package:pickaboo/presentation/ui/pages/dashboard/account_information_pag
 import 'package:pickaboo/presentation/ui/pages/dashboard/account_information_page/widgets/change_phone_number_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/account_information_page/personal_information_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/account_information_page/profile_header_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class AccountInformationPage extends StatefulWidget {
   const AccountInformationPage({super.key});
@@ -65,7 +66,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
     showModalBottomSheet(
       context: pageContext,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (bottomSheetContext) {
         final mediaQuery = MediaQuery.of(bottomSheetContext);
         final bottomInset = mediaQuery.viewInsets.bottom;
@@ -152,7 +153,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                   children: [
                                     Text(
                                       'Change Password',
-                                      style: AppTypography.pageTitle,
+                                      style: AppTypography.titleLarge,
                                     ),
                                     IconButton(
                                       onPressed: isUpdating
@@ -173,21 +174,21 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                 SizedBox(height: 4.h),
                                 Text(
                                   AppStrings.passwordRequirement,
-                                  style: AppTypography.bodyMuted,
+                                  style: AppTypography.bodySmall,
                                 ),
                                 SizedBox(height: 20.h),
 
                                 // Current Password
                                 Text(
                                   'Current Password',
-                                  style: AppTypography.inputLabel,
+                                  style: AppTypography.bodyLarge,
                                 ),
                                 SizedBox(height: 6.h),
                                 TextFormField(
                                   controller: currentPassController,
                                   enabled: !isUpdating,
                                   obscureText: obscureCurrent,
-                                  style: AppTypography.inputText,
+                                  style: AppTypography.bodyLarge.regular(),
                                   decoration: InputDecoration(
                                     hintText: AppStrings.enterCurrentPassword,
                                     hintStyle: AppTypography.inputHint,
@@ -245,14 +246,14 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                 // New Password
                                 Text(
                                   'New Password',
-                                  style: AppTypography.inputLabel,
+                                  style: AppTypography.bodyLarge,
                                 ),
                                 SizedBox(height: 6.h),
                                 TextFormField(
                                   controller: newPassController,
                                   enabled: !isUpdating,
                                   obscureText: obscureNew,
-                                  style: AppTypography.inputText,
+                                  style: AppTypography.bodyLarge.regular(),
                                   decoration: InputDecoration(
                                     hintText: 'Enter new password',
                                     hintStyle: AppTypography.inputHint,
@@ -310,14 +311,14 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                 // Confirm Password
                                 Text(
                                   'Confirm New Password',
-                                  style: AppTypography.inputLabel,
+                                  style: AppTypography.bodyLarge,
                                 ),
                                 SizedBox(height: 6.h),
                                 TextFormField(
                                   controller: confirmPassController,
                                   enabled: !isUpdating,
                                   obscureText: obscureConfirm,
-                                  style: AppTypography.inputText,
+                                  style: AppTypography.bodyLarge.regular(),
                                   decoration: InputDecoration(
                                     hintText: AppStrings.enterConfirmPassword,
                                     hintStyle: AppTypography.inputHint,
@@ -373,67 +374,39 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     return null;
                                   },
                                 ),
-                                SizedBox(height: 24.h),
+                                AppSpacing.gapV24,
 
                                 // Submit Button
-                                SizedBox(
-                                  width: double.infinity,
+                                AppButton.primary(
+                                  text: 'Save Password',
+                                  isLoading: isUpdating,
+                                  isFullWidth: true,
                                   height: 48.h,
-                                  child: ElevatedButton(
-                                    onPressed: isUpdating
-                                        ? null
-                                        : () {
-                                            if (formKey.currentState
-                                                    ?.validate() ??
-                                                false) {
-                                              final currentPass =
-                                                  currentPassController.text
-                                                      .trim();
-                                              final newPass =
-                                                  newPassController.text
-                                                      .trim();
-                                              pageContext
-                                                  .read<UserProfileBloc>()
-                                                  .add(
-                                                    UserProfileEvent
-                                                        .changePassword(
-                                                      currentPassword:
-                                                          currentPass,
-                                                      newPassword: newPass,
-                                                    ),
-                                                  );
-                                            }
-                                          },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.pickabooBlue,
-                                      foregroundColor: AppColors.white,
-                                      disabledBackgroundColor:
-                                          AppColors.pickabooBlue.withValues(
-                                        alpha: 0.6,
-                                      ),
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12.r),
-                                      ),
-                                    ),
-                                    child: isUpdating
-                                        ? SizedBox(
-                                            height: 20.h,
-                                            width: 20.h,
-                                            child: const CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                AppColors.white,
-                                              ),
-                                            ),
-                                          )
-                                        : Text(
-                                            'Save Password',
-                                            style: AppTypography.buttonPrimary,
-                                          ),
-                                  ),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                  onPressed: isUpdating
+                                      ? null
+                                      : () {
+                                          if (formKey.currentState
+                                                  ?.validate() ??
+                                              false) {
+                                            final currentPass =
+                                                currentPassController.text
+                                                    .trim();
+                                            final newPass =
+                                                newPassController.text
+                                                    .trim();
+                                            pageContext
+                                                .read<UserProfileBloc>()
+                                                .add(
+                                                  UserProfileEvent
+                                                      .changePassword(
+                                                    currentPassword:
+                                                        currentPass,
+                                                    newPassword: newPass,
+                                                  ),
+                                                );
+                                          }
+                                        },
                                 ),
                               ],
                             ),
@@ -475,30 +448,17 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
           padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: SafeArea(
             top: false,
-            child: SizedBox(
-              height: 48.h,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  context.push(Routes.editAccountInformation);
-                },
-                icon: Icon(
-                  Icons.edit_outlined,
-                  size: 18.sp,
-                  color: AppColors.white,
-                ),
-                label: Text(
-                  'Edit Account Information',
-                  style: AppTypography.buttonPrimary,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.pickabooBlue,
-                  foregroundColor: AppColors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
+            child: AppButton.primary(
+              text: 'Edit Account Information',
+              icon: Icon(
+                Icons.edit_outlined,
+                size: 18.sp,
+                color: AppColors.white,
               ),
+              isFullWidth: true,
+              height: 48.h,
+              borderRadius: BorderRadius.circular(12.r),
+              onPressed: () => context.push(Routes.editAccountInformation),
             ),
           ),
         ),
@@ -587,7 +547,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                           ),
                           child: Text(
                             AppStrings.accountSecurity,
-                            style: AppTypography.sectionTitle,
+                            style: AppTypography.titleMedium,
                           ),
                         ),
                         Divider(height: 1.h, color: AppColors.border),

@@ -117,7 +117,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.byType(ListProductView));
-    expect(tappedProduct, equals(baseProduct));
+    expect(tappedProduct?.id, equals(baseProduct.id));
   });
 
   testWidgets('renders "Sponsored" label when isAd is true', (tester) async {

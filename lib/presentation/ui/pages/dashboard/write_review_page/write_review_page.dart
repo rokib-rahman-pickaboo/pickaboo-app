@@ -6,8 +6,8 @@
 
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +20,10 @@ import 'package:pickaboo/presentation/bloc/write_review_bloc/write_review_bloc.d
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
 import 'package:pickaboo/presentation/ui/widgets/write_review_page/rating_input_row.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modern WriteReviewPage matching Pickaboo-App-UI design language.
 class WriteReviewPage extends StatefulWidget {
@@ -58,7 +61,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
   void _showPhotoPickerOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (c) => Container(
         decoration: const BoxDecoration(
           color: AppColors.white,
@@ -84,7 +87,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
             SizedBox(height: 16.h),
             Text(
               "Add Photos",
-              style: AppTypography.pageTitle,
+              style: AppTypography.titleLarge,
             ),
             SizedBox(height: 24.h),
             Row(
@@ -151,7 +154,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
           SizedBox(height: 8.h),
           Text(
             label,
-            style: AppTypography.inputLabel,
+            style: AppTypography.bodyLarge,
           ),
         ],
       ),
@@ -164,6 +167,38 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
       backgroundColor: AppColors.pageBg,
       appBar: const PickabooAppBar(
         title: "Write Review",
+      ),
+      bottomNavigationBar: Container(
+        color: AppColors.pageBg,
+        padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
+        child: SafeArea(
+          top: false,
+          child: BlocBuilder<WriteReviewBloc, WriteReviewState>(
+            builder: (context, state) {
+              final isSubmitting = state.maybeWhen(
+                loading: () => true,
+                orElse: () => false,
+              );
+              return AppButton.primary(
+                height: 48.h,
+                borderRadius: AppRadius.cardRadius,
+                isLoading: isSubmitting,
+                text: "Submit Review",
+                onPressed: isSubmitting
+                    ? null
+                    : () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          context.read<WriteReviewBloc>().add(
+                            WriteReviewEvent.submitReview(
+                              widget.productId,
+                            ),
+                          );
+                        }
+                      },
+              );
+            },
+          ),
+        ),
       ),
       body: ResponsiveContainer(
         child: BlocListener<PhotoPickerBloc, PhotoPickerState>(
@@ -243,11 +278,10 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: AppRadius.cardRadius,
-                                    child: CachedNetworkImage(
+                                    child: AppImage(
                                       imageUrl: widget.productImage,
                                       fit: BoxFit.contain,
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(
+                                      errorWidget: const Icon(
                                         Icons.image_not_supported_outlined,
                                         color: AppColors.mutedLight,
                                       ),
@@ -258,7 +292,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                 Expanded(
                                   child: Text(
                                     widget.productName,
-                                    style: AppTypography.cardTitle,
+                                    style: AppTypography.titleSmall,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -279,7 +313,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                           ),
                           child: Text(
                             "Rating",
-                            style: AppTypography.cardTitle,
+                            style: AppTypography.titleSmall,
                           ),
                         ),
                       ),
@@ -367,7 +401,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                           ),
                           child: Text(
                             "Review",
-                            style: AppTypography.cardTitle,
+                            style: AppTypography.titleSmall,
                           ),
                         ),
                       ),
@@ -385,7 +419,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                               controller: _reviewController,
                               maxLines: 5,
                               maxLength: 500,
-                              style: AppTypography.inputText,
+                              style: AppTypography.bodyLarge.regular(),
                               decoration: InputDecoration(
                                 hintText: "Enter your message here",
                                 hintStyle: AppTypography.inputHint,
@@ -465,7 +499,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                   SizedBox(height: 6.h),
                                   Text(
                                     "Add Photos",
-                                    style: AppTypography.brandActionText,
+                                    style: AppTypography.brandAction,
                                   ),
                                 ],
                               ),
@@ -542,14 +576,14 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                             child: Container(
                                               padding: EdgeInsets.all(3.w),
                                               decoration: BoxDecoration(
-                                                color: Colors.black.withValues(
+                                                color: AppColors.black.withValues(
                                                   alpha: 0.6,
                                                 ),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
                                                 Icons.close,
-                                                color: Colors.white,
+                                                color: AppColors.white,
                                                 size: 12.sp,
                                               ),
                                             ),
@@ -565,46 +599,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                         ),
                       ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: 32.h)),
-
-                      // ── Submit Review Button ──
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sameGroupItemSpacing.w,
-                          ),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 48.h,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.pickabooBlue,
-                                foregroundColor: AppColors.white,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: AppRadius.cardRadius,
-                                ),
-                                elevation: 0,
-                              ),
-                              onPressed: () {
-                                if (_formKey.currentState?.validate() ??
-                                    false) {
-                                  context.read<WriteReviewBloc>().add(
-                                    WriteReviewEvent.submitReview(
-                                      widget.productId,
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Text(
-                                "Submit Review",
-                                style: AppTypography.buttonPrimary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      SliverToBoxAdapter(child: SizedBox(height: 30.h)),
+                      SliverToBoxAdapter(child: SizedBox(height: 16.h)),
                     ],
                   );
                 },

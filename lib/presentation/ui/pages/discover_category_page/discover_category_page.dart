@@ -87,8 +87,6 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyles = context.textStyle;
-
     return BlocListener<InternetBloc, InternetState>(
       listenWhen: (previous, current) =>
           previous.maybeWhen(disconnected: (_) => true, orElse: () => false) &&
@@ -100,85 +98,122 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
       },
       child: BlocBuilder<DiscoverCategoryBloc, DiscoverCategoryState>(
         builder: (context, state) {
-          final isOfflineError = state.discoverCategories == null &&
-              ConnectivityUtils.isOffline(context);
+          final hasCategories = state.discoverCategories != null &&
+              state.discoverCategories!.isNotEmpty;
 
-          final isGenericError = state.discoverCategories == null &&
-              !isOfflineError &&
-              state.status == DiscoverCategoryStatus.error;
-
-          final hideNav = isOfflineError || isGenericError;
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (MainPage.hideBottomNav.value != hideNav) {
-              MainPage.hideBottomNav.value = hideNav;
-            }
-          });
-
-          if (isOfflineError) {
-            return PopScope(
-              canPop: false,
-              onPopInvokedWithResult: (didPop, result) {
-                if (!didPop) {
+          if (!hasCategories) {
+            // While loading or initial, ALWAYS show loader with AppBar — never flash error or offline
+            if (state.status == DiscoverCategoryStatus.loading ||
+                state.status == DiscoverCategoryStatus.initial) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (MainPage.hideBottomNav.value != false) {
                   MainPage.hideBottomNav.value = false;
-                  context.go(Routes.home);
                 }
-              },
-              child: NoInternetPage(
-                showAppBar: true,
-                title: AppStrings.allCategories,
-                onBack: () {
-                  MainPage.hideBottomNav.value = false;
-                  context.go(Routes.home);
-                },
-                onRetry: () => context.read<DiscoverCategoryBloc>().add(
-                  const DiscoverCategoryEvent.getDiscoverCategories(),
-                ),
-              ),
-            );
-          }
-
-          if (isGenericError) {
-            return PopScope(
-              canPop: false,
-              onPopInvokedWithResult: (didPop, result) {
-                if (!didPop) {
-                  MainPage.hideBottomNav.value = false;
-                  context.go(Routes.home);
-                }
-              },
-              child: Scaffold(
-                key: _scaffoldKey,
-                backgroundColor: AppColors.pageBg,
-                appBar: PickabooAppBar(
-                  title: AppStrings.allCategories,
-                  showBackButton: true,
-                  onBackTap: () {
+              });
+              return PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (!didPop) {
                     MainPage.hideBottomNav.value = false;
                     context.go(Routes.home);
-                  },
+                  }
+                },
+                child: Scaffold(
+                  key: _scaffoldKey,
+                  backgroundColor: AppColors.pageBg,
+                  appBar: PickabooAppBar(
+                    title: AppStrings.allCategories,
+                    onBackTap: () {
+                      MainPage.hideBottomNav.value = false;
+                      context.go(Routes.home);
+                    },
+                  ),
+                  body: const SafeArea(
+                    child: AppLoader.fullPage(),
+                  ),
                 ),
-                body: SafeArea(
-                  child: AppErrorView(
-                    type: AppErrorType.generic,
-                    title: "Couldn't load categories",
-                    message: 'Please try again in a moment.',
-                    retryLabel: 'Retry',
+              );
+            }
+
+            // Only if loading finished with error and no categories exist
+            if (state.status == DiscoverCategoryStatus.error) {
+              final isOffline = ConnectivityUtils.isNoInternet(state.error, context);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (MainPage.hideBottomNav.value != true) {
+                  MainPage.hideBottomNav.value = true;
+                }
+              });
+
+              if (isOffline) {
+                return PopScope(
+                  canPop: false,
+                  onPopInvokedWithResult: (didPop, result) {
+                    if (!didPop) {
+                      MainPage.hideBottomNav.value = false;
+                      context.go(Routes.home);
+                    }
+                  },
+                  child: NoInternetPage(
+                    showAppBar: true,
+                    title: AppStrings.allCategories,
+                    autoRetryOnReconnect: false,
+                    onBack: () {
+                      MainPage.hideBottomNav.value = false;
+                      context.go(Routes.home);
+                    },
                     onRetry: () => context.read<DiscoverCategoryBloc>().add(
-                      const DiscoverCategoryEvent.getDiscoverCategories(),
+                      const DiscoverCategoryEvent.refresh(),
+                    ),
+                  ),
+                );
+              }
+
+              return PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (!didPop) {
+                    MainPage.hideBottomNav.value = false;
+                    context.go(Routes.home);
+                  }
+                },
+                child: Scaffold(
+                  key: _scaffoldKey,
+                  backgroundColor: AppColors.pageBg,
+                  appBar: PickabooAppBar(
+                    title: AppStrings.allCategories,
+                    showBackButton: true,
+                    onBackTap: () {
+                      MainPage.hideBottomNav.value = false;
+                      context.go(Routes.home);
+                    },
+                  ),
+                  body: SafeArea(
+                    child: AppErrorView(
+                      type: AppErrorType.generic,
+                      title: "Couldn't load categories",
+                      message: 'Please try again in a moment.',
+                      retryLabel: 'Retry',
+                      onRetry: () => context.read<DiscoverCategoryBloc>().add(
+                        const DiscoverCategoryEvent.refresh(),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
+              );
+            }
           }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (MainPage.hideBottomNav.value != false) {
+              MainPage.hideBottomNav.value = false;
+            }
+          });
 
           return PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, result) {
               if (!didPop) {
-                MainPage.hideBottomNav.value = false;
-                context.go(Routes.home);
+                MainPage.popTab(context);
               }
             },
             child: Scaffold(
@@ -186,10 +221,8 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
               backgroundColor: AppColors.pageBg,
               appBar: PickabooAppBar(
                 title: AppStrings.allCategories,
-                onBackTap: () {
-                  MainPage.hideBottomNav.value = false;
-                  context.go(Routes.home);
-                },
+                showBackButton: true,
+                onBackTap: () => MainPage.popTab(context),
                 actions: [
                   IconButton(
                     icon: Icon(Icons.search_rounded, color: AppColors.navy, size: 22.sp),
@@ -201,7 +234,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
               body: RefreshIndicator(
                 onRefresh: _onRefresh,
                 color: AppColors.pickabooBlue,
-                child: _buildContent(state, textStyles),
+                child: _buildContent(state),
               ),
             ),
           );
@@ -212,7 +245,6 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
 
   Widget _buildContent(
     DiscoverCategoryState state,
-    AppTextStyles textStyles,
   ) {
     if (state.status == DiscoverCategoryStatus.loading) {
       return const AppLoader.fullPage();
@@ -223,7 +255,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
         type: AppErrorType.empty,
         title: 'No categories available',
         onRetry: () => context.read<DiscoverCategoryBloc>().add(
-          const DiscoverCategoryEvent.getDiscoverCategories(),
+          const DiscoverCategoryEvent.refresh(),
         ),
       );
     }
@@ -237,7 +269,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
             ? null
             : 'Something went wrong while loading this page. Please try again in a moment.',
         onRetry: () => context.read<DiscoverCategoryBloc>().add(
-          const DiscoverCategoryEvent.getDiscoverCategories(),
+          const DiscoverCategoryEvent.refresh(),
         ),
       );
     }

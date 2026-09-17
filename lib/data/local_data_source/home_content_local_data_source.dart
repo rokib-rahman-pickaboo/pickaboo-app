@@ -9,5 +9,7 @@ abstract class HomeContentLocalDataSource {
 
   Future<void> insertHomeContent(HomeContentResponse content);
 
+  Future<bool> isHomeContentStale();
+
   Future<void> clearHomeContent();
 }

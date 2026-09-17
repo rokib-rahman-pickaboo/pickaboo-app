@@ -24,26 +24,6 @@ void main() {
     registerFallbackValue(AddressEntity(street: []));
   });
 
-  setUp(() {
-    mockRepository = MockCartRepository();
-    mockAnalytics = MockAnalyticsService();
-
-    // Default mock behavior for analytics
-    when(
-      () => mockAnalytics.logPurchase(
-        orderId: any(named: 'orderId'),
-        total: any(named: 'total'),
-        items: any(named: 'items'),
-      ),
-    ).thenAnswer((_) async {});
-
-    checkoutBloc = CheckoutBloc(mockRepository, mockAnalytics);
-  });
-
-  tearDown(() {
-    checkoutBloc.close();
-  });
-
   final tAddress = AddressEntity(
     id: 1,
     firstname: 'John',
@@ -122,6 +102,32 @@ void main() {
     paymentMethods: [tPaymentMethod],
     totals: tCartTotals,
   );
+
+  setUp(() {
+    mockRepository = MockCartRepository();
+    mockAnalytics = MockAnalyticsService();
+
+    // Default mock behavior for analytics
+    when(
+      () => mockAnalytics.logPurchase(
+        orderId: any(named: 'orderId'),
+        total: any(named: 'total'),
+        items: any(named: 'items'),
+      ),
+    ).thenAnswer((_) async {});
+
+    when(
+      () => mockRepository.getPaymentInfo(
+        cartId: any(named: 'cartId'),
+      ),
+    ).thenAnswer((_) async => Right(tPaymentMethodsEntity));
+
+    checkoutBloc = CheckoutBloc(mockRepository, mockAnalytics);
+  });
+
+  tearDown(() {
+    checkoutBloc.close();
+  });
 
   group('CheckoutBloc', () {
     test('initial state should be CheckoutState.initial()', () {
@@ -261,6 +267,88 @@ void main() {
               orElse: () => false,
             ),
             'orderPlaced',
+            true,
+          ),
+        ],
+      );
+    });
+
+    group('ProcessPayment', () {
+      blocTest<CheckoutBloc, CheckoutState>(
+        'emits navigateToPaymentGateway with exact title "Pickaboo EBL Mastercard" when Pickaboo EBL Mastercard is selected',
+        build: () {
+          when(
+            () => mockRepository.createEblOrder(orderId: '12345'),
+          ).thenAnswer(
+            (_) async => const Right({
+              'url': 'https://gateway.ebl.com.bd',
+              'formFields': {'field1': 'val1'},
+            }),
+          );
+          return checkoutBloc;
+        },
+        act: (bloc) => bloc.add(
+          const CheckoutEvent.processPayment(
+            orderId: '12345',
+            paymentMethod: 'pickabooeblmastercard',
+            paymentGateway: 'eblbank',
+          ),
+        ),
+        expect: () => [
+          isA<CheckoutState>().having(
+            (s) => s.maybeMap(paymentProcessing: (_) => true, orElse: () => false),
+            'paymentProcessing',
+            true,
+          ),
+          isA<CheckoutState>().having(
+            (s) => s.maybeMap(
+              navigateToPaymentGateway: (g) =>
+                  g.title == 'Pickaboo EBL Mastercard' &&
+                  g.url == 'https://gateway.ebl.com.bd',
+              orElse: () => false,
+            ),
+            'navigateToPaymentGateway',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<CheckoutBloc, CheckoutState>(
+        'emits navigateToPaymentGateway with exact title "Visa/Master" for visamaster digital order',
+        build: () {
+          when(
+            () => mockRepository.createDigitalOrder(
+              orderId: '12345',
+              paymentMethodCode: 'visamaster',
+              paymentGateway: 'mtb',
+              returnPath: any(named: 'returnPath'),
+            ),
+          ).thenAnswer(
+            (_) async => const Right('https://gateway.mtb.com.bd'),
+          );
+          return checkoutBloc;
+        },
+        act: (bloc) => bloc.add(
+          const CheckoutEvent.processPayment(
+            orderId: '12345',
+            paymentMethod: 'visamaster',
+            paymentGateway: 'mtb',
+          ),
+        ),
+        expect: () => [
+          isA<CheckoutState>().having(
+            (s) => s.maybeMap(paymentProcessing: (_) => true, orElse: () => false),
+            'paymentProcessing',
+            true,
+          ),
+          isA<CheckoutState>().having(
+            (s) => s.maybeMap(
+              navigateToPaymentGateway: (g) =>
+                  g.title == 'Visa/Master' &&
+                  g.url == 'https://gateway.mtb.com.bd',
+              orElse: () => false,
+            ),
+            'navigateToPaymentGateway',
             true,
           ),
         ],

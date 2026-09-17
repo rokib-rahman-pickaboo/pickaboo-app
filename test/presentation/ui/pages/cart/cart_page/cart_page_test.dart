@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_typography.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/injection.dart';
@@ -82,6 +82,8 @@ void main() {
     when(
       () => mockClubPointBloc.state,
     ).thenReturn(const ClubPointState.initial());
+    when(() => mockCartBloc.isPendingAddition).thenReturn(false);
+    when(() => mockCartBloc.currentCart).thenReturn(null);
     when(
       () => mockInternetBloc.state,
     ).thenReturn(const InternetState.connected('Back Online'));
@@ -94,11 +96,7 @@ void main() {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          theme: ThemeData(
-            extensions: [
-              AppTextStyles.build(Brightness.light),
-            ],
-          ),
+          theme: ThemeData(),
           home: MultiBlocProvider(
             providers: [
               BlocProvider<CartBloc>.value(value: mockCartBloc),
@@ -134,9 +132,14 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      when(() => mockCartBloc.state).thenReturn(const CartState.empty());
+      whenListen(
+        mockCartBloc,
+        Stream.value(const CartState.empty()),
+        initialState: const CartState.empty(),
+      );
 
       await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+      await tester.pump();
       await tester.pumpAndSettle();
 
       expect(find.byType(EmptyCartView), findsOneWidget);
@@ -205,6 +208,47 @@ void main() {
 
         expect(find.text('Something went wrong'), findsOneWidget);
         expect(find.text('Retry'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'shows loading indicator and NEVER EmptyCartView when isPendingAddition is true',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        when(() => mockCartBloc.state).thenReturn(const CartState.empty());
+        when(() => mockCartBloc.isPendingAddition).thenReturn(true);
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pump();
+
+        // Must show loader, NEVER EmptyCartView
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        expect(find.byType(EmptyCartView), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'shows loader and never flashes EmptyCartView before backend verifies empty state',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        // Without whenListen emitting, backend verification has not completed
+        when(() => mockCartBloc.state).thenReturn(const CartState.empty());
+        when(() => mockCartBloc.isPendingAddition).thenReturn(false);
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pump();
+
+        // Must NOT show EmptyCartView yet because backend has not responded in this session
+        expect(find.byType(EmptyCartView), findsNothing);
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
       },
     );
   });

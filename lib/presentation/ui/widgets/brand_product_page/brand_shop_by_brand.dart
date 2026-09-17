@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
@@ -14,7 +14,6 @@ class BrandShopByBrand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (brands.isEmpty) return const SizedBox.shrink();
-    final textStyle = context.textStyle;
 
     return Container(
       color: AppColors.white,
@@ -51,7 +50,7 @@ class BrandShopByBrand extends StatelessWidget {
                           height: 64.w,
                           decoration: BoxDecoration(
                             color: AppColors.white,
-                            borderRadius: BorderRadius.circular(12.r),
+                            borderRadius: AppRadius.cardRadius,
                             border: Border.all(
                               color: AppColors.muted.withValues(alpha: 0.3),
                               width: 1.w,
@@ -68,7 +67,7 @@ class BrandShopByBrand extends StatelessWidget {
                                     brand.name.isNotEmpty
                                         ? brand.name[0].toUpperCase()
                                         : '?',
-                                    style: textStyle.bodyLargeBold.withColor(
+                                    style: AppTypography.bodyLarge.bold().withColor(
                                       AppColors.muted,
                                     ),
                                   ),
@@ -80,7 +79,7 @@ class BrandShopByBrand extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: textStyle.caption.withColor(AppColors.text),
+                          style: AppTypography.bodyTiny.withColor(AppColors.text),
                         ),
                       ],
                     ),

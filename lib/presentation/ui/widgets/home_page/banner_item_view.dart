@@ -38,23 +38,31 @@ class BannerItemView extends StatelessWidget {
 
     final double devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final int calculatedCacheWidth =
-        cacheWidth ?? (imageWidth * devicePixelRatio).round().clamp(400, 900);
+        cacheWidth ?? (imageWidth * devicePixelRatio).round().clamp(400, 1600);
+
+    final imageUrl = banner.mobileImage.isNotEmpty
+        ? banner.mobileImage
+        : banner.image;
 
     final imageChild = ClipRRect(
       borderRadius: effectiveBorderRadius,
       child: naturalHeight
           ? AppImage(
-              imageUrl: banner.mobileImage,
+              imageUrl: imageUrl,
               width: imageWidth,
               fit: BoxFit.fitWidth,
               cacheWidth: calculatedCacheWidth,
+              filterQuality: FilterQuality.high,
+              constrainHeightInMemCache: false,
             )
           : AppImage(
-              imageUrl: banner.mobileImage,
+              imageUrl: imageUrl,
               width: imageWidth,
               height: height ?? 130.h,
               fit: fit,
               cacheWidth: calculatedCacheWidth,
+              filterQuality: FilterQuality.high,
+              constrainHeightInMemCache: false,
             ),
     );
 
@@ -66,6 +74,7 @@ class BannerItemView extends StatelessWidget {
       },
       child: Container(
         width: effectiveWidth,
+        height: height,
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: effectiveBorderRadius,

@@ -9,6 +9,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 /// Standardized SavedWalletItem styled as a list tile for grouped container views
 /// (matching dashboard item list pattern).
 class SavedWalletItem extends StatelessWidget {
@@ -30,7 +32,7 @@ class SavedWalletItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: isSelected ? AppColors.surfaceBlue.withValues(alpha: 0.5) : Colors.transparent,
+        color: isSelected ? AppColors.surfaceBlue.withValues(alpha: 0.5) : AppColors.transparent,
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         child: Row(
           children: [
@@ -49,7 +51,7 @@ class SavedWalletItem extends StatelessWidget {
                 ),
               ),
               child: SvgPicture.asset(
-                'assets/new/svg/payment/bkash_icon.svg',
+                AppAssets.bkash,
                 fit: BoxFit.contain,
               ),
             ),
@@ -65,7 +67,7 @@ class SavedWalletItem extends StatelessWidget {
                     children: [
                       Text(
                         'bKash',
-                        style: AppTypography.cardTitle,
+                        style: AppTypography.titleSmall,
                       ),
                       SizedBox(width: 8.w),
                       Container(
@@ -87,7 +89,7 @@ class SavedWalletItem extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Text(
                     linkedMasked,
-                    style: AppTypography.bodyMuted,
+                    style: AppTypography.bodySmall,
                   ),
                 ],
               ),

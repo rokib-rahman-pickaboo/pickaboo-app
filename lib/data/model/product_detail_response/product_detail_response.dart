@@ -9,6 +9,17 @@ part 'product_detail_response.g.dart';
 
 String? _toStringSafe(dynamic value) => value?.toString();
 
+bool _boolFromJson(dynamic value) {
+  if (value == null) return false;
+  if (value is bool) return value;
+  if (value is num) return value == 1;
+  if (value is String) {
+    final lower = value.toLowerCase().trim();
+    return lower == 'true' || lower == '1';
+  }
+  return false;
+}
+
 @freezed
 @HiveType(typeId: 19, adapterName: 'ProductDetailResponseAdapter')
 class ProductDetailResponse with _$ProductDetailResponse {
@@ -147,6 +158,7 @@ class AttrList with _$AttrList {
     @HiveField(1) @JsonKey(name: "value") String? value,
     @HiveField(2) @JsonKey(name: "icon_url") String? iconUrl,
     @HiveField(3) @JsonKey(name: "icon") String? icon,
+    @HiveField(4) @JsonKey(name: "is_featured", fromJson: _boolFromJson) @Default(false) bool isFeatured,
   }) = _AttrList;
 
   factory AttrList.fromJson(Map<String, dynamic> json) =>

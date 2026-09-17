@@ -112,9 +112,14 @@ class _BrandProductPageState extends State<BrandProductPage> {
       appBar: PickabooAppBar(
         titleWidget: BlocBuilder<BrandProductsBloc, BrandProductsState>(
           builder: (context, state) {
+            final brandTitle = state.brandData?.brandName;
+            final displayTitle = brandTitle.isGenericOrPlaceholderTitle
+                ? widget.brandName.sanitizedCatalogTitle
+                : brandTitle.sanitizedCatalogTitle;
+
             return Text(
-              (state.brandData?.brandName ?? widget.brandName).removeHtmlTags,
-              style: AppTypography.pageTitle.copyWith(
+              displayTitle,
+              style: AppTypography.titleLarge.copyWith(
                 fontWeight: FontWeight.w900,
               ),
               maxLines: 1,
@@ -311,39 +316,35 @@ class _BrandProductPageState extends State<BrandProductPage> {
 
                     if (!hasProducts &&
                         state.pagingState.error != null)
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 32.h),
-                          child: AppErrorView(
-                            type: ConnectivityUtils.isNoInternet(
-                              state.pagingState.error,
-                              context,
-                            )
-                                ? AppErrorType.noInternet
-                                : AppErrorType.generic,
-                            title: ConnectivityUtils.isNoInternet(
-                              state.pagingState.error,
-                              context,
-                            )
-                                ? 'No Internet Connection'
-                                : "Couldn't load products",
-                            message: ConnectivityUtils.isNoInternet(
-                              state.pagingState.error,
-                              context,
-                            )
-                                ? 'Please check your network and try again.'
-                                : 'Something went wrong while loading these '
-                                    'products. Please try again in a moment.',
-                            retryLabel: 'Try Again',
-                            onRetry: () {
-                              context.read<BrandProductsBloc>().add(
-                                BrandProductsEvent.refresh(
-                                  brandKey: widget.brandKey,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                      AppErrorView.sliver(
+                        fillRemaining: true,
+                        type: ConnectivityUtils.isNoInternet(
+                          state.pagingState.error,
+                          context,
+                        )
+                            ? AppErrorType.noInternet
+                            : AppErrorType.generic,
+                        title: ConnectivityUtils.isNoInternet(
+                          state.pagingState.error,
+                          context,
+                        )
+                            ? 'No Internet Connection'
+                            : "Couldn't load products",
+                        message: ConnectivityUtils.isNoInternet(
+                          state.pagingState.error,
+                          context,
+                        )
+                            ? 'Please check your network and try again.'
+                            : 'Something went wrong while loading these '
+                                'products. Please try again in a moment.',
+                        retryLabel: 'Try Again',
+                        onRetry: () {
+                          context.read<BrandProductsBloc>().add(
+                            BrandProductsEvent.refresh(
+                              brandKey: widget.brandKey,
+                            ),
+                          );
+                        },
                       ),
 
                     if (!hasProducts &&
@@ -351,7 +352,7 @@ class _BrandProductPageState extends State<BrandProductPage> {
                         (state.pagingState.isLoading ||
                             state.pagingState.pages == null))
                       AppLoader.sliver(
-                        padding: EdgeInsets.symmetric(vertical: 48.h),
+                        fillRemaining: true,
                       ),
 
                     if (!hasProducts &&
@@ -419,7 +420,7 @@ class _BrandProductPageState extends State<BrandProductPage> {
       return Center(
         child: Text(
           'Select a product to see its details',
-          style: context.textStyle.bodyMedium.copyWith(
+          style: AppTypography.bodyMedium.copyWith(
             color: AppColors.muted,
           ),
         ),

@@ -11,7 +11,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/hex_color.dart';
 import 'package:pickaboo/domain/entity/home_flash_sale/home_flash_sale_entity.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
 class FlashSaleBannerWidget extends StatelessWidget {
   final FlashSaleBannerEntity banner;
@@ -43,7 +44,6 @@ class FlashSaleBannerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
     final hasCopy = description.isNotEmpty;
     final resolvedTitleColor = hexToColor(titleColor) ?? AppColors.text;
     final resolvedHeadlineColor =
@@ -63,7 +63,7 @@ class FlashSaleBannerWidget extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: AppColors.pickabooBlue.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: AppRadius.cardRadius,
           boxShadow: [
             BoxShadow(
               color: AppColors.pageBg.withValues(alpha: 0.08),
@@ -73,22 +73,22 @@ class FlashSaleBannerWidget extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: AppRadius.cardRadius,
           child: Stack(
             children: [
               Positioned.fill(
-                child: CachedNetworkImage(
+                child: AppImage(
                   imageUrl: banner.mobileImageUrl.isNotEmpty
                       ? banner.mobileImageUrl
                       : banner.imageUrl,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity,
-                  memCacheWidth: (screenWidth * devicePixelRatio).round(),
-                  placeholder: (context, url) => Container(
+                  cacheWidth: (screenWidth * devicePixelRatio).round(),
+                  placeholder: Container(
                     color: AppColors.pickabooBlue.withValues(alpha: 0.3),
                   ),
-                  errorWidget: (context, url, error) => Container(
+                  errorWidget: Container(
                     color: AppColors.pickabooBlue.withValues(alpha: 0.3),
                   ),
                 ),
@@ -114,7 +114,7 @@ class FlashSaleBannerWidget extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               SvgPicture.asset(
-                                'assets/new/svg/token_icon.svg',
+                                AppAssets.token,
                                 width: 8.w,
                                 height: 8.w,
                                 colorFilter: ColorFilter.mode(
@@ -125,7 +125,7 @@ class FlashSaleBannerWidget extends StatelessWidget {
                               SizedBox(width: 4.w),
                               Text(
                                 title,
-                                style: textStyle.bodySmallBold.copyWith(
+                                style: AppTypography.bodySmall.bold().copyWith(
                                   color: resolvedTitleColor,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 10.sp,
@@ -139,7 +139,7 @@ class FlashSaleBannerWidget extends StatelessWidget {
                           if (shortDescription.isNotEmpty) ...[
                             Text(
                               shortDescription,
-                              style: textStyle.bodySmall.copyWith(
+                              style: AppTypography.bodySmall.copyWith(
                                 color: resolvedHeadlineColor,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 10.sp,
@@ -152,7 +152,7 @@ class FlashSaleBannerWidget extends StatelessWidget {
                           if (description.isNotEmpty)
                             Text(
                               description,
-                              style: textStyle.bodyMedium.copyWith(
+                              style: AppTypography.bodyMedium.copyWith(
                                 color: resolvedDescriptionColor,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 12.sp,
@@ -172,30 +172,20 @@ class FlashSaleBannerWidget extends StatelessWidget {
 
                           SizedBox(height: 12.h),
 
-                          SizedBox(
+                          AppButton.primary(
+                            isFullWidth: false,
                             height: 30.h,
-                            child: ElevatedButton(
-                              onPressed: onShopNow,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.pickabooBlue,
-                                foregroundColor: AppColors.white,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 22.w,
-                                  vertical: 0,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6.r),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: Text(
-                                'Shop Now',
-                                style: textStyle.bodyMedium.copyWith(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12.sp,
-                                ),
-                              ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 22.w,
+                              vertical: 0,
+                            ),
+                            borderRadius: AppRadius.smRadius,
+                            onPressed: onShopNow,
+                            text: 'Shop Now',
+                            textStyle: AppTypography.bodyMedium.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12.sp,
                             ),
                           ),
                         ],
@@ -297,8 +287,6 @@ class _CountdownViewState extends State<_CountdownView> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     if (_phase == _SalePhase.ended) return const SizedBox.shrink();
 
     final days = _remainingTime.inDays;
@@ -314,7 +302,7 @@ class _CountdownViewState extends State<_CountdownView> {
           if (_phase == _SalePhase.pre) ...[
             Text(
               'STARTS IN',
-              style: textStyle.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: AppColors.text,
                 fontSize: 8.sp,
                 fontWeight: FontWeight.w700,
@@ -323,7 +311,7 @@ class _CountdownViewState extends State<_CountdownView> {
             ),
             SizedBox(height: 4.h),
           ],
-          _buildBoxes(days, hours, minutes, seconds, textStyle),
+          _buildBoxes(days, hours, minutes, seconds),
         ],
       ),
     );
@@ -334,7 +322,6 @@ class _CountdownViewState extends State<_CountdownView> {
     int hours,
     int minutes,
     int seconds,
-    AppTextStyles textStyle,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -344,7 +331,6 @@ class _CountdownViewState extends State<_CountdownView> {
             child: _buildTimeBox(
               days.toString().padLeft(2, '0'),
               'DAYS',
-              textStyle,
             ),
           ),
           SizedBox(width: 2.w),
@@ -353,7 +339,6 @@ class _CountdownViewState extends State<_CountdownView> {
           child: _buildTimeBox(
             hours.toString().padLeft(2, '0'),
             'HRS',
-            textStyle,
           ),
         ),
         SizedBox(width: 2.w),
@@ -361,7 +346,6 @@ class _CountdownViewState extends State<_CountdownView> {
           child: _buildTimeBox(
             minutes.toString().padLeft(2, '0'),
             'MIN',
-            textStyle,
           ),
         ),
         SizedBox(width: 2.w),
@@ -369,7 +353,6 @@ class _CountdownViewState extends State<_CountdownView> {
           child: _buildTimeBox(
             seconds.toString().padLeft(2, '0'),
             'SEC',
-            textStyle,
           ),
         ),
       ],
@@ -379,13 +362,12 @@ class _CountdownViewState extends State<_CountdownView> {
   Widget _buildTimeBox(
     String value,
     String label,
-    AppTextStyles textStyle,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: AppRadius.cardRadius,
         border: Border.all(color: AppColors.pickabooBlue, width: 2.w),
       ),
       child: Column(
@@ -394,7 +376,7 @@ class _CountdownViewState extends State<_CountdownView> {
           Text(
             value,
             maxLines: 1,
-            style: textStyle.bodyMedium.copyWith(
+            style: AppTypography.bodyMedium.copyWith(
               color: AppColors.pickabooBlue,
               fontWeight: FontWeight.w700,
               fontSize: 11.sp,
@@ -406,7 +388,7 @@ class _CountdownViewState extends State<_CountdownView> {
             child: Text(
               label,
               maxLines: 1,
-              style: textStyle.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: AppColors.pickabooBlue,
                 fontSize: 7.sp,
                 fontWeight: FontWeight.w500,

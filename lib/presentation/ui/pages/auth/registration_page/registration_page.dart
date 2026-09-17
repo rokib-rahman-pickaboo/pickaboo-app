@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,7 +25,9 @@ import 'package:pickaboo/presentation/bloc/auth/login_bloc/login_bloc.dart';
 import 'package:pickaboo/presentation/bloc/auth/registration_bloc/registration_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modernized Pickaboo Registration OTP Page
 /// Seamlessly bridges Pickaboo-App-UI aesthetics with OTP BLoC state architecture.
@@ -320,13 +323,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
           },
         ),
       ],
-      child: GestureDetector(
-        onTap: _dismissKeyboard,
-        behavior: HitTestBehavior.opaque,
-        child: Scaffold(
-          backgroundColor: AppColors.pageBg,
-          body: ResponsiveContainer(
-            child: SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: AppColors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: GestureDetector(
+          onTap: _dismissKeyboard,
+          behavior: HitTestBehavior.opaque,
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            body: ResponsiveContainer(
+              child: SafeArea(
               child: Stack(
                 children: [
                   // ── BALANCED MAIN CONTENT ──
@@ -349,12 +358,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               children: [
                                 // Brand Logo
                                 Image.asset(
-                                  'assets/images/pickaboo_new_logo.png',
+                                  AppAssets.logoNew,
                                   height: 44.h,
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Image.asset(
-                                      'assets/images/pickaboo-login-logo.png',
+                                      AppAssets.logoLogin,
                                       height: 44.h,
                                       fit: BoxFit.contain,
                                     );
@@ -380,7 +389,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                                 Text(
                                   'Enter the 4-digit code sent to ${widget.phone}',
-                                  style: AppTypography.bodyMutedLight,
+                                  style: AppTypography.bodySmall.mutedLight,
                                   textAlign: TextAlign.center,
                                 ),
 
@@ -404,51 +413,30 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                           ),
                                           SizedBox(width: 4.w),
                                           Text(
-                                            'Resend OTP in $_formattedCountdown',
-                                            style: AppTypography.bodyMuted,
+                                            AppStrings.resendOtpCountdown(_formattedCountdown),
+                                            style: AppTypography.bodySmall,
                                           ),
                                         ],
                                       )
-                                    : TextButton(
+                                    : AppButton.ghost(
+                                        shrinkWrap: true,
+                                        isDisabled: _isLoading,
                                         onPressed:
                                             _isLoading
                                                 ? null
                                                 : () => _sendOtp(resend: true),
-                                        style: TextButton.styleFrom(
-                                          padding: EdgeInsets.zero,
-                                          minimumSize: Size.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
-                                        child: Text(
-                                          'Resend OTP',
-                                          style: AppTypography.brandActionText,
-                                        ),
+                                        text: AppStrings.resendOtp,
+                                        textStyle: AppTypography.brandAction,
                                       ),
 
                                 SizedBox(height: 20.h),
 
                                 // ── PRIMARY ACTION BUTTON ──
-                                SizedBox(
-                                  width: double.infinity,
+                                AppButton.primary(
                                   height: 50.h,
-                                  child: ElevatedButton(
-                                    onPressed: _isLoading ? null : _handleContinue,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.pickabooBlue,
-                                      foregroundColor: AppColors.white,
-                                      elevation: 0,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: AppRadius.cardRadius,
-                                      ),
-                                    ),
-                                    child: _isLoading
-                                        ? const AppLoader.button()
-                                        : Text(
-                                            'Continue',
-                                            style: AppTypography.buttonPrimary,
-                                          ),
-                                  ),
+                                  isLoading: _isLoading,
+                                  onPressed: _handleContinue,
+                                  text: 'Continue',
                                 ),
 
                                 SizedBox(height: 16.h),
@@ -470,7 +458,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                       ),
                                       child: Text(
                                         'Or continue with',
-                                        style: AppTypography.bodyMutedLight,
+                                        style: AppTypography.bodySmall.mutedLight,
                                       ),
                                     ),
                                     const Expanded(
@@ -486,69 +474,35 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                   children: [
                                     // Google
                                     Expanded(
-                                      child: OutlinedButton(
+                                      child: AppButton.outline(
+                                        height: 46.h,
+                                        backgroundColor: AppColors.white,
+                                        borderColor: AppColors.border,
                                         onPressed: _signInWithGoogle,
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize:
-                                              Size(double.infinity, 46.h),
-                                          side: const BorderSide(
-                                            color: AppColors.border,
-                                          ),
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: AppRadius.cardRadius,
-                                          ),
-                                          backgroundColor: AppColors.white,
+                                        icon: SvgPicture.asset(
+                                          AppAssets.google,
+                                          width: 18.w,
+                                          height: 18.h,
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            SvgPicture.asset(
-                                              'assets/new/svg/google_icon.svg',
-                                              width: 18.w,
-                                              height: 18.h,
-                                            ),
-                                            SizedBox(width: 8.w),
-                                            Text(
-                                              'Google',
-                                              style: AppTypography.cardTitle,
-                                            ),
-                                          ],
-                                        ),
+                                        text: 'Google',
+                                        textStyle: AppTypography.titleSmall,
                                       ),
                                     ),
                                     SizedBox(width: 12.w),
                                     // Facebook
                                     Expanded(
-                                      child: OutlinedButton(
+                                      child: AppButton.outline(
+                                        height: 46.h,
+                                        backgroundColor: AppColors.white,
+                                        borderColor: AppColors.border,
                                         onPressed: _signInWithFacebook,
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize:
-                                              Size(double.infinity, 46.h),
-                                          side: const BorderSide(
-                                            color: AppColors.border,
-                                          ),
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: AppRadius.cardRadius,
-                                          ),
-                                          backgroundColor: AppColors.white,
+                                        icon: SvgPicture.asset(
+                                          AppAssets.facebook,
+                                          width: 18.w,
+                                          height: 18.h,
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            SvgPicture.asset(
-                                              'assets/new/svg/facebook_icon.svg',
-                                              width: 18.w,
-                                              height: 18.h,
-                                            ),
-                                            SizedBox(width: 8.w),
-                                            Text(
-                                              'Facebook',
-                                              style: AppTypography.cardTitle,
-                                            ),
-                                          ],
-                                        ),
+                                        text: 'Facebook',
+                                        textStyle: AppTypography.titleSmall,
                                       ),
                                     ),
                                   ],
@@ -556,35 +510,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                                 if (Platform.isIOS) ...[
                                   SizedBox(height: 12.h),
-                                  OutlinedButton(
+                                  AppButton(
+                                    height: 46.h,
+                                    backgroundColor: AppColors.navy,
                                     onPressed: _signInWithApple,
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: Size(double.infinity, 46.h),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: AppRadius.cardRadius,
+                                    icon: SvgPicture.asset(
+                                      AppAssets.apple,
+                                      width: 18.w,
+                                      height: 18.h,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppColors.white,
+                                        BlendMode.srcIn,
                                       ),
-                                      backgroundColor: AppColors.navy,
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/new/svg/apple_icon.svg',
-                                          width: 18.w,
-                                          height: 18.h,
-                                          colorFilter: const ColorFilter.mode(
-                                            AppColors.white,
-                                            BlendMode.srcIn,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8.w),
-                                        Text(
-                                          'Continue with Apple',
-                                          style: AppTypography.buttonPrimary,
-                                        ),
-                                      ],
-                                    ),
+                                    text: 'Continue with Apple',
+                                    textStyle: AppTypography.button.white,
                                   ),
                                 ],
                               ],
@@ -600,7 +540,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     top: 8.h,
                     left: 8.w,
                     child: Material(
-                      color: Colors.transparent,
+                      color: AppColors.transparent,
                       child: InkWell(
                         onTap: () {
                           _dismissKeyboard();
@@ -628,6 +568,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -635,7 +576,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final defaultPinTheme = PinTheme(
       width: 52.w,
       height: 52.h,
-      textStyle: AppTypography.sectionTitle.size(18.sp),
+      textStyle: AppTypography.titleMedium.size(18.sp),
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.border),
@@ -699,7 +640,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: AppTypography.bodyRegular.withColor(AppColors.muted),
+          style: AppTypography.bodyMedium.withColor(AppColors.muted),
           children: [
             const TextSpan(text: 'By continuing, I accept the '),
             WidgetSpan(
@@ -710,7 +651,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 child: Text(
                   'Terms and conditions',
-                  style: AppTypography.linkText,
+                  style: AppTypography.link,
                 ),
               ),
             ),
@@ -723,7 +664,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 child: Text(
                   'Privacy Policy.',
-                  style: AppTypography.linkText,
+                  style: AppTypography.link,
                 ),
               ),
             ),

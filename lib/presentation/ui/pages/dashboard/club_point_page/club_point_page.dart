@@ -17,6 +17,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/club_point_page/club_points_header.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/club_point_page/point_history_item.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class ClubPointPage extends StatefulWidget {
@@ -133,7 +134,7 @@ class _ClubPointPageState extends State<ClubPointPage> {
                       SizedBox(width: 10.w),
                       Text(
                         'Points History',
-                        style: AppTypography.sectionTitle,
+                        style: AppTypography.titleMedium,
                       ),
                     ],
                   ),
@@ -143,31 +144,23 @@ class _ClubPointPageState extends State<ClubPointPage> {
                   PointHistoryTimeline(history: data.pointHistory),
 
                   if (hasMore) ...[
-                    SizedBox(height: 14.h),
+                    AppSpacing.gapV14,
                     Center(
-                      child: OutlinedButton(
+                      child: AppButton.outline(
+                        text: 'Load More',
+                        textColor: AppColors.pickabooBlue,
+                        borderColor: AppColors.pickabooBlue,
+                        borderRadius: BorderRadius.circular(10.r),
+                        isFullWidth: false,
+                        size: AppButtonSize.sm,
+                        isLoading: isLoadingMore,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.w,
+                          vertical: 8.h,
+                        ),
                         onPressed: isLoadingMore
                             ? null
                             : () => _loadMore(totalHistoryCount),
-                        style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20.w,
-                            vertical: 8.h,
-                          ),
-                          side: BorderSide(
-                            color: AppColors.pickabooBlue,
-                            width: 1.2.w,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r),
-                          ),
-                        ),
-                        child: isLoadingMore
-                            ? const AppLoader.button(size: 14)
-                            : Text(
-                                'Load More',
-                                style: AppTypography.brandActionText,
-                              ),
                       ),
                     ),
                   ],
@@ -200,7 +193,7 @@ class _ClubPointPageState extends State<ClubPointPage> {
                     SizedBox(width: 10.w),
                     Text(
                       'How to Earn Points',
-                      style: AppTypography.sectionTitle,
+                      style: AppTypography.titleMedium,
                     ),
                   ],
                 ),
@@ -276,14 +269,14 @@ class _ClubPointPageState extends State<ClubPointPage> {
                     SizedBox(width: 10.w),
                     Text(
                       'How to Spend Points',
-                      style: AppTypography.sectionTitle,
+                      style: AppTypography.titleMedium,
                     ),
                   ],
                 ),
                 SizedBox(height: 12.h),
                 Text(
                   'You can redeem your Club Points directly at checkout during payment to receive instant discounts on your orders.',
-                  style: AppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
               ],
             ),
@@ -321,12 +314,12 @@ class _ClubPointPageState extends State<ClubPointPage> {
             children: [
               Text(
                 title,
-                style: AppTypography.cardTitle,
+                style: AppTypography.titleSmall,
               ),
               SizedBox(height: 2.h),
               Text(
                 subtitle,
-                style: AppTypography.bodyMuted,
+                style: AppTypography.bodySmall,
               ),
             ],
           ),

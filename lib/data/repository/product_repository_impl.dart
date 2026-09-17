@@ -43,6 +43,7 @@ import 'package:pickaboo/domain/entity/user_review/user_review_entity.dart';
 import 'package:pickaboo/data/mapper/user_review_mapper/user_review_mapper.dart';
 import 'package:pickaboo/domain/entity/discover_category/discover_category_entity.dart';
 import 'package:pickaboo/data/mapper/discover_category_mapper/discover_category_mapper.dart';
+import 'package:pickaboo/core/cache/category_preload_cache.dart';
 import 'package:pickaboo/domain/entity/promotion_slider/promotion_slider_entity.dart';
 import 'package:pickaboo/data/mapper/promotion_slider_mapper/promotion_slider_mapper.dart';
 
@@ -53,6 +54,9 @@ class ProductRepositoryImpl implements ProductRepository {
   final CategoryLocalDataSource _categoryLocalDataSource;
   final ProductDetailLocalDataSource _productDetailLocalDataSource;
   final HomeContentLocalDataSource _homeContentLocalDataSource;
+
+  HomeFlashSaleEntity? _cachedFlashSale;
+  DateTime? _cachedFlashSaleTime;
 
   ProductRepositoryImpl(
     this.apiService,
@@ -115,7 +119,9 @@ class ProductRepositoryImpl implements ProductRepository {
       final cached = await _homeContentLocalDataSource.getHomeContentIfValid();
       if (cached != null) {
         final entity = cached.toEntity();
-        return right(await _alignHomeFeedCategories(entity));
+        final aligned = await _alignHomeFeedCategories(entity);
+        CategoryPreloadCache.instance.seedFromHomeFeed(aligned);
+        return right(aligned);
       }
     }
 
@@ -137,17 +143,25 @@ class ProductRepositoryImpl implements ProductRepository {
         final stale = await _homeContentLocalDataSource.getHomeContentStale();
         if (stale != null) {
           final entity = stale.toEntity();
-          return right(await _alignHomeFeedCategories(entity));
+          final aligned = await _alignHomeFeedCategories(entity);
+          CategoryPreloadCache.instance.seedFromHomeFeed(aligned);
+          return right(aligned);
         }
         return left(l.toEntity());
       },
       (r) async {
         await _homeContentLocalDataSource.insertHomeContent(r);
         final entity = r.toEntity();
-        return right(await _alignHomeFeedCategories(entity));
+        final aligned = await _alignHomeFeedCategories(entity);
+        CategoryPreloadCache.instance.seedFromHomeFeed(aligned);
+        return right(aligned);
       },
     );
   }
+
+  @override
+  Future<bool> isHomeContentStale() =>
+      _homeContentLocalDataSource.isHomeContentStale();
 
   Future<HomeContentEntity> _alignHomeFeedCategories(
     HomeContentEntity entity,
@@ -244,13 +258,23 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<AppErrorEntity, ProductDetailEntity>> getProductDetail({
     required String productId,
     int? customerId,
+    bool cache = true,
   }) async {
     final result = await apiService.getProductDetail(
       productId: productId,
       customerId: customerId,
     );
 
-    return result.fold((l) => left(l.toEntity()), (r) => right(r.toEntity()));
+    return result.fold(
+      (l) => left(l.toEntity()),
+      (response) {
+        // Save to cache asynchronously for instant future hydration
+        if (cache) {
+          _productDetailLocalDataSource.saveProductDetail(response);
+        }
+        return right(response.toEntity());
+      },
+    );
   }
 
   @override
@@ -296,6 +320,27 @@ class ProductRepositoryImpl implements ProductRepository {
         return right([]);
       }
       return right(details.map((e) => e.toEntity()).toList());
+    } catch (e) {
+      return left(AppErrorEntity(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<AppErrorEntity, ProductDetailEntity?>> getSavedProductDetail({
+    required String productId,
+  }) async {
+    try {
+      final details = await _productDetailLocalDataSource.getProductDetailsIfValid();
+      if (details == null || details.isEmpty) {
+        return right(null);
+      }
+      final matches = details.where(
+        (e) => e.id.toString() == productId || e.slug == productId,
+      );
+      if (matches.isEmpty) {
+        return right(null);
+      }
+      return right(matches.first.toEntity());
     } catch (e) {
       return left(AppErrorEntity(message: e.toString()));
     }
@@ -415,11 +460,29 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<AppErrorEntity, HomeFlashSaleEntity>> getHomeFlashSale() async {
+  Future<Either<AppErrorEntity, HomeFlashSaleEntity>> getHomeFlashSale({
+    bool forceRefresh = false,
+  }) async {
+    final now = DateTime.now();
+    if (!forceRefresh &&
+        _cachedFlashSale != null &&
+        _cachedFlashSaleTime != null &&
+        now.difference(_cachedFlashSaleTime!).inMinutes < 15) {
+      return right(_cachedFlashSale!);
+    }
+
     final result = await apiService.getHomeFlashSale();
     return result.fold(
-      (error) => left(error.toEntity()),
-      (response) => right(response.toEntity()),
+      (error) {
+        if (_cachedFlashSale != null) return right(_cachedFlashSale!);
+        return left(error.toEntity());
+      },
+      (response) {
+        final entity = response.toEntity();
+        _cachedFlashSale = entity;
+        _cachedFlashSaleTime = DateTime.now();
+        return right(entity);
+      },
     );
   }
 

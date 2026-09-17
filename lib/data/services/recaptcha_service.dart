@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:recaptcha_enterprise_flutter/recaptcha.dart';
 import 'package:recaptcha_enterprise_flutter/recaptcha_action.dart';
@@ -9,13 +10,13 @@ class RecaptchaService {
   RecaptchaClient? _client;
 
   void _log(String msg) {
-    print('[RECAPTCHA] $msg');
+    debugPrint('[RECAPTCHA] $msg');
   }
 
   Future<void> initialize() async {
     final siteKey = Platform.isAndroid
-        ? "6LeVkkUtAAAAALSE-yoYI9ntzJGhFOF4ICxaFg7W"
-        : "6Lchp0UtAAAAAFtg0H-YYA3qJOLJJIee02iPXxo4";
+        ? "6LdyecAtAAAAAMnsE0qJ4VSh6sSAilFC941Qn_ZQ"
+        : "6Lf6O8AtAAAAANxu-bkbEW9MfEGg4yfB5hc2EZrR";
 
     _log('initialize start | platform=${Platform.operatingSystem} siteKey=$siteKey');
     try {

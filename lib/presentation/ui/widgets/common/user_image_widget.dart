@@ -4,8 +4,8 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
@@ -94,19 +94,19 @@ class UserImageWidget extends StatelessWidget {
 
     if (imageUrl != null && imageUrl!.isNotEmpty) {
       avatarContent = ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: imageUrl!,
+        child: AppImage(
+          imageUrl: imageUrl,
           fit: BoxFit.cover,
           width: size,
           height: size,
-          placeholder: (context, url) => AppLoader.inline(
+          placeholder: AppLoader.inline(
             size: size * 0.4,
             padding: EdgeInsets.zero,
           ),
-          errorWidget: (context, url, error) => Center(
+          errorWidget: Center(
             child: Text(
               computedInitials.isNotEmpty ? computedInitials : 'P',
-              style: AppTypography.brandActionText,
+              style: AppTypography.brandAction,
             ),
           ),
         ),
@@ -115,7 +115,7 @@ class UserImageWidget extends StatelessWidget {
       avatarContent = Center(
         child: Text(
           computedInitials,
-          style: AppTypography.brandActionText,
+          style: AppTypography.brandAction,
         ),
       );
     } else {

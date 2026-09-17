@@ -39,6 +39,8 @@ bool isConnectivityFailure(String? message) {
       m.contains('sendtimeout') ||
       m.contains('network is unreachable') ||
       m.contains('no internet') ||
+      m.contains('check your internet') ||
+      m.contains('internet connection') ||
       m.contains('network error') ||
       m.contains('clientexception') ||
       m.contains('connection refused') ||

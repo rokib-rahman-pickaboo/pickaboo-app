@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class ReferralCodePage extends StatefulWidget {
   final String referralCode;
@@ -74,8 +76,6 @@ class _ReferralCodePageState extends State<ReferralCodePage>
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -83,8 +83,15 @@ class _ReferralCodePageState extends State<ReferralCodePage>
           _continueToHome();
         }
       },
-      child: Scaffold(
-        body: SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: AppColors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: Scaffold(
+          backgroundColor: AppColors.white,
+          body: SafeArea(
           child: Column(
             children: [
               Expanded(
@@ -125,7 +132,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                 _isLoggedIn
                                     ? 'Already Existing User'
                                     : 'Referral Code Added!',
-                                style: textTheme.headingLarge.copyWith(
+                                style: AppTypography.heroTitle.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.text,
                                 ),
@@ -159,7 +166,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                     SizedBox(width: 8.w),
                                     Text(
                                       widget.referralCode,
-                                      style: textTheme.bodyLargeMedium.copyWith(
+                                      style: AppTypography.bodyLarge.copyWith(
                                         color: AppColors.pickabooBlue,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -195,7 +202,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                       SizedBox(height: 12.h),
                                       Text(
                                         'Great News!',
-                                        style: textTheme.bodyLargeMedium.copyWith(
+                                        style: AppTypography.bodyLarge.copyWith(
                                           color: AppColors.text,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -203,7 +210,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                       SizedBox(height: 8.h),
                                       Text(
                                         'This referral code will be applied when you sign up. Get ready to enjoy exclusive rewards!',
-                                        style: textTheme.bodyMedium.copyWith(
+                                        style: AppTypography.bodyMedium.copyWith(
                                           color: AppColors.muted,
                                         ),
                                         textAlign: TextAlign.center,
@@ -214,7 +221,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                               else
                                 Text(
                                   'This referral code cannot be applied as you already have an account',
-                                  style: textTheme.bodyMedium.copyWith(
+                                  style: AppTypography.bodyMedium.copyWith(
                                     color: AppColors.muted,
                                   ),
                                   textAlign: TextAlign.center,
@@ -233,36 +240,24 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                 padding: EdgeInsets.all(16.w),
                 child: SafeArea(
                   top: false,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 48.h,
-                    child: ElevatedButton.icon(
-                      onPressed: _continueToHome,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.pickabooBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        elevation: 2,
-                      ),
-                      icon: Icon(
-                        Icons.shopping_bag_outlined,
-                        color: AppColors.white,
-                        size: 20.sp,
-                      ),
-                      label: Text(
-                        'Continue Shopping',
-                        style: textTheme.buttonMedium.copyWith(
-                          color: AppColors.white,
-                        ),
-                      ),
+                  child: AppButton.primary(
+                    text: 'Continue Shopping',
+                    icon: Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppColors.white,
+                      size: 20.sp,
                     ),
+                    isFullWidth: true,
+                    height: 48.h,
+                    borderRadius: BorderRadius.circular(12.r),
+                    onPressed: _continueToHome,
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pinput/pinput.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/bloc/card_bin_bloc/card_bin_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class CardBinBottomSheet extends StatefulWidget {
   final String orderId;
@@ -44,12 +44,10 @@ class _CardBinBottomSheetState extends State<CardBinBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     final defaultPinTheme = PinTheme(
       width: 48.w,
       height: 56.h,
-      textStyle: textStyle.bodyMediumBold.copyWith(
+      textStyle: AppTypography.bodyMedium.bold().copyWith(
         color: AppColors.text,
         fontSize: 20.sp,
       ),
@@ -66,11 +64,14 @@ class _CardBinBottomSheetState extends State<CardBinBottomSheet> {
       ),
     );
 
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return Padding(
       padding: EdgeInsets.only(
         left: 16.w,
         right: 16.w,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+        bottom: bottomInset > 0 ? (bottomInset + 16.h) : (bottomPadding + 16.h),
         top: 16.h,
       ),
         child: BlocConsumer<CardBinBloc, CardBinState>(
@@ -102,11 +103,11 @@ class _CardBinBottomSheetState extends State<CardBinBottomSheet> {
                   ),
                 ),
                 SizedBox(height: 16.h),
-                Text('Enter Card BIN', style: textStyle.bodyMediumBold),
+                Text('Enter Card BIN', style: AppTypography.bodyMedium.bold()),
                 SizedBox(height: 8.h),
                 Text(
                   'Enter the first 6 digits of your card',
-                  style: textStyle.bodySmall.copyWith(color: AppColors.mutedLight),
+                  style: AppTypography.bodySmall.copyWith(color: AppColors.mutedLight),
                 ),
                 SizedBox(height: 24.h),
                 Center(
@@ -147,40 +148,25 @@ class _CardBinBottomSheetState extends State<CardBinBottomSheet> {
                         Expanded(
                           child: Text(
                             _errorText!,
-                            style: textStyle.bodySmall.copyWith(color: AppColors.red),
+                            style: AppTypography.bodySmall.copyWith(color: AppColors.red),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
-                SizedBox(height: 24.h),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : () {
-                      if (_binController.text.length == 6) {
-                        context.read<CardBinBloc>().add(
-                          CardBinEvent.apply(orderId: widget.orderId, cardBin: _binController.text),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pickabooBlue,
-                      foregroundColor: AppColors.white,
-                      minimumSize: Size(0, 48.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: isLoading
-                      ? const AppLoader.button()
-                      : Text(
-                          'Submit',
-                          style: textStyle.buttonMedium.copyWith(color: AppColors.white),
-                        ),
-                  ),
+                AppSpacing.gapV24,
+                AppButton.primary(
+                  text: 'Submit',
+                  isLoading: isLoading,
+                  isFullWidth: true,
+                  onPressed: isLoading ? null : () {
+                    if (_binController.text.length == 6) {
+                      context.read<CardBinBloc>().add(
+                        CardBinEvent.apply(orderId: widget.orderId, cardBin: _binController.text),
+                      );
+                    }
+                  },
                 ),
               ],
             );

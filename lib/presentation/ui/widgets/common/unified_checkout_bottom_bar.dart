@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// ─────────────────────────────────────────────────────────────
 /// 💳 FLOATING UNIFIED CHECKOUT BOTTOM BAR
@@ -100,11 +100,14 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
                           color: AppColors.pickabooBlue,
                         ),
                         SizedBox(width: 4.w),
-                        Text(
-                          trustText!,
-                          style: AppTypography.brandActionText.copyWith(
-                            fontSize: 9.5.sp,
-                            fontWeight: FontWeight.w600,
+                        Flexible(
+                          child: Text(
+                            trustText!,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.brandAction.copyWith(
+                              fontSize: 9.5.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -149,7 +152,7 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
                       children: [
                         Text(
                           priceLabel,
-                          style: AppTypography.bodyMuted.copyWith(
+                          style: AppTypography.bodySmall.copyWith(
                             fontSize: 10.5.sp,
                           ),
                         ),
@@ -168,31 +171,14 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
                   SizedBox(width: 10.w),
 
                   // Right: Action Button (No arrow, padded evenly)
-                  SizedBox(
+                  AppButton.primary(
                     width: buttonWidth ?? 140.w,
                     height: 40.h,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : onPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.pickabooBlue,
-                        foregroundColor: AppColors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 12.w),
-                      ),
-                      child: isLoading
-                          ? const AppLoader.button()
-                          : Text(
-                              buttonText,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: AppTypography.buttonPrimary.copyWith(
-                                fontSize: 13.sp,
-                              ),
-                            ),
+                    isLoading: isLoading,
+                    onPressed: onPressed,
+                    text: buttonText,
+                    textStyle: AppTypography.button.copyWith(
+                      fontSize: 13.sp,
                     ),
                   ),
                 ],

@@ -3,7 +3,7 @@ import 'package:pickaboo/core/utils/delivery_time_utils.dart';
 
 void main() {
   group('DeliveryTimeUtils - Express Delivery Rules', () {
-    test('Non-Friday morning (12:00 AM - 11:59 AM) -> Delivery by Today', () {
+    test('Non-Friday morning (12:00 AM - 11:59 AM) -> Tentative Delivery Today', () {
       // Monday 00:00 (Midnight)
       final mondayMidnight = DateTime(2026, 9, 7, 0, 0);
       expect(DeliveryTimeUtils.isExpressToday(now: mondayMidnight), isTrue);
@@ -15,7 +15,7 @@ void main() {
       expect(DeliveryTimeUtils.getExpressTargetText(now: wednesdayMorning), 'Today');
     });
 
-    test('Non-Friday afternoon/night (12:00 PM - 11:59 PM) -> Delivery by Tomorrow', () {
+    test('Non-Friday afternoon/night (12:00 PM - 11:59 PM) -> Tentative Delivery Tomorrow', () {
       // Monday 12:00 PM (Noon)
       final mondayNoon = DateTime(2026, 9, 7, 12, 0);
       expect(DeliveryTimeUtils.isExpressToday(now: mondayNoon), isFalse);
@@ -46,11 +46,15 @@ void main() {
     });
   });
 
-  group('DeliveryTimeUtils - Location Selector Delivery Text', () {
-    test('Non-express returns "Delivery by 3-4 working days"', () {
+  group('DeliveryTimeUtils - Delivery Tags & Location Selector', () {
+    test('Non-express returns "Tentative 2-3 days"', () {
       expect(
         DeliveryTimeUtils.getLocationSelectorDeliveryText(isExpress: false),
-        'Delivery by 3-4 working days',
+        'Tentative 2-3 days',
+      );
+      expect(
+        DeliveryTimeUtils.getDeliveryTag(isExpress: false),
+        'Tentative 2-3 days',
       );
     });
 
@@ -58,6 +62,10 @@ void main() {
       final morning = DateTime(2026, 9, 8, 10, 0); // Tuesday 10am
       expect(
         DeliveryTimeUtils.getLocationSelectorDeliveryText(isExpress: true, now: morning),
+        'Delivery by Today',
+      );
+      expect(
+        DeliveryTimeUtils.getDeliveryTag(isExpress: true, now: morning),
         'Delivery by Today',
       );
     });
@@ -68,6 +76,10 @@ void main() {
         DeliveryTimeUtils.getLocationSelectorDeliveryText(isExpress: true, now: afternoon),
         'Delivery by Tomorrow',
       );
+      expect(
+        DeliveryTimeUtils.getDeliveryTag(isExpress: true, now: afternoon),
+        'Delivery by Tomorrow',
+      );
     });
 
     test('Express on Friday returns "Delivery by Tomorrow" regardless of time', () {
@@ -76,35 +88,10 @@ void main() {
         DeliveryTimeUtils.getLocationSelectorDeliveryText(isExpress: true, now: fridayMorning),
         'Delivery by Tomorrow',
       );
-    });
-  });
-
-  group('DeliveryTimeUtils - Trust Ribbon Delivery Info', () {
-    test('Express morning returns label "Delivery by " and boldSuffix "Today"', () {
-      final morning = DateTime(2026, 9, 9, 9, 0);
-      final info = DeliveryTimeUtils.getTrustRibbonDeliveryInfo(isExpress: true, now: morning);
-      expect(info.label, 'Delivery by ');
-      expect(info.boldSuffix, 'Today');
-    });
-
-    test('Express afternoon returns label "Delivery by " and boldSuffix "Tomorrow"', () {
-      final afternoon = DateTime(2026, 9, 9, 16, 0);
-      final info = DeliveryTimeUtils.getTrustRibbonDeliveryInfo(isExpress: true, now: afternoon);
-      expect(info.label, 'Delivery by ');
-      expect(info.boldSuffix, 'Tomorrow');
-    });
-
-    test('Express on Friday returns label "Delivery by " and boldSuffix "Tomorrow"', () {
-      final fridayMorning = DateTime(2026, 9, 11, 8, 0);
-      final info = DeliveryTimeUtils.getTrustRibbonDeliveryInfo(isExpress: true, now: fridayMorning);
-      expect(info.label, 'Delivery by ');
-      expect(info.boldSuffix, 'Tomorrow');
-    });
-
-    test('Non-express returns label "Delivery by " and boldSuffix "3-4 working days"', () {
-      final info = DeliveryTimeUtils.getTrustRibbonDeliveryInfo(isExpress: false);
-      expect(info.label, 'Delivery by ');
-      expect(info.boldSuffix, '3-4 working days');
+      expect(
+        DeliveryTimeUtils.getDeliveryTag(isExpress: true, now: fridayMorning),
+        'Delivery by Tomorrow',
+      );
     });
   });
 
@@ -130,33 +117,10 @@ void main() {
       expect(info.target, 'Tomorrow');
     });
 
-    test('Non-express returns label "Delivery by " and target "3-4 working days"', () {
+    test('Non-express returns label "Tentative " and target "2-3 days"', () {
       final info = DeliveryTimeUtils.getProductItemDeliveryInfo(isExpress: false);
-      expect(info.label, 'Delivery by ');
-      expect(info.target, '3-4 working days');
-    });
-
-    test('Custom deliveryInfo overrides dynamic calculation', () {
-      final custom1 = DeliveryTimeUtils.getProductItemDeliveryInfo(
-        isExpress: true,
-        customDeliveryInfo: 'Delivery by 25 Dec',
-      );
-      expect(custom1.label, 'Delivery by ');
-      expect(custom1.target, '25 Dec');
-
-      final custom2 = DeliveryTimeUtils.getProductItemDeliveryInfo(
-        isExpress: false,
-        customDeliveryInfo: 'Get delivery in 7-10 days',
-      );
-      expect(custom2.label, 'Delivery by ');
-      expect(custom2.target, '7-10 days');
-
-      final custom3 = DeliveryTimeUtils.getProductItemDeliveryInfo(
-        isExpress: false,
-        customDeliveryInfo: 'Pickup in store',
-      );
-      expect(custom3.label, 'Delivery by ');
-      expect(custom3.target, 'Pickup in store');
+      expect(info.label, 'Tentative ');
+      expect(info.target, '2-3 days');
     });
   });
 }

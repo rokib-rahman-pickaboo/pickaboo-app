@@ -37,13 +37,13 @@ class SupportEmptyState extends StatelessWidget {
           SizedBox(height: 16.h),
           Text(
             'No Questions Found',
-            style: AppTypography.pageTitle,
+            style: AppTypography.titleLarge,
           ),
           SizedBox(height: 6.h),
           Text(
             'We couldn\'t find any help topics matching "$query". Try searching another keyword or browse our topics.',
             textAlign: TextAlign.center,
-            style: AppTypography.bodyMuted,
+            style: AppTypography.bodySmall,
           ),
         ],
       ),

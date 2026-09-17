@@ -56,8 +56,8 @@ class ApiEndpoints {
   static const String searchaniseBaseUrl = 'https://searchserverapi.com';
   static const String searchaniseUrl = '/getresults';
 
-  static const String _productionSearchaniseApiKey = '6W7Z0N7U0T';
-  static const String _stagingSearchaniseApiKey = '4B4B7b3t4J';
+  static const String _productionSearchaniseApiKey = '6W7Z0N7U0T';//Hardcode
+  static const String _stagingSearchaniseApiKey = '6W7Z0N7U0T';
 
   /// Automatically switches to production key (`6W7Z0N7U0T`) when [ApiConfig.isProduction] is true,
   /// and staging key (`4B4B7b3t4J`) when false.

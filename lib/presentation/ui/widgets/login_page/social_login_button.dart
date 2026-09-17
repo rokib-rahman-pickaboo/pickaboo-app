@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class SocialLoginButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -34,7 +36,7 @@ class SocialLoginButton extends StatelessWidget {
       width: double.infinity,
       height: 48.h,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: AppRadius.cardRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.05),
@@ -43,26 +45,19 @@ class SocialLoginButton extends StatelessWidget {
           ),
         ],
       ),
-      child: OutlinedButton(
+      child: AppButton(
+        type: AppButtonType.outline,
         onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: textColor,
-          side: BorderSide(
-            color: borderColor ?? backgroundColor.withValues(alpha: 0.3),
-            width: 1.5.w,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          elevation: 0,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (svgIcon != null)
-              SvgPicture.asset(
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        borderColor: borderColor ?? backgroundColor.withValues(alpha: 0.3),
+        borderRadius: AppRadius.cardRadius,
+        height: 48.h,
+        isFullWidth: true,
+        text: label,
+        textStyle: AppTypography.button.withColor(textColor),
+        icon: svgIcon != null
+            ? SvgPicture.asset(
                 svgIcon!,
                 width: 24.w,
                 height: 24.h,
@@ -71,18 +66,9 @@ class SocialLoginButton extends StatelessWidget {
                     ? ColorFilter.mode(iconColor!, BlendMode.srcIn)
                     : null,
               )
-            else if (icon != null)
-              Icon(icon, size: 24.sp),
-
-            SizedBox(width: 12.w),
-
-            Text(
-              label,
-              style: context.textStyle.buttonText
-                  .withColor(textColor)
-            ),
-          ],
-        ),
+            : (icon != null
+                ? Icon(icon, size: 24.sp, color: iconColor ?? textColor)
+                : null),
       ),
     );
   }

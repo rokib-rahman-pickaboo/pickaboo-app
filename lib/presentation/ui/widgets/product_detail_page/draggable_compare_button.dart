@@ -7,6 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:badges/badges.dart' as badges;
@@ -45,15 +46,12 @@ class _DraggableCompareButtonState extends State<DraggableCompareButton> {
     Widget buttonContent = Container(
       width: 50.w,
       height: 50.w,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.pickabooBlue,
-        borderRadius: BorderRadius.horizontal(
-          left: Radius.circular(8.r),
-          right: Radius.circular(8.r),
-        ),
-        boxShadow: const [
+        borderRadius: AppRadius.buttonRadius,
+        boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: AppColors.black26,
             blurRadius: 4,
             offset: Offset(0, 2),
           ),
@@ -63,7 +61,7 @@ class _DraggableCompareButtonState extends State<DraggableCompareButton> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            'assets/new/svg/compared_icon.svg',
+            AppAssets.compared,
             width: 18.w,
             height: 18.w,
             colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
@@ -82,7 +80,7 @@ class _DraggableCompareButtonState extends State<DraggableCompareButton> {
         showBadge: widget.badgeCount > 0,
         badgeContent: Text(
           '${widget.badgeCount}',
-          style: context.textStyle.badgeSmall.copyWith(color: AppColors.pickabooBlue),
+          style: AppTypography.bodyTiny.copyWith(color: AppColors.pickabooBlue),
         ),
         position: badges.BadgePosition.topEnd(top: -4, end: -4),
         badgeAnimation: const badges.BadgeAnimation.fade(),

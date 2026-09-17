@@ -124,7 +124,7 @@ class AppMenuTile extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTypography.bodyMuted,
+                          style: AppTypography.bodySmall,
                         ),
                         if (hasSubtitle) ...[
                           SizedBox(height: 2.h),
@@ -132,7 +132,7 @@ class AppMenuTile extends StatelessWidget {
                             effectiveSubtitle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTypography.cardTitle.copyWith(
+                            style: AppTypography.titleSmall.copyWith(
                               color: textColor,
                               fontWeight: FontWeight.w700,
                             ),
@@ -143,7 +143,7 @@ class AppMenuTile extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTypography.cardTitle.copyWith(
+                          style: AppTypography.titleSmall.copyWith(
                             color: (hasSubItems && isExpanded)
                                 ? AppColors.pickabooBlue
                                 : textColor,
@@ -155,7 +155,7 @@ class AppMenuTile extends StatelessWidget {
                             effectiveSubtitle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTypography.bodyMuted,
+                            style: AppTypography.bodySmall,
                           ),
                         ],
                       ],
@@ -216,7 +216,7 @@ class AppMenuTile extends StatelessWidget {
                           Expanded(
                             child: Text(
                               subTitle,
-                              style: AppTypography.cardTitle,
+                              style: AppTypography.titleSmall,
                             ),
                           ),
                           Icon(

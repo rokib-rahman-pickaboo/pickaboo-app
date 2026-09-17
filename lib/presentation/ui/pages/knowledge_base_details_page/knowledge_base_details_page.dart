@@ -138,13 +138,41 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
               child: isLoading
                   ? _buildLoadingState()
                   : isError
-                  ? AppErrorView(
-                      type: AppErrorType.server,
-                      message: state.error?.message,
-                      onRetry: _retryLoad,
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: Center(
+                            child: AppErrorView(
+                              type: AppErrorType.server,
+                              message: state.error?.message,
+                              onRetry: _retryLoad,
+                            ),
+                          ),
+                        ),
+                      ),
                     )
                   : isEmpty || articles.isEmpty
-                  ? const AppErrorView(type: AppErrorType.empty)
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: const Center(
+                            child: AppErrorView(type: AppErrorType.empty),
+                          ),
+                        ),
+                      ),
+                    )
                   : SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(
                         parent: BouncingScrollPhysics(),
@@ -199,7 +227,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
         children: [
                 Text(
                   _formatDate(article.createdAt),
-                  style: AppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
                 AppSpacing.sameGroupHeightGap,
                 AppHtml(
@@ -243,18 +271,18 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                     "body": Style(
                       margin: Margins.zero,
                       padding: HtmlPaddings.zero,
-                      fontSize: FontSize(AppTypography.supportFaqAnswer.fontSize?.sp ?? 12.sp),
-                      color: AppTypography.supportFaqAnswer.color ?? AppColors.navy,
-                      fontWeight: AppTypography.supportFaqAnswer.fontWeight,
-                      lineHeight: LineHeight(AppTypography.supportFaqAnswer.height ?? 1.5),
+                      fontSize: FontSize(AppTypography.bodyMedium.fontSize?.sp ?? 12.sp),
+                      color: AppTypography.bodyMedium.color ?? AppColors.navy,
+                      fontWeight: AppTypography.bodyMedium.fontWeight,
+                      lineHeight: LineHeight(AppTypography.bodyMedium.height ?? 1.5),
                     ),
                     "p": Style(
                       margin: Margins.only(bottom: 6.h),
                       padding: HtmlPaddings.zero,
-                      fontSize: FontSize(AppTypography.supportFaqAnswer.fontSize?.sp ?? 12.sp),
-                      color: AppTypography.supportFaqAnswer.color ?? AppColors.navy,
-                      fontWeight: AppTypography.supportFaqAnswer.fontWeight,
-                      lineHeight: LineHeight(AppTypography.supportFaqAnswer.height ?? 1.5),
+                      fontSize: FontSize(AppTypography.bodyMedium.fontSize?.sp ?? 12.sp),
+                      color: AppTypography.bodyMedium.color ?? AppColors.navy,
+                      fontWeight: AppTypography.bodyMedium.fontWeight,
+                      lineHeight: LineHeight(AppTypography.bodyMedium.height ?? 1.5),
                     ),
                     "ul": Style(
                       margin: Margins.only(left: 0, top: 4.h, bottom: 6.h),
@@ -262,15 +290,15 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                     ),
                     "li": Style(
                       margin: Margins.only(bottom: 4.h),
-                      fontSize: FontSize(AppTypography.supportFaqAnswer.fontSize?.sp ?? 12.sp),
-                      color: AppTypography.supportFaqAnswer.color ?? AppColors.navy,
-                      fontWeight: AppTypography.supportFaqAnswer.fontWeight,
+                      fontSize: FontSize(AppTypography.bodyMedium.fontSize?.sp ?? 12.sp),
+                      color: AppTypography.bodyMedium.color ?? AppColors.navy,
+                      fontWeight: AppTypography.bodyMedium.fontWeight,
                       lineHeight: const LineHeight(1.45),
                     ),
                     "span": Style(
-                      fontSize: FontSize(AppTypography.supportFaqAnswer.fontSize?.sp ?? 12.sp),
-                      color: AppTypography.supportFaqAnswer.color ?? AppColors.navy,
-                      fontWeight: AppTypography.supportFaqAnswer.fontWeight,
+                      fontSize: FontSize(AppTypography.bodyMedium.fontSize?.sp ?? 12.sp),
+                      color: AppTypography.bodyMedium.color ?? AppColors.navy,
+                      fontWeight: AppTypography.bodyMedium.fontWeight,
                     ),
                   },
                   extensions: [
@@ -361,7 +389,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                       SizedBox(width: AppSpacing.sameGroupItemSpacing.w / 2),
                       Text(
                         'Still need help?',
-                        style: AppTypography.brandActionText,
+                        style: AppTypography.brandAction,
                       ),
                     ],
                   ),

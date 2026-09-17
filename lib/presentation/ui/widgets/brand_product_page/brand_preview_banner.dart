@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
@@ -29,7 +30,7 @@ class BrandPreviewBanner extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width - 32.w;
 
     final banimage = ClipRRect(
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: AppRadius.buttonRadius,
       child: AppImage(imageUrl: image, width: width, fit: BoxFit.fitWidth),
     );
 

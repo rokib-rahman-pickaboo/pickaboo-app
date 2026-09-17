@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class ChangeEmailSection extends StatefulWidget {
   final bool isEnabled;
@@ -44,14 +46,12 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: AppRadius.dialogRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.04),
@@ -68,7 +68,7 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
               Expanded(
                 child: Text(
                   'Change Email Address',
-                  style: textTheme.bodyMediumMedium.copyWith(
+                  style: AppTypography.bodyMedium.medium().copyWith(
                     color: AppColors.text,
                   ),
                 ),
@@ -89,26 +89,26 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                   SizedBox(height: 16.h),
                   TextFormField(
                     controller: _emailController,
-                    style: textTheme.bodyMedium.copyWith(color: AppColors.text),
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: 'Enter your email id',
-                      hintStyle: textTheme.bodyMedium.copyWith(
+                      hintStyle: AppTypography.bodyMedium.copyWith(
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -129,27 +129,27 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                   SizedBox(height: 12.h),
                   TextFormField(
                     controller: _confirmEmailController,
-                    style: textTheme.bodyMedium.copyWith(color: AppColors.text),
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: 'Confirm your email id',
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-                      hintStyle: textTheme.bodyMedium.copyWith(
+                      hintStyle: AppTypography.bodyMedium.copyWith(
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -170,24 +170,11 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                     },
                   ),
                   SizedBox(height: 16.h),
-                  SizedBox(
-                    width: double.infinity,
+                  AppButton.primary(
                     height: 48.h,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.pickabooBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: Text(
-                        'Save Email',
-                        style: textTheme.buttonMedium.copyWith(
-                          color: AppColors.white,
-                        ),
-                      ),
-                    ),
+                    borderRadius: AppRadius.cardRadius,
+                    text: 'Save Email',
+                    onPressed: _submit,
                   ),
                 ],
               ),

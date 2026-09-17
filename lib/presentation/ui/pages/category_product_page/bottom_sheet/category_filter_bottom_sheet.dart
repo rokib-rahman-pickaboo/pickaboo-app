@@ -7,8 +7,10 @@ import 'package:pickaboo/core/color/app_colors.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
 import 'package:pickaboo/domain/entity/category_products/category_products_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// ============================================================================
 /// 🏷️ CATEGORY FILTER BOTTOM SHEET
@@ -112,12 +114,12 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
   Widget build(BuildContext context) {
     if (_validAttributes.isEmpty) {
       return Material(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
         child: SizedBox(
           height: 180.h,
           child: Center(
-            child: Text('No filters available', style: AppTypography.cardTitle),
+            child: Text('No filters available', style: AppTypography.titleSmall),
           ),
         ),
       );
@@ -152,7 +154,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
     );
 
     return Material(
-      color: Colors.white,
+      color: AppColors.white,
       clipBehavior: Clip.antiAlias,
       borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
       child: SafeArea(
@@ -201,7 +203,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         border: Border(
           bottom: BorderSide(color: AppColors.border, width: 1),
         ),
@@ -209,12 +211,12 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Filters', style: AppTypography.pageTitle),
+          Text('Filters', style: AppTypography.titleLarge),
           if (totalSelected > 0)
             GestureDetector(
               onTap: _clearAll,
               behavior: HitTestBehavior.opaque,
-              child: Text('Clear All', style: AppTypography.brandActionText),
+              child: Text('Clear All', style: AppTypography.brandAction),
             ),
         ],
       ),
@@ -261,7 +263,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                   left: BorderSide(
                     color: isSelected
                         ? AppColors.pickabooBlue
-                        : Colors.transparent,
+                        : AppColors.transparent,
                     width: 3.5.w,
                   ),
                 ),
@@ -274,8 +276,8 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: isSelected
-                          ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
-                          : AppTypography.bodyRegular.withColor(AppColors.navy),
+                          ? AppTypography.titleSmall.withColor(AppColors.pickabooBlue)
+                          : AppTypography.bodyMedium.withColor(AppColors.navy),
                     ),
                   ),
                   if (count > 0)
@@ -290,7 +292,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                       ),
                       child: Text(
                         '$count',
-                        style: AppTypography.buttonPrimary,
+                        style: AppTypography.button,
                       ),
                     ),
                 ],
@@ -307,7 +309,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
     List<String> activeSelectedValues,
   ) {
     return Container(
-      color: Colors.white,
+      color: AppColors.white,
       child: RawScrollbar(
         controller: _optionsScrollController,
         thumbVisibility: true,
@@ -349,7 +351,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                       decoration: BoxDecoration(
                         color: isChecked
                             ? AppColors.pickabooBlue
-                            : Colors.white,
+                            : AppColors.white,
                         borderRadius: BorderRadius.circular(3.r),
                         border: Border.all(
                           color: isChecked
@@ -362,7 +364,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                           ? Icon(
                               Icons.check,
                               size: 13.sp,
-                              color: Colors.white,
+                              color: AppColors.white,
                             )
                           : null,
                     ),
@@ -372,8 +374,8 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                       child: Text(
                         item.label.removeHtmlTags,
                         style: isChecked
-                            ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
-                            : AppTypography.bodyRegular.withColor(AppColors.navy),
+                            ? AppTypography.titleSmall.withColor(AppColors.pickabooBlue)
+                            : AppTypography.bodyMedium.withColor(AppColors.navy),
                       ),
                     ),
                     if (item.count.toString().isNotEmpty &&
@@ -396,7 +398,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         border: Border(
           top: BorderSide(
             color: AppColors.border,
@@ -404,26 +406,13 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
           ),
         ),
       ),
-      child: SizedBox(
-        width: double.infinity,
+      child: AppButton.primary(
         height: 46.h,
-        child: ElevatedButton(
-          onPressed: _apply,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.pickabooBlue,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-          ),
-          child: Text(
-            totalSelected > 0
-                ? 'Apply Filters ($totalSelected)'
-                : 'Apply Filters',
-            style: AppTypography.buttonPrimary,
-          ),
-        ),
+        borderRadius: BorderRadius.circular(8.r),
+        text: totalSelected > 0
+            ? 'Apply Filters ($totalSelected)'
+            : 'Apply Filters',
+        onPressed: _apply,
       ),
     );
   }

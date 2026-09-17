@@ -27,7 +27,11 @@ mixin _$OrderDetailResponse {
   String? get orderNumber => throw _privateConstructorUsedError;
   @JsonKey(name: "customer_id")
   int? get customerId => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: "state")
   String? get state => throw _privateConstructorUsedError;
@@ -54,7 +58,11 @@ mixin _$OrderDetailResponse {
   String? get remoteIp => throw _privateConstructorUsedError;
   @JsonKey(name: "payment_method")
   String? get paymentMethod => throw _privateConstructorUsedError;
-  @JsonKey(name: "payment_information")
+  @JsonKey(
+    name: "payment_information",
+    fromJson: safePaymentInformationFromJson,
+    toJson: safePaymentInformationToJson,
+  )
   List<PaymentInfoModel>? get paymentInformation =>
       throw _privateConstructorUsedError;
   @JsonKey(name: "just_for_you")
@@ -70,6 +78,20 @@ mixin _$OrderDetailResponse {
   String? get customerEmail => throw _privateConstructorUsedError;
   @JsonKey(name: "customer_phone")
   String? get customerPhone => throw _privateConstructorUsedError;
+  @JsonKey(name: "convenience_fee")
+  num? get convenienceFee => throw _privateConstructorUsedError;
+  @JsonKey(name: "convenience_fee_percent")
+  String? get convenienceFeePercent => throw _privateConstructorUsedError;
+  @JsonKey(name: "payment_mode")
+  String? get paymentMode => throw _privateConstructorUsedError;
+  @JsonKey(name: "emi_tenure")
+  dynamic get emiTenure => throw _privateConstructorUsedError;
+  @JsonKey(name: "emi_bank")
+  String? get emiBank => throw _privateConstructorUsedError;
+  @JsonKey(name: "bank_name")
+  String? get bankName => throw _privateConstructorUsedError;
+  @JsonKey(name: "tenure")
+  dynamic get tenure => throw _privateConstructorUsedError;
 
   /// Serializes this OrderDetailResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -92,7 +114,12 @@ abstract class $OrderDetailResponseCopyWith<$Res> {
     @JsonKey(name: "order_id") int? orderId,
     @JsonKey(name: "order_number") String? orderNumber,
     @JsonKey(name: "customer_id") int? customerId,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
     @JsonKey(name: "state") String? state,
     @JsonKey(name: "status") String? status,
     @JsonKey(name: "items") List<OrderItemDetailModel>? items,
@@ -105,7 +132,11 @@ abstract class $OrderDetailResponseCopyWith<$Res> {
     @JsonKey(name: "shipping_method") String? shippingMethod,
     @JsonKey(name: "remote_ip") String? remoteIp,
     @JsonKey(name: "payment_method") String? paymentMethod,
-    @JsonKey(name: "payment_information")
+    @JsonKey(
+      name: "payment_information",
+      fromJson: safePaymentInformationFromJson,
+      toJson: safePaymentInformationToJson,
+    )
     List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") Object? justForYou,
     @JsonKey(name: "status_history") List<StatusHistoryModel>? statusHistory,
@@ -113,6 +144,13 @@ abstract class $OrderDetailResponseCopyWith<$Res> {
     @JsonKey(name: "customer_name") String? customerName,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_phone") String? customerPhone,
+    @JsonKey(name: "convenience_fee") num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
+    @JsonKey(name: "payment_mode") String? paymentMode,
+    @JsonKey(name: "emi_tenure") dynamic emiTenure,
+    @JsonKey(name: "emi_bank") String? emiBank,
+    @JsonKey(name: "bank_name") String? bankName,
+    @JsonKey(name: "tenure") dynamic tenure,
   });
 
   $OrderSummaryDetailModelCopyWith<$Res>? get orderSummary;
@@ -155,6 +193,13 @@ class _$OrderDetailResponseCopyWithImpl<$Res, $Val extends OrderDetailResponse>
     Object? customerName = freezed,
     Object? customerEmail = freezed,
     Object? customerPhone = freezed,
+    Object? convenienceFee = freezed,
+    Object? convenienceFeePercent = freezed,
+    Object? paymentMode = freezed,
+    Object? emiTenure = freezed,
+    Object? emiBank = freezed,
+    Object? bankName = freezed,
+    Object? tenure = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -264,6 +309,41 @@ class _$OrderDetailResponseCopyWithImpl<$Res, $Val extends OrderDetailResponse>
                     ? _value.customerPhone
                     : customerPhone // ignore: cast_nullable_to_non_nullable
                         as String?,
+            convenienceFee:
+                freezed == convenienceFee
+                    ? _value.convenienceFee
+                    : convenienceFee // ignore: cast_nullable_to_non_nullable
+                        as num?,
+            convenienceFeePercent:
+                freezed == convenienceFeePercent
+                    ? _value.convenienceFeePercent
+                    : convenienceFeePercent // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            paymentMode:
+                freezed == paymentMode
+                    ? _value.paymentMode
+                    : paymentMode // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            emiTenure:
+                freezed == emiTenure
+                    ? _value.emiTenure
+                    : emiTenure // ignore: cast_nullable_to_non_nullable
+                        as dynamic,
+            emiBank:
+                freezed == emiBank
+                    ? _value.emiBank
+                    : emiBank // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            bankName:
+                freezed == bankName
+                    ? _value.bankName
+                    : bankName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            tenure:
+                freezed == tenure
+                    ? _value.tenure
+                    : tenure // ignore: cast_nullable_to_non_nullable
+                        as dynamic,
           )
           as $Val,
     );
@@ -299,7 +379,12 @@ abstract class _$$OrderDetailResponseImplCopyWith<$Res>
     @JsonKey(name: "order_id") int? orderId,
     @JsonKey(name: "order_number") String? orderNumber,
     @JsonKey(name: "customer_id") int? customerId,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
     @JsonKey(name: "state") String? state,
     @JsonKey(name: "status") String? status,
     @JsonKey(name: "items") List<OrderItemDetailModel>? items,
@@ -312,7 +397,11 @@ abstract class _$$OrderDetailResponseImplCopyWith<$Res>
     @JsonKey(name: "shipping_method") String? shippingMethod,
     @JsonKey(name: "remote_ip") String? remoteIp,
     @JsonKey(name: "payment_method") String? paymentMethod,
-    @JsonKey(name: "payment_information")
+    @JsonKey(
+      name: "payment_information",
+      fromJson: safePaymentInformationFromJson,
+      toJson: safePaymentInformationToJson,
+    )
     List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") Object? justForYou,
     @JsonKey(name: "status_history") List<StatusHistoryModel>? statusHistory,
@@ -320,6 +409,13 @@ abstract class _$$OrderDetailResponseImplCopyWith<$Res>
     @JsonKey(name: "customer_name") String? customerName,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_phone") String? customerPhone,
+    @JsonKey(name: "convenience_fee") num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
+    @JsonKey(name: "payment_mode") String? paymentMode,
+    @JsonKey(name: "emi_tenure") dynamic emiTenure,
+    @JsonKey(name: "emi_bank") String? emiBank,
+    @JsonKey(name: "bank_name") String? bankName,
+    @JsonKey(name: "tenure") dynamic tenure,
   });
 
   @override
@@ -362,6 +458,13 @@ class __$$OrderDetailResponseImplCopyWithImpl<$Res>
     Object? customerName = freezed,
     Object? customerEmail = freezed,
     Object? customerPhone = freezed,
+    Object? convenienceFee = freezed,
+    Object? convenienceFeePercent = freezed,
+    Object? paymentMode = freezed,
+    Object? emiTenure = freezed,
+    Object? emiBank = freezed,
+    Object? bankName = freezed,
+    Object? tenure = freezed,
   }) {
     return _then(
       _$OrderDetailResponseImpl(
@@ -471,6 +574,41 @@ class __$$OrderDetailResponseImplCopyWithImpl<$Res>
                 ? _value.customerPhone
                 : customerPhone // ignore: cast_nullable_to_non_nullable
                     as String?,
+        convenienceFee:
+            freezed == convenienceFee
+                ? _value.convenienceFee
+                : convenienceFee // ignore: cast_nullable_to_non_nullable
+                    as num?,
+        convenienceFeePercent:
+            freezed == convenienceFeePercent
+                ? _value.convenienceFeePercent
+                : convenienceFeePercent // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        paymentMode:
+            freezed == paymentMode
+                ? _value.paymentMode
+                : paymentMode // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        emiTenure:
+            freezed == emiTenure
+                ? _value.emiTenure
+                : emiTenure // ignore: cast_nullable_to_non_nullable
+                    as dynamic,
+        emiBank:
+            freezed == emiBank
+                ? _value.emiBank
+                : emiBank // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        bankName:
+            freezed == bankName
+                ? _value.bankName
+                : bankName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        tenure:
+            freezed == tenure
+                ? _value.tenure
+                : tenure // ignore: cast_nullable_to_non_nullable
+                    as dynamic,
       ),
     );
   }
@@ -483,7 +621,12 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     @JsonKey(name: "order_id") this.orderId,
     @JsonKey(name: "order_number") this.orderNumber,
     @JsonKey(name: "customer_id") this.customerId,
-    @JsonKey(name: "created_at") this.createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.createdAt,
     @JsonKey(name: "state") this.state,
     @JsonKey(name: "status") this.status,
     @JsonKey(name: "items") final List<OrderItemDetailModel>? items,
@@ -497,7 +640,11 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     @JsonKey(name: "shipping_method") this.shippingMethod,
     @JsonKey(name: "remote_ip") this.remoteIp,
     @JsonKey(name: "payment_method") this.paymentMethod,
-    @JsonKey(name: "payment_information")
+    @JsonKey(
+      name: "payment_information",
+      fromJson: safePaymentInformationFromJson,
+      toJson: safePaymentInformationToJson,
+    )
     final List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") this.justForYou,
     @JsonKey(name: "status_history")
@@ -506,6 +653,13 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     @JsonKey(name: "customer_name") this.customerName,
     @JsonKey(name: "customer_email") this.customerEmail,
     @JsonKey(name: "customer_phone") this.customerPhone,
+    @JsonKey(name: "convenience_fee") this.convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") this.convenienceFeePercent,
+    @JsonKey(name: "payment_mode") this.paymentMode,
+    @JsonKey(name: "emi_tenure") this.emiTenure,
+    @JsonKey(name: "emi_bank") this.emiBank,
+    @JsonKey(name: "bank_name") this.bankName,
+    @JsonKey(name: "tenure") this.tenure,
   }) : _items = items,
        _shippingAddress = shippingAddress,
        _paymentAddress = paymentAddress,
@@ -526,7 +680,11 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
   @JsonKey(name: "customer_id")
   final int? customerId;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? createdAt;
   @override
   @JsonKey(name: "state")
@@ -587,7 +745,11 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
   final String? paymentMethod;
   final List<PaymentInfoModel>? _paymentInformation;
   @override
-  @JsonKey(name: "payment_information")
+  @JsonKey(
+    name: "payment_information",
+    fromJson: safePaymentInformationFromJson,
+    toJson: safePaymentInformationToJson,
+  )
   List<PaymentInfoModel>? get paymentInformation {
     final value = _paymentInformation;
     if (value == null) return null;
@@ -631,10 +793,31 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
   @override
   @JsonKey(name: "customer_phone")
   final String? customerPhone;
+  @override
+  @JsonKey(name: "convenience_fee")
+  final num? convenienceFee;
+  @override
+  @JsonKey(name: "convenience_fee_percent")
+  final String? convenienceFeePercent;
+  @override
+  @JsonKey(name: "payment_mode")
+  final String? paymentMode;
+  @override
+  @JsonKey(name: "emi_tenure")
+  final dynamic emiTenure;
+  @override
+  @JsonKey(name: "emi_bank")
+  final String? emiBank;
+  @override
+  @JsonKey(name: "bank_name")
+  final String? bankName;
+  @override
+  @JsonKey(name: "tenure")
+  final dynamic tenure;
 
   @override
   String toString() {
-    return 'OrderDetailResponse(orderId: $orderId, orderNumber: $orderNumber, customerId: $customerId, createdAt: $createdAt, state: $state, status: $status, items: $items, couponCode: $couponCode, spentRewardPoints: $spentRewardPoints, orderSummary: $orderSummary, shippingAddress: $shippingAddress, paymentAddress: $paymentAddress, shippingMethod: $shippingMethod, remoteIp: $remoteIp, paymentMethod: $paymentMethod, paymentInformation: $paymentInformation, justForYou: $justForYou, statusHistory: $statusHistory, statusLabel: $statusLabel, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone)';
+    return 'OrderDetailResponse(orderId: $orderId, orderNumber: $orderNumber, customerId: $customerId, createdAt: $createdAt, state: $state, status: $status, items: $items, couponCode: $couponCode, spentRewardPoints: $spentRewardPoints, orderSummary: $orderSummary, shippingAddress: $shippingAddress, paymentAddress: $paymentAddress, shippingMethod: $shippingMethod, remoteIp: $remoteIp, paymentMethod: $paymentMethod, paymentInformation: $paymentInformation, justForYou: $justForYou, statusHistory: $statusHistory, statusLabel: $statusLabel, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, convenienceFee: $convenienceFee, convenienceFeePercent: $convenienceFeePercent, paymentMode: $paymentMode, emiTenure: $emiTenure, emiBank: $emiBank, bankName: $bankName, tenure: $tenure)';
   }
 
   @override
@@ -693,7 +876,18 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
             (identical(other.customerEmail, customerEmail) ||
                 other.customerEmail == customerEmail) &&
             (identical(other.customerPhone, customerPhone) ||
-                other.customerPhone == customerPhone));
+                other.customerPhone == customerPhone) &&
+            (identical(other.convenienceFee, convenienceFee) ||
+                other.convenienceFee == convenienceFee) &&
+            (identical(other.convenienceFeePercent, convenienceFeePercent) ||
+                other.convenienceFeePercent == convenienceFeePercent) &&
+            (identical(other.paymentMode, paymentMode) ||
+                other.paymentMode == paymentMode) &&
+            const DeepCollectionEquality().equals(other.emiTenure, emiTenure) &&
+            (identical(other.emiBank, emiBank) || other.emiBank == emiBank) &&
+            (identical(other.bankName, bankName) ||
+                other.bankName == bankName) &&
+            const DeepCollectionEquality().equals(other.tenure, tenure));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -722,6 +916,13 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     customerName,
     customerEmail,
     customerPhone,
+    convenienceFee,
+    convenienceFeePercent,
+    paymentMode,
+    const DeepCollectionEquality().hash(emiTenure),
+    emiBank,
+    bankName,
+    const DeepCollectionEquality().hash(tenure),
   ]);
 
   /// Create a copy of OrderDetailResponse
@@ -746,7 +947,12 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
     @JsonKey(name: "order_id") final int? orderId,
     @JsonKey(name: "order_number") final String? orderNumber,
     @JsonKey(name: "customer_id") final int? customerId,
-    @JsonKey(name: "created_at") final DateTime? createdAt,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? createdAt,
     @JsonKey(name: "state") final String? state,
     @JsonKey(name: "status") final String? status,
     @JsonKey(name: "items") final List<OrderItemDetailModel>? items,
@@ -760,7 +966,11 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
     @JsonKey(name: "shipping_method") final String? shippingMethod,
     @JsonKey(name: "remote_ip") final String? remoteIp,
     @JsonKey(name: "payment_method") final String? paymentMethod,
-    @JsonKey(name: "payment_information")
+    @JsonKey(
+      name: "payment_information",
+      fromJson: safePaymentInformationFromJson,
+      toJson: safePaymentInformationToJson,
+    )
     final List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") final Object? justForYou,
     @JsonKey(name: "status_history")
@@ -769,6 +979,14 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
     @JsonKey(name: "customer_name") final String? customerName,
     @JsonKey(name: "customer_email") final String? customerEmail,
     @JsonKey(name: "customer_phone") final String? customerPhone,
+    @JsonKey(name: "convenience_fee") final num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent")
+    final String? convenienceFeePercent,
+    @JsonKey(name: "payment_mode") final String? paymentMode,
+    @JsonKey(name: "emi_tenure") final dynamic emiTenure,
+    @JsonKey(name: "emi_bank") final String? emiBank,
+    @JsonKey(name: "bank_name") final String? bankName,
+    @JsonKey(name: "tenure") final dynamic tenure,
   }) = _$OrderDetailResponseImpl;
 
   factory _OrderDetailResponse.fromJson(Map<String, dynamic> json) =
@@ -784,7 +1002,11 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
   @JsonKey(name: "customer_id")
   int? get customerId;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt;
   @override
   @JsonKey(name: "state")
@@ -820,7 +1042,11 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
   @JsonKey(name: "payment_method")
   String? get paymentMethod;
   @override
-  @JsonKey(name: "payment_information")
+  @JsonKey(
+    name: "payment_information",
+    fromJson: safePaymentInformationFromJson,
+    toJson: safePaymentInformationToJson,
+  )
   List<PaymentInfoModel>? get paymentInformation;
   @override
   @JsonKey(name: "just_for_you")
@@ -840,6 +1066,27 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
   @override
   @JsonKey(name: "customer_phone")
   String? get customerPhone;
+  @override
+  @JsonKey(name: "convenience_fee")
+  num? get convenienceFee;
+  @override
+  @JsonKey(name: "convenience_fee_percent")
+  String? get convenienceFeePercent;
+  @override
+  @JsonKey(name: "payment_mode")
+  String? get paymentMode;
+  @override
+  @JsonKey(name: "emi_tenure")
+  dynamic get emiTenure;
+  @override
+  @JsonKey(name: "emi_bank")
+  String? get emiBank;
+  @override
+  @JsonKey(name: "bank_name")
+  String? get bankName;
+  @override
+  @JsonKey(name: "tenure")
+  dynamic get tenure;
 
   /// Create a copy of OrderDetailResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -1430,19 +1677,29 @@ OrderSummaryDetailModel _$OrderSummaryDetailModelFromJson(
 /// @nodoc
 mixin _$OrderSummaryDetailModel {
   @JsonKey(name: "subtotal")
-  int? get subtotal => throw _privateConstructorUsedError;
+  num? get subtotal => throw _privateConstructorUsedError;
   @JsonKey(name: "total_order_qty")
   int? get totalOrderQty => throw _privateConstructorUsedError;
   @JsonKey(name: "discount_amount")
-  int? get discountAmount => throw _privateConstructorUsedError;
+  num? get discountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "rewards_discount")
-  int? get rewardsDiscount => throw _privateConstructorUsedError;
+  num? get rewardsDiscount => throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_fee")
-  int? get shippingFee => throw _privateConstructorUsedError;
+  num? get shippingFee => throw _privateConstructorUsedError;
   @JsonKey(name: "grand_total")
-  int? get grandTotal => throw _privateConstructorUsedError;
+  num? get grandTotal => throw _privateConstructorUsedError;
   @JsonKey(name: "reward_earned")
   int? get rewardEarned => throw _privateConstructorUsedError;
+  @JsonKey(name: "convenience_fee")
+  num? get convenienceFee => throw _privateConstructorUsedError;
+  @JsonKey(name: "convenience_fee_percent")
+  String? get convenienceFeePercent => throw _privateConstructorUsedError;
+  @JsonKey(name: "convenience_amount")
+  num? get convenienceAmount => throw _privateConstructorUsedError;
+  @JsonKey(name: "convenience_price")
+  num? get conveniencePrice => throw _privateConstructorUsedError;
+  @JsonKey(name: "fee")
+  num? get fee => throw _privateConstructorUsedError;
 
   /// Serializes this OrderSummaryDetailModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1462,13 +1719,18 @@ abstract class $OrderSummaryDetailModelCopyWith<$Res> {
   ) = _$OrderSummaryDetailModelCopyWithImpl<$Res, OrderSummaryDetailModel>;
   @useResult
   $Res call({
-    @JsonKey(name: "subtotal") int? subtotal,
+    @JsonKey(name: "subtotal") num? subtotal,
     @JsonKey(name: "total_order_qty") int? totalOrderQty,
-    @JsonKey(name: "discount_amount") int? discountAmount,
-    @JsonKey(name: "rewards_discount") int? rewardsDiscount,
-    @JsonKey(name: "shipping_fee") int? shippingFee,
-    @JsonKey(name: "grand_total") int? grandTotal,
+    @JsonKey(name: "discount_amount") num? discountAmount,
+    @JsonKey(name: "rewards_discount") num? rewardsDiscount,
+    @JsonKey(name: "shipping_fee") num? shippingFee,
+    @JsonKey(name: "grand_total") num? grandTotal,
     @JsonKey(name: "reward_earned") int? rewardEarned,
+    @JsonKey(name: "convenience_fee") num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
+    @JsonKey(name: "convenience_amount") num? convenienceAmount,
+    @JsonKey(name: "convenience_price") num? conveniencePrice,
+    @JsonKey(name: "fee") num? fee,
   });
 }
 
@@ -1497,6 +1759,11 @@ class _$OrderSummaryDetailModelCopyWithImpl<
     Object? shippingFee = freezed,
     Object? grandTotal = freezed,
     Object? rewardEarned = freezed,
+    Object? convenienceFee = freezed,
+    Object? convenienceFeePercent = freezed,
+    Object? convenienceAmount = freezed,
+    Object? conveniencePrice = freezed,
+    Object? fee = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1504,7 +1771,7 @@ class _$OrderSummaryDetailModelCopyWithImpl<
                 freezed == subtotal
                     ? _value.subtotal
                     : subtotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             totalOrderQty:
                 freezed == totalOrderQty
                     ? _value.totalOrderQty
@@ -1514,27 +1781,52 @@ class _$OrderSummaryDetailModelCopyWithImpl<
                 freezed == discountAmount
                     ? _value.discountAmount
                     : discountAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             rewardsDiscount:
                 freezed == rewardsDiscount
                     ? _value.rewardsDiscount
                     : rewardsDiscount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             shippingFee:
                 freezed == shippingFee
                     ? _value.shippingFee
                     : shippingFee // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             grandTotal:
                 freezed == grandTotal
                     ? _value.grandTotal
                     : grandTotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             rewardEarned:
                 freezed == rewardEarned
                     ? _value.rewardEarned
                     : rewardEarned // ignore: cast_nullable_to_non_nullable
                         as int?,
+            convenienceFee:
+                freezed == convenienceFee
+                    ? _value.convenienceFee
+                    : convenienceFee // ignore: cast_nullable_to_non_nullable
+                        as num?,
+            convenienceFeePercent:
+                freezed == convenienceFeePercent
+                    ? _value.convenienceFeePercent
+                    : convenienceFeePercent // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            convenienceAmount:
+                freezed == convenienceAmount
+                    ? _value.convenienceAmount
+                    : convenienceAmount // ignore: cast_nullable_to_non_nullable
+                        as num?,
+            conveniencePrice:
+                freezed == conveniencePrice
+                    ? _value.conveniencePrice
+                    : conveniencePrice // ignore: cast_nullable_to_non_nullable
+                        as num?,
+            fee:
+                freezed == fee
+                    ? _value.fee
+                    : fee // ignore: cast_nullable_to_non_nullable
+                        as num?,
           )
           as $Val,
     );
@@ -1551,13 +1843,18 @@ abstract class _$$OrderSummaryDetailModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "subtotal") int? subtotal,
+    @JsonKey(name: "subtotal") num? subtotal,
     @JsonKey(name: "total_order_qty") int? totalOrderQty,
-    @JsonKey(name: "discount_amount") int? discountAmount,
-    @JsonKey(name: "rewards_discount") int? rewardsDiscount,
-    @JsonKey(name: "shipping_fee") int? shippingFee,
-    @JsonKey(name: "grand_total") int? grandTotal,
+    @JsonKey(name: "discount_amount") num? discountAmount,
+    @JsonKey(name: "rewards_discount") num? rewardsDiscount,
+    @JsonKey(name: "shipping_fee") num? shippingFee,
+    @JsonKey(name: "grand_total") num? grandTotal,
     @JsonKey(name: "reward_earned") int? rewardEarned,
+    @JsonKey(name: "convenience_fee") num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
+    @JsonKey(name: "convenience_amount") num? convenienceAmount,
+    @JsonKey(name: "convenience_price") num? conveniencePrice,
+    @JsonKey(name: "fee") num? fee,
   });
 }
 
@@ -1586,6 +1883,11 @@ class __$$OrderSummaryDetailModelImplCopyWithImpl<$Res>
     Object? shippingFee = freezed,
     Object? grandTotal = freezed,
     Object? rewardEarned = freezed,
+    Object? convenienceFee = freezed,
+    Object? convenienceFeePercent = freezed,
+    Object? convenienceAmount = freezed,
+    Object? conveniencePrice = freezed,
+    Object? fee = freezed,
   }) {
     return _then(
       _$OrderSummaryDetailModelImpl(
@@ -1593,7 +1895,7 @@ class __$$OrderSummaryDetailModelImplCopyWithImpl<$Res>
             freezed == subtotal
                 ? _value.subtotal
                 : subtotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         totalOrderQty:
             freezed == totalOrderQty
                 ? _value.totalOrderQty
@@ -1603,27 +1905,52 @@ class __$$OrderSummaryDetailModelImplCopyWithImpl<$Res>
             freezed == discountAmount
                 ? _value.discountAmount
                 : discountAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         rewardsDiscount:
             freezed == rewardsDiscount
                 ? _value.rewardsDiscount
                 : rewardsDiscount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         shippingFee:
             freezed == shippingFee
                 ? _value.shippingFee
                 : shippingFee // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         grandTotal:
             freezed == grandTotal
                 ? _value.grandTotal
                 : grandTotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         rewardEarned:
             freezed == rewardEarned
                 ? _value.rewardEarned
                 : rewardEarned // ignore: cast_nullable_to_non_nullable
                     as int?,
+        convenienceFee:
+            freezed == convenienceFee
+                ? _value.convenienceFee
+                : convenienceFee // ignore: cast_nullable_to_non_nullable
+                    as num?,
+        convenienceFeePercent:
+            freezed == convenienceFeePercent
+                ? _value.convenienceFeePercent
+                : convenienceFeePercent // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        convenienceAmount:
+            freezed == convenienceAmount
+                ? _value.convenienceAmount
+                : convenienceAmount // ignore: cast_nullable_to_non_nullable
+                    as num?,
+        conveniencePrice:
+            freezed == conveniencePrice
+                ? _value.conveniencePrice
+                : conveniencePrice // ignore: cast_nullable_to_non_nullable
+                    as num?,
+        fee:
+            freezed == fee
+                ? _value.fee
+                : fee // ignore: cast_nullable_to_non_nullable
+                    as num?,
       ),
     );
   }
@@ -1640,6 +1967,11 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
     @JsonKey(name: "shipping_fee") this.shippingFee,
     @JsonKey(name: "grand_total") this.grandTotal,
     @JsonKey(name: "reward_earned") this.rewardEarned,
+    @JsonKey(name: "convenience_fee") this.convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") this.convenienceFeePercent,
+    @JsonKey(name: "convenience_amount") this.convenienceAmount,
+    @JsonKey(name: "convenience_price") this.conveniencePrice,
+    @JsonKey(name: "fee") this.fee,
   });
 
   factory _$OrderSummaryDetailModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -1647,29 +1979,44 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
 
   @override
   @JsonKey(name: "subtotal")
-  final int? subtotal;
+  final num? subtotal;
   @override
   @JsonKey(name: "total_order_qty")
   final int? totalOrderQty;
   @override
   @JsonKey(name: "discount_amount")
-  final int? discountAmount;
+  final num? discountAmount;
   @override
   @JsonKey(name: "rewards_discount")
-  final int? rewardsDiscount;
+  final num? rewardsDiscount;
   @override
   @JsonKey(name: "shipping_fee")
-  final int? shippingFee;
+  final num? shippingFee;
   @override
   @JsonKey(name: "grand_total")
-  final int? grandTotal;
+  final num? grandTotal;
   @override
   @JsonKey(name: "reward_earned")
   final int? rewardEarned;
+  @override
+  @JsonKey(name: "convenience_fee")
+  final num? convenienceFee;
+  @override
+  @JsonKey(name: "convenience_fee_percent")
+  final String? convenienceFeePercent;
+  @override
+  @JsonKey(name: "convenience_amount")
+  final num? convenienceAmount;
+  @override
+  @JsonKey(name: "convenience_price")
+  final num? conveniencePrice;
+  @override
+  @JsonKey(name: "fee")
+  final num? fee;
 
   @override
   String toString() {
-    return 'OrderSummaryDetailModel(subtotal: $subtotal, totalOrderQty: $totalOrderQty, discountAmount: $discountAmount, rewardsDiscount: $rewardsDiscount, shippingFee: $shippingFee, grandTotal: $grandTotal, rewardEarned: $rewardEarned)';
+    return 'OrderSummaryDetailModel(subtotal: $subtotal, totalOrderQty: $totalOrderQty, discountAmount: $discountAmount, rewardsDiscount: $rewardsDiscount, shippingFee: $shippingFee, grandTotal: $grandTotal, rewardEarned: $rewardEarned, convenienceFee: $convenienceFee, convenienceFeePercent: $convenienceFeePercent, convenienceAmount: $convenienceAmount, conveniencePrice: $conveniencePrice, fee: $fee)';
   }
 
   @override
@@ -1690,7 +2037,16 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
             (identical(other.grandTotal, grandTotal) ||
                 other.grandTotal == grandTotal) &&
             (identical(other.rewardEarned, rewardEarned) ||
-                other.rewardEarned == rewardEarned));
+                other.rewardEarned == rewardEarned) &&
+            (identical(other.convenienceFee, convenienceFee) ||
+                other.convenienceFee == convenienceFee) &&
+            (identical(other.convenienceFeePercent, convenienceFeePercent) ||
+                other.convenienceFeePercent == convenienceFeePercent) &&
+            (identical(other.convenienceAmount, convenienceAmount) ||
+                other.convenienceAmount == convenienceAmount) &&
+            (identical(other.conveniencePrice, conveniencePrice) ||
+                other.conveniencePrice == conveniencePrice) &&
+            (identical(other.fee, fee) || other.fee == fee));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1704,6 +2060,11 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
     shippingFee,
     grandTotal,
     rewardEarned,
+    convenienceFee,
+    convenienceFeePercent,
+    convenienceAmount,
+    conveniencePrice,
+    fee,
   );
 
   /// Create a copy of OrderSummaryDetailModel
@@ -1724,13 +2085,19 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
 
 abstract class _OrderSummaryDetailModel implements OrderSummaryDetailModel {
   const factory _OrderSummaryDetailModel({
-    @JsonKey(name: "subtotal") final int? subtotal,
+    @JsonKey(name: "subtotal") final num? subtotal,
     @JsonKey(name: "total_order_qty") final int? totalOrderQty,
-    @JsonKey(name: "discount_amount") final int? discountAmount,
-    @JsonKey(name: "rewards_discount") final int? rewardsDiscount,
-    @JsonKey(name: "shipping_fee") final int? shippingFee,
-    @JsonKey(name: "grand_total") final int? grandTotal,
+    @JsonKey(name: "discount_amount") final num? discountAmount,
+    @JsonKey(name: "rewards_discount") final num? rewardsDiscount,
+    @JsonKey(name: "shipping_fee") final num? shippingFee,
+    @JsonKey(name: "grand_total") final num? grandTotal,
     @JsonKey(name: "reward_earned") final int? rewardEarned,
+    @JsonKey(name: "convenience_fee") final num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent")
+    final String? convenienceFeePercent,
+    @JsonKey(name: "convenience_amount") final num? convenienceAmount,
+    @JsonKey(name: "convenience_price") final num? conveniencePrice,
+    @JsonKey(name: "fee") final num? fee,
   }) = _$OrderSummaryDetailModelImpl;
 
   factory _OrderSummaryDetailModel.fromJson(Map<String, dynamic> json) =
@@ -1738,25 +2105,40 @@ abstract class _OrderSummaryDetailModel implements OrderSummaryDetailModel {
 
   @override
   @JsonKey(name: "subtotal")
-  int? get subtotal;
+  num? get subtotal;
   @override
   @JsonKey(name: "total_order_qty")
   int? get totalOrderQty;
   @override
   @JsonKey(name: "discount_amount")
-  int? get discountAmount;
+  num? get discountAmount;
   @override
   @JsonKey(name: "rewards_discount")
-  int? get rewardsDiscount;
+  num? get rewardsDiscount;
   @override
   @JsonKey(name: "shipping_fee")
-  int? get shippingFee;
+  num? get shippingFee;
   @override
   @JsonKey(name: "grand_total")
-  int? get grandTotal;
+  num? get grandTotal;
   @override
   @JsonKey(name: "reward_earned")
   int? get rewardEarned;
+  @override
+  @JsonKey(name: "convenience_fee")
+  num? get convenienceFee;
+  @override
+  @JsonKey(name: "convenience_fee_percent")
+  String? get convenienceFeePercent;
+  @override
+  @JsonKey(name: "convenience_amount")
+  num? get convenienceAmount;
+  @override
+  @JsonKey(name: "convenience_price")
+  num? get conveniencePrice;
+  @override
+  @JsonKey(name: "fee")
+  num? get fee;
 
   /// Create a copy of OrderSummaryDetailModel
   /// with the given fields replaced by the non-null parameter values.
@@ -2808,9 +3190,17 @@ mixin _$StatusHistoryModel {
   String? get comment => throw _privateConstructorUsedError;
   @JsonKey(name: "status")
   String? get status => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: "entity_name")
+  @JsonKey(
+    name: "entity_name",
+    fromJson: safeEntityNameFromJson,
+    toJson: safeEntityNameToJson,
+  )
   EntityName? get entityName => throw _privateConstructorUsedError;
   @JsonKey(name: "seller_order_id")
   dynamic get sellerOrderId => throw _privateConstructorUsedError;
@@ -2839,8 +3229,18 @@ abstract class $StatusHistoryModelCopyWith<$Res> {
     @JsonKey(name: "is_visible_on_front") String? isVisibleOnFront,
     @JsonKey(name: "comment") String? comment,
     @JsonKey(name: "status") String? status,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "entity_name") EntityName? entityName,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
+    @JsonKey(
+      name: "entity_name",
+      fromJson: safeEntityNameFromJson,
+      toJson: safeEntityNameToJson,
+    )
+    EntityName? entityName,
     @JsonKey(name: "seller_order_id") dynamic sellerOrderId,
   });
 }
@@ -2939,8 +3339,18 @@ abstract class _$$StatusHistoryModelImplCopyWith<$Res>
     @JsonKey(name: "is_visible_on_front") String? isVisibleOnFront,
     @JsonKey(name: "comment") String? comment,
     @JsonKey(name: "status") String? status,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "entity_name") EntityName? entityName,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? createdAt,
+    @JsonKey(
+      name: "entity_name",
+      fromJson: safeEntityNameFromJson,
+      toJson: safeEntityNameToJson,
+    )
+    EntityName? entityName,
     @JsonKey(name: "seller_order_id") dynamic sellerOrderId,
   });
 }
@@ -3031,8 +3441,18 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
     @JsonKey(name: "is_visible_on_front") this.isVisibleOnFront,
     @JsonKey(name: "comment") this.comment,
     @JsonKey(name: "status") this.status,
-    @JsonKey(name: "created_at") this.createdAt,
-    @JsonKey(name: "entity_name") this.entityName,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.createdAt,
+    @JsonKey(
+      name: "entity_name",
+      fromJson: safeEntityNameFromJson,
+      toJson: safeEntityNameToJson,
+    )
+    this.entityName,
     @JsonKey(name: "seller_order_id") this.sellerOrderId,
   });
 
@@ -3058,10 +3478,18 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
   @JsonKey(name: "status")
   final String? status;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? createdAt;
   @override
-  @JsonKey(name: "entity_name")
+  @JsonKey(
+    name: "entity_name",
+    fromJson: safeEntityNameFromJson,
+    toJson: safeEntityNameToJson,
+  )
   final EntityName? entityName;
   @override
   @JsonKey(name: "seller_order_id")
@@ -3137,8 +3565,18 @@ abstract class _StatusHistoryModel implements StatusHistoryModel {
     @JsonKey(name: "is_visible_on_front") final String? isVisibleOnFront,
     @JsonKey(name: "comment") final String? comment,
     @JsonKey(name: "status") final String? status,
-    @JsonKey(name: "created_at") final DateTime? createdAt,
-    @JsonKey(name: "entity_name") final EntityName? entityName,
+    @JsonKey(
+      name: "created_at",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? createdAt,
+    @JsonKey(
+      name: "entity_name",
+      fromJson: safeEntityNameFromJson,
+      toJson: safeEntityNameToJson,
+    )
+    final EntityName? entityName,
     @JsonKey(name: "seller_order_id") final dynamic sellerOrderId,
   }) = _$StatusHistoryModelImpl;
 
@@ -3164,10 +3602,18 @@ abstract class _StatusHistoryModel implements StatusHistoryModel {
   @JsonKey(name: "status")
   String? get status;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(
+    name: "created_at",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get createdAt;
   @override
-  @JsonKey(name: "entity_name")
+  @JsonKey(
+    name: "entity_name",
+    fromJson: safeEntityNameFromJson,
+    toJson: safeEntityNameToJson,
+  )
   EntityName? get entityName;
   @override
   @JsonKey(name: "seller_order_id")

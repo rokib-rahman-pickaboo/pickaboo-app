@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
-import 'package:pickaboo/core/config/api_config.dart';
 import 'package:pickaboo/core/constants/app_constants.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/data/api_service/auth_api_service.dart';
@@ -525,14 +524,8 @@ class IAuthApiService extends AuthApiService {
     SocialLoginRequest request,
   ) async {
     try {
-      // Facebook login ALWAYS targets productionURL ('https://www.pickaboo.com')
-      // regardless of whether the app is configured to use developmentURL or productionURL.
-      final url = request.type.toLowerCase() == 'facebook'
-          ? '${ApiConfig.productionURL}${ApiEndpoints.socialLoginUrl}'
-          : ApiEndpoints.socialLoginUrl;
-
       final response = await _client.post(
-        url,
+        ApiEndpoints.socialLoginUrl,
         data: request.toJson(),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
@@ -579,26 +572,10 @@ class IAuthApiService extends AuthApiService {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      Response response;
-      try {
-        response = await _client.get(
-          ApiEndpoints.getCurrentUserUrl,
-          options: Options(headers: headers),
-        );
-      } on DioException catch (e) {
-        // If current env (e.g. developmentURL) returned 401 and we are not already
-        // on production, try productionURL so Facebook-authenticated users can load
-        // their profile even while the developer is testing with developmentURL.
-        if (e.response?.statusCode == 401 &&
-            ApiConfig.baseUrl != ApiConfig.productionURL) {
-          response = await _client.get(
-            '${ApiConfig.productionURL}${ApiEndpoints.getCurrentUserUrl}',
-            options: Options(headers: headers),
-          );
-        } else {
-          rethrow;
-        }
-      }
+      final response = await _client.get(
+        ApiEndpoints.getCurrentUserUrl,
+        options: Options(headers: headers),
+      );
 
       if (kDebugMode) {
         print("get_current_user -> ${response.data}");

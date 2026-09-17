@@ -12,10 +12,7 @@ _$OrderDetailResponseImpl _$$OrderDetailResponseImplFromJson(
   orderId: (json['order_id'] as num?)?.toInt(),
   orderNumber: json['order_number'] as String?,
   customerId: (json['customer_id'] as num?)?.toInt(),
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
+  createdAt: safeDateTimeFromJson(json['created_at']),
   state: json['state'] as String?,
   status: json['status'] as String?,
   items:
@@ -41,10 +38,9 @@ _$OrderDetailResponseImpl _$$OrderDetailResponseImplFromJson(
   shippingMethod: json['shipping_method'] as String?,
   remoteIp: json['remote_ip'] as String?,
   paymentMethod: json['payment_method'] as String?,
-  paymentInformation:
-      (json['payment_information'] as List<dynamic>?)
-          ?.map((e) => PaymentInfoModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+  paymentInformation: safePaymentInformationFromJson(
+    json['payment_information'],
+  ),
   justForYou: json['just_for_you'],
   statusHistory:
       (json['status_history'] as List<dynamic>?)
@@ -57,6 +53,13 @@ _$OrderDetailResponseImpl _$$OrderDetailResponseImplFromJson(
   customerName: json['customer_name'] as String?,
   customerEmail: json['customer_email'] as String?,
   customerPhone: json['customer_phone'] as String?,
+  convenienceFee: json['convenience_fee'] as num?,
+  convenienceFeePercent: json['convenience_fee_percent'] as String?,
+  paymentMode: json['payment_mode'] as String?,
+  emiTenure: json['emi_tenure'],
+  emiBank: json['emi_bank'] as String?,
+  bankName: json['bank_name'] as String?,
+  tenure: json['tenure'],
 );
 
 Map<String, dynamic> _$$OrderDetailResponseImplToJson(
@@ -65,7 +68,7 @@ Map<String, dynamic> _$$OrderDetailResponseImplToJson(
   'order_id': instance.orderId,
   'order_number': instance.orderNumber,
   'customer_id': instance.customerId,
-  'created_at': instance.createdAt?.toIso8601String(),
+  'created_at': safeDateTimeToJson(instance.createdAt),
   'state': instance.state,
   'status': instance.status,
   'items': instance.items,
@@ -77,13 +80,22 @@ Map<String, dynamic> _$$OrderDetailResponseImplToJson(
   'shipping_method': instance.shippingMethod,
   'remote_ip': instance.remoteIp,
   'payment_method': instance.paymentMethod,
-  'payment_information': instance.paymentInformation,
+  'payment_information': safePaymentInformationToJson(
+    instance.paymentInformation,
+  ),
   'just_for_you': instance.justForYou,
   'status_history': instance.statusHistory,
   'status_label': instance.statusLabel,
   'customer_name': instance.customerName,
   'customer_email': instance.customerEmail,
   'customer_phone': instance.customerPhone,
+  'convenience_fee': instance.convenienceFee,
+  'convenience_fee_percent': instance.convenienceFeePercent,
+  'payment_mode': instance.paymentMode,
+  'emi_tenure': instance.emiTenure,
+  'emi_bank': instance.emiBank,
+  'bank_name': instance.bankName,
+  'tenure': instance.tenure,
 };
 
 _$OrderItemDetailModelImpl _$$OrderItemDetailModelImplFromJson(
@@ -137,13 +149,18 @@ Map<String, dynamic> _$$OrderItemDetailModelImplToJson(
 _$OrderSummaryDetailModelImpl _$$OrderSummaryDetailModelImplFromJson(
   Map<String, dynamic> json,
 ) => _$OrderSummaryDetailModelImpl(
-  subtotal: (json['subtotal'] as num?)?.toInt(),
+  subtotal: json['subtotal'] as num?,
   totalOrderQty: (json['total_order_qty'] as num?)?.toInt(),
-  discountAmount: (json['discount_amount'] as num?)?.toInt(),
-  rewardsDiscount: (json['rewards_discount'] as num?)?.toInt(),
-  shippingFee: (json['shipping_fee'] as num?)?.toInt(),
-  grandTotal: (json['grand_total'] as num?)?.toInt(),
+  discountAmount: json['discount_amount'] as num?,
+  rewardsDiscount: json['rewards_discount'] as num?,
+  shippingFee: json['shipping_fee'] as num?,
+  grandTotal: json['grand_total'] as num?,
   rewardEarned: (json['reward_earned'] as num?)?.toInt(),
+  convenienceFee: json['convenience_fee'] as num?,
+  convenienceFeePercent: json['convenience_fee_percent'] as String?,
+  convenienceAmount: json['convenience_amount'] as num?,
+  conveniencePrice: json['convenience_price'] as num?,
+  fee: json['fee'] as num?,
 );
 
 Map<String, dynamic> _$$OrderSummaryDetailModelImplToJson(
@@ -156,6 +173,11 @@ Map<String, dynamic> _$$OrderSummaryDetailModelImplToJson(
   'shipping_fee': instance.shippingFee,
   'grand_total': instance.grandTotal,
   'reward_earned': instance.rewardEarned,
+  'convenience_fee': instance.convenienceFee,
+  'convenience_fee_percent': instance.convenienceFeePercent,
+  'convenience_amount': instance.convenienceAmount,
+  'convenience_price': instance.conveniencePrice,
+  'fee': instance.fee,
 };
 
 _$ShippingAddressModelImpl _$$ShippingAddressModelImplFromJson(
@@ -241,11 +263,8 @@ _$StatusHistoryModelImpl _$$StatusHistoryModelImplFromJson(
   isVisibleOnFront: json['is_visible_on_front'] as String?,
   comment: json['comment'] as String?,
   status: json['status'] as String?,
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  entityName: $enumDecodeNullable(_$EntityNameEnumMap, json['entity_name']),
+  createdAt: safeDateTimeFromJson(json['created_at']),
+  entityName: safeEntityNameFromJson(json['entity_name']),
   sellerOrderId: json['seller_order_id'],
 );
 
@@ -258,14 +277,9 @@ Map<String, dynamic> _$$StatusHistoryModelImplToJson(
   'is_visible_on_front': instance.isVisibleOnFront,
   'comment': instance.comment,
   'status': instance.status,
-  'created_at': instance.createdAt?.toIso8601String(),
-  'entity_name': _$EntityNameEnumMap[instance.entityName],
+  'created_at': safeDateTimeToJson(instance.createdAt),
+  'entity_name': safeEntityNameToJson(instance.entityName),
   'seller_order_id': instance.sellerOrderId,
-};
-
-const _$EntityNameEnumMap = {
-  EntityName.invoice: 'invoice',
-  EntityName.order: 'order',
 };
 
 _$StatusLabelImpl _$$StatusLabelImplFromJson(Map<String, dynamic> json) =>

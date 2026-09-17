@@ -70,7 +70,7 @@ class OrderItemCard extends StatelessWidget {
               children: [
                 Text(
                   item.itemName,
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -102,7 +102,7 @@ class OrderItemCard extends StatelessWidget {
                       ),
                       child: Text(
                         'Qty: ${item.qty}',
-                        style: AppTypography.bodyRegular,
+                        style: AppTypography.bodyMedium,
                       ),
                     ),
                   ],

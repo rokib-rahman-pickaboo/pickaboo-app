@@ -30,6 +30,8 @@ class AppStrings {
   static const String seeAll                = 'See All';
   static const String seeMore               = 'See More';
   static const String seeLess               = 'See Less';
+  static const String viewMore              = 'View More';
+  static const String viewLess              = 'View Less';
   static const String showMore              = 'Show More';
   static const String showLess              = 'Show Less';
   static const String clear                 = 'Clear';
@@ -49,6 +51,8 @@ class AppStrings {
   static const String ok                    = 'OK';
   static const String yes                   = 'Yes';
   static const String no                    = 'No';
+  static const String notNow                = 'Not now';
+  static const String openSettings          = 'Open Settings';
 
   // ===========================================================================
   // ── 2. BOTTOM NAVIGATION & ROOT TABS ──────────────────────────────────────
@@ -94,12 +98,18 @@ class AppStrings {
   static const String pdpAddProtectionPlan  = 'Add Protection Plan';
   static const String pdpInStock            = 'In Stock';
   static const String pdpOutOfStock         = 'Out of Stock';
+  static const String outOfStock            = pdpOutOfStock;
+  static const String viewPrice             = 'View Price';
   static const String pdpSoldOut            = 'Sold Out';
+  static const String pdpStockOut           = 'Stock Out';
   static const String pdpQuantity           = 'Quantity';
   static const String pdpSelectVariant      = 'Select Variant';
+  static const String pdpSelectAllVariantOptions = 'Please select all variant options to proceed';
   static const String pdpProductDetails     = 'Product Details';
   static const String pdpSpecifications     = 'Specifications';
+  static const String pdpViewAllSpecifications = 'View All Specification';
   static const String pdpDescription        = 'Description';
+  static const String pdpViewFullDescription = 'View Full Description';
   static const String pdpCustomerReviews    = 'Customer Reviews';
   static const String pdpRatingsAndReviews  = 'Ratings & Reviews';
   static const String pdpVerifiedBuyer      = 'Verified Buyer';
@@ -107,6 +117,7 @@ class AppStrings {
   static const String pdpAllReviews         = 'All Reviews';
   static const String pdpNoReviews          = 'No reviews yet';
   static const String pdpQuestionsAndAnswers= 'Questions & Answers';
+  static const String pdpViewAllQuestionsAndAnswers = 'View All Questions and Answers';
   static const String pdpAskQuestion        = 'Ask a Question';
   static const String pdpFrequentlyBought   = 'Frequently Bought Together';
   static const String pdpSimilarProducts    = 'Similar Products';
@@ -153,12 +164,13 @@ class AppStrings {
   static const String enterCouponCode       = 'Enter Coupon Code';
   static const String couponApplied         = 'Coupon Applied Successfully';
   static const String removeCoupon          = 'Remove';
-  static const String clubPointsTitle       = 'Pickaboo Club Points';
+  static const String clubPointsTitle       = 'Pickaboo Club';
   static const String useClubPoints         = 'Use Club Points';
   static const String enterPointsToRedeem   = 'Enter points to redeem';
   static const String availablePoints       = 'Available Points:';
   static const String shippingAddress       = 'Shipping Address';
   static const String selectAddress         = 'Select Delivery Address';
+  static const String confirmLocation       = 'Confirm Location';
   static const String addNewAddress         = 'Add New Address';
   static const String editAddress           = 'Edit Address';
   static const String defaultAddress        = 'Default';
@@ -195,6 +207,7 @@ class AppStrings {
   static const String filterTitle           = 'Filter';
   static const String filterBy              = 'Filter By';
   static const String allFilters            = 'All Filters';
+  static const String allBrands             = 'All Brands';
   static const String noFilterAvailable     = 'No filter available';
   static const String sortPriceLowToHigh    = 'Price: Low to High';
   static const String sortPriceHighToLow    = 'Price: High to Low';
@@ -252,6 +265,7 @@ class AppStrings {
   // ── 7. AUTHENTICATION & LOGIN ─────────────────────────────────────────────
   // ===========================================================================
   static const String login                 = 'Log In';
+  static const String loginOrRegister       = 'LOGIN / REGISTER';
   static const String loginTitle            = 'Welcome to Pickaboo';
   static const String loginSubtitle         = 'Enter your mobile number to continue';
   static const String sendOtp               = 'Send OTP';
@@ -312,6 +326,15 @@ class AppStrings {
   static const String pleaseSelectBank             = 'Please select bank';
   static const String pleaseSelectTenure           = 'Please select tenure';
 
+  static const String loggedOutSuccess      = 'Logged out successfully';
+  static const String removeAddress         = 'Remove Address';
+  static const String removeAddressConfirm  = 'Are you sure you want to remove this address?';
+  static const String couldNotLoadOrderNumber = "We couldn't load your order number right now.";
+  static const String yourOrderNumberIs     = 'Your order number is: ';
+  static const String forgotPasswordPrompt  = 'Forgot password?';
+  static const String forgotYourPasswordPrompt = 'Forgot Your Password?';
+  static const String justForYou             = 'JUST FOR YOU';
+
   // ===========================================================================
   // ── 9. DYNAMIC FORMATTERS / TEMPLATING HELPERS ────────────────────────────
   // ===========================================================================
@@ -323,4 +346,5 @@ class AppStrings {
   static String reviewsCount(dynamic count) => '$count Reviews';
   static String pointsBalance(dynamic points) => '$points Points';
   static String orderId(dynamic id) => 'Order #$id';
+  static String resendOtpCountdown(String countdown) => 'Resend OTP in $countdown';
 }

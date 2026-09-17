@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pickaboo/presentation/ui/widgets/account_information_page/user_info_item.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_themes.dart';
 
 // Helper to wrap widget with necessary providers/themes
 Widget _makeTestableWidget(Widget child) {
   return ScreenUtilInit(
     designSize: const Size(375, 812),
     builder: (_, _) => MaterialApp(
-      theme: ThemeData(extensions: [AppColors.light()]),
+      theme: AppTheme.light(),
       home: Builder(
         builder: (context) {
           return Scaffold(body: child);

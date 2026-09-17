@@ -90,6 +90,8 @@ class OrderSummaryDetailEntity {
   final double shippingFee;
   final double grandTotal;
   final int rewardEarned;
+  final double convenienceFee;
+  final String? convenienceFeePercent;
 
   const OrderSummaryDetailEntity({
     required this.subtotal,
@@ -99,6 +101,8 @@ class OrderSummaryDetailEntity {
     required this.shippingFee,
     required this.grandTotal,
     required this.rewardEarned,
+    this.convenienceFee = 0.0,
+    this.convenienceFeePercent,
   });
 }
 

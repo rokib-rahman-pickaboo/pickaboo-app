@@ -19,6 +19,7 @@ import 'package:pickaboo/presentation/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/dashboard/ticket_detail_page/ticket_detail_page.dart';
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
@@ -154,29 +155,16 @@ class _TicketMainPageState extends State<TicketMainPage> {
         color: AppColors.pageBg,
         padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
         child: SafeArea(
-          child: SizedBox(
+          child: AppButton.primary(
             height: 48.h,
-            child: ElevatedButton.icon(
-              onPressed: _navigateToCreateTicket,
-              icon: Icon(
-                Icons.add_rounded,
-                size: 20.sp,
-                color: AppColors.white,
-              ),
-              label: Text(
-                'Create Ticket',
-                style: AppTypography.buttonPrimary,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                foregroundColor: AppColors.white,
-                elevation: 0,
-                shadowColor: AppColors.pickabooBlue.withValues(alpha: 0.3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
+            borderRadius: BorderRadius.circular(12.r),
+            icon: Icon(
+              Icons.add_rounded,
+              size: 20.sp,
+              color: AppColors.white,
             ),
+            text: 'Create Ticket',
+            onPressed: _navigateToCreateTicket,
           ),
         ),
       ),
@@ -201,7 +189,7 @@ class _TicketMainPageState extends State<TicketMainPage> {
       return Center(
         child: Text(
           'Select a ticket to see its details',
-          style: AppTypography.bodyMuted,
+          style: AppTypography.bodySmall,
         ),
       );
     }

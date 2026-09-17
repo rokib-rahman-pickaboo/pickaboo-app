@@ -49,11 +49,13 @@ import 'package:pickaboo/core/utils/html_extensions.dart';
 class SpecialCategoryProductPage extends StatefulWidget {
   final String categorySlug;
   final String categoryName;
+  final bool isEmbedded;
 
   const SpecialCategoryProductPage({
     super.key,
     required this.categorySlug,
     required this.categoryName,
+    this.isEmbedded = false,
   });
 
   @override
@@ -104,78 +106,20 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.pageBg,
-      appBar: PickabooAppBar(
-        titleWidget: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
-          builder: (context, state) {
-            return Text(
-              (state.categoryData?.categoryName ?? widget.categoryName).removeHtmlTags,
-              style: AppTypography.pageTitle.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search_rounded, color: AppColors.navy, size: 22.sp),
-            onPressed: () => context.push(Routes.search),
-          ),
-          IconButton(
-            icon: Icon(Icons.favorite_border_rounded, color: AppColors.navy, size: 22.sp),
-            onPressed: () {
-              if (_isLoggedIn(context)) {
-                context.push(Routes.wishlist);
-              } else {
-                context.push(Routes.login);
-              }
-            },
-          ),
-          BlocBuilder<CartBloc, CartState>(
-            builder: (context, cartState) {
-              final cartCount = cartState.maybeWhen(
-                loaded: (cart) => cart.itemsCount,
-                itemAdded: (cart, _) => cart.itemsCount,
-                couponApplied: (cart, _) => cart.itemsCount,
-                rewardPointsApplied: (cart, _) => cart.itemsCount,
-                operationInProgress: (cart, _) => cart.itemsCount,
-                orElse: () => 0,
-              );
-
-              return IconButton(
-                icon: Badge(
-                  isLabelVisible: cartCount > 0,
-                  label: Text(
-                    '$cartCount',
-                    style: AppTypography.bodyTiny.bold().withColor(AppColors.white),
-                  ),
-                  backgroundColor: AppColors.pickabooBlue,
-                  child: Icon(Icons.shopping_bag_outlined, color: AppColors.navy, size: 22.sp),
-                ),
-                onPressed: () => context.push(Routes.cart),
-              );
-            },
-          ),
-          SizedBox(width: 4.w),
-        ],
-      ),
-          body: _wrapTwoPane(
-            context,
-            RefreshIndicator(
-              onRefresh: () async {
-                context.read<SpecialCategoryProductsBloc>().add(
-                  SpecialCategoryProductsEvent.refresh(categorySlug: widget.categorySlug),
-                );
-                context.read<BannerBloc>().add(
-                  const BannerEvent.getBannerContent(),
-                );
-              },
-              child: SafeArea(
-                top: false,
-                child: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
+    final bodyContent = _wrapTwoPane(
+      context,
+      RefreshIndicator(
+        onRefresh: () async {
+          context.read<SpecialCategoryProductsBloc>().add(
+            SpecialCategoryProductsEvent.refresh(categorySlug: widget.categorySlug),
+          );
+          context.read<BannerBloc>().add(
+            const BannerEvent.getBannerContent(),
+          );
+        },
+        child: SafeArea(
+          top: !widget.isEmbedded,
+          child: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
                   buildWhen: (previous, current) =>
                       !identical(previous.categoryData, current.categoryData) ||
                       !identical(previous.cachedFacets, current.cachedFacets) ||
@@ -202,6 +146,7 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                     final hasActiveFilters = activeFilterCount > 0;
 
                     if (!hasFacets &&
+                        !hasProducts &&
                         (state.pagingState.isLoading ||
                             state.pagingState.pages == null)) {
                       return const AppLoader.fullPage();
@@ -361,39 +306,35 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
 
                         if (!hasProducts &&
                             state.pagingState.error != null)
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 32.h),
-                              child: AppErrorView(
-                                type: ConnectivityUtils.isNoInternet(
-                                  state.pagingState.error,
-                                  context,
-                                )
-                                    ? AppErrorType.noInternet
-                                    : AppErrorType.generic,
-                                title: ConnectivityUtils.isNoInternet(
-                                  state.pagingState.error,
-                                  context,
-                                )
-                                    ? 'No Internet Connection'
-                                    : "Couldn't load products",
-                                message: ConnectivityUtils.isNoInternet(
-                                  state.pagingState.error,
-                                  context,
-                                )
-                                    ? 'Please check your network and try again.'
-                                    : 'Something went wrong while loading these '
-                                        'products. Please try again in a moment.',
-                                retryLabel: 'Try Again',
-                                onRetry: () {
-                                  context.read<SpecialCategoryProductsBloc>().add(
-                                    SpecialCategoryProductsEvent.refresh(
-                                      categorySlug: widget.categorySlug,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
+                          AppErrorView.sliver(
+                            fillRemaining: true,
+                            type: ConnectivityUtils.isNoInternet(
+                              state.pagingState.error,
+                              context,
+                            )
+                                ? AppErrorType.noInternet
+                                : AppErrorType.generic,
+                            title: ConnectivityUtils.isNoInternet(
+                              state.pagingState.error,
+                              context,
+                            )
+                                ? 'No Internet Connection'
+                                : "Couldn't load products",
+                            message: ConnectivityUtils.isNoInternet(
+                              state.pagingState.error,
+                              context,
+                            )
+                                ? 'Please check your network and try again.'
+                                : 'Something went wrong while loading these '
+                                    'products. Please try again in a moment.',
+                            retryLabel: 'Try Again',
+                            onRetry: () {
+                              context.read<SpecialCategoryProductsBloc>().add(
+                                SpecialCategoryProductsEvent.refresh(
+                                  categorySlug: widget.categorySlug,
+                                ),
+                              );
+                            },
                           ),
 
                         if (!hasProducts &&
@@ -401,7 +342,7 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                             (state.pagingState.isLoading ||
                                 state.pagingState.pages == null))
                           AppLoader.sliver(
-                            padding: EdgeInsets.symmetric(vertical: 48.h),
+                            fillRemaining: true,
                           ),
 
                         if (!hasProducts &&
@@ -415,10 +356,10 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                                 : Icons.inventory_2_outlined,
                             title: hasActiveFilters
                                 ? 'No products match your filters'
-                                : 'No Products in ${widget.categoryName}',
+                                : 'No Products in ${state.categoryData?.categoryName.sanitizedCatalogTitle.isNotEmpty == true ? state.categoryData!.categoryName.sanitizedCatalogTitle : (widget.categoryName.isGenericOrPlaceholderTitle ? 'this Category' : widget.categoryName.removeHtmlTags)}',
                             subtitle: hasActiveFilters
                                 ? 'Try removing a filter to see more.'
-                                : 'There are currently no products available for ${widget.categoryName}.',
+                                : 'There are currently no products available for ${state.categoryData?.categoryName.sanitizedCatalogTitle.isNotEmpty == true ? state.categoryData!.categoryName.sanitizedCatalogTitle : (widget.categoryName.isGenericOrPlaceholderTitle ? 'this Category' : widget.categoryName.removeHtmlTags)}.',
                             primaryButtonText: hasActiveFilters ? 'Clear all filters' : null,
                             primaryButtonIcon: hasActiveFilters ? Icons.filter_alt_off_rounded : null,
                             onPrimaryAction: hasActiveFilters
@@ -440,7 +381,79 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                 ),
               ),
             ),
+          );
+
+    if (widget.isEmbedded) {
+      return Material(
+        color: AppColors.pageBg,
+        child: bodyContent,
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: AppColors.pageBg,
+      appBar: PickabooAppBar(
+        titleWidget: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
+          builder: (context, state) {
+            final categoryTitle = state.categoryData?.categoryName;
+            final displayTitle = categoryTitle.isGenericOrPlaceholderTitle
+                ? widget.categoryName.sanitizedCatalogTitle
+                : categoryTitle.sanitizedCatalogTitle;
+
+            return Text(
+              displayTitle,
+              style: AppTypography.titleLarge.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search_rounded, color: AppColors.navy, size: 22.sp),
+            onPressed: () => context.push(Routes.search),
           ),
+          IconButton(
+            icon: Icon(Icons.favorite_border_rounded, color: AppColors.navy, size: 22.sp),
+            onPressed: () {
+              if (_isLoggedIn(context)) {
+                context.push(Routes.wishlist);
+              } else {
+                context.push(Routes.login);
+              }
+            },
+          ),
+          BlocBuilder<CartBloc, CartState>(
+            builder: (context, cartState) {
+              final cartCount = cartState.maybeWhen(
+                loaded: (cart) => cart.itemsCount,
+                itemAdded: (cart, _) => cart.itemsCount,
+                couponApplied: (cart, _) => cart.itemsCount,
+                rewardPointsApplied: (cart, _) => cart.itemsCount,
+                operationInProgress: (cart, _) => cart.itemsCount,
+                orElse: () => 0,
+              );
+
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: cartCount > 0,
+                  label: Text(
+                    '$cartCount',
+                    style: AppTypography.bodyTiny.bold().withColor(AppColors.white),
+                  ),
+                  backgroundColor: AppColors.pickabooBlue,
+                  child: Icon(Icons.shopping_bag_outlined, color: AppColors.navy, size: 22.sp),
+                ),
+                onPressed: () => context.push(Routes.cart),
+              );
+            },
+          ),
+          SizedBox(width: 4.w),
+        ],
+      ),
+      body: bodyContent,
     );
   }
 
@@ -469,7 +482,7 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
       return Center(
         child: Text(
           'Select a product to see its details',
-          style: context.textStyle.bodyMedium.copyWith(
+          style: AppTypography.bodyMedium.copyWith(
             color: AppColors.muted,
           ),
         ),

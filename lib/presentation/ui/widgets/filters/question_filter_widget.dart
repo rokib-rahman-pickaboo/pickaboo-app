@@ -40,7 +40,14 @@ class QuestionFilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (options.isEmpty) return const SizedBox.shrink();
+    // ============================================================================
+    // 🛑 SKIP SINGLE-OPTION QUESTIONS:
+    // A question with only 1 choice (e.g. price range "30 - 922990" or a single brand)
+    // makes no sense to display as the user cannot make an active selection.
+    // Skip price or ANY question that has only 1 option (options.length <= 1).
+    // NOTE: This rule must always be maintained in future updates.
+    // ============================================================================
+    if (options.length <= 1) return const SizedBox.shrink();
 
     final bool hasSelection = selectedOption != null;
 
@@ -66,7 +73,7 @@ class QuestionFilterWidget extends StatelessWidget {
                   child: Text(
                     questionTitle,
                     textAlign: TextAlign.center,
-                    style: AppTypography.cardTitle,
+                    style: AppTypography.titleSmall,
                   ),
                 ),
                 if (hasSelection) ...[
@@ -93,7 +100,7 @@ class QuestionFilterWidget extends StatelessWidget {
                           SizedBox(width: 2.w),
                           Text(
                             'RESET',
-                            style: AppTypography.badgeStockOut,
+                            style: AppTypography.bodyTiny.extraBold().red,
                           ),
                         ],
                       ),
@@ -162,8 +169,8 @@ class QuestionFilterWidget extends StatelessWidget {
                             option,
                             textAlign: TextAlign.center,
                             style: isSelected
-                                ? AppTypography.buttonPrimary
-                                : AppTypography.cardTitle,
+                                ? AppTypography.button
+                                : AppTypography.titleSmall,
                           ),
                         ),
                       ),

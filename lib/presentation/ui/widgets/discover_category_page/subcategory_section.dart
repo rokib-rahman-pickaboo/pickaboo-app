@@ -40,7 +40,7 @@ class SubcategorySection extends StatelessWidget {
       return Center(
         child: Text(
           'Select a category',
-          style: AppTypography.bodyMuted,
+          style: AppTypography.bodySmall,
         ),
       );
     }

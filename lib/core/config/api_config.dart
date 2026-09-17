@@ -12,8 +12,9 @@ class ApiConfig {
   /// Production backend domain (LIVE)
   static const String productionURL = 'https://www.pickaboo.com';
 
-  /// Development / Staging backend domain (TESTING)
-  static const String developmentURL = 'https://gcpadmin.pickaboo.com';
+  /// Development / Staging backend domain (TESTING)//
+  static const String developmentURL = 'https://gcpbeta.pickaboo.com';
+  //static const String developmentURL = 'https://gcpadmin.pickaboo.com';
 
   /// Active Base URL automatically chosen by the [isProduction] switch
   static const String baseUrl = isProduction ? productionURL : developmentURL;

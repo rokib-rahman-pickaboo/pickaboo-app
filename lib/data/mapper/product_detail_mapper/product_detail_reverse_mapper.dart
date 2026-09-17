@@ -82,6 +82,8 @@ extension AttrListEntityMapper on AttrListEntity {
       label: label,
       value: value,
       iconUrl: iconUrl,
+      icon: icon,
+      isFeatured: isFeatured,
     );
   }
 }

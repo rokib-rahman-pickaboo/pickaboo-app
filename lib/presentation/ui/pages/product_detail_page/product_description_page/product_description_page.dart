@@ -4,13 +4,15 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modern ProductDescriptionPage matching Pickaboo-App-UI design language.
 class ProductDescriptionPage extends StatefulWidget {
@@ -70,7 +72,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
             ),
             child: TabBar(
               controller: _tabController,
-              dividerColor: Colors.transparent,
+              dividerColor: AppColors.transparent,
               labelColor: AppColors.white,
               unselectedLabelColor: AppColors.muted,
               indicatorSize: TabBarIndicatorSize.tab,
@@ -85,8 +87,8 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                   ),
                 ],
               ),
-              labelStyle: AppTypography.cardTitle,
-              unselectedLabelStyle: AppTypography.bodyRegular,
+              labelStyle: AppTypography.titleSmall,
+              unselectedLabelStyle: AppTypography.bodyMedium,
               tabs: const [
                 Tab(text: 'Specification'),
                 Tab(text: 'Description'),
@@ -146,12 +148,12 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
             ),
             child: ClipRRect(
               borderRadius: AppRadius.cardRadius,
-              child: CachedNetworkImage(
+              child: AppImage(
                 imageUrl: widget.product.images.isNotEmpty
                     ? widget.product.images.first
                     : '',
                 fit: BoxFit.contain,
-                errorWidget: (context, url, error) => const Icon(
+                errorWidget: const Icon(
                   Icons.image_not_supported_outlined,
                   color: AppColors.mutedLight,
                 ),
@@ -165,7 +167,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
               children: [
                 Text(
                   widget.product.name,
-                  style: AppTypography.sectionTitle,
+                  style: AppTypography.titleMedium,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -185,7 +187,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                     children: [
                       Text(
                         '৳ ${originalPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
-                        style: AppTypography.priceStrikethrough,
+                        style: AppTypography.priceStrike,
                       ),
                       SizedBox(width: 6.w),
                       Container(
@@ -199,7 +201,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                         ),
                         child: Text(
                           '$discountPercent% OFF',
-                          style: AppTypography.badgeDiscountItem,
+                          style: AppTypography.bodyMedium.extraBold().red,
                         ),
                       ),
                     ],
@@ -235,16 +237,16 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
   int _selectedSpecGroupIndex = 0;
 
   Widget _buildSpecification() {
-    if (widget.product.moreInformation.isEmpty) {
+    final groups = widget.product.specificationGroups;
+    if (groups.isEmpty) {
       return Center(
         child: Text(
           'No specifications available',
-          style: AppTypography.bodyMuted,
+          style: AppTypography.bodySmall,
         ),
       );
     }
 
-    final groups = widget.product.moreInformation;
     final safeIndex = _selectedSpecGroupIndex.clamp(0, groups.length - 1);
     final activeGroup = groups[safeIndex];
 
@@ -300,7 +302,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                         ),
                         child: Text(
                           label,
-                          style: AppTypography.bodyMuted.copyWith(
+                          style: AppTypography.bodySmall.copyWith(
                             fontSize: 11.sp,
                             fontWeight: isSelected
                                 ? FontWeight.w700
@@ -354,7 +356,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                       ),
                       child: Text(
                         activeGroup.groupLabel,
-                        style: AppTypography.cardTitle,
+                        style: AppTypography.titleSmall,
                       ),
                     ),
                   if (activeGroup.attrList.isNotEmpty)
@@ -413,7 +415,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                                   flex: 2,
                                   child: Text(
                                     activeGroup.attrList[i].label,
-                                    style: AppTypography.bodyMuted.copyWith(
+                                    style: AppTypography.bodySmall.copyWith(
                                       fontSize: 12.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -424,7 +426,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                                   flex: 3,
                                   child: Text(
                                     activeGroup.attrList[i].value,
-                                    style: AppTypography.cardTitle.copyWith(
+                                    style: AppTypography.titleSmall.copyWith(
                                       fontSize: 12.sp,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -440,7 +442,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                       padding: EdgeInsets.all(16.w),
                       child: Text(
                         'No specifications in this category.',
-                        style: AppTypography.bodyMuted,
+                        style: AppTypography.bodySmall,
                       ),
                     ),
                 ],

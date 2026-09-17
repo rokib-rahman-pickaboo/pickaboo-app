@@ -47,3 +47,25 @@ extension HtmlStringExtension on String {
     return result;
   }
 }
+
+extension TitleSanitizerExtension on String? {
+  /// Returns true if this string is null, blank, or an internal CMS/slider/banner placeholder
+  /// such as "Home Slider", "Main Slider", "Hero Banner", etc.
+  bool get isGenericOrPlaceholderTitle {
+    if (this == null) return true;
+    final trimmed = this!.trim();
+    if (trimmed.isEmpty) return true;
+    final lower = trimmed.toLowerCase();
+    return lower.contains('slider') ||
+        lower.contains('banner') ||
+        lower == 'home' ||
+        lower == 'category' ||
+        lower == 'null';
+  }
+
+  /// Returns the sanitized category/catalog title or empty string if it is a placeholder.
+  String get sanitizedCatalogTitle {
+    if (isGenericOrPlaceholderTitle) return '';
+    return this!.removeHtmlTags.trim();
+  }
+}

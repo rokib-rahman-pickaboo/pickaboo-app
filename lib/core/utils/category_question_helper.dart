@@ -70,9 +70,15 @@ class CategoryQuestionHelper {
   }) {
     if (attributes.isEmpty) return const [];
 
-    // Only attributes that have valid options
+    // ============================================================================
+    // 🛑 SKIP SINGLE-OPTION QUESTIONS:
+    // A question with only 1 choice (e.g. price range "30 - 922990" or a single brand)
+    // makes no sense to display as the user cannot make an active selection.
+    // Skip price or ANY filter attribute that has only 1 option (items.length <= 1).
+    // NOTE: This rule must always be maintained in future updates.
+    // ============================================================================
     final validAttributes = attributes
-        .where((a) => a.items.isNotEmpty && a.filterCode.trim().isNotEmpty)
+        .where((a) => a.items.length > 1 && a.filterCode.trim().isNotEmpty)
         .toList();
 
     if (validAttributes.isEmpty) return const [];
@@ -112,6 +118,20 @@ class CategoryQuestionHelper {
 
       if (selectedQuestions.length >= maxQuestions) {
         break;
+      }
+    }
+
+    // If target priority codes did not fill all question slots (e.g., price was skipped
+    // because it had only 1 option), fill remaining slots from other valid attributes
+    // that have at least 2 options.
+    if (selectedQuestions.length < maxQuestions) {
+      for (final attr in validAttributes) {
+        if (!selectedQuestions.contains(attr)) {
+          selectedQuestions.add(attr);
+          if (selectedQuestions.length >= maxQuestions) {
+            break;
+          }
+        }
       }
     }
 
@@ -169,13 +189,33 @@ class CategoryQuestionHelper {
   }
 
   /// Prunes filter question options to remove choices that have zero matching products.
+  ///
+  /// NOTE: If after pruning, a question has <= 1 option remaining, it is stripped
+  /// (returns empty items) so callers skip rendering it as a question.
   static FilterAttributeEntity pruneQuestionOptions({
     required FilterAttributeEntity question,
     required List<ProductEntity> currentProducts,
     List<FilterAttributeEntity>? currentServerAttributes,
   }) {
-    if (currentProducts.isEmpty || question.items.isEmpty) {
-      return question;
+    // A question with <= 1 option cannot be meaningfully asked to the user
+    if (question.items.length <= 1) {
+      return FilterAttributeEntity(
+        filterName: question.filterName,
+        filterCode: question.filterCode,
+        items: const [],
+        specialForPhone: question.specialForPhone,
+      );
+    }
+
+    if (currentProducts.isEmpty && (currentServerAttributes == null || currentServerAttributes.isEmpty)) {
+      return question.items.length > 1
+          ? question
+          : FilterAttributeEntity(
+              filterName: question.filterName,
+              filterCode: question.filterCode,
+              items: const [],
+              specialForPhone: question.specialForPhone,
+            );
     }
 
     final code = question.filterCode.toLowerCase().trim();
@@ -183,6 +223,16 @@ class CategoryQuestionHelper {
     final isPrice = code == 'price' || name.contains('price') || name.contains('budget');
 
     if (isPrice) {
+      if (currentProducts.isEmpty) {
+        return question.items.length > 1
+            ? question
+            : FilterAttributeEntity(
+                filterName: question.filterName,
+                filterCode: question.filterCode,
+                items: const [],
+                specialForPhone: question.specialForPhone,
+              );
+      }
       final productPrices = currentProducts
           .map((p) => p.finalPrice.toDouble())
           .where((pr) => pr > 0.0)
@@ -208,11 +258,19 @@ class CategoryQuestionHelper {
         }
       }
 
-      if (validItems.isNotEmpty) {
+      // NOTE: Skip question if pruning leaves <= 1 option
+      if (validItems.length > 1) {
         return FilterAttributeEntity(
           filterName: question.filterName,
           filterCode: question.filterCode,
           items: validItems,
+          specialForPhone: question.specialForPhone,
+        );
+      } else {
+        return FilterAttributeEntity(
+          filterName: question.filterName,
+          filterCode: question.filterCode,
+          items: const [],
           specialForPhone: question.specialForPhone,
         );
       }
@@ -235,18 +293,33 @@ class CategoryQuestionHelper {
               validServerLabels.contains(i.label.toLowerCase().trim());
         }).toList();
 
-        if (validItems.isNotEmpty) {
+        // NOTE: Skip question if pruning leaves <= 1 option
+        if (validItems.length > 1) {
           return FilterAttributeEntity(
             filterName: question.filterName,
             filterCode: question.filterCode,
             items: validItems,
             specialForPhone: question.specialForPhone,
           );
+        } else {
+          return FilterAttributeEntity(
+            filterName: question.filterName,
+            filterCode: question.filterCode,
+            items: const [],
+            specialForPhone: question.specialForPhone,
+          );
         }
       }
     }
 
-    return question;
+    return question.items.length > 1
+        ? question
+        : FilterAttributeEntity(
+            filterName: question.filterName,
+            filterCode: question.filterCode,
+            items: const [],
+            specialForPhone: question.specialForPhone,
+          );
   }
 
   static String? _resolveLookupKey({

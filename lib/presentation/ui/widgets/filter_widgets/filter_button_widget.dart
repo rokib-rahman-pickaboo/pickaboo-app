@@ -75,7 +75,7 @@ class FilterButtonWidget extends StatelessWidget {
             children: [
               Icon(icon, size: 18.sp),
               SizedBox(width: 6.w),
-              Text(label, style: context.textStyle.bodyMediumMedium),
+              Text(label, style: AppTypography.bodyMedium.medium()),
             ],
           ),
         ),

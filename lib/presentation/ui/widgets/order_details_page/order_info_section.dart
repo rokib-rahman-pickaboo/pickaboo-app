@@ -49,7 +49,7 @@ class OrderInfoSection extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTypography.sectionTitle,
+                style: AppTypography.titleMedium,
               ),
               if (trailing != null) trailing!,
             ],

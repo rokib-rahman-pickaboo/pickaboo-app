@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/cart_api_service.dart';
 import 'package:pickaboo/data/model/cart/add_cart_item_request/add_cart_item_request.dart';
 import 'package:pickaboo/data/model/cart/cart_item_response/cart_item_response.dart';
@@ -24,21 +25,12 @@ class ICartApiService extends CartApiService {
 
   ErrorResponse checkErrorResponse(DioException err) {
     if (kDebugMode) {
-      print('🌐 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('🌐 SERVER ERROR');
-      print('🌐 URL     : ${err.requestOptions.method} ${err.requestOptions.uri}');
-      print('🌐 Status  : ${err.response?.statusCode ?? 'no response'}');
-      print('🌐 Message : ${err.message}');
-      print('🌐 Body    : ${err.response?.data}');
-      print('🌐 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      debugPrint(
+        '🌐 SERVER ERROR: ${err.requestOptions.method} ${err.requestOptions.uri} '
+        'Status: ${err.response?.statusCode ?? "no response"} Message: ${err.message}',
+      );
     }
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
-    }
-    return const ErrorResponse();
+    return ApiErrorParser.parse(err);
   }
 
   @override

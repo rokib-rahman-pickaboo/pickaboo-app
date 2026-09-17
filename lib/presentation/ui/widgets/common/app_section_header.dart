@@ -39,7 +39,7 @@ class AppSectionHeader extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.sectionTitle,
+              style: AppTypography.titleMedium,
             ),
           ),
           if (trailing != null)
@@ -56,7 +56,7 @@ class AppSectionHeader extends StatelessWidget {
                   children: [
                     Text(
                       viewAllText,
-                      style: AppTypography.cardTitle,
+                      style: AppTypography.titleSmall,
                     ),
                     SizedBox(width: 2.w),
                     Icon(

@@ -44,7 +44,7 @@ class PlaceOrderBottomBar extends StatelessWidget {
               ),
               TextSpan(
                 text: "Terms & Conditions",
-                style: AppTypography.linkText.size(10.5.sp),
+                style: AppTypography.link.size(10.5.sp),
               ),
             ],
           ),

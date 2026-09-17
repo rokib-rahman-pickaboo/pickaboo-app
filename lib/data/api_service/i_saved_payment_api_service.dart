@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/saved_payment_api_service.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 import 'package:pickaboo/data/model/payment/saved_payment_model.dart';
@@ -106,12 +107,6 @@ class ISavedPaymentApiService extends SavedPaymentApiService {
   }
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
-    }
-    return const ErrorResponse(message: 'Something went wrong');
+    return ApiErrorParser.parse(err);
   }
 }

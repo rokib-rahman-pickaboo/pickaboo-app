@@ -120,6 +120,9 @@ class SnackBarUtils {
   static DateTime? _lastShownAt;
   static const _dedupeWindow = Duration(milliseconds: 1200);
 
+  /// Default toast display duration (1 second)
+  static const Duration defaultMsgDuration = Duration(seconds: 1);
+
   /// Dismiss currently visible floating snackbar
   static void dismiss() {
     _dismissTimer?.cancel();
@@ -140,7 +143,7 @@ class SnackBarUtils {
     ToastPosition position = ToastPosition.bottom,
     String? actionLabel,
     VoidCallback? onAction,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = defaultMsgDuration,
   }) {
     show(
       context,
@@ -168,7 +171,7 @@ class SnackBarUtils {
     ToastPosition position = ToastPosition.bottom,
     String? actionLabel,
     VoidCallback? onAction,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = defaultMsgDuration,
   }) {
     show(
       context,
@@ -196,7 +199,7 @@ class SnackBarUtils {
     ToastPosition position = ToastPosition.bottom,
     String? actionLabel,
     VoidCallback? onAction,
-    Duration duration = const Duration(seconds: 4),
+    Duration duration = defaultMsgDuration,
   }) {
     final cleanMessage = ApiErrorParser.sanitize(message);
     show(
@@ -226,16 +229,19 @@ class SnackBarUtils {
     ToastPosition position = ToastPosition.bottom,
     String? actionLabel,
     VoidCallback? onAction,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = defaultMsgDuration,
   }) {
-    final effectiveTitle = title ?? type.defaultTitle;
+    final rawTitle = title ?? type.defaultTitle;
+    final effectiveTitle = ApiErrorParser.isTechnicalOrServerCrash(rawTitle)
+        ? type.defaultTitle
+        : rawTitle;
     final effectiveTag = tagText ?? type.defaultTag;
     final effectiveIcon = icon ?? type.defaultIcon;
     final effectiveAccent = type.accentColor;
     final effectiveSurface = type.surfaceColor;
 
     final effectiveMessage = message.trim().isNotEmpty
-        ? (type == SnackBarType.negative
+        ? (type == SnackBarType.negative || ApiErrorParser.isTechnicalOrServerCrash(message)
             ? ApiErrorParser.sanitize(message)
             : message.trim())
         : (type == SnackBarType.positive
@@ -293,6 +299,7 @@ class SnackBarUtils {
     String? actionLabel,
     VoidCallback? onAction,
     String? tagText,
+    Duration duration = defaultMsgDuration,
   }) =>
       showPositive(
         context,
@@ -301,6 +308,7 @@ class SnackBarUtils {
         actionLabel: actionLabel,
         onAction: onAction,
         tagText: tagText,
+        duration: duration,
       );
 
   /// Alias for [showNegative]
@@ -311,6 +319,7 @@ class SnackBarUtils {
     String? actionLabel,
     VoidCallback? onAction,
     String? tagText,
+    Duration duration = defaultMsgDuration,
   }) =>
       showNegative(
         context,
@@ -319,6 +328,7 @@ class SnackBarUtils {
         actionLabel: actionLabel,
         onAction: onAction,
         tagText: tagText,
+        duration: duration,
       );
 
   /// Alias for [showRegular]
@@ -329,6 +339,7 @@ class SnackBarUtils {
     String? actionLabel,
     VoidCallback? onAction,
     String? tagText,
+    Duration duration = defaultMsgDuration,
   }) =>
       showRegular(
         context,
@@ -337,6 +348,7 @@ class SnackBarUtils {
         actionLabel: actionLabel,
         onAction: onAction,
         tagText: tagText,
+        duration: duration,
       );
 
   /// Warning / Caution alert (Amber)
@@ -347,6 +359,7 @@ class SnackBarUtils {
     String? actionLabel,
     VoidCallback? onAction,
     String? tagText,
+    Duration duration = defaultMsgDuration,
   }) =>
       show(
         context,
@@ -356,6 +369,7 @@ class SnackBarUtils {
         actionLabel: actionLabel,
         onAction: onAction,
         tagText: tagText,
+        duration: duration,
       );
 
   /// Specific Cart added notification with 'View Cart' CTA
@@ -365,7 +379,7 @@ class SnackBarUtils {
     String? itemName,
     int? itemCount,
     ToastPosition position = ToastPosition.bottom,
-    Duration duration = const Duration(milliseconds: 2500),
+    Duration duration = defaultMsgDuration,
   }) {
     show(
       context,
@@ -390,6 +404,7 @@ class SnackBarUtils {
     String message = 'Added to comparison list',
     VoidCallback? onCompare,
     ToastPosition position = ToastPosition.bottom,
+    Duration duration = defaultMsgDuration,
   }) {
     show(
       context,
@@ -398,7 +413,7 @@ class SnackBarUtils {
       message: message,
       type: SnackBarType.regular,
       icon: Icons.compare_arrows_rounded,
-      duration: const Duration(seconds: 3),
+      duration: duration,
       position: position,
       actionLabel: 'Compare',
       onAction: onCompare,
@@ -605,7 +620,7 @@ class _PremiumFloatingSnackBarWidgetState
                                               widget.title,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
-                                              style: AppTypography.cardTitle.copyWith(
+                                              style: AppTypography.titleSmall.copyWith(
                                                 fontSize: 12.5.sp,
                                                 fontWeight: FontWeight.w700,
                                                 color: AppColors.navy,
@@ -643,7 +658,7 @@ class _PremiumFloatingSnackBarWidgetState
                                       SizedBox(height: 2.h),
                                       Text(
                                         widget.message,
-                                        style: AppTypography.bodyMuted.copyWith(
+                                        style: AppTypography.bodySmall.copyWith(
                                           fontSize: 11.sp,
                                           fontWeight: FontWeight.w500,
                                           color: AppColors.text,
@@ -694,7 +709,7 @@ class _PremiumFloatingSnackBarWidgetState
                                       ),
                                       child: Text(
                                         widget.actionLabel!,
-                                        style: AppTypography.buttonPrimary.copyWith(
+                                        style: AppTypography.button.copyWith(
                                           fontSize: 11.sp,
                                           fontWeight: FontWeight.w700,
                                           color: widget.type == SnackBarType.negative

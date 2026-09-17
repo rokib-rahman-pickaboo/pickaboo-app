@@ -35,8 +35,8 @@ void main() {
         MoreInformationEntity(
           groupLabel: 'General',
           attrList: [
-            AttrListEntity(label: 'Color', value: 'Black'),
-            AttrListEntity(label: 'Feature', value: '4K'),
+            AttrListEntity(label: 'Color', value: 'Black', isFeatured: true),
+            AttrListEntity(label: 'Feature', value: '4K', isFeatured: true),
           ],
         ),
       ];
@@ -63,12 +63,13 @@ void main() {
         MoreInformationEntity(
           groupLabel: 'Specs',
           attrList: [
-            AttrListEntity(label: 'Color', value: 'Black'),
-            AttrListEntity(label: 'Feature', value: '4K'),
-            AttrListEntity(label: 'Brand', value: 'Samsung'),
+            AttrListEntity(label: 'Color', value: 'Black', isFeatured: true),
+            AttrListEntity(label: 'Feature', value: '4K', isFeatured: true),
+            AttrListEntity(label: 'Brand', value: 'Samsung', isFeatured: true),
             AttrListEntity(
               label: 'Warranty Information',
               value: '5 Years Service Warranty Without Parts & Panel',
+              isFeatured: true,
             ),
           ],
         ),
@@ -102,6 +103,63 @@ void main() {
       final warrantySize = tester.getSize(warrantyFinder.first);
 
       expect(samsungSize.height, equals(warrantySize.height));
+    });
+
+    testWidgets('Does not render when all attributes have isFeatured == false',
+        (WidgetTester tester) async {
+      const testSize = Size(375, 812);
+      tester.view.physicalSize = testSize;
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      const moreInfo = [
+        MoreInformationEntity(
+          groupLabel: 'General',
+          attrList: [
+            AttrListEntity(label: 'Color', value: 'Black', isFeatured: false),
+            AttrListEntity(label: 'Feature', value: '4K', isFeatured: false),
+          ],
+        ),
+      ];
+
+      await tester.pumpWidget(createWidgetUnderTest(moreInfo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Key Highlights'), findsNothing);
+      expect(find.text('Black'), findsNothing);
+    });
+
+    testWidgets('Only renders isFeatured == true attributes when mixed with isFeatured == false',
+        (WidgetTester tester) async {
+      const testSize = Size(375, 812);
+      tester.view.physicalSize = testSize;
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      const moreInfo = [
+        MoreInformationEntity(
+          groupLabel: 'General',
+          attrList: [
+            AttrListEntity(
+              label: 'Warranty Information',
+              value: '3 Months Brand Warranty',
+              isFeatured: true,
+            ),
+            AttrListEntity(label: 'Brand', value: 'NOVA', isFeatured: false),
+            AttrListEntity(label: 'SKU', value: 'NOV-101'), // default isFeatured: false
+          ],
+        ),
+      ];
+
+      await tester.pumpWidget(createWidgetUnderTest(moreInfo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Key Highlights'), findsOneWidget);
+      expect(find.text('Warranty Information'), findsOneWidget);
+      expect(find.text('3 Months Brand Warranty'), findsOneWidget);
+      expect(find.text('Brand'), findsNothing);
+      expect(find.text('NOVA'), findsNothing);
+      expect(find.text('SKU'), findsNothing);
     });
   });
 }

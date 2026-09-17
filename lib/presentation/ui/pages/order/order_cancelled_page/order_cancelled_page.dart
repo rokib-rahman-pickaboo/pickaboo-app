@@ -84,7 +84,7 @@ class _OrderCancelledPageState extends State<OrderCancelledPage> {
             }
             return Text(
               title,
-              style: AppTypography.pageTitle,
+              style: AppTypography.titleLarge,
             );
           },
         ),
@@ -152,7 +152,7 @@ class _OrderCancelledPageState extends State<OrderCancelledPage> {
             return Center(
               child: Text(
                 "Preparing cancellation request...",
-                style: AppTypography.bodyMutedLight,
+                style: AppTypography.bodySmall.mutedLight,
               ),
             );
           },

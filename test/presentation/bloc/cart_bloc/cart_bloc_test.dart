@@ -47,6 +47,14 @@ void main() {
       ),
     ).thenAnswer((_) async => const Right(true));
 
+    when(
+      () => mockCacheManager.getGuestCartId(),
+    ).thenAnswer((_) async => null);
+
+    when(
+      () => mockCacheManager.setAuthQuoteId(quoteId: any(named: 'quoteId')),
+    ).thenAnswer((_) async {});
+
     cartBloc = CartBloc(mockRepository, mockCacheManager, mockAnalytics);
   });
 
@@ -184,25 +192,17 @@ void main() {
 
     group('UpdateItemQuantity', () {
       blocTest<CartBloc, CartState>(
-        'emits [loading, loaded, operationInProgress, loaded] when UpdateItemQuantity is successful',
+        'directly updates item quantity and emits loaded state',
         build: () {
-          when(
-            () => mockCacheManager.getToken(),
-          ).thenAnswer((_) async => 'token');
-          when(
-            () => mockRepository.getBasicCart(),
-          ).thenAnswer((_) async => Right(tCartWithItems));
-          when(
-            () =>
-                mockCacheManager.setAuthQuoteId(quoteId: any(named: 'quoteId')),
-          ).thenAnswer((_) async {});
-          when(
-            () => mockRepository.updateItem(
-              itemId: any(named: 'itemId'),
-              qty: any(named: 'qty'),
-              quoteId: any(named: 'quoteId'),
-            ),
-          ).thenAnswer((_) async => const Right(tCartItem));
+          when(() => mockCacheManager.getToken())
+              .thenAnswer((_) async => 'token');
+          when(() => mockRepository.getBasicCart())
+              .thenAnswer((_) async => right(tCartWithItems));
+          when(() => mockRepository.updateItem(
+                itemId: any(named: 'itemId'),
+                qty: any(named: 'qty'),
+                quoteId: any(named: 'quoteId'),
+              )).thenAnswer((_) async => right(tCartItem));
           return cartBloc;
         },
         act: (bloc) async {
@@ -215,11 +215,48 @@ void main() {
         expect: () => [
           const CartState.loading(),
           CartState.loaded(tCartWithItems),
-          CartState.operationInProgress(
-            cart: tCartWithItems,
-            operation: 'updating_quantity',
+          CartState.loaded(
+            tCartWithItems.copyWith(
+              items: [tCartItem.copyWith(qty: 2, rowTotal: 200)],
+              subtotal: 200,
+              grandTotal: 200,
+            ),
           ),
+        ],
+      );
+
+      blocTest<CartBloc, CartState>(
+        'updates quantity directly even when server rejects with not enough items',
+        build: () {
+          when(() => mockCacheManager.getToken())
+              .thenAnswer((_) async => 'token');
+          when(() => mockRepository.getBasicCart())
+              .thenAnswer((_) async => right(tCartWithItems));
+          when(() => mockRepository.updateItem(
+                itemId: any(named: 'itemId'),
+                qty: any(named: 'qty'),
+                quoteId: any(named: 'quoteId'),
+              )).thenAnswer((_) async =>
+                  left(const AppErrorEntity(message: 'Not enough items for sale')));
+          return cartBloc;
+        },
+        act: (bloc) async {
+          bloc.add(const CartEvent.getCart());
+          await Future.delayed(const Duration(milliseconds: 10));
+          bloc.add(
+            const CartEvent.updateItemQuantity(itemId: 1, qty: 7, quoteId: '1'),
+          );
+        },
+        expect: () => [
+          const CartState.loading(),
           CartState.loaded(tCartWithItems),
+          CartState.loaded(
+            tCartWithItems.copyWith(
+              items: [tCartItem.copyWith(qty: 7, rowTotal: 700)],
+              subtotal: 700,
+              grandTotal: 700,
+            ),
+          ),
         ],
       );
     });

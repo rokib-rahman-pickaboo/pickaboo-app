@@ -411,13 +411,14 @@ class AttrListAdapter extends TypeAdapter<AttrList> {
       value: fields[1] as String?,
       iconUrl: fields[2] as String?,
       icon: fields[3] as String?,
+      isFeatured: fields[4] == null ? false : fields[4] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, AttrList obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.label)
       ..writeByte(1)
@@ -425,7 +426,9 @@ class AttrListAdapter extends TypeAdapter<AttrList> {
       ..writeByte(2)
       ..write(obj.iconUrl)
       ..writeByte(3)
-      ..write(obj.icon);
+      ..write(obj.icon)
+      ..writeByte(4)
+      ..write(obj.isFeatured);
   }
 
   @override
@@ -947,6 +950,10 @@ _$AttrListImpl _$$AttrListImplFromJson(Map<String, dynamic> json) =>
       value: json['value'] as String?,
       iconUrl: json['icon_url'] as String?,
       icon: json['icon'] as String?,
+      isFeatured:
+          json['is_featured'] == null
+              ? false
+              : _boolFromJson(json['is_featured']),
     );
 
 Map<String, dynamic> _$$AttrListImplToJson(_$AttrListImpl instance) =>
@@ -955,6 +962,7 @@ Map<String, dynamic> _$$AttrListImplToJson(_$AttrListImpl instance) =>
       'value': instance.value,
       'icon_url': instance.iconUrl,
       'icon': instance.icon,
+      'is_featured': instance.isFeatured,
     };
 
 _$OtherBrandImpl _$$OtherBrandImplFromJson(Map<String, dynamic> json) =>

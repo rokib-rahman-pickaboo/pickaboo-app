@@ -592,7 +592,11 @@ ProductReviewItemResponse _$ProductReviewItemResponseFromJson(
 mixin _$ProductReviewItemResponse {
   @JsonKey(name: "review_id")
   int? get reviewId => throw _privateConstructorUsedError;
-  @JsonKey(name: "posted_on")
+  @JsonKey(
+    name: "posted_on",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get postedOn => throw _privateConstructorUsedError;
   @JsonKey(name: "reviewer_name")
   String? get reviewerName => throw _privateConstructorUsedError;
@@ -628,7 +632,12 @@ abstract class $ProductReviewItemResponseCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: "review_id") int? reviewId,
-    @JsonKey(name: "posted_on") DateTime? postedOn,
+    @JsonKey(
+      name: "posted_on",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? postedOn,
     @JsonKey(name: "reviewer_name") String? reviewerName,
     @JsonKey(name: "reviewer_image") String? reviewerImage,
     @JsonKey(name: "reviewer_rating") double? reviewerRating,
@@ -731,7 +740,12 @@ abstract class _$$ProductReviewItemResponseImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: "review_id") int? reviewId,
-    @JsonKey(name: "posted_on") DateTime? postedOn,
+    @JsonKey(
+      name: "posted_on",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? postedOn,
     @JsonKey(name: "reviewer_name") String? reviewerName,
     @JsonKey(name: "reviewer_image") String? reviewerImage,
     @JsonKey(name: "reviewer_rating") double? reviewerRating,
@@ -827,7 +841,12 @@ class __$$ProductReviewItemResponseImplCopyWithImpl<$Res>
 class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
   const _$ProductReviewItemResponseImpl({
     @JsonKey(name: "review_id") this.reviewId,
-    @JsonKey(name: "posted_on") this.postedOn,
+    @JsonKey(
+      name: "posted_on",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.postedOn,
     @JsonKey(name: "reviewer_name") this.reviewerName,
     @JsonKey(name: "reviewer_image") this.reviewerImage,
     @JsonKey(name: "reviewer_rating") this.reviewerRating,
@@ -844,7 +863,11 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
   @JsonKey(name: "review_id")
   final int? reviewId;
   @override
-  @JsonKey(name: "posted_on")
+  @JsonKey(
+    name: "posted_on",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   final DateTime? postedOn;
   @override
   @JsonKey(name: "reviewer_name")
@@ -936,7 +959,12 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
 abstract class _ProductReviewItemResponse implements ProductReviewItemResponse {
   const factory _ProductReviewItemResponse({
     @JsonKey(name: "review_id") final int? reviewId,
-    @JsonKey(name: "posted_on") final DateTime? postedOn,
+    @JsonKey(
+      name: "posted_on",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? postedOn,
     @JsonKey(name: "reviewer_name") final String? reviewerName,
     @JsonKey(name: "reviewer_image") final String? reviewerImage,
     @JsonKey(name: "reviewer_rating") final double? reviewerRating,
@@ -953,7 +981,11 @@ abstract class _ProductReviewItemResponse implements ProductReviewItemResponse {
   @JsonKey(name: "review_id")
   int? get reviewId;
   @override
-  @JsonKey(name: "posted_on")
+  @JsonKey(
+    name: "posted_on",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
   DateTime? get postedOn;
   @override
   @JsonKey(name: "reviewer_name")

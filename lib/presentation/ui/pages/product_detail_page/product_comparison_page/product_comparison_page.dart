@@ -19,6 +19,7 @@ import 'package:pickaboo/presentation/bloc/compare_bloc/compare_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/product_comparison_page/widgets/add_product_compare_bottom_sheet.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/banner_item_view.dart';
@@ -129,7 +130,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                         children: [
                           Text(
                             'Technical Specifications',
-                            style: AppTypography.sectionTitle,
+                            style: AppTypography.titleMedium,
                           ),
                           InkWell(
                             onTap: () {
@@ -168,7 +169,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                                   SizedBox(width: 4.w),
                                   Text(
                                     'Highlight Differences',
-                                    style: AppTypography.brandActionText,
+                                    style: AppTypography.brandAction,
                                   ),
                                 ],
                               ),
@@ -222,28 +223,22 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
             const SizedBox(height: 16),
             Text(
               'No Products to Compare',
-              style: AppTypography.pageTitle,
+              style: AppTypography.titleLarge,
             ),
             SizedBox(height: 6.h),
             Text(
               'Select items while browsing or search products directly to compare features side-by-side.',
               textAlign: TextAlign.center,
-              style: AppTypography.bodyMuted,
+              style: AppTypography.bodySmall,
             ),
-            SizedBox(height: 20.h),
-            ElevatedButton.icon(
+            AppSpacing.gapV20,
+            AppButton.primary(
+              text: 'Add Product to Compare',
+              icon: Icon(Icons.add_rounded, size: 18.sp, color: AppColors.white),
+              isFullWidth: false,
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+              borderRadius: BorderRadius.circular(10.r),
               onPressed: () => _openAddProductSheet(),
-              icon: Icon(Icons.add_rounded, size: 18.sp),
-              label: const Text('Add Product to Compare'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                foregroundColor: AppColors.white,
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                elevation: 0,
-              ),
             ),
           ],
         ),
@@ -335,7 +330,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                 ),
                 child: Text(
                   label.toUpperCase(),
-                  style: AppTypography.brandActionText,
+                  style: AppTypography.brandAction,
                 ),
               ),
               InkWell(
@@ -387,7 +382,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
           ),
           SizedBox(height: 6.h),
@@ -395,7 +390,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
           // Price
           Text(
             '৳ ${_formatPrice(price)}',
-            style: AppTypography.brandActionText,
+            style: AppTypography.brandAction,
           ),
           if (originalPrice > price) ...[
             SizedBox(height: 3.h),
@@ -404,7 +399,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
               children: [
                 Text(
                   '৳ ${_formatPrice(originalPrice)}',
-                  style: AppTypography.priceStrikethrough,
+                  style: AppTypography.priceStrike,
                 ),
                 SizedBox(width: 4.w),
                 Container(
@@ -415,7 +410,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                   ),
                   child: Text(
                     '$discount% OFF',
-                    style: AppTypography.badgeDiscountItem,
+                    style: AppTypography.bodyMedium.extraBold().red,
                   ),
                 ),
               ],
@@ -428,39 +423,27 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: AppButton.outline(
+                  text: 'Swap',
+                  size: AppButtonSize.sm,
+                  height: 32.h,
+                  borderRadius: BorderRadius.circular(6.r),
+                  textStyle: AppTypography.bodyTiny,
                   onPressed: onSwap,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.border),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 4.h),
-                  ),
-                  child: Text(
-                    'Swap',
-                    style: AppTypography.bodyTiny,
-                  ),
                 ),
               ),
-              SizedBox(width: 4.w),
+              AppSpacing.gapH4,
               Expanded(
-                child: ElevatedButton(
+                child: AppButton.secondary(
+                  text: 'View',
+                  size: AppButtonSize.sm,
+                  height: 32.h,
+                  backgroundColor: AppColors.surfaceBlue,
+                  textColor: AppColors.pickabooBlue,
+                  borderColor: AppColors.pickabooBlue,
+                  borderRadius: BorderRadius.circular(6.r),
+                  textStyle: AppTypography.brandTag,
                   onPressed: () => context.goToProductDetail(product.id.toString()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.surfaceBlue,
-                    foregroundColor: AppColors.pickabooBlue,
-                    elevation: 0,
-                    side: const BorderSide(color: AppColors.pickabooBlue),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 4.h),
-                  ),
-                  child: Text(
-                    'View',
-                    style: AppTypography.brandTag,
-                  ),
                 ),
               ),
             ],
@@ -506,7 +489,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
             Text(
               '+ Add Product',
               textAlign: TextAlign.center,
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
             SizedBox(height: 4.h),
             Text(
@@ -515,25 +498,14 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
               style: AppTypography.bodyTiny,
             ),
             const Spacer(),
-            SizedBox(height: 8.h),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _openAddProductSheet(baseProduct),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.pickabooBlue,
-                  foregroundColor: AppColors.white,
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(vertical: 6.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6.r),
-                  ),
-                ),
-                child: Text(
-                  'Select Product',
-                  style: AppTypography.buttonPrimary,
-                ),
-              ),
+            AppSpacing.gapV8,
+            AppButton.primary(
+              text: 'Select Product',
+              size: AppButtonSize.sm,
+              height: 34.h,
+              borderRadius: BorderRadius.circular(6.r),
+              isFullWidth: true,
+              onPressed: () => _openAddProductSheet(baseProduct),
             ),
           ],
         ),
@@ -648,8 +620,8 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                 Text(
                   attr['label'] ?? '',
                   style: shouldHighlight
-                      ? AppTypography.brandActionText
-                      : AppTypography.cardTitle.copyWith(
+                      ? AppTypography.brandAction
+                      : AppTypography.titleSmall.copyWith(
                           fontSize: 11.5.sp,
                           fontWeight: FontWeight.w600,
                           color: AppColors.navy,
@@ -676,12 +648,12 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                   child: Text(
                     val1,
                     style: shouldHighlight
-                        ? AppTypography.bodyRegular.copyWith(
+                        ? AppTypography.bodyMedium.copyWith(
                             fontSize: 11.5.sp,
                             fontWeight: FontWeight.w600,
                             color: AppColors.navy,
                           )
-                        : AppTypography.bodyMuted.copyWith(
+                        : AppTypography.bodySmall.copyWith(
                             fontSize: 11.5.sp,
                             color: AppColors.text,
                           ),
@@ -698,12 +670,12 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                       ? Text(
                           val2,
                           style: shouldHighlight
-                              ? AppTypography.bodyRegular.copyWith(
+                              ? AppTypography.bodyMedium.copyWith(
                                   fontSize: 11.5.sp,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.navy,
                                 )
-                              : AppTypography.bodyMuted.copyWith(
+                              : AppTypography.bodySmall.copyWith(
                                   fontSize: 11.5.sp,
                                   color: AppColors.text,
                                 ),
@@ -713,7 +685,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                           onTap: () => _openAddProductSheet(products.first),
                           child: Text(
                             '+ Add to compare',
-                            style: AppTypography.brandActionText,
+                            style: AppTypography.brandAction,
                             textAlign: TextAlign.center,
                           ),
                         ),

@@ -59,6 +59,7 @@ mixin _$CartEvent {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -100,6 +101,7 @@ mixin _$CartEvent {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -141,6 +143,7 @@ mixin _$CartEvent {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -162,6 +165,7 @@ mixin _$CartEvent {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -182,6 +186,7 @@ mixin _$CartEvent {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -202,6 +207,7 @@ mixin _$CartEvent {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -315,6 +321,7 @@ class _$GetCartImpl with DiagnosticableTreeMixin implements _GetCart {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return getCart();
   }
@@ -360,6 +367,7 @@ class _$GetCartImpl with DiagnosticableTreeMixin implements _GetCart {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return getCart?.call();
   }
@@ -405,6 +413,7 @@ class _$GetCartImpl with DiagnosticableTreeMixin implements _GetCart {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (getCart != null) {
@@ -433,6 +442,7 @@ class _$GetCartImpl with DiagnosticableTreeMixin implements _GetCart {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return getCart(this);
   }
@@ -457,6 +467,7 @@ class _$GetCartImpl with DiagnosticableTreeMixin implements _GetCart {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return getCart?.call(this);
   }
@@ -481,6 +492,7 @@ class _$GetCartImpl with DiagnosticableTreeMixin implements _GetCart {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (getCart != null) {
@@ -583,6 +595,7 @@ class _$RefreshCartImpl with DiagnosticableTreeMixin implements _RefreshCart {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return refreshCart();
   }
@@ -628,6 +641,7 @@ class _$RefreshCartImpl with DiagnosticableTreeMixin implements _RefreshCart {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return refreshCart?.call();
   }
@@ -673,6 +687,7 @@ class _$RefreshCartImpl with DiagnosticableTreeMixin implements _RefreshCart {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (refreshCart != null) {
@@ -701,6 +716,7 @@ class _$RefreshCartImpl with DiagnosticableTreeMixin implements _RefreshCart {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return refreshCart(this);
   }
@@ -725,6 +741,7 @@ class _$RefreshCartImpl with DiagnosticableTreeMixin implements _RefreshCart {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return refreshCart?.call(this);
   }
@@ -749,6 +766,7 @@ class _$RefreshCartImpl with DiagnosticableTreeMixin implements _RefreshCart {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (refreshCart != null) {
@@ -954,6 +972,7 @@ class _$AddToCartImpl with DiagnosticableTreeMixin implements _AddToCart {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return addToCart(sku, qty, quoteId, productType, configurableOptions);
   }
@@ -999,6 +1018,7 @@ class _$AddToCartImpl with DiagnosticableTreeMixin implements _AddToCart {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return addToCart?.call(sku, qty, quoteId, productType, configurableOptions);
   }
@@ -1044,6 +1064,7 @@ class _$AddToCartImpl with DiagnosticableTreeMixin implements _AddToCart {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (addToCart != null) {
@@ -1072,6 +1093,7 @@ class _$AddToCartImpl with DiagnosticableTreeMixin implements _AddToCart {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return addToCart(this);
   }
@@ -1096,6 +1118,7 @@ class _$AddToCartImpl with DiagnosticableTreeMixin implements _AddToCart {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return addToCart?.call(this);
   }
@@ -1120,6 +1143,7 @@ class _$AddToCartImpl with DiagnosticableTreeMixin implements _AddToCart {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (addToCart != null) {
@@ -1330,6 +1354,7 @@ class _$AddItemSmartImpl with DiagnosticableTreeMixin implements _AddItemSmart {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return addItemSmart(sku, qty, productType, configurableOptions);
   }
@@ -1375,6 +1400,7 @@ class _$AddItemSmartImpl with DiagnosticableTreeMixin implements _AddItemSmart {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return addItemSmart?.call(sku, qty, productType, configurableOptions);
   }
@@ -1420,6 +1446,7 @@ class _$AddItemSmartImpl with DiagnosticableTreeMixin implements _AddItemSmart {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (addItemSmart != null) {
@@ -1448,6 +1475,7 @@ class _$AddItemSmartImpl with DiagnosticableTreeMixin implements _AddItemSmart {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return addItemSmart(this);
   }
@@ -1472,6 +1500,7 @@ class _$AddItemSmartImpl with DiagnosticableTreeMixin implements _AddItemSmart {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return addItemSmart?.call(this);
   }
@@ -1496,6 +1525,7 @@ class _$AddItemSmartImpl with DiagnosticableTreeMixin implements _AddItemSmart {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (addItemSmart != null) {
@@ -1675,6 +1705,7 @@ class _$UpdateItemQuantityImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return updateItemQuantity(itemId, qty, quoteId);
   }
@@ -1720,6 +1751,7 @@ class _$UpdateItemQuantityImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return updateItemQuantity?.call(itemId, qty, quoteId);
   }
@@ -1765,6 +1797,7 @@ class _$UpdateItemQuantityImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (updateItemQuantity != null) {
@@ -1793,6 +1826,7 @@ class _$UpdateItemQuantityImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return updateItemQuantity(this);
   }
@@ -1817,6 +1851,7 @@ class _$UpdateItemQuantityImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return updateItemQuantity?.call(this);
   }
@@ -1841,6 +1876,7 @@ class _$UpdateItemQuantityImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (updateItemQuantity != null) {
@@ -1987,6 +2023,7 @@ class _$RemoveItemImpl with DiagnosticableTreeMixin implements _RemoveItem {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return removeItem(itemId);
   }
@@ -2032,6 +2069,7 @@ class _$RemoveItemImpl with DiagnosticableTreeMixin implements _RemoveItem {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return removeItem?.call(itemId);
   }
@@ -2077,6 +2115,7 @@ class _$RemoveItemImpl with DiagnosticableTreeMixin implements _RemoveItem {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (removeItem != null) {
@@ -2105,6 +2144,7 @@ class _$RemoveItemImpl with DiagnosticableTreeMixin implements _RemoveItem {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return removeItem(this);
   }
@@ -2129,6 +2169,7 @@ class _$RemoveItemImpl with DiagnosticableTreeMixin implements _RemoveItem {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return removeItem?.call(this);
   }
@@ -2153,6 +2194,7 @@ class _$RemoveItemImpl with DiagnosticableTreeMixin implements _RemoveItem {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (removeItem != null) {
@@ -2293,6 +2335,7 @@ class _$EmptyCartImpl with DiagnosticableTreeMixin implements _EmptyCart {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return emptyCart(quoteId);
   }
@@ -2338,6 +2381,7 @@ class _$EmptyCartImpl with DiagnosticableTreeMixin implements _EmptyCart {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return emptyCart?.call(quoteId);
   }
@@ -2383,6 +2427,7 @@ class _$EmptyCartImpl with DiagnosticableTreeMixin implements _EmptyCart {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (emptyCart != null) {
@@ -2411,6 +2456,7 @@ class _$EmptyCartImpl with DiagnosticableTreeMixin implements _EmptyCart {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return emptyCart(this);
   }
@@ -2435,6 +2481,7 @@ class _$EmptyCartImpl with DiagnosticableTreeMixin implements _EmptyCart {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return emptyCart?.call(this);
   }
@@ -2459,6 +2506,7 @@ class _$EmptyCartImpl with DiagnosticableTreeMixin implements _EmptyCart {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (emptyCart != null) {
@@ -2608,6 +2656,7 @@ class _$ApplyCouponImpl with DiagnosticableTreeMixin implements _ApplyCoupon {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return applyCoupon(cartId, coupon);
   }
@@ -2653,6 +2702,7 @@ class _$ApplyCouponImpl with DiagnosticableTreeMixin implements _ApplyCoupon {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return applyCoupon?.call(cartId, coupon);
   }
@@ -2698,6 +2748,7 @@ class _$ApplyCouponImpl with DiagnosticableTreeMixin implements _ApplyCoupon {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (applyCoupon != null) {
@@ -2726,6 +2777,7 @@ class _$ApplyCouponImpl with DiagnosticableTreeMixin implements _ApplyCoupon {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return applyCoupon(this);
   }
@@ -2750,6 +2802,7 @@ class _$ApplyCouponImpl with DiagnosticableTreeMixin implements _ApplyCoupon {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return applyCoupon?.call(this);
   }
@@ -2774,6 +2827,7 @@ class _$ApplyCouponImpl with DiagnosticableTreeMixin implements _ApplyCoupon {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (applyCoupon != null) {
@@ -2918,6 +2972,7 @@ class _$RemoveCouponImpl with DiagnosticableTreeMixin implements _RemoveCoupon {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return removeCoupon(cartId);
   }
@@ -2963,6 +3018,7 @@ class _$RemoveCouponImpl with DiagnosticableTreeMixin implements _RemoveCoupon {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return removeCoupon?.call(cartId);
   }
@@ -3008,6 +3064,7 @@ class _$RemoveCouponImpl with DiagnosticableTreeMixin implements _RemoveCoupon {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (removeCoupon != null) {
@@ -3036,6 +3093,7 @@ class _$RemoveCouponImpl with DiagnosticableTreeMixin implements _RemoveCoupon {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return removeCoupon(this);
   }
@@ -3060,6 +3118,7 @@ class _$RemoveCouponImpl with DiagnosticableTreeMixin implements _RemoveCoupon {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return removeCoupon?.call(this);
   }
@@ -3084,6 +3143,7 @@ class _$RemoveCouponImpl with DiagnosticableTreeMixin implements _RemoveCoupon {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (removeCoupon != null) {
@@ -3243,6 +3303,7 @@ class _$ApplyRewardPointsImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return applyRewardPoints(cartId, pointAmount);
   }
@@ -3288,6 +3349,7 @@ class _$ApplyRewardPointsImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return applyRewardPoints?.call(cartId, pointAmount);
   }
@@ -3333,6 +3395,7 @@ class _$ApplyRewardPointsImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (applyRewardPoints != null) {
@@ -3361,6 +3424,7 @@ class _$ApplyRewardPointsImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return applyRewardPoints(this);
   }
@@ -3385,6 +3449,7 @@ class _$ApplyRewardPointsImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return applyRewardPoints?.call(this);
   }
@@ -3409,6 +3474,7 @@ class _$ApplyRewardPointsImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (applyRewardPoints != null) {
@@ -3558,6 +3624,7 @@ class _$RemoveRewardPointsImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return removeRewardPoints(cartId);
   }
@@ -3603,6 +3670,7 @@ class _$RemoveRewardPointsImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return removeRewardPoints?.call(cartId);
   }
@@ -3648,6 +3716,7 @@ class _$RemoveRewardPointsImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (removeRewardPoints != null) {
@@ -3676,6 +3745,7 @@ class _$RemoveRewardPointsImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return removeRewardPoints(this);
   }
@@ -3700,6 +3770,7 @@ class _$RemoveRewardPointsImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return removeRewardPoints?.call(this);
   }
@@ -3724,6 +3795,7 @@ class _$RemoveRewardPointsImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (removeRewardPoints != null) {
@@ -3892,6 +3964,7 @@ class _$SaveForLaterImpl with DiagnosticableTreeMixin implements _SaveForLater {
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return saveForLater(customerId, cartId, itemId);
   }
@@ -3937,6 +4010,7 @@ class _$SaveForLaterImpl with DiagnosticableTreeMixin implements _SaveForLater {
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return saveForLater?.call(customerId, cartId, itemId);
   }
@@ -3982,6 +4056,7 @@ class _$SaveForLaterImpl with DiagnosticableTreeMixin implements _SaveForLater {
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (saveForLater != null) {
@@ -4010,6 +4085,7 @@ class _$SaveForLaterImpl with DiagnosticableTreeMixin implements _SaveForLater {
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return saveForLater(this);
   }
@@ -4034,6 +4110,7 @@ class _$SaveForLaterImpl with DiagnosticableTreeMixin implements _SaveForLater {
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return saveForLater?.call(this);
   }
@@ -4058,6 +4135,7 @@ class _$SaveForLaterImpl with DiagnosticableTreeMixin implements _SaveForLater {
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (saveForLater != null) {
@@ -4176,6 +4254,7 @@ class _$CreateGuestCartImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return createGuestCart();
   }
@@ -4221,6 +4300,7 @@ class _$CreateGuestCartImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return createGuestCart?.call();
   }
@@ -4266,6 +4346,7 @@ class _$CreateGuestCartImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (createGuestCart != null) {
@@ -4294,6 +4375,7 @@ class _$CreateGuestCartImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return createGuestCart(this);
   }
@@ -4318,6 +4400,7 @@ class _$CreateGuestCartImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return createGuestCart?.call(this);
   }
@@ -4342,6 +4425,7 @@ class _$CreateGuestCartImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (createGuestCart != null) {
@@ -4566,6 +4650,7 @@ class _$AddToGuestCartImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return addToGuestCart(
       guestCartId,
@@ -4618,6 +4703,7 @@ class _$AddToGuestCartImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return addToGuestCart?.call(
       guestCartId,
@@ -4670,6 +4756,7 @@ class _$AddToGuestCartImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (addToGuestCart != null) {
@@ -4705,6 +4792,7 @@ class _$AddToGuestCartImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return addToGuestCart(this);
   }
@@ -4729,6 +4817,7 @@ class _$AddToGuestCartImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return addToGuestCart?.call(this);
   }
@@ -4753,6 +4842,7 @@ class _$AddToGuestCartImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (addToGuestCart != null) {
@@ -4908,6 +4998,7 @@ class _$LoadGuestCartImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return loadGuestCart(guestCartId);
   }
@@ -4953,6 +5044,7 @@ class _$LoadGuestCartImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return loadGuestCart?.call(guestCartId);
   }
@@ -4998,6 +5090,7 @@ class _$LoadGuestCartImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (loadGuestCart != null) {
@@ -5026,6 +5119,7 @@ class _$LoadGuestCartImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return loadGuestCart(this);
   }
@@ -5050,6 +5144,7 @@ class _$LoadGuestCartImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return loadGuestCart?.call(this);
   }
@@ -5074,6 +5169,7 @@ class _$LoadGuestCartImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (loadGuestCart != null) {
@@ -5221,6 +5317,7 @@ class _$MergeGuestCartImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return mergeGuestCart(guestCartId);
   }
@@ -5266,6 +5363,7 @@ class _$MergeGuestCartImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return mergeGuestCart?.call(guestCartId);
   }
@@ -5311,6 +5409,7 @@ class _$MergeGuestCartImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (mergeGuestCart != null) {
@@ -5339,6 +5438,7 @@ class _$MergeGuestCartImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return mergeGuestCart(this);
   }
@@ -5363,6 +5463,7 @@ class _$MergeGuestCartImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return mergeGuestCart?.call(this);
   }
@@ -5387,6 +5488,7 @@ class _$MergeGuestCartImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (mergeGuestCart != null) {
@@ -5500,6 +5602,7 @@ class _$InitializeSessionImpl
     required TResult Function(String guestCartId) loadGuestCart,
     required TResult Function(String guestCartId) mergeGuestCart,
     required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
   }) {
     return initializeSession();
   }
@@ -5545,6 +5648,7 @@ class _$InitializeSessionImpl
     TResult? Function(String guestCartId)? loadGuestCart,
     TResult? Function(String guestCartId)? mergeGuestCart,
     TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
   }) {
     return initializeSession?.call();
   }
@@ -5590,6 +5694,7 @@ class _$InitializeSessionImpl
     TResult Function(String guestCartId)? loadGuestCart,
     TResult Function(String guestCartId)? mergeGuestCart,
     TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
     required TResult orElse(),
   }) {
     if (initializeSession != null) {
@@ -5618,6 +5723,7 @@ class _$InitializeSessionImpl
     required TResult Function(_LoadGuestCart value) loadGuestCart,
     required TResult Function(_MergeGuestCart value) mergeGuestCart,
     required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
   }) {
     return initializeSession(this);
   }
@@ -5642,6 +5748,7 @@ class _$InitializeSessionImpl
     TResult? Function(_LoadGuestCart value)? loadGuestCart,
     TResult? Function(_MergeGuestCart value)? mergeGuestCart,
     TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
   }) {
     return initializeSession?.call(this);
   }
@@ -5666,6 +5773,7 @@ class _$InitializeSessionImpl
     TResult Function(_LoadGuestCart value)? loadGuestCart,
     TResult Function(_MergeGuestCart value)? mergeGuestCart,
     TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
     required TResult orElse(),
   }) {
     if (initializeSession != null) {
@@ -5677,6 +5785,282 @@ class _$InitializeSessionImpl
 
 abstract class _InitializeSession implements CartEvent {
   const factory _InitializeSession() = _$InitializeSessionImpl;
+}
+
+/// @nodoc
+abstract class _$$ClearCartSessionImplCopyWith<$Res> {
+  factory _$$ClearCartSessionImplCopyWith(
+    _$ClearCartSessionImpl value,
+    $Res Function(_$ClearCartSessionImpl) then,
+  ) = __$$ClearCartSessionImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ClearCartSessionImplCopyWithImpl<$Res>
+    extends _$CartEventCopyWithImpl<$Res, _$ClearCartSessionImpl>
+    implements _$$ClearCartSessionImplCopyWith<$Res> {
+  __$$ClearCartSessionImplCopyWithImpl(
+    _$ClearCartSessionImpl _value,
+    $Res Function(_$ClearCartSessionImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of CartEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ClearCartSessionImpl
+    with DiagnosticableTreeMixin
+    implements _ClearCartSession {
+  const _$ClearCartSessionImpl();
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'CartEvent.clearCartSession()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'CartEvent.clearCartSession'));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ClearCartSessionImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() getCart,
+    required TResult Function() refreshCart,
+    required TResult Function(
+      String sku,
+      int qty,
+      String quoteId,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )
+    addToCart,
+    required TResult Function(
+      String sku,
+      int qty,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )
+    addItemSmart,
+    required TResult Function(int itemId, int qty, String quoteId)
+    updateItemQuantity,
+    required TResult Function(int itemId) removeItem,
+    required TResult Function(String quoteId) emptyCart,
+    required TResult Function(String cartId, String coupon) applyCoupon,
+    required TResult Function(String cartId) removeCoupon,
+    required TResult Function(String cartId, int pointAmount) applyRewardPoints,
+    required TResult Function(String cartId) removeRewardPoints,
+    required TResult Function(int customerId, String cartId, int itemId)
+    saveForLater,
+    required TResult Function() createGuestCart,
+    required TResult Function(
+      String guestCartId,
+      String sku,
+      int qty,
+      String quoteId,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )
+    addToGuestCart,
+    required TResult Function(String guestCartId) loadGuestCart,
+    required TResult Function(String guestCartId) mergeGuestCart,
+    required TResult Function() initializeSession,
+    required TResult Function() clearCartSession,
+  }) {
+    return clearCartSession();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? getCart,
+    TResult? Function()? refreshCart,
+    TResult? Function(
+      String sku,
+      int qty,
+      String quoteId,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )?
+    addToCart,
+    TResult? Function(
+      String sku,
+      int qty,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )?
+    addItemSmart,
+    TResult? Function(int itemId, int qty, String quoteId)? updateItemQuantity,
+    TResult? Function(int itemId)? removeItem,
+    TResult? Function(String quoteId)? emptyCart,
+    TResult? Function(String cartId, String coupon)? applyCoupon,
+    TResult? Function(String cartId)? removeCoupon,
+    TResult? Function(String cartId, int pointAmount)? applyRewardPoints,
+    TResult? Function(String cartId)? removeRewardPoints,
+    TResult? Function(int customerId, String cartId, int itemId)? saveForLater,
+    TResult? Function()? createGuestCart,
+    TResult? Function(
+      String guestCartId,
+      String sku,
+      int qty,
+      String quoteId,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )?
+    addToGuestCart,
+    TResult? Function(String guestCartId)? loadGuestCart,
+    TResult? Function(String guestCartId)? mergeGuestCart,
+    TResult? Function()? initializeSession,
+    TResult? Function()? clearCartSession,
+  }) {
+    return clearCartSession?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? getCart,
+    TResult Function()? refreshCart,
+    TResult Function(
+      String sku,
+      int qty,
+      String quoteId,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )?
+    addToCart,
+    TResult Function(
+      String sku,
+      int qty,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )?
+    addItemSmart,
+    TResult Function(int itemId, int qty, String quoteId)? updateItemQuantity,
+    TResult Function(int itemId)? removeItem,
+    TResult Function(String quoteId)? emptyCart,
+    TResult Function(String cartId, String coupon)? applyCoupon,
+    TResult Function(String cartId)? removeCoupon,
+    TResult Function(String cartId, int pointAmount)? applyRewardPoints,
+    TResult Function(String cartId)? removeRewardPoints,
+    TResult Function(int customerId, String cartId, int itemId)? saveForLater,
+    TResult Function()? createGuestCart,
+    TResult Function(
+      String guestCartId,
+      String sku,
+      int qty,
+      String quoteId,
+      String? productType,
+      List<ConfigurableItemOptionEntity>? configurableOptions,
+    )?
+    addToGuestCart,
+    TResult Function(String guestCartId)? loadGuestCart,
+    TResult Function(String guestCartId)? mergeGuestCart,
+    TResult Function()? initializeSession,
+    TResult Function()? clearCartSession,
+    required TResult orElse(),
+  }) {
+    if (clearCartSession != null) {
+      return clearCartSession();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_GetCart value) getCart,
+    required TResult Function(_RefreshCart value) refreshCart,
+    required TResult Function(_AddToCart value) addToCart,
+    required TResult Function(_AddItemSmart value) addItemSmart,
+    required TResult Function(_UpdateItemQuantity value) updateItemQuantity,
+    required TResult Function(_RemoveItem value) removeItem,
+    required TResult Function(_EmptyCart value) emptyCart,
+    required TResult Function(_ApplyCoupon value) applyCoupon,
+    required TResult Function(_RemoveCoupon value) removeCoupon,
+    required TResult Function(_ApplyRewardPoints value) applyRewardPoints,
+    required TResult Function(_RemoveRewardPoints value) removeRewardPoints,
+    required TResult Function(_SaveForLater value) saveForLater,
+    required TResult Function(_CreateGuestCart value) createGuestCart,
+    required TResult Function(_AddToGuestCart value) addToGuestCart,
+    required TResult Function(_LoadGuestCart value) loadGuestCart,
+    required TResult Function(_MergeGuestCart value) mergeGuestCart,
+    required TResult Function(_InitializeSession value) initializeSession,
+    required TResult Function(_ClearCartSession value) clearCartSession,
+  }) {
+    return clearCartSession(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_GetCart value)? getCart,
+    TResult? Function(_RefreshCart value)? refreshCart,
+    TResult? Function(_AddToCart value)? addToCart,
+    TResult? Function(_AddItemSmart value)? addItemSmart,
+    TResult? Function(_UpdateItemQuantity value)? updateItemQuantity,
+    TResult? Function(_RemoveItem value)? removeItem,
+    TResult? Function(_EmptyCart value)? emptyCart,
+    TResult? Function(_ApplyCoupon value)? applyCoupon,
+    TResult? Function(_RemoveCoupon value)? removeCoupon,
+    TResult? Function(_ApplyRewardPoints value)? applyRewardPoints,
+    TResult? Function(_RemoveRewardPoints value)? removeRewardPoints,
+    TResult? Function(_SaveForLater value)? saveForLater,
+    TResult? Function(_CreateGuestCart value)? createGuestCart,
+    TResult? Function(_AddToGuestCart value)? addToGuestCart,
+    TResult? Function(_LoadGuestCart value)? loadGuestCart,
+    TResult? Function(_MergeGuestCart value)? mergeGuestCart,
+    TResult? Function(_InitializeSession value)? initializeSession,
+    TResult? Function(_ClearCartSession value)? clearCartSession,
+  }) {
+    return clearCartSession?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_GetCart value)? getCart,
+    TResult Function(_RefreshCart value)? refreshCart,
+    TResult Function(_AddToCart value)? addToCart,
+    TResult Function(_AddItemSmart value)? addItemSmart,
+    TResult Function(_UpdateItemQuantity value)? updateItemQuantity,
+    TResult Function(_RemoveItem value)? removeItem,
+    TResult Function(_EmptyCart value)? emptyCart,
+    TResult Function(_ApplyCoupon value)? applyCoupon,
+    TResult Function(_RemoveCoupon value)? removeCoupon,
+    TResult Function(_ApplyRewardPoints value)? applyRewardPoints,
+    TResult Function(_RemoveRewardPoints value)? removeRewardPoints,
+    TResult Function(_SaveForLater value)? saveForLater,
+    TResult Function(_CreateGuestCart value)? createGuestCart,
+    TResult Function(_AddToGuestCart value)? addToGuestCart,
+    TResult Function(_LoadGuestCart value)? loadGuestCart,
+    TResult Function(_MergeGuestCart value)? mergeGuestCart,
+    TResult Function(_InitializeSession value)? initializeSession,
+    TResult Function(_ClearCartSession value)? clearCartSession,
+    required TResult orElse(),
+  }) {
+    if (clearCartSession != null) {
+      return clearCartSession(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ClearCartSession implements CartEvent {
+  const factory _ClearCartSession() = _$ClearCartSessionImpl;
 }
 
 /// @nodoc

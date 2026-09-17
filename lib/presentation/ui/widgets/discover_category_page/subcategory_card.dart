@@ -62,7 +62,7 @@ class DiscoverSectionCard extends StatelessWidget {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTypography.sectionTitle.copyWith(
+            style: AppTypography.titleMedium.copyWith(
               fontSize: 13.5.sp,
               fontWeight: FontWeight.w800,
               color: AppColors.navy,
@@ -128,7 +128,7 @@ class DiscoverItemTile extends StatelessWidget {
           AspectRatio(
             aspectRatio: 1.0,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.buttonRadius,
               child: AppImage(
                 imageUrl: item.imageUrl,
                 fit: BoxFit.cover,

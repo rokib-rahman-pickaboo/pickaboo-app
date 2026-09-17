@@ -96,6 +96,19 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
     }
   }
 
+  @override
+  Future<bool> isHomeContentStale() async {
+    try {
+      final box = await _cacheBox();
+      if (box.isEmpty) return true;
+      final wrapper = box.getAt(0);
+      if (wrapper == null) return true;
+      return wrapper.isStale;
+    } catch (_) {
+      return true;
+    }
+  }
+
   /// hive_generator_plus 4.x emits `(fields[i] as List)?.cast<T>()` for
   /// *nullable* list fields — a pre-null-safety cast that throws on read when
   /// `null` was written:

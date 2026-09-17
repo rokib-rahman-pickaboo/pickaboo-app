@@ -53,17 +53,15 @@ class HomepageOffersSection extends StatelessWidget {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final entry = entries[index];
-                return RepaintBoundary(
-                  child: OfferDealsGrid(
-                    subsection: entry.subsection,
-                    onDealTap: (item) => _handleDealTap(context, item),
-                    onViewAll: () => _handleViewAll(context, entry),
-                  ),
+                return OfferDealsGrid(
+                  subsection: entry.subsection,
+                  onDealTap: (item) => _handleDealTap(context, item),
+                  onViewAll: () => _handleViewAll(context, entry),
                 );
               },
               childCount: entries.length,
               addAutomaticKeepAlives: false,
-              addRepaintBoundaries: true,
+              addRepaintBoundaries: false,
               addSemanticIndexes: false,
             ),
           );
@@ -230,7 +228,7 @@ class _OfferDealCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: AppRadius.buttonRadius,
           border: Border.all(
             color: AppColors.border,
             width: 1.w,
@@ -249,8 +247,8 @@ class _OfferDealCard extends StatelessWidget {
             Expanded(
               flex: 2,
               child: ClipRRect(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(7.r),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppRadius.button - 1),
                 ),
                 child: AppImage(
                   imageUrl: deal.imageUrl,
@@ -280,10 +278,10 @@ class _OfferDealCard extends StatelessWidget {
               height: 44.h,
               padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
               alignment: Alignment.center,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(7.r),
+                  bottom: Radius.circular(AppRadius.button - 1),
                 ),
               ),
               child: Column(
@@ -305,7 +303,7 @@ class _OfferDealCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: AppTypography.brandActionText,
+                      style: AppTypography.brandAction,
                     ),
                   ],
                 ],

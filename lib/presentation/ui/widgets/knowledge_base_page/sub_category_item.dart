@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/support_category/support_child_entity.dart';
 
 class SubCategoryItem extends StatelessWidget {
@@ -21,13 +21,13 @@ class SubCategoryItem extends StatelessWidget {
       color: AppColors.black.withValues(alpha: 0.0),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: AppRadius.buttonRadius,
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
           margin: EdgeInsets.only(bottom: 8.h),
           decoration: BoxDecoration(
             color: AppColors.pageBg.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: AppRadius.buttonRadius,
           ),
           child: Row(
             children: [
@@ -36,7 +36,7 @@ class SubCategoryItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   subCategory.name,
-                  style: context.textStyle.bodySmall.copyWith(
+                  style: AppTypography.bodySmall.copyWith(
                     color: AppColors.text,
                   ),
                 ),

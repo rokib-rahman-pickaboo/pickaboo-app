@@ -85,7 +85,7 @@ void main() {
             maxResults: 10,
           ),
         ).thenAnswer((_) async => Right(tSearchResult));
-        return searchBloc;
+        return SearchBloc(mockSearchRepository, mockAnalytics);
       },
       act: (bloc) =>
           bloc.add(const SearchEvent.searchQueryChanged(query: tQuery)),
@@ -129,7 +129,7 @@ void main() {
         ).thenAnswer(
           (_) async => const Left(AppErrorEntity(message: 'Network Error')),
         );
-        return searchBloc;
+        return SearchBloc(mockSearchRepository, mockAnalytics);
       },
       act: (bloc) =>
           bloc.add(const SearchEvent.searchQueryChanged(query: tQuery)),
@@ -161,10 +161,10 @@ void main() {
             maxResults: any(named: 'maxResults'),
           ),
         ).thenAnswer((_) async => Right(tSearchResult));
-        return searchBloc;
+        return SearchBloc(mockSearchRepository, mockAnalytics);
       },
       act: (bloc) =>
-          bloc.add(const SearchEvent.searchQueryChanged(query: 'ip')),
+          bloc.add(const SearchEvent.searchQueryChanged(query: 'i')),
       expect: () => [
         isA<SearchState>()
             .having((s) => s.suggestions, 'suggestions', isEmpty)

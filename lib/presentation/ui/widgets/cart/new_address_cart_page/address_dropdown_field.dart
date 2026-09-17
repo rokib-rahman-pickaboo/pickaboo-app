@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
 class AddressDropdownField extends StatelessWidget {
   final String label;
@@ -18,12 +18,11 @@ class AddressDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: textStyle.inputLabel.copyWith(color: AppColors.text)),
+        Text(label, style: AppTypography.bodyLarge.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
         InkWell(
           onTap: enabled ? onTap : null,
@@ -31,7 +30,7 @@ class AddressDropdownField extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
             decoration: BoxDecoration(
               color: enabled ? AppColors.white : AppColors.muted.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.inputRadius,
               border: Border.all(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
             child: Row(
@@ -39,7 +38,7 @@ class AddressDropdownField extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: textStyle.inputText.copyWith(
+                  style: AppTypography.bodyLarge.regular().copyWith(
                     color: enabled ? AppColors.text : AppColors.muted,
                   ),
                 ),

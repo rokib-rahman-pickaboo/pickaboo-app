@@ -18,6 +18,7 @@ import 'package:pickaboo/domain/repository/product_repository.dart';
 import 'package:pickaboo/domain/repository/search_repository.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/compare_bloc/compare_bloc.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_search_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
@@ -38,7 +39,7 @@ class AddProductCompareBottomSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (context) => AddProductCompareBottomSheet(
         baseProduct: baseProduct,
       ),
@@ -294,9 +295,11 @@ class _AddProductCompareBottomSheetState
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           // Drag handle
           Center(
             child: Container(
@@ -327,13 +330,13 @@ class _AddProductCompareBottomSheetState
                     children: [
                       Text(
                         'Add Product to Compare',
-                        style: AppTypography.pageTitle,
+                        style: AppTypography.titleLarge,
                       ),
                       if (widget.baseProduct != null) ...[
                         SizedBox(height: 2.h),
                         Text(
                           'Comparing against: ${widget.baseProduct!.name}',
-                          style: AppTypography.bodyMuted,
+                          style: AppTypography.bodySmall,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -392,7 +395,7 @@ class _AddProductCompareBottomSheetState
                   _currentQuery.isNotEmpty
                       ? 'Search Results (${displayedList.length})'
                       : 'Suggested Products',
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                 ),
               ],
             ),
@@ -418,7 +421,7 @@ class _AddProductCompareBottomSheetState
                               _currentQuery.isNotEmpty
                                   ? 'No matching products found'
                                   : 'No suggestions available',
-                              style: AppTypography.bodyMuted,
+                              style: AppTypography.bodySmall,
                             ),
                           ],
                         ),
@@ -450,6 +453,7 @@ class _AddProductCompareBottomSheetState
                       ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -492,7 +496,7 @@ class _AddProductCompareBottomSheetState
                   item.productName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                 ),
                 SizedBox(height: 4.h),
                 Wrap(
@@ -502,12 +506,12 @@ class _AddProductCompareBottomSheetState
                   children: [
                     Text(
                       '৳ $price',
-                      style: AppTypography.brandActionText,
+                      style: AppTypography.brandAction,
                     ),
                     if (originalPrice > price) ...[
                       Text(
                         '৳ $originalPrice',
-                        style: AppTypography.priceStrikethrough,
+                        style: AppTypography.priceStrike,
                       ),
                       if (discount > 0) ...[
                         Container(
@@ -521,7 +525,7 @@ class _AddProductCompareBottomSheetState
                           ),
                           child: Text(
                             '$discount% OFF',
-                            style: AppTypography.badgeDiscountItem,
+                            style: AppTypography.bodyMedium.extraBold().red,
                           ),
                         ),
                       ],
@@ -531,7 +535,7 @@ class _AddProductCompareBottomSheetState
               ],
             ),
           ),
-          SizedBox(width: 8.w),
+          AppSpacing.gapH8,
 
           // Add Button
           if (isAlreadyInComparison)
@@ -544,35 +548,23 @@ class _AddProductCompareBottomSheetState
               ),
               child: Text(
                 'Added',
-                style: AppTypography.bodyMuted,
+                style: AppTypography.bodySmall,
               ),
             )
           else
-            ElevatedButton(
+            AppButton(
+              type: AppButtonType.secondary,
+              backgroundColor: AppColors.surfaceBlue,
+              textColor: AppColors.pickabooBlue,
+              borderColor: AppColors.pickabooBlue,
+              size: AppButtonSize.sm,
+              isFullWidth: false,
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               onPressed: isSelectingThis ? null : () => _onSelectProduct(item),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.surfaceBlue,
-                foregroundColor: AppColors.pickabooBlue,
-                elevation: 0,
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-                side: const BorderSide(color: AppColors.pickabooBlue, width: 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-              child: isSelectingThis
-                  ? const AppLoader.button(size: 14, color: AppColors.pickabooBlue)
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.add, size: 14.sp),
-                        SizedBox(width: 2.w),
-                        Text(
-                          'Compare',
-                          style: AppTypography.brandTag,
-                        ),
-                      ],
-                    ),
+              isLoading: isSelectingThis,
+              icon: Icon(Icons.add, size: 14.sp, color: AppColors.pickabooBlue),
+              text: 'Compare',
+              textStyle: AppTypography.brandTag,
             ),
         ],
       ),

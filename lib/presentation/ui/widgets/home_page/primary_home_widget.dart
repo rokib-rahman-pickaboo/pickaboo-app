@@ -33,7 +33,7 @@ import 'package:pickaboo/presentation/ui/widgets/home_page/promotion_banner_slid
 ///   3. Campaign Offers Section (Deals Grids)
 ///   4. "Just For You" Infinite Product Grid (Paged 2-column rows)
 /// ─────────────────────────────────────────────────────────────
-class PrimaryHomeWidget extends StatelessWidget {
+class PrimaryHomeWidget extends StatefulWidget {
   final HomeContentEntity homeFeed;
   final List<BannerEntity> heroTopBanners;
   final List<BannerEntity> heroBottomBanners;
@@ -47,9 +47,29 @@ class PrimaryHomeWidget extends StatelessWidget {
     required this.insertionMap,
   });
 
+  @override
+  State<PrimaryHomeWidget> createState() => _PrimaryHomeWidgetState();
+}
+
+class _PrimaryHomeWidgetState extends State<PrimaryHomeWidget> {
+  List<_FeedItemEntry>? _cachedFeedEntries;
+  HomeContentEntity? _lastHomeFeed;
+  Map<int, List<CategoryInsertionItem>>? _lastInsertionMap;
+
+  List<_FeedItemEntry> _getFeedEntries() {
+    if (_cachedFeedEntries != null &&
+        identical(widget.homeFeed, _lastHomeFeed) &&
+        identical(widget.insertionMap, _lastInsertionMap)) {
+      return _cachedFeedEntries!;
+    }
+    _lastHomeFeed = widget.homeFeed;
+    _lastInsertionMap = widget.insertionMap;
+    return _cachedFeedEntries = _buildFeedEntries();
+  }
+
   List<_FeedItemEntry> _buildFeedEntries() {
     final entries = <_FeedItemEntry>[];
-    final sections = homeFeed.categoryProducts;
+    final sections = widget.homeFeed.categoryProducts;
 
     for (int i = 0; i < sections.length; i++) {
       final section = sections[i];
@@ -57,7 +77,7 @@ class PrimaryHomeWidget extends StatelessWidget {
         entries.add(_FeedItemEntry.category(section));
       }
 
-      final insertions = insertionMap[i];
+      final insertions = widget.insertionMap[i];
       if (insertions != null && insertions.isNotEmpty) {
         for (final insertion in insertions) {
           entries.add(_FeedItemEntry.insertion(insertion));
@@ -117,9 +137,9 @@ class PrimaryHomeWidget extends StatelessWidget {
   }
 
   Widget _buildTopHeaderSliver(BuildContext context) {
-    final bool hasMainSlider = homeFeed.mainSlider.isNotEmpty;
+    final bool hasMainSlider = widget.homeFeed.mainSlider.isNotEmpty;
     final bool hasHeroBanners =
-        heroTopBanners.isNotEmpty || heroBottomBanners.isNotEmpty;
+        widget.heroTopBanners.isNotEmpty || widget.heroBottomBanners.isNotEmpty;
 
     return SliverToBoxAdapter(
       child: RepaintBoundary(
@@ -137,7 +157,7 @@ class PrimaryHomeWidget extends StatelessWidget {
                       : AppSpacing.groupToGroupSpacing.h,
                 ),
                 child: BannerCarousel(
-                  banners: homeFeed.mainSlider,
+                  banners: widget.homeFeed.mainSlider,
                   onBannerTap: (banner) {
                     context.handleBannerTap(
                       linkType: banner.linkType,
@@ -152,8 +172,8 @@ class PrimaryHomeWidget extends StatelessWidget {
             // Hero Banners
             if (hasHeroBanners)
               _buildHeroBannerRow(context, [
-                ...heroTopBanners,
-                ...heroBottomBanners,
+                ...widget.heroTopBanners,
+                ...widget.heroBottomBanners,
               ]),
 
             // Promotion Slider
@@ -203,6 +223,12 @@ class PrimaryHomeWidget extends StatelessWidget {
                               product.id.toString(),
                               slug: product.slug,
                               productName: product.productName,
+                              productImage: product.productImg,
+                              productPrice: (product.productSpecialPrice > 0
+                                      ? product.productSpecialPrice
+                                      : product.productPrice)
+                                  .toString(),
+                              product: product,
                             );
                           },
                           onViewAll: () {
@@ -264,6 +290,12 @@ class PrimaryHomeWidget extends StatelessWidget {
               product.id.toString(),
               slug: product.slug,
               productName: product.productName,
+              productImage: product.productImg,
+              productPrice: (product.productSpecialPrice > 0
+                      ? product.productSpecialPrice
+                      : product.productPrice)
+                  .toString(),
+              product: product,
             );
           },
           onCategoryTap: (category) {
@@ -291,7 +323,7 @@ class PrimaryHomeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final feedEntries = _buildFeedEntries();
+    final feedEntries = _getFeedEntries();
 
     return SliverMainAxisGroup(
       slivers: [
@@ -380,42 +412,44 @@ class PrimaryHomeWidget extends StatelessWidget {
                             padding: EdgeInsets.only(
                               bottom: AppSpacing.sameGroupItemSpacing.h,
                             ),
-                            child: RepaintBoundary(
-                              child: IntrinsicHeight(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    for (int i = 0; i < columns; i++) ...[
-                                      if (i > 0)
-                                        SizedBox(
-                                          width:
-                                              AppSpacing.sameGroupItemSpacing.w,
-                                        ),
-                                      Expanded(
-                                        child: i < rowItems.length
-                                            ? ProductView(
-                                                product: rowItems[i],
-                                                onTap: (product) {
-                                                  context.goToProductDetail(
-                                                    product.id.toString(),
-                                                    slug: product.slug,
-                                                    productName:
-                                                        product.productName,
-                                                  );
-                                                },
-                                              )
-                                            : const SizedBox.shrink(),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                for (int i = 0; i < columns; i++) ...[
+                                  if (i > 0)
+                                    SizedBox(
+                                      width:
+                                          AppSpacing.sameGroupItemSpacing.w,
+                                    ),
+                                  Expanded(
+                                    child: i < rowItems.length
+                                        ? ProductView(
+                                            product: rowItems[i],
+                                            onTap: (product) {
+                                              context.goToProductDetail(
+                                                product.id.toString(),
+                                                slug: product.slug,
+                                                productName:
+                                                    product.productName,
+                                                productImage: product.productImg,
+                                                productPrice: (product.productSpecialPrice > 0
+                                                        ? product.productSpecialPrice
+                                                        : product.productPrice)
+                                                    .toString(),
+                                                product: product,
+                                              );
+                                            },
+                                          )
+                                        : const SizedBox.shrink(),
+                                  ),
+                                ],
+                              ],
                             ),
                           );
                         },
                         childCount: rowCount,
                         addAutomaticKeepAlives: false,
-                        addRepaintBoundaries: true,
+                        addRepaintBoundaries: false,
                         addSemanticIndexes: false,
                       ),
                     ),
@@ -436,7 +470,7 @@ class PrimaryHomeWidget extends StatelessWidget {
                       child: Center(
                         child: Text(
                           'No more products',
-                          style: context.textStyle.bodySmall.withColor(
+                          style: AppTypography.bodySmall.withColor(
                             AppColors.muted,
                           ),
                         ),

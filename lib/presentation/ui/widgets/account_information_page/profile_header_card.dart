@@ -24,6 +24,7 @@ class ProfileHeaderCard extends StatelessWidget {
     final displayName = fullName.isNotEmpty ? fullName : 'Pickaboo User';
 
     return AppCard(
+      width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.sameGroupItemSpacing.w + 6.w,
         vertical: 20.h,
@@ -40,20 +41,20 @@ class ProfileHeaderCard extends StatelessWidget {
           // ── Name & Email ──
           Text(
             displayName,
-            style: AppTypography.pageTitle,
+            style: AppTypography.titleLarge,
           ),
           if (user.email.isNotEmpty) ...[
             SizedBox(height: 2.h),
             Text(
               user.email,
-              style: AppTypography.bodyMuted,
+              style: AppTypography.bodySmall,
             ),
           ],
           if (user.id != 0) ...[
             SizedBox(height: 2.h),
             Text(
               'User ID: ${user.id}',
-              style: AppTypography.bodyMuted,
+              style: AppTypography.bodySmall,
             ),
           ],
         ],

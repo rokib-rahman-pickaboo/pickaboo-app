@@ -6,8 +6,8 @@ import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_variant_selector_section.dart';
 
 ProductDetailEntity _createTestVariantProduct() {
-  final matrix = VariantMatrixEntity(
-    attributes: const [
+  const matrix = VariantMatrixEntity(
+    attributes: [
       VariantMatrixAttributeEntity(
         optionId: '93',
         optionName: 'Color',
@@ -28,7 +28,7 @@ ProductDetailEntity _createTestVariantProduct() {
         ],
       ),
     ],
-    products: const [
+    products: [
       VariantMatrixProductEntity(
         id: 101,
         stockAvailable: true,

@@ -13,10 +13,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/domain/entity/place_picker/place_pick_result_entity.dart';
 import 'package:pickaboo/presentation/bloc/place_picker_bloc/place_picker_bloc.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/permission_prompt.dart';
 import 'package:pickaboo/presentation/ui/widgets/place_picker/place_suggestion_tile.dart';
 import 'package:get_it/get_it.dart';
@@ -263,16 +265,15 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final bottomPad = MediaQuery.of(context).padding.bottom;
     final sheetHeight = 0.85.sh;
 
     return Container(
       height: sheetHeight,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        borderRadius: AppRadius.sheetTop,
       ),
       child: Column(
         children: [
@@ -281,9 +282,9 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
             child: Container(
               width: 36.w,
               height: 4.h,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2.r),
+                borderRadius: AppRadius.badgeRadius,
               ),
             ),
           ),
@@ -295,7 +296,7 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
                 Expanded(
                   child: Text(
                     'Select Delivery Location',
-                    style: textStyle.bodyMediumBold.copyWith(
+                    style: AppTypography.bodyMedium.bold().copyWith(
                       fontWeight: FontWeight.w700,
                       fontSize: 16.sp,
                       color: AppColors.text,
@@ -359,7 +360,6 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
                     left: 0,
                     right: 0,
                     child: _buildBottomPanel(
-                      textStyle,
                       bottomInset > 0 ? bottomInset : bottomPad,
                     ),
                   ),
@@ -401,9 +401,9 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 4,
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: AppRadius.buttonRadius,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.buttonRadius,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: 240.h,
@@ -446,10 +446,10 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
           focusNode: focusNode,
           textInputAction: TextInputAction.search,
           onFieldSubmitted: (_) => onFieldSubmitted(),
-          style: context.textStyle.productDescription.withColor(AppColors.text),
+          style: AppTypography.bodyMedium.withColor(AppColors.text),
           decoration: InputDecoration(
             hintText: 'Search for an area or address...',
-            hintStyle: context.textStyle.productDescription.withColor(AppColors.muted),
+            hintStyle: AppTypography.bodyMedium.withColor(AppColors.muted),
             filled: true,
             fillColor: AppColors.pageBg,
             prefixIcon: Padding(
@@ -485,11 +485,11 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
             suffixIconConstraints: const BoxConstraints(),
             contentPadding: EdgeInsets.symmetric(vertical: 13.h),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(23.r),
+              borderRadius: AppRadius.pillRadius,
               borderSide: BorderSide(color: AppColors.border, width: 1.w),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(23.r),
+              borderRadius: AppRadius.pillRadius,
               borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5.w),
             ),
           ),
@@ -526,7 +526,6 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
   }
 
   Widget _buildBottomPanel(
-    AppTextStyles textStyle,
     double bottomPad,
   ) {
     return BlocBuilder<PlacePickerBloc, PlacePickerState>(
@@ -556,51 +555,29 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
             mainAxisSize: MainAxisSize.min,
             children: [
               if (place != null || isLoading) ...[
-                _buildAddressCard(textStyle, place, isLoading),
+                _buildAddressCard(place, isLoading),
                 SizedBox(height: 10.h),
               ],
 
-              SizedBox(
-                width: double.infinity,
+              AppButton.primary(
                 height: 50.h,
-                child: ElevatedButton(
-                  onPressed: canConfirm
-                      ? () => Navigator.of(context).pop(place)
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.pickabooBlue,
-                    disabledBackgroundColor: AppColors.pickabooBlue.withAlpha(100),
-                    foregroundColor: AppColors.white,
-                    elevation: canConfirm ? 4 : 0,
-                    shadowColor: AppColors.pickabooBlue.withAlpha(80),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14.r),
-                    ),
-                  ),
-                  child: isLoading
-                      ? const AppLoader.button()
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              canConfirm
-                                  ? Icons.check_circle_rounded
-                                  : Icons.check_circle_outline_rounded,
-                              size: 18.sp,
-                              color: canConfirm
-                                  ? AppColors.green
-                                  : AppColors.white.withAlpha(140),
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              'Confirm Location',
-                              style: textStyle.bodyMediumBold.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ],
-                        ),
+                borderRadius: AppRadius.lgRadius,
+                isDisabled: !canConfirm,
+                isLoading: isLoading,
+                onPressed: canConfirm ? () => Navigator.of(context).pop(place) : null,
+                icon: Icon(
+                  canConfirm
+                      ? Icons.check_circle_rounded
+                      : Icons.check_circle_outline_rounded,
+                  size: 18.sp,
+                  color: canConfirm
+                      ? AppColors.green
+                      : AppColors.white.withAlpha(140),
+                ),
+                text: AppStrings.confirmLocation,
+                textStyle: AppTypography.bodyMedium.bold().copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
                 ),
               ),
             ],
@@ -611,14 +588,13 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
   }
 
   Widget _buildAddressCard(
-    AppTextStyles textStyle,
     PlacePickResultEntity? place,
     bool isLoading,
   ) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: AppRadius.lgRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.07),
@@ -651,7 +627,7 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
                     children: [
                       Text(
                         place?.address ?? 'Selected location',
-                        style: textStyle.bodyMediumBold.copyWith(
+                        style: AppTypography.bodyMedium.bold().copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.text,
                           fontSize: 13.sp,
@@ -667,7 +643,7 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
                             if ((place?.area ?? '').isNotEmpty) place!.area,
                             if ((place?.city ?? '').isNotEmpty) place!.city,
                           ].join(', '),
-                          style: textStyle.bodySmall.copyWith(
+                          style: AppTypography.bodySmall.copyWith(
                             color: AppColors.muted,
                             fontSize: 11.sp,
                           ),
@@ -688,18 +664,18 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
         Container(
           height: 14.h,
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.border,
-            borderRadius: BorderRadius.circular(4.r),
+            borderRadius: AppRadius.badgeRadius,
           ),
         ),
         SizedBox(height: 6.h),
         Container(
           height: 12.h,
           width: 120.w,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.pageBg,
-            borderRadius: BorderRadius.circular(4.r),
+            borderRadius: AppRadius.badgeRadius,
           ),
         ),
       ],

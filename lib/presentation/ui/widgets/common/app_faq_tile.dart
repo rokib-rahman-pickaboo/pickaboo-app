@@ -40,8 +40,8 @@ class AppFaqTile extends StatelessWidget {
       children: [
         InkWell(
           onTap: onTap,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
+          splashColor: AppColors.transparent,
+          highlightColor: AppColors.transparent,
           child: Container(
             constraints: BoxConstraints(minHeight: 50.h),
             padding: EdgeInsets.symmetric(
@@ -55,9 +55,9 @@ class AppFaqTile extends StatelessWidget {
                   child: Text(
                     title,
                     style: isExpanded
-                        ? AppTypography.supportFaqQuestion
+                        ? AppTypography.titleSmall
                             .withColor(AppColors.pickabooBlue)
-                        : AppTypography.supportFaqQuestion
+                        : AppTypography.titleSmall
                             .withColor(AppColors.text),
                   ),
                 ),

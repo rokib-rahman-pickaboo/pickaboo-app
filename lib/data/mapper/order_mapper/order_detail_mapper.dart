@@ -14,7 +14,10 @@ extension OrderDetailResponseMapper on OrderDetailResponse {
       couponCode: couponCode?.toString(),
       spentRewardPoints: int.tryParse(spentRewardPoints ?? '0') ?? 0,
       orderSummary:
-          orderSummary?.toEntity() ??
+          orderSummary?.toEntity(
+            rootFee: convenienceFee,
+            rootFeePercent: convenienceFeePercent,
+          ) ??
           const OrderSummaryDetailEntity(
             subtotal: 0,
             totalOrderQty: 0,
@@ -32,8 +35,7 @@ extension OrderDetailResponseMapper on OrderDetailResponse {
           : null,
       shippingMethod: shippingMethod ?? '',
       paymentMethod: paymentMethod ?? '',
-      paymentInformation:
-          paymentInformation?.map((info) => info.toEntity()).toList() ?? [],
+      paymentInformation: _buildPaymentInformation(),
       statusHistory:
           statusHistory?.map((history) => history.toEntity()).toList() ?? [],
       remoteIp: remoteIp,
@@ -43,6 +45,54 @@ extension OrderDetailResponseMapper on OrderDetailResponse {
       customerEmail: customerEmail,
       customerPhone: customerPhone,
     );
+  }
+
+  List<PaymentInfoEntity> _buildPaymentInformation() {
+    final list =
+        paymentInformation?.map((info) => info.toEntity()).toList() ?? [];
+
+    // If root payment_mode exists and isn't already present
+    if (paymentMode != null &&
+        paymentMode!.isNotEmpty &&
+        !list.any((p) =>
+            p.code.toLowerCase() == 'payment_mode' ||
+            p.title.toLowerCase() == 'payment mode')) {
+      list.add(PaymentInfoEntity(
+        code: 'payment_mode',
+        title: 'Payment Mode',
+        value: paymentMode!,
+      ));
+    }
+
+    // If root emi_tenure exists and isn't already present
+    final effectiveTenure = emiTenure ?? tenure;
+    if (effectiveTenure != null &&
+        effectiveTenure.toString().isNotEmpty &&
+        !list.any((p) =>
+            p.code.toLowerCase() == 'emi_tenure' ||
+            p.title.toLowerCase().contains('tenure'))) {
+      list.add(PaymentInfoEntity(
+        code: 'emi_tenure',
+        title: 'EMI Tenure',
+        value: effectiveTenure.toString(),
+      ));
+    }
+
+    // If root emi_bank exists and isn't already present
+    final effectiveBank = emiBank ?? bankName;
+    if (effectiveBank != null &&
+        effectiveBank.isNotEmpty &&
+        !list.any((p) =>
+            p.code.toLowerCase() == 'emi_bank' ||
+            p.title.toLowerCase().contains('bank'))) {
+      list.add(PaymentInfoEntity(
+        code: 'emi_bank',
+        title: 'EMI Bank',
+        value: effectiveBank,
+      ));
+    }
+
+    return list;
   }
 }
 
@@ -69,15 +119,50 @@ extension ItemMapper on OrderItemDetailModel {
 }
 
 extension OrderSummaryMapper on OrderSummaryDetailModel {
-  OrderSummaryDetailEntity toEntity() {
+  OrderSummaryDetailEntity toEntity({num? rootFee, String? rootFeePercent}) {
+    final rawFee =
+        convenienceFee ?? conveniencePrice ?? convenienceAmount ?? fee ?? rootFee;
+    double feeVal = (rawFee ?? 0).toDouble();
+
+    final subtotalVal = (subtotal ?? 0).toDouble();
+    final shippingVal = (shippingFee ?? 0).toDouble();
+    final discountVal = (discountAmount ?? 0).toDouble();
+    final grandTotalVal = (grandTotal ?? 0).toDouble();
+
+    // Fallback calculation: If convenience fee was not explicitly named in the API,
+    // but grandTotal exceeds (subtotal + shipping - discount), the exact difference is the fee.
+    if (feeVal <= 0 && grandTotalVal > 0) {
+      final expectedTotal = subtotalVal + shippingVal - discountVal.abs();
+      final diff = grandTotalVal - expectedTotal;
+      if (diff > 0.5) {
+        feeVal = diff;
+      }
+    }
+
+    String? feePercentStr = convenienceFeePercent ?? rootFeePercent;
+    if ((feePercentStr == null || feePercentStr.isEmpty) && feeVal > 0) {
+      // Calculate percentage based on (subtotal + shipping) or subtotal
+      final base = (subtotalVal + shippingVal) > 0
+          ? (subtotalVal + shippingVal)
+          : subtotalVal;
+      if (base > 0) {
+        final pct = (feeVal / base) * 100;
+        final roundedPct = double.parse(pct.toStringAsFixed(2));
+        feePercentStr =
+            '${roundedPct % 1 == 0 ? roundedPct.toInt() : roundedPct.toStringAsFixed(1)}%';
+      }
+    }
+
     return OrderSummaryDetailEntity(
-      subtotal: (subtotal ?? 0).toDouble(),
+      subtotal: subtotalVal,
       totalOrderQty: totalOrderQty ?? 0,
-      discountAmount: (discountAmount ?? 0).toDouble(),
+      discountAmount: discountVal,
       rewardsDiscount: (rewardsDiscount ?? 0).toDouble(),
-      shippingFee: (shippingFee ?? 0).toDouble(),
-      grandTotal: (grandTotal ?? 0).toDouble(),
+      shippingFee: shippingVal,
+      grandTotal: grandTotalVal,
       rewardEarned: rewardEarned ?? 0,
+      convenienceFee: feeVal,
+      convenienceFeePercent: feePercentStr,
     );
   }
 }

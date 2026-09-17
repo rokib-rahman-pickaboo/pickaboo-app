@@ -3312,6 +3312,9 @@ mixin _$AttrList {
   @HiveField(3)
   @JsonKey(name: "icon")
   String? get icon => throw _privateConstructorUsedError;
+  @HiveField(4)
+  @JsonKey(name: "is_featured", fromJson: _boolFromJson)
+  bool get isFeatured => throw _privateConstructorUsedError;
 
   /// Serializes this AttrList to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -3333,6 +3336,9 @@ abstract class $AttrListCopyWith<$Res> {
     @HiveField(1) @JsonKey(name: "value") String? value,
     @HiveField(2) @JsonKey(name: "icon_url") String? iconUrl,
     @HiveField(3) @JsonKey(name: "icon") String? icon,
+    @HiveField(4)
+    @JsonKey(name: "is_featured", fromJson: _boolFromJson)
+    bool isFeatured,
   });
 }
 
@@ -3355,6 +3361,7 @@ class _$AttrListCopyWithImpl<$Res, $Val extends AttrList>
     Object? value = freezed,
     Object? iconUrl = freezed,
     Object? icon = freezed,
+    Object? isFeatured = null,
   }) {
     return _then(
       _value.copyWith(
@@ -3378,6 +3385,11 @@ class _$AttrListCopyWithImpl<$Res, $Val extends AttrList>
                     ? _value.icon
                     : icon // ignore: cast_nullable_to_non_nullable
                         as String?,
+            isFeatured:
+                null == isFeatured
+                    ? _value.isFeatured
+                    : isFeatured // ignore: cast_nullable_to_non_nullable
+                        as bool,
           )
           as $Val,
     );
@@ -3398,6 +3410,9 @@ abstract class _$$AttrListImplCopyWith<$Res>
     @HiveField(1) @JsonKey(name: "value") String? value,
     @HiveField(2) @JsonKey(name: "icon_url") String? iconUrl,
     @HiveField(3) @JsonKey(name: "icon") String? icon,
+    @HiveField(4)
+    @JsonKey(name: "is_featured", fromJson: _boolFromJson)
+    bool isFeatured,
   });
 }
 
@@ -3419,6 +3434,7 @@ class __$$AttrListImplCopyWithImpl<$Res>
     Object? value = freezed,
     Object? iconUrl = freezed,
     Object? icon = freezed,
+    Object? isFeatured = null,
   }) {
     return _then(
       _$AttrListImpl(
@@ -3442,6 +3458,11 @@ class __$$AttrListImplCopyWithImpl<$Res>
                 ? _value.icon
                 : icon // ignore: cast_nullable_to_non_nullable
                     as String?,
+        isFeatured:
+            null == isFeatured
+                ? _value.isFeatured
+                : isFeatured // ignore: cast_nullable_to_non_nullable
+                    as bool,
       ),
     );
   }
@@ -3455,6 +3476,9 @@ class _$AttrListImpl implements _AttrList {
     @HiveField(1) @JsonKey(name: "value") this.value,
     @HiveField(2) @JsonKey(name: "icon_url") this.iconUrl,
     @HiveField(3) @JsonKey(name: "icon") this.icon,
+    @HiveField(4)
+    @JsonKey(name: "is_featured", fromJson: _boolFromJson)
+    this.isFeatured = false,
   });
 
   factory _$AttrListImpl.fromJson(Map<String, dynamic> json) =>
@@ -3476,10 +3500,14 @@ class _$AttrListImpl implements _AttrList {
   @HiveField(3)
   @JsonKey(name: "icon")
   final String? icon;
+  @override
+  @HiveField(4)
+  @JsonKey(name: "is_featured", fromJson: _boolFromJson)
+  final bool isFeatured;
 
   @override
   String toString() {
-    return 'AttrList(label: $label, value: $value, iconUrl: $iconUrl, icon: $icon)';
+    return 'AttrList(label: $label, value: $value, iconUrl: $iconUrl, icon: $icon, isFeatured: $isFeatured)';
   }
 
   @override
@@ -3490,12 +3518,15 @@ class _$AttrListImpl implements _AttrList {
             (identical(other.label, label) || other.label == label) &&
             (identical(other.value, value) || other.value == value) &&
             (identical(other.iconUrl, iconUrl) || other.iconUrl == iconUrl) &&
-            (identical(other.icon, icon) || other.icon == icon));
+            (identical(other.icon, icon) || other.icon == icon) &&
+            (identical(other.isFeatured, isFeatured) ||
+                other.isFeatured == isFeatured));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, label, value, iconUrl, icon);
+  int get hashCode =>
+      Object.hash(runtimeType, label, value, iconUrl, icon, isFeatured);
 
   /// Create a copy of AttrList
   /// with the given fields replaced by the non-null parameter values.
@@ -3517,6 +3548,9 @@ abstract class _AttrList implements AttrList {
     @HiveField(1) @JsonKey(name: "value") final String? value,
     @HiveField(2) @JsonKey(name: "icon_url") final String? iconUrl,
     @HiveField(3) @JsonKey(name: "icon") final String? icon,
+    @HiveField(4)
+    @JsonKey(name: "is_featured", fromJson: _boolFromJson)
+    final bool isFeatured,
   }) = _$AttrListImpl;
 
   factory _AttrList.fromJson(Map<String, dynamic> json) =
@@ -3538,6 +3572,10 @@ abstract class _AttrList implements AttrList {
   @HiveField(3)
   @JsonKey(name: "icon")
   String? get icon;
+  @override
+  @HiveField(4)
+  @JsonKey(name: "is_featured", fromJson: _boolFromJson)
+  bool get isFeatured;
 
   /// Create a copy of AttrList
   /// with the given fields replaced by the non-null parameter values.

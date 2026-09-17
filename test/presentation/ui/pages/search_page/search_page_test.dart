@@ -13,7 +13,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_typography.dart';
 import 'package:badges/badges.dart' as badges;
 
 class MockSearchBloc extends MockBloc<SearchEvent, SearchState>
@@ -45,11 +45,7 @@ void main() {
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       builder: (_, _) => MaterialApp(
-        theme: ThemeData(
-          extensions: [
-            AppTextStyles.build(Brightness.light),
-          ],
-        ),
+        theme: ThemeData(),
         home: MultiBlocProvider(
           providers: [
             BlocProvider<SearchBloc>.value(value: mockSearchBloc),

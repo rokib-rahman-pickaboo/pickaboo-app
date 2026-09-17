@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/domain/entity/checkout/checkout_emi_entity.dart';
 
 Future<BankEmiDataEntity?> showEmiBankPickerSheet(
@@ -12,7 +14,7 @@ Future<BankEmiDataEntity?> showEmiBankPickerSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: AppColors.transparent,
     builder: (_) => _EmiPickerSheet<BankEmiDataEntity>(
       title: 'Select Bank',
       items: banks,
@@ -32,7 +34,7 @@ Future<EmiTenureDetailEntity?> showEmiTenurePickerSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: AppColors.transparent,
     builder: (_) => _EmiPickerSheet<EmiTenureDetailEntity>(
       title: 'Select Tenure',
       items: tenures,
@@ -74,15 +76,14 @@ class _EmiPickerSheetState<T> extends State<_EmiPickerSheet<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.7,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+        borderRadius: AppRadius.sheetTop,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -95,7 +96,7 @@ class _EmiPickerSheetState<T> extends State<_EmiPickerSheet<T>> {
               children: [
                 Text(
                   widget.title,
-                  style: textStyle.bodyMediumBold.copyWith(color: AppColors.text),
+                  style: AppTypography.bodyMedium.bold().copyWith(color: AppColors.text),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
@@ -139,27 +140,14 @@ class _EmiPickerSheetState<T> extends State<_EmiPickerSheet<T>> {
               16.w,
               MediaQuery.of(context).padding.bottom + 16.h,
             ),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _selected == null
-                    ? null
-                    : () => Navigator.pop(context, _selected),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.pickabooBlue,
-                  foregroundColor: AppColors.white,
-                  disabledBackgroundColor: AppColors.pickabooBlue.withValues(alpha: 0.4),
-                  minimumSize: Size(0, 48.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  'Apply',
-                  style: textStyle.buttonMedium.copyWith(color: AppColors.white),
-                ),
-              ),
+            child: AppButton.primary(
+              height: 48.h,
+              borderRadius: AppRadius.buttonRadius,
+              isDisabled: _selected == null,
+              onPressed: _selected == null
+                  ? null
+                  : () => Navigator.pop(context, _selected),
+              text: AppStrings.apply,
             ),
           ),
         ],
@@ -181,16 +169,15 @@ class _SelectableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: AppRadius.cardRadius,
       child: Container(
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue.withValues(alpha: 0.05) : AppColors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: AppRadius.cardRadius,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: isSelected ? 2 : 1,
@@ -207,7 +194,7 @@ class _SelectableRow extends StatelessWidget {
                   color: isSelected ? AppColors.pickabooBlue : AppColors.mutedLight,
                   width: 2.w,
                 ),
-                color: isSelected ? AppColors.pickabooBlue : Colors.transparent,
+                color: isSelected ? AppColors.pickabooBlue : AppColors.transparent,
               ),
               child: isSelected
                   ? Icon(Icons.check, size: 12.sp, color: AppColors.white)
@@ -217,7 +204,7 @@ class _SelectableRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: textStyle.bodySmall.copyWith(color: AppColors.text),
+                style: AppTypography.bodySmall.copyWith(color: AppColors.text),
               ),
             ),
           ],

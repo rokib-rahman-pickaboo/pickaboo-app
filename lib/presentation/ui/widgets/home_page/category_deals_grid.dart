@@ -64,7 +64,7 @@ class CategoryDealsGrid extends StatelessWidget {
                   maxLines: 1,
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.sectionTitle,
+                  style: AppTypography.titleMedium,
                 ),
               ),
               if (onViewAll != null) ...[
@@ -79,7 +79,7 @@ class CategoryDealsGrid extends StatelessWidget {
                       children: [
                         Text(
                           'View All',
-                          style: AppTypography.cardTitle,
+                          style: AppTypography.titleSmall,
                         ),
                         SizedBox(width: 2.w),
                         Icon(
@@ -152,7 +152,7 @@ class _DealCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: AppRadius.buttonRadius,
           border: Border.all(
             color: AppColors.border,
             width: 1.w,
@@ -171,8 +171,8 @@ class _DealCard extends StatelessWidget {
             Expanded(
               flex: 2,
               child: ClipRRect(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(7.r),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppRadius.button - 1),
                 ),
                 child: AppImage(
                   imageUrl: deal.mobileImage,
@@ -202,10 +202,10 @@ class _DealCard extends StatelessWidget {
               height: 44.h,
               padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
               alignment: Alignment.center,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(7.r),
+                  bottom: Radius.circular(AppRadius.button - 1),
                 ),
               ),
               child: Column(
@@ -218,7 +218,7 @@ class _DealCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: AppTypography.cardTitle,
+                    style: AppTypography.titleSmall,
                   ),
                 ],
               ),

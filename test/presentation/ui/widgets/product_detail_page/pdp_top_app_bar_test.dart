@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_top_app_bar.dart';
 
 void main() {
@@ -173,7 +174,7 @@ void main() {
 
       final animatedContainer = tester.widget<AnimatedContainer>(find.byType(AnimatedContainer));
       final decoration = animatedContainer.decoration as BoxDecoration;
-      expect(decoration.color, Colors.transparent);
+      expect(decoration.color, AppColors.transparent);
 
       // Title AnimatedOpacity should have opacity 0.0
       final opacityWidgets = tester.widgetList<AnimatedOpacity>(find.byType(AnimatedOpacity));
@@ -193,7 +194,7 @@ void main() {
 
       final animatedContainer = tester.widget<AnimatedContainer>(find.byType(AnimatedContainer));
       final decoration = animatedContainer.decoration as BoxDecoration;
-      expect(decoration.color, isNot(Colors.transparent));
+      expect(decoration.color, isNot(AppColors.transparent));
 
       // Title AnimatedOpacity should have opacity 1.0
       final opacityWidgets = tester.widgetList<AnimatedOpacity>(find.byType(AnimatedOpacity));

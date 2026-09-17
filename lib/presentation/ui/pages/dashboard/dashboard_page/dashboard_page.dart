@@ -20,7 +20,9 @@ import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/profile_grid_tile.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/profile_header_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/profile_section_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
+import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 
 /// PROFILE DASHBOARD PAGE
 class DashboardPage extends StatelessWidget {
@@ -66,14 +68,15 @@ class DashboardPage extends StatelessWidget {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          context.go(Routes.home);
+          MainPage.popTab(context);
         }
       },
       child: Scaffold(
         backgroundColor: AppColors.pageBg,
-        appBar: const PickabooAppBar(
+        appBar: PickabooAppBar(
           title: 'Dashboard',
-          showBackButton: false,
+          showBackButton: true,
+          onBackTap: () => MainPage.popTab(context),
         ),
         body: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, authState) {
@@ -155,7 +158,7 @@ class DashboardPage extends StatelessWidget {
                       ),
                       ProfileGridTile(
                         icon: Icons.rate_review_outlined,
-                        title: 'Review & Win',
+                        title: 'Reviews',
                         accentColor: AppColors.green,
                         onTap: () => _requireAuth(
                           context,
@@ -325,7 +328,7 @@ class DashboardPage extends StatelessWidget {
                 // Title
                 Text(
                   'Confirm Logout',
-                  style: AppTypography.pageTitle,
+                  style: AppTypography.titleLarge,
                 ),
                 SizedBox(height: 6.h),
 
@@ -333,7 +336,7 @@ class DashboardPage extends StatelessWidget {
                 Text(
                   'Are you sure you want to log out of your Pickaboo account? You can log back in anytime.',
                   textAlign: TextAlign.center,
-                  style: AppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
                 SizedBox(height: 22.h),
 
@@ -341,53 +344,35 @@ class DashboardPage extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: SizedBox(
+                      child: AppButton.ghost(
+                        text: 'Cancel',
+                        backgroundColor: AppColors.pageBg,
+                        textColor: AppColors.navy,
                         height: 46.h,
-                        child: TextButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          style: TextButton.styleFrom(
-                            backgroundColor: AppColors.pageBg,
-                            foregroundColor: AppColors.navy,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: AppTypography.cardTitle,
-                          ),
-                        ),
+                        isFullWidth: true,
+                        borderRadius: BorderRadius.circular(12.r),
+                        textStyle: AppTypography.titleSmall,
+                        onPressed: () => Navigator.pop(ctx),
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    AppSpacing.gapH12,
                     Expanded(
-                      child: SizedBox(
+                      child: AppButton.danger(
+                        text: 'Yes, Logout',
                         height: 46.h,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            context
-                                .read<AuthBloc>()
-                                .add(const AuthEvent.userLoggedOut());
-                            SnackBarUtils.showSuccess(
-                              context,
-                              'Logged out successfully',
-                            );
-                            context.go(Routes.home);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.red,
-                            foregroundColor: AppColors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Yes, Logout',
-                            style: AppTypography.buttonPrimary,
-                          ),
-                        ),
+                        isFullWidth: true,
+                        borderRadius: BorderRadius.circular(12.r),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          context
+                              .read<AuthBloc>()
+                              .add(const AuthEvent.userLoggedOut());
+                          SnackBarUtils.showSuccess(
+                            context,
+                            'Logged out successfully',
+                          );
+                          context.go(Routes.home);
+                        },
                       ),
                     ),
                   ],

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// Modern OrderSummarySection matching Pickaboo-App-UI design language.
 class OrderSummarySection extends StatelessWidget {
@@ -51,58 +52,69 @@ class OrderSummarySection extends StatelessWidget {
             children: [
               Text(
                 'Order Summary (${order.orderSummary.totalOrderQty})',
-                style: AppTypography.sectionTitle,
+                style: AppTypography.titleMedium,
               ),
               if (showPayNow)
-                ElevatedButton(
+                AppButton.primary(
+                  isFullWidth: false,
+                  height: 32.h,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 8.h,
+                  ),
+                  borderRadius: AppRadius.cardRadius,
                   onPressed: onPayNow,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.pickabooBlue,
-                    foregroundColor: AppColors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.h,
-                    ),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadius.cardRadius,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    "Pay Now",
-                    style: AppTypography.buttonPrimary,
-                  ),
+                  text: "Pay Now",
                 ),
             ],
           ),
           SizedBox(height: 14.h),
           _buildSummaryRow(
-            'Subtotal (${order.orderSummary.totalOrderQty} item)',
-            '৳ ${order.orderSummary.subtotal.toStringAsFixed(0)}',
+            'Subtotal (${order.orderSummary.totalOrderQty} ${order.orderSummary.totalOrderQty > 1 ? 'items' : 'item'})',
+            '৳ ${_formatAmount(order.orderSummary.subtotal)}',
           ),
+          if (order.orderSummary.convenienceFee > 0)
+            _buildSummaryRow(
+              (order.orderSummary.convenienceFeePercent != null &&
+                      order.orderSummary.convenienceFeePercent!.isNotEmpty)
+                  ? 'Convenience Fee (${order.orderSummary.convenienceFeePercent})'
+                  : 'Convenience Fee',
+              '৳ ${_formatAmount(order.orderSummary.convenienceFee)}',
+            ),
           _buildSummaryRow(
-            'Shipping and Handeling',
-            '৳ ${order.orderSummary.shippingFee.toStringAsFixed(0)}',
+            'Shipping & Handling',
+            '৳ ${_formatAmount(order.orderSummary.shippingFee)}',
           ),
           if (order.orderSummary.discountAmount.abs() > 0)
             _buildSummaryRow(
               (order.couponCode != null && order.couponCode!.isNotEmpty)
                   ? 'Discount (${order.couponCode})'
                   : 'Discount',
-              '- ৳ ${order.orderSummary.discountAmount.abs().toStringAsFixed(0)}',
+              '- ৳ ${_formatAmount(order.orderSummary.discountAmount.abs())}',
               isDiscount: true,
             ),
           const Divider(height: 20, color: AppColors.border),
           _buildSummaryRow(
-            'Total',
-            '৳ ${order.orderSummary.grandTotal.toStringAsFixed(0)}',
+            'Grand Total',
+            '৳ ${_formatAmount(order.orderSummary.grandTotal)}',
             isBold: true,
           ),
         ],
       ),
     );
+  }
+
+  String _formatAmount(double amount) {
+    final hasDecimals = (amount * 100).truncate() % 100 != 0;
+    final formatted = hasDecimals
+        ? amount.toStringAsFixed(2)
+        : amount.toStringAsFixed(0);
+    final parts = formatted.split('.');
+    final withCommas = parts[0].replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (match) => '${match[1]},',
+    );
+    return parts.length > 1 ? '$withCommas.${parts[1]}' : withCommas;
   }
 
   Widget _buildSummaryRow(
@@ -123,11 +135,13 @@ class OrderSummarySection extends StatelessWidget {
         children: [
           Text(
             label,
-            style: isBold ? AppTypography.cardTitle : AppTypography.bodyMuted,
+            style: isBold ? AppTypography.titleSmall : AppTypography.bodySmall,
           ),
           Text(
             value,
-            style: isBold ? AppTypography.priceStandard.withColor(valueColor) : AppTypography.bodyRegular.withColor(valueColor),
+            style: isBold
+                ? AppTypography.priceStandard.withColor(valueColor)
+                : AppTypography.bodyMedium.withColor(valueColor),
           ),
         ],
       ),

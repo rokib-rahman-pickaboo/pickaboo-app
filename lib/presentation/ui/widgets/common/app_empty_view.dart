@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 
 /// Universal, design-token compliant empty state widget for Pickaboo.
@@ -179,7 +180,7 @@ class AppEmptyView extends StatelessWidget {
   }) {
     return AppEmptyView(
       key: key,
-      svgAsset: 'assets/new/svg/empty_cart_icon.svg',
+      svgAsset: AppAssets.emptyCart,
       title: AppStrings.emptyCartTitle,
       subtitle: AppStrings.emptyCartSubtitle,
       primaryButtonText: AppStrings.continueShopping,
@@ -326,7 +327,7 @@ class AppEmptyView extends StatelessWidget {
   }) {
     return AppEmptyView(
       key: key,
-      svgAsset: 'assets/new/svg/empty_review_icon.svg',
+      svgAsset: AppAssets.emptyReview,
       icon: Icons.rate_review_outlined,
       title: 'No Reviews Yet',
       subtitle:
@@ -488,8 +489,8 @@ class AppEmptyView extends StatelessWidget {
           title,
           textAlign: TextAlign.center,
           style: isCompact
-              ? AppTypography.sectionTitle
-              : AppTypography.pageTitle.copyWith(fontSize: 18.sp),
+              ? AppTypography.titleMedium
+              : AppTypography.titleLarge.copyWith(fontSize: 18.sp),
         ),
         if (subtitle != null && subtitle!.isNotEmpty) ...[
           SizedBox(height: isCompact ? 6.h : 8.h),
@@ -501,8 +502,8 @@ class AppEmptyView extends StatelessWidget {
               subtitle!,
               textAlign: TextAlign.center,
               style: isCompact
-                  ? AppTypography.bodyMuted
-                  : AppTypography.bodyMuted.copyWith(fontSize: 12.sp),
+                  ? AppTypography.bodySmall
+                  : AppTypography.bodySmall.copyWith(fontSize: 12.sp),
             ),
           ),
         ],
@@ -574,108 +575,49 @@ class AppEmptyView extends StatelessWidget {
       final effectiveOnPressed = onPrimaryAction ?? () => context.go(Routes.home);
       final buttonHeight = isCompact ? 40.h : 46.h;
 
-      final Widget primaryBtn;
-      if (primaryButtonIcon != null) {
-        primaryBtn = ElevatedButton.icon(
-          onPressed: effectiveOnPressed,
-          icon: Icon(
-            primaryButtonIcon,
-            size: 16.sp,
-            color: AppColors.white,
-          ),
-          label: Text(
-            primaryButtonText!,
-            style: AppTypography.buttonPrimary,
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.pickabooBlue,
-            foregroundColor: AppColors.white,
-            elevation: 0,
-            minimumSize: isCompact ? null : Size(180.w, buttonHeight),
-            padding: EdgeInsets.symmetric(
-              horizontal: 20.w,
-              vertical: isCompact ? 8.h : 12.h,
-            ),
-            shape: const RoundedRectangleBorder(
-              borderRadius: AppRadius.buttonRadius,
-            ),
-          ),
-        );
-      } else {
-        primaryBtn = ElevatedButton(
-          onPressed: effectiveOnPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.pickabooBlue,
-            foregroundColor: AppColors.white,
-            elevation: 0,
-            minimumSize: isCompact ? null : Size(180.w, buttonHeight),
-            padding: EdgeInsets.symmetric(
-              horizontal: 20.w,
-              vertical: isCompact ? 8.h : 12.h,
-            ),
-            shape: const RoundedRectangleBorder(
-              borderRadius: AppRadius.buttonRadius,
-            ),
-          ),
-          child: Text(
-            primaryButtonText!,
-            style: AppTypography.buttonPrimary,
-          ),
-        );
-      }
+      final Widget primaryBtn = AppButton.primary(
+        text: primaryButtonText!,
+        onPressed: effectiveOnPressed,
+        icon: primaryButtonIcon != null
+            ? Icon(
+                primaryButtonIcon,
+                size: 16.sp,
+                color: AppColors.white,
+              )
+            : null,
+        isFullWidth: false,
+        height: buttonHeight,
+        padding: EdgeInsets.symmetric(
+          horizontal: 20.w,
+          vertical: isCompact ? 8.h : 12.h,
+        ),
+        borderRadius: AppRadius.buttonRadius,
+      );
       buttons.add(primaryBtn);
     }
 
     if (secondaryButtonText != null && onSecondaryAction != null) {
       final buttonHeight = isCompact ? 40.h : 46.h;
-      final Widget secondaryBtn;
-
-      if (secondaryButtonIcon != null) {
-        secondaryBtn = OutlinedButton.icon(
-          onPressed: onSecondaryAction,
-          icon: Icon(
-            secondaryButtonIcon,
-            size: 16.sp,
-            color: AppColors.pickabooBlue,
-          ),
-          label: Text(
-            secondaryButtonText!,
-            style: AppTypography.buttonSecondary,
-          ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.pickabooBlue,
-            side: const BorderSide(color: AppColors.pickabooBlue),
-            minimumSize: isCompact ? null : Size(160.w, buttonHeight),
-            padding: EdgeInsets.symmetric(
-              horizontal: 18.w,
-              vertical: isCompact ? 8.h : 12.h,
-            ),
-            shape: const RoundedRectangleBorder(
-              borderRadius: AppRadius.buttonRadius,
-            ),
-          ),
-        );
-      } else {
-        secondaryBtn = OutlinedButton(
-          onPressed: onSecondaryAction,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.pickabooBlue,
-            side: const BorderSide(color: AppColors.pickabooBlue),
-            minimumSize: isCompact ? null : Size(160.w, buttonHeight),
-            padding: EdgeInsets.symmetric(
-              horizontal: 18.w,
-              vertical: isCompact ? 8.h : 12.h,
-            ),
-            shape: const RoundedRectangleBorder(
-              borderRadius: AppRadius.buttonRadius,
-            ),
-          ),
-          child: Text(
-            secondaryButtonText!,
-            style: AppTypography.buttonSecondary,
-          ),
-        );
-      }
+      final Widget secondaryBtn = AppButton.outline(
+        text: secondaryButtonText!,
+        onPressed: onSecondaryAction,
+        icon: secondaryButtonIcon != null
+            ? Icon(
+                secondaryButtonIcon,
+                size: 16.sp,
+                color: AppColors.pickabooBlue,
+              )
+            : null,
+        textColor: AppColors.pickabooBlue,
+        borderColor: AppColors.pickabooBlue,
+        isFullWidth: false,
+        height: buttonHeight,
+        padding: EdgeInsets.symmetric(
+          horizontal: 18.w,
+          vertical: isCompact ? 8.h : 12.h,
+        ),
+        borderRadius: AppRadius.buttonRadius,
+      );
       buttons.add(secondaryBtn);
     }
 

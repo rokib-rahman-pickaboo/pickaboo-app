@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_bloc.dart';
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_state.dart';
@@ -58,7 +58,7 @@ class HomeTopHeader extends StatelessWidget {
                 // Sky Blue Drawer Icon
                 InkWell(
                   onTap: onMenuTap,
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: AppRadius.smRadius,
                   child: Padding(
                     padding: EdgeInsets.all(2.w),
                     child: Icon(
@@ -73,7 +73,7 @@ class HomeTopHeader extends StatelessWidget {
 
                 // Pickaboo Brand Logo Asset
                 Image.asset(
-                  'assets/images/pickaboo_new_logo.png',
+                  AppAssets.logoNew,
                   height: 25.h,
                   fit: BoxFit.contain,
                 ),
@@ -107,8 +107,7 @@ class HomeTopHeader extends StatelessWidget {
                                   child: InkWell(
                                     onTap: () =>
                                         context.push(Routes.clubPoint),
-                                    borderRadius:
-                                        BorderRadius.circular(16.r),
+                                    borderRadius: AppRadius.dialogRadius,
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
                                         horizontal: 8.w,
@@ -116,8 +115,7 @@ class HomeTopHeader extends StatelessWidget {
                                       ),
                                       decoration: BoxDecoration(
                                         color: AppColors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(16.r),
+                                        borderRadius: AppRadius.dialogRadius,
                                         border: Border.all(
                                           color: AppColors.border,
                                           width: 0.8.w,
@@ -128,13 +126,13 @@ class HomeTopHeader extends StatelessWidget {
                                         children: [
                                           Text(
                                             points.toString(),
-                                            style: AppTypography.bodyMuted,
+                                            style: AppTypography.bodySmall,
                                           ),
                                           SizedBox(width: 3.w),
                                           Text(
                                             'Club Points',
                                             style: AppTypography
-                                                .brandActionText,
+                                                .brandAction,
                                           ),
                                         ],
                                       ),
@@ -190,7 +188,7 @@ class HomeTopHeader extends StatelessWidget {
                           MainPage.hideBottomNav.value = false;
                           context.push(Routes.login);
                         },
-                        borderRadius: BorderRadius.circular(16.r),
+                        borderRadius: AppRadius.dialogRadius,
                         child: Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 10.w,
@@ -198,7 +196,7 @@ class HomeTopHeader extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceBlue,
-                            borderRadius: BorderRadius.circular(16.r),
+                            borderRadius: AppRadius.dialogRadius,
                             border: Border.all(
                               color: AppColors.pickabooBlue.withValues(alpha: 0.25),
                               width: 0.8.w,
@@ -215,7 +213,7 @@ class HomeTopHeader extends StatelessWidget {
                               SizedBox(width: 4.w),
                               Text(
                                 'Sign In',
-                                style: AppTypography.brandActionText.copyWith(
+                                style: AppTypography.brandAction.copyWith(
                                   fontSize: 12.sp,
                                 ),
                               ),
@@ -237,10 +235,8 @@ class HomeTopHeader extends StatelessWidget {
             hintText: hint,
             rotatingHints: rotatingHints,
             readOnly: true,
-            showFilterButton: true,
             height: _searchHeight.h,
             onTap: () => context.push(Routes.search),
-            onFilterTap: () => context.push(Routes.search),
           ),
         ],
       ),
@@ -272,7 +268,7 @@ class SearchAppBar extends StatelessWidget {
       elevation: 0,
       pinned: true,
       systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
-        statusBarColor: Colors.transparent,
+        statusBarColor: AppColors.transparent,
       ),
       toolbarHeight: toolbarHeight,
       automaticallyImplyLeading: false,

@@ -8,6 +8,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/change_address_cart_page/address_item.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/address_added_result.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class ChangeAddressCartPage extends StatelessWidget {
   final List<AddressEntity> addresses;
@@ -23,7 +24,6 @@ class ChangeAddressCartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
 
     return Scaffold(
       backgroundColor: AppColors.pageBg,
@@ -43,12 +43,12 @@ class ChangeAddressCartPage extends StatelessWidget {
                   SizedBox(height: 16.h),
                   Text(
                     "No addresses found",
-                    style: textStyle.bodyLarge.copyWith(color: AppColors.text),
+                    style: AppTypography.bodyLarge.copyWith(color: AppColors.text),
                   ),
                   SizedBox(height: 8.h),
                   Text(
                     "Add a new address to continue",
-                    style: textStyle.bodyMedium.copyWith(color: AppColors.muted),
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.muted),
                   ),
                 ],
               ),
@@ -119,35 +119,22 @@ class ChangeAddressCartPage extends StatelessWidget {
           ],
         ),
         child: SafeArea(
-          child: SizedBox(
-            width: double.infinity,
+          top: false,
+          child: AppButton.primary(
+            text: "Add New Address",
+            icon: Icon(Icons.add, color: AppColors.white, size: 20.sp),
+            isFullWidth: true,
             height: 54.h,
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                final added = await context.push<Object?>(
-                  Routes.newAddressCart,
-                  extra: pageTitle,
-                );
-                if (added is AddressAddedResult && context.mounted) {
-                  context.pop(added);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              icon: Icon(Icons.add, color: AppColors.white, size: 20.sp),
-              label: Text(
-                "Add New Address",
-                style: textStyle.buttonLarge.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            borderRadius: BorderRadius.circular(12.r),
+            onPressed: () async {
+              final added = await context.push<Object?>(
+                Routes.newAddressCart,
+                extra: pageTitle,
+              );
+              if (added is AddressAddedResult && context.mounted) {
+                context.pop(added);
+              }
+            },
           ),
         ),
       ),

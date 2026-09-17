@@ -8,10 +8,11 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
-
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/product_variant_selector.dart';
 
 class ProductOptionsSheetResult {
@@ -65,7 +66,7 @@ class ProductOptionsSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (context) => ProductOptionsSheet(
         product: product,
         quantity: quantity,
@@ -219,7 +220,6 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
     required ExtraOptionEntity option,
     required ExtraOptionValueEntity val,
     required bool hasOptionError,
-    required AppTextStyles textStyle,
   }) {
     final isSelected = _selectedAddons.any(
       (e) =>
@@ -323,7 +323,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                   children: [
                     Text(
                       '${val.price} ৳',
-                      style: textStyle.bodyMediumBold.copyWith(
+                      style: AppTypography.bodyMedium.bold().copyWith(
                         color: isSelected ? AppColors.pickabooBlue : AppColors.navy,
                         fontSize: 11.5.sp,
                         fontWeight: FontWeight.w700,
@@ -332,7 +332,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                     SizedBox(height: 1.h),
                     Text(
                       val.title,
-                      style: textStyle.bodySmall.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
                         color: AppColors.navy,
                         fontSize: 10.5.sp,
                       ),
@@ -354,7 +354,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
     return ScaffoldMessenger(
       child: Builder(
         builder: (messengerContext) => Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.transparent,
           body: Column(
             children: [
               Expanded(
@@ -373,8 +373,6 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
   }
 
   Widget _buildSheet(BuildContext context) {
-    final textStyle = context.textStyle;
-
     final matrix = widget.product.variantMatrix;
     final selectedMap = {
       for (final v in _selectedVariants)
@@ -443,7 +441,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                   widget.product.variantGroups.isNotEmpty
                       ? 'Select options'
                       : 'Select add-ons',
-                  style: textStyle.subheading.copyWith(
+                  style: AppTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.navy,
                   ),
@@ -470,7 +468,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
               children: [
                 Text(
                   widget.product.name,
-                  style: textStyle.bodyMediumBold.copyWith(
+                  style: AppTypography.bodyMedium.bold().copyWith(
                     color: AppColors.navy,
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5.sp,
@@ -479,7 +477,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                 SizedBox(height: 4.h),
                 Text(
                   '৳$formattedPrice',
-                  style: textStyle.bodyLargeBold.copyWith(
+                  style: AppTypography.bodyLarge.bold().copyWith(
                     color: AppColors.pickabooBlue,
                     fontWeight: FontWeight.w700,
                     fontSize: 16.sp,
@@ -540,7 +538,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                         padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 8.h),
                         child: Text(
                           'Options',
-                          style: textStyle.subheading.copyWith(
+                          style: AppTypography.titleMedium.copyWith(
                             color: AppColors.navy,
                             fontWeight: FontWeight.w700,
                           ),
@@ -569,7 +567,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                     children: [
                                       TextSpan(
                                         text: option.title,
-                                        style: textStyle.bodyMediumMedium.copyWith(
+                                        style: AppTypography.bodyMedium.medium().copyWith(
                                           color: hasOptionError
                                               ? AppColors.red
                                               : AppColors.navy,
@@ -579,16 +577,12 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                       if (option.isRequire)
                                         TextSpan(
                                           text: ' *',
-                                          style: TextStyle(
-                                            color: AppColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13.sp,
-                                          ),
+                                          style: AppTypography.bodyLarge.red.bold(),
                                         )
                                       else
                                         TextSpan(
                                           text: ' (Optional)',
-                                          style: textStyle.bodySmall.copyWith(
+                                          style: AppTypography.bodySmall.copyWith(
                                             color: AppColors.muted,
                                             fontSize: 11.5.sp,
                                             fontWeight: FontWeight.normal,
@@ -596,7 +590,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                         ),
                                       TextSpan(
                                         text: ':',
-                                        style: textStyle.bodyMediumMedium.copyWith(
+                                        style: AppTypography.bodyMedium.medium().copyWith(
                                           color: hasOptionError
                                               ? AppColors.red
                                               : AppColors.navy,
@@ -615,7 +609,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                     ),
                                     child: Text(
                                       'Required',
-                                      style: textStyle.bodySmall.copyWith(
+                                      style: AppTypography.bodySmall.copyWith(
                                         color: AppColors.red,
                                         fontSize: 10.5.sp,
                                         fontWeight: FontWeight.w600,
@@ -649,7 +643,6 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                             option: option,
                                             val: option.values[i],
                                             hasOptionError: hasOptionError,
-                                            textStyle: textStyle,
                                           ),
                                         ),
                                         SizedBox(width: 8.w),
@@ -660,7 +653,6 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                                   val: option.values[i + 1],
                                                   hasOptionError:
                                                       hasOptionError,
-                                                  textStyle: textStyle,
                                                 )
                                               : const SizedBox.shrink(),
                                         ),
@@ -684,28 +676,23 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
 
           Padding(
             padding: EdgeInsets.all(16.w),
-            child: ElevatedButton(
+            child: AppButton.primary(
+              height: 48.h,
+              borderRadius: BorderRadius.circular(10.r),
+              text: widget.isBuyNow && !widget.isSelectionOnly
+                  ? 'BUY NOW'
+                  : 'CONTINUE',
+              textStyle: AppTypography.button.copyWith(
+                color: AppColors.white,
+                fontWeight: FontWeight.w700,
+              ),
               onPressed: () {
                 if (!_validate(messengerContext: context)) return;
-                Navigator.pop(context, ProductOptionsSheetResult(_selectedVariants, _selectedAddons));
+                Navigator.pop(
+                  context,
+                  ProductOptionsSheetResult(_selectedVariants, _selectedAddons),
+                );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                minimumSize: Size(double.infinity, 48.h),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-              ),
-              child: Text(
-                widget.isBuyNow && !widget.isSelectionOnly
-                    ? 'BUY NOW'
-                    : 'CONTINUE',
-                style: textStyle.buttonMedium.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
             ),
           ),
         ],

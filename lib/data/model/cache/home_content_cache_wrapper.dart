@@ -24,6 +24,12 @@ extension HomeContentCacheWrapperX on HomeContentCacheWrapper {
     return difference.inMinutes >= 30;
   }
 
+  bool get isStale {
+    final now = DateTime.now();
+    final difference = now.difference(cachedAt);
+    return difference.inMinutes >= 5;
+  }
+
   Duration get timeUntilExpiration {
     final expiration = cachedAt.add(const Duration(minutes: 30));
     return expiration.difference(DateTime.now());

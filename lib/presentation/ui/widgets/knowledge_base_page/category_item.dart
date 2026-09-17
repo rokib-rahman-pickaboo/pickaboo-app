@@ -33,7 +33,7 @@ class CategoryItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Material(
-          color: Colors.transparent,
+          color: AppColors.transparent,
           child: InkWell(
           onTap: hasChildren ? onTap : onCategoryTap,
           borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
@@ -65,7 +65,7 @@ class CategoryItem extends StatelessWidget {
                     category.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: context.textStyle.bodySmall.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       fontSize: 14.sp,
                       fontWeight: isExpanded
                           ? FontWeight.w600
@@ -142,7 +142,7 @@ class CategoryItem extends StatelessWidget {
                                     subCategory.name,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.textStyle.bodySmall.copyWith(
+                                    style: AppTypography.bodySmall.copyWith(
                                       fontSize: 13.sp,
                                       color: AppColors.text,
                                     ),

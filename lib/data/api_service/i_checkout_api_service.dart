@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/checkout_api_service.dart';
 import 'package:pickaboo/data/model/card_bin_response/card_bin_response.dart';
 import 'package:pickaboo/data/model/card_bin_status_response/card_bin_status_response.dart';
@@ -22,7 +23,7 @@ class ICheckoutApiService extends CheckoutApiService {
 
   ICheckoutApiService(this._client) {
     if (kDebugMode) {
-      print(
+      debugPrint(
         "🔌 ICheckoutApiService: Initialized with BaseURL: ${_client.options.baseUrl}",
       );
     }
@@ -30,34 +31,12 @@ class ICheckoutApiService extends CheckoutApiService {
 
   ErrorResponse checkErrorResponse(DioException err) {
     if (kDebugMode) {
-      print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-      print("❌ ICheckoutApiService: NETWORK ERROR");
-      print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-      print("🔗 Path: ${err.requestOptions.path}");
-      print(
-        "🔗 Full URL: ${err.requestOptions.baseUrl}${err.requestOptions.path}",
+      debugPrint(
+        '❌ ICheckoutApiService: ${err.requestOptions.method} ${err.requestOptions.baseUrl}${err.requestOptions.path} '
+        'Status: ${err.response?.statusCode} Message: ${err.message}',
       );
-      print("📝 Method: ${err.requestOptions.method}");
-      print("📋 Headers: ${err.requestOptions.headers}");
-      print("📤 Request Data: ${err.requestOptions.data}");
-      print("❓ Query Params: ${err.requestOptions.queryParameters}");
-      print("⚠️ Error Type: ${err.type}");
-      print("💬 Error Message: ${err.message}");
-      print("🔢 Status Code: ${err.response?.statusCode}");
-      print("📥 Response Data: ${err.response?.data}");
-      print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      } else if (errorData is String) {
-        return ErrorResponse(message: errorData);
-      }
-    }
-    return ErrorResponse(
-      message: "Network error (${err.type}): ${err.message ?? 'Unknown'}",
-    );
+    return ApiErrorParser.parse(err);
   }
 
   ErrorResponse _detailedError(DioException err, String label) {
@@ -363,11 +342,22 @@ class ICheckoutApiService extends CheckoutApiService {
     String? paymentGateway,
   }) async {
     try {
-      final body = {
+      final body = <String, dynamic>{
         'orderId': orderId,
         'paymentMethod': paymentMethod,
       };
-      if (paymentGateway != null && paymentGateway.isNotEmpty) {
+      // Only include paymentGetway when it is an actual third-party bank gateway
+      // Direct methods like nagad, bkash, cashondelivery must NOT send paymentGetway
+      const directMethods = {
+        'nagad',
+        'bkash',
+        'dynamicpaymentgateway',
+        'cashondelivery',
+        'free',
+      };
+      if (paymentGateway != null &&
+          paymentGateway.isNotEmpty &&
+          !directMethods.contains(paymentGateway.toLowerCase().trim())) {
         body['paymentGetway'] = paymentGateway;
       }
       if (kDebugMode) {
@@ -384,7 +374,13 @@ class ICheckoutApiService extends CheckoutApiService {
         print('   Body   : ${response.data}');
         print('══════════════════════════════════════════');
       }
-      return right(response.statusCode == 200);
+      final data = response.data;
+      final isSuccess = response.statusCode == 200 &&
+          (data == true ||
+              data == 1 ||
+              data == 'true' ||
+              (data is Map && data['status'] == true));
+      return right(isSuccess);
     } on DioException catch (e) {
       if (kDebugMode) {
         print(

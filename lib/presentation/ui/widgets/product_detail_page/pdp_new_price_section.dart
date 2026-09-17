@@ -9,7 +9,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/utils/delivery_time_utils.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/rating_stars.dart';
 
 /// 💎 REDESIGNED PDP PRODUCT HEADER & UNIFIED PRICING / VALUE CARD
@@ -20,10 +22,12 @@ class PdpNewPriceSection extends StatelessWidget {
   final int currentPrice;
   final int originalPrice;
   final int saving;
+  final bool showTrustRibbon;
   final VoidCallback? onBrandTap;
   final VoidCallback? onRateTap;
   final VoidCallback? onEmiTap;
   final VoidCallback? onExpressDeliveryTap;
+  final VoidCallback? onSellerTap;
 
   const PdpNewPriceSection({
     super.key,
@@ -31,10 +35,12 @@ class PdpNewPriceSection extends StatelessWidget {
     required this.currentPrice,
     required this.originalPrice,
     required this.saving,
+    this.showTrustRibbon = false,
     this.onBrandTap,
     this.onRateTap,
     this.onEmiTap,
     this.onExpressDeliveryTap,
+    this.onSellerTap,
   });
 
   static final RegExp _thousandsSeparator = RegExp(
@@ -43,6 +49,14 @@ class PdpNewPriceSection extends StatelessWidget {
 
   static String formatPrice(num price) {
     return '৳${price.round().toString().replaceAllMapped(_thousandsSeparator, (Match m) => '${m[1]},')}';
+  }
+
+  static String _formatEmiPrice(num price) {
+    final isWhole = price % 1 == 0;
+    final formatted = isWhole
+        ? price.toInt().toString().replaceAllMapped(_thousandsSeparator, (Match m) => '${m[1]},')
+        : price.toStringAsFixed(2).replaceAllMapped(_thousandsSeparator, (Match m) => '${m[1]},');
+    return '৳$formatted';
   }
 
   @override
@@ -60,16 +74,65 @@ class PdpNewPriceSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── 1. Brand Name (Clickable) ──
-        if (product.brand.trim().isNotEmpty) ...[
+        // ── 1. Brand Name (Left) & Sold By (Right) Row ──
+        if (product.brand.trim().isNotEmpty || product.soldBy.trim().isNotEmpty) ...[
           Padding(
             padding: EdgeInsets.only(top: 2.h, bottom: 6.h),
-            child: GestureDetector(
-              onTap: onBrandTap,
-              child: Text(
-                product.brand.toUpperCase(),
-                style: AppTypography.brandTag,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (product.brand.trim().isNotEmpty)
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: onBrandTap,
+                      child: Text(
+                        product.brand.toUpperCase(),
+                        style: AppTypography.brandTag,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
+                if (product.soldBy.trim().isNotEmpty) ...[
+                  SizedBox(width: 8.w),
+                  Flexible(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onSellerTap ??
+                          () {
+                            final shopUrl = product.soldByVendorUrlKey.trim().isNotEmpty
+                                ? product.soldByVendorUrlKey.trim()
+                                : product.soldBy.trim();
+                            if (shopUrl.isNotEmpty) {
+                              context.pushToSellerProduct(
+                                shopUrl: shopUrl,
+                                sellerName: product.soldBy.trim(),
+                              );
+                            }
+                          },
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Sold by ',
+                              style: AppTypography.bodySmall,
+                            ),
+                            TextSpan(
+                              text: product.soldBy.trim(),
+                              style: AppTypography.bodySmall.bold().blue,
+                            ),
+                          ],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ],
@@ -80,7 +143,7 @@ class PdpNewPriceSection extends StatelessWidget {
             children: [
               TextSpan(
                 text: '${product.name}  ',
-                style: AppTypography.mainHeaderTitle,
+                style: AppTypography.titleLarge,
               ),
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
@@ -108,8 +171,8 @@ class PdpNewPriceSection extends StatelessWidget {
                       Text(
                         product.stockAvailable ? 'In Stock' : 'Stock Out',
                         style: product.stockAvailable
-                            ? AppTypography.badgeInStock
-                            : AppTypography.badgeStockOut,
+                            ? AppTypography.bodyTiny.extraBold().green
+                            : AppTypography.bodyTiny.extraBold().red,
                       ),
                     ],
                   ),
@@ -130,7 +193,7 @@ class PdpNewPriceSection extends StatelessWidget {
                 row1RightWidget = GestureDetector(
                   onTap: onExpressDeliveryTap,
                   child: SvgPicture.asset(
-                    'assets/new/svg/express_icon_pdp.svg',
+                    AppAssets.expressPdp,
                     width: 67.2.w,
                     height: 14.4.h,
                     fit: BoxFit.contain,
@@ -153,7 +216,7 @@ class PdpNewPriceSection extends StatelessWidget {
                       ),
                       Text(
                         '(${product.reviewsCount})',
-                        style: AppTypography.bodyMuted,
+                        style: AppTypography.bodySmall,
                       ),
                     ],
                   ),
@@ -164,12 +227,13 @@ class PdpNewPriceSection extends StatelessWidget {
               Widget? row2LeftWidget;
               Widget? row2RightWidget;
 
-              if (saving > 0) {
-                row2LeftWidget = Text(
-                  'You save ${formatPrice(saving)} today',
-                  style: AppTypography.savingsText,
-                );
-              }
+              // Temporarily commented out as requested: "You save X amount today"
+              // if (saving > 0) {
+              //   row2LeftWidget = Text(
+              //     'You save ${formatPrice(saving)} today',
+              //     style: AppTypography.savingsText,
+              //   );
+              // }
 
               // If rating exists and was not consumed in Row 1 (because Express was in Row 1):
               if (hasReviews && hasExpress) {
@@ -189,17 +253,15 @@ class PdpNewPriceSection extends StatelessWidget {
                       ),
                       Text(
                         '(${product.reviewsCount})',
-                        style: AppTypography.bodyMuted,
+                        style: AppTypography.bodySmall,
                       ),
                     ],
                   ),
                 );
 
-                if (row2LeftWidget != null) {
-                  row2RightWidget = ratingWidget;
-                } else {
-                  row2LeftWidget = ratingWidget;
-                }
+                // Rating stays on the right (under express in Row 1):
+                // If saving is re-enabled in future, saving sits on left (row2LeftWidget) and rating on right (row2RightWidget)
+                row2RightWidget = ratingWidget;
               }
 
               return Container(
@@ -235,7 +297,7 @@ class PdpNewPriceSection extends StatelessWidget {
                                   AppSpacing.sameGroupWidthGap,
                                   Text(
                                     formatPrice(originalPrice),
-                                    style: AppTypography.priceStrikethrough,
+                                    style: AppTypography.priceStrike,
                                   ),
                                   AppSpacing.sameGroupWidthGap,
                                   Container(
@@ -249,7 +311,7 @@ class PdpNewPriceSection extends StatelessWidget {
                                     ),
                                     child: Text(
                                       '-$discountPct%',
-                                      style: AppTypography.badgeDiscount,
+                                      style: AppTypography.bodyLarge.extraBold().white,
                                     ),
                                   ),
                                 ],
@@ -264,57 +326,140 @@ class PdpNewPriceSection extends StatelessWidget {
                       ],
                     ),
 
-                    // ── Row 2: Save amount / Rating ──
-                    if (row2LeftWidget != null) ...[
+                    // ── Row 2: Save amount (left) / Rating (right under express) ──
+                    // ignore: unnecessary_null_comparison
+                    if (row2LeftWidget != null || row2RightWidget != null) ...[
                       SizedBox(height: 4.h),
-                      if (row2RightWidget != null)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            row2LeftWidget,
-                            row2RightWidget,
-                          ],
-                        )
-                      else
-                        row2LeftWidget,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          row2LeftWidget ?? const SizedBox.shrink(),
+                          if (row2RightWidget != null) row2RightWidget,
+                        ],
+                      ),
                     ],
 
-                    // ── Warranty Row (Bold label, regular value) ──
-                    if (hasWarranty) ...[
+                    // ── Shop With Confidence (Warranty & Trust Section) ──
+                    if (showTrustRibbon) ...[
+                      // When trust ribbon is true:
+                      // If warranty exists, show only the warranty box (no 3-item row, no extra header).
+                      if (hasWarranty) ...[
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.h, bottom: 6.h),
+                          child: Divider(
+                            height: 1.h,
+                            thickness: 0.8.h,
+                            color: AppColors.border,
+                          ),
+                        ),
+                        _buildWarrantyBox(product.warranty),
+                      ],
+                    ] else ...[
+                      // When trust ribbon is false:
+                      // Show "Shop with confidence" + warranty (if present) + 3-item trust row
                       Padding(
-                        padding: EdgeInsets.only(top: 6.h, bottom: 4.h),
+                        padding: EdgeInsets.only(top: 8.h, bottom: 6.h),
                         child: Divider(
                           height: 1.h,
                           thickness: 0.8.h,
                           color: AppColors.border,
                         ),
                       ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Warranty: ',
-                              style: AppTypography.cardTitleBold
-                                  .extraBold()
-                                  .withColor(AppColors.navy),
+                      Text(
+                        'Shop with confidence',
+                        style: AppTypography.titleSmall,
+                      ),
+                      if (hasWarranty) ...[
+                        SizedBox(height: 8.h),
+                        _buildWarrantyBox(product.warranty),
+                      ],
+                      SizedBox(height: 10.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Col 1: 100% Authentic (decreased by ~20% from 22 to 17.5)
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  height: 26.h,
+                                  alignment: Alignment.center,
+                                  child: SvgPicture.asset(
+                                    AppAssets.authentic,
+                                    width: 16.w,
+                                    height: 17.5.h,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  '100% Authentic',
+                                  textAlign: TextAlign.center,
+                                  style: AppTypography.bodyTiny.bold().navy,
+                                ),
+                              ],
                             ),
-                            TextSpan(
-                              text: product.warranty.trim(),
-                              style: AppTypography.cardTitle
-                                  .withColor(AppColors.navy),
+                          ),
+                          // Col 2: Dynamic Delivery Info (increased to match visual presence)
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  height: 26.h,
+                                  alignment: Alignment.center,
+                                  child: SvgPicture.asset(
+                                    AppAssets.fastDelivery,
+                                    width: 34.w,
+                                    height: 26.h,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  DeliveryTimeUtils.getDeliveryTag(
+                                    isExpress: hasExpress,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  style: AppTypography.bodyTiny.bold().navy,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                          ),
+                          // Col 3: Easy Return (decreased by ~20% from 22 to 17.5)
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  height: 26.h,
+                                  alignment: Alignment.center,
+                                  child: SvgPicture.asset(
+                                    AppAssets.easyReturn,
+                                    width: 16.w,
+                                    height: 16.h,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  'Easy Return',
+                                  textAlign: TextAlign.center,
+                                  style: AppTypography.bodyTiny.bold().navy,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ],
 
                     // ── EMI Row (Inside unified card) ──
                     if (hasEmi) ...[
                       Padding(
-                        padding: EdgeInsets.only(top: 6.h, bottom: 4.h),
+                        padding: EdgeInsets.only(top: 8.h, bottom: 6.h),
                         child: Divider(
                           height: 1.h,
                           thickness: 0.8.h,
@@ -323,24 +468,38 @@ class PdpNewPriceSection extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: onEmiTap,
+                        behavior: HitTestBehavior.opaque,
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.credit_card_outlined,
-                              size: 15.sp,
-                              color: AppColors.pickabooBlue,
+                            SvgPicture.asset(
+                              AppAssets.pdpEmi,
+                              width: 22.w,
+                              height: 18.h,
+                              fit: BoxFit.contain,
                             ),
-                            SizedBox(width: 6.w),
+                            SizedBox(width: 8.w),
                             Expanded(
-                              child: Text(
-                                "EMI's From: ৳${product.emi % 1 == 0 ? product.emi.toInt() : product.emi} / month",
-                                style: AppTypography.cardTitle,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "EMI available from ${_formatEmiPrice(product.emi)}/month",
+                                    style: AppTypography.titleSmall,
+                                  ),
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    'Compare 36 banks & tenures',
+                                    style: AppTypography.bodySmall,
+                                  ),
+                                ],
                               ),
                             ),
                             Icon(
                               Icons.chevron_right_rounded,
-                              size: 16.sp,
-                              color: AppColors.navy,
+                              size: 18.sp,
+                              color: AppColors.pickabooBlue,
                             ),
                           ],
                         ),
@@ -353,6 +512,48 @@ class PdpNewPriceSection extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildWarrantyBox(String warranty) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: 10.w,
+        vertical: 8.h,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceBlue,
+        borderRadius: BorderRadius.circular(AppRadius.badge),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            AppAssets.warrantySvg,
+            width: 18.w,
+            height: 18.h,
+            fit: BoxFit.contain,
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Warranty: ',
+                    style: AppTypography.titleSmall.extraBold(),
+                  ),
+                  TextSpan(
+                    text: warranty.trim(),
+                    style: AppTypography.titleSmall,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

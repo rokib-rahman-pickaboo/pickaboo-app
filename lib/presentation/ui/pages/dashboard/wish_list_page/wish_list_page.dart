@@ -81,7 +81,7 @@ class _WishListPageState extends State<WishListPage> {
                   padding: EdgeInsets.only(right: 16.w),
                   child: Text(
                     "($count)",
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.navy,
                     ),

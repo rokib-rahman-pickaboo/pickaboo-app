@@ -4,8 +4,8 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
@@ -49,7 +49,7 @@ class PdpRatingBreakdownCard extends StatelessWidget {
         children: [
           Text(
             'Ratings & Reviews',
-            style: AppTypography.sectionTitle,
+            style: AppTypography.titleMedium,
           ),
           AppSpacing.groupToGroupGap,
 
@@ -77,7 +77,7 @@ class PdpRatingBreakdownCard extends StatelessWidget {
                   SizedBox(height: AppSpacing.sameGroupItemSpacing.h / 2),
                   Text(
                     '$totalReviews Verified\nCustomer Ratings',
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       fontWeight: FontWeight.w500,
                       height: 1.25,
                     ),
@@ -135,7 +135,7 @@ class PdpRatingBreakdownCard extends StatelessWidget {
             SizedBox(height: 12.h),
             Text(
               'Photos from Customers',
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
             SizedBox(height: 8.h),
             SizedBox(
@@ -149,20 +149,20 @@ class PdpRatingBreakdownCard extends StatelessWidget {
                   return GestureDetector(
                     onTap: () => onPhotoTap?.call(idx),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.buttonRadius,
                       child: Container(
                         width: 60.w,
                         height: 60.w,
                         decoration: BoxDecoration(
                           color: AppColors.pageBg,
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: AppRadius.buttonRadius,
                           border: Border.all(color: AppColors.border),
                         ),
-                        child: CachedNetworkImage(
+                        child: AppImage(
                           imageUrl: validPhotos[idx],
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => const AppLoader.inline(),
-                          errorWidget: (_, __, ___) => Icon(
+                          placeholder: const AppLoader.inline(),
+                          errorWidget: Icon(
                             Icons.broken_image,
                             size: 20.sp,
                             color: AppColors.muted,
@@ -202,14 +202,14 @@ class _AspectScoreCircle extends StatelessWidget {
           child: Center(
             child: Text(
               score,
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
           ),
         ),
         SizedBox(height: 4.h),
         Text(
           label,
-          style: AppTypography.bodyMuted.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -239,7 +239,7 @@ class _RatingBarRow extends StatelessWidget {
             width: 22.w,
             child: Text(
               starLabel,
-              style: AppTypography.bodyMuted.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 fontSize: 10.sp,
                 fontWeight: FontWeight.w600,
                 color: AppColors.navy,
@@ -249,7 +249,7 @@ class _RatingBarRow extends StatelessWidget {
           SizedBox(width: 6.w),
           Expanded(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: AppRadius.badgeRadius,
               child: LinearProgressIndicator(
                 value: percent.clamp(0.0, 1.0),
                 backgroundColor: AppColors.border,
@@ -264,7 +264,7 @@ class _RatingBarRow extends StatelessWidget {
             child: Text(
               count,
               textAlign: TextAlign.end,
-              style: AppTypography.bodyMuted.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 fontSize: 10.sp,
               ),
             ),

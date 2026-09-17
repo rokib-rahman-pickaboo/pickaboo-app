@@ -5,6 +5,8 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 /// Standardized PaymentOptionItem styled as a list tile for grouped container views
 /// (matching dashboard item list pattern).
 class PaymentOptionItem extends StatelessWidget {
@@ -38,7 +40,7 @@ class PaymentOptionItem extends StatelessWidget {
       child: Opacity(
         opacity: isEnabled ? 1.0 : 0.5,
         child: Container(
-          color: isSelected ? AppColors.surfaceBlue.withValues(alpha: 0.5) : Colors.transparent,
+          color: isSelected ? AppColors.surfaceBlue.withValues(alpha: 0.5) : AppColors.transparent,
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           child: Row(
             children: [
@@ -72,7 +74,7 @@ class PaymentOptionItem extends StatelessWidget {
                         Flexible(
                           child: Text(
                             title,
-                            style: AppTypography.cardTitle,
+                            style: AppTypography.titleSmall,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -86,7 +88,7 @@ class PaymentOptionItem extends StatelessWidget {
                       SizedBox(height: 2.h),
                       _HtmlSubtitle(
                         html: subtitle!,
-                        defaultColor: subtitleColor ?? AppColors.mutedLight,
+                        defaultColor: subtitleColor ?? AppColors.muted,
                       ),
                     ],
                   ],
@@ -150,13 +152,17 @@ class _HtmlSubtitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final parsed = _parse(html);
 
-    final baseStyle = AppTypography.bodyMuted.copyWith(
+    final baseStyle = AppTypography.bodySmall.copyWith(
       color: defaultColor,
       height: 1.25,
     );
 
     if (parsed.mainText.isEmpty && parsed.linkText == null) {
       return Text(html, style: baseStyle);
+    }
+
+    if (parsed.linkText == null) {
+      return Text(parsed.mainText, style: baseStyle);
     }
 
     return RichText(

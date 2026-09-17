@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/support_category/support_category_entity.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,9 +9,9 @@ import 'package:url_launcher/url_launcher.dart';
 class FaqTheme {
   const FaqTheme._();
 
-  static double get radiusSmall => 6.r;
-  static double get radiusMedium => 10.r;
-  static double get radiusLarge => 16.r;
+  static double get radiusSmall => AppRadius.sm;
+  static double get radiusMedium => AppRadius.chip;
+  static double get radiusLarge => AppRadius.dialog;
 
   static Color get pageBackground =>
       Color.alphaBlend(AppColors.black.withValues(alpha: 0.02), AppColors.white);
@@ -66,7 +66,7 @@ class FaqHero extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: context.textStyle.headingSmall.copyWith(
+            style: AppTypography.titleLarge.copyWith(
               color: AppColors.white,
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
@@ -77,7 +77,7 @@ class FaqHero extends StatelessWidget {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: context.textStyle.bodySmall.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: AppColors.white.withValues(alpha: 0.9),
               fontSize: 13.sp,
               height: 1.3,
@@ -175,7 +175,7 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
         cursorColor: AppColors.pickabooBlue,
         cursorWidth: 1.5,
         cursorRadius: const Radius.circular(1),
-        style: context.textStyle.bodyMedium.copyWith(
+        style: AppTypography.bodyMedium.copyWith(
           fontSize: 14.sp,
           height: 1.2,
           color: AppColors.text,
@@ -183,7 +183,7 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
         decoration: InputDecoration(
           isDense: true,
           hintText: widget.hintText,
-          hintStyle: context.textStyle.inputText.copyWith(
+          hintStyle: AppTypography.bodyLarge.regular().copyWith(
             fontSize: 14.sp,
             height: 1.2,
             color: AppColors.muted.withValues(alpha: 0.65),
@@ -278,7 +278,7 @@ class FaqCategoryTrigger extends StatelessWidget {
                 children: [
                   Text(
                     'CATEGORY',
-                    style: context.textStyle.caption.copyWith(
+                    style: AppTypography.bodyTiny.copyWith(
                       fontSize: 10.sp,
                       height: 1,
                       fontWeight: FontWeight.w700,
@@ -291,7 +291,7 @@ class FaqCategoryTrigger extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: context.textStyle.bodySmall.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       fontSize: 13.sp,
                       height: 1.3,
                       fontWeight: FontWeight.w500,
@@ -332,7 +332,7 @@ class FaqCategorySheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) =>
           FaqCategorySheet(categories: categories, selectedId: selectedId),
     );
@@ -361,14 +361,14 @@ class FaqCategorySheet extends StatelessWidget {
               height: 4.h,
               decoration: BoxDecoration(
                 color: AppColors.muted.withValues(alpha: 0.35),
-                borderRadius: BorderRadius.circular(2.r),
+                borderRadius: AppRadius.badgeRadius,
               ),
             ),
           ),
           SizedBox(height: 14.h),
           Text(
             'Browse categories',
-            style: context.textStyle.bodyMediumBold.copyWith(
+            style: AppTypography.bodyMedium.bold().copyWith(
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: AppColors.text,
@@ -477,7 +477,7 @@ class _SheetRow extends StatelessWidget {
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: context.textStyle.bodySmall.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   fontSize: isChild ? 13.sp : 14.sp,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   color: isActive ? FaqTheme.primaryDeep : AppColors.text,
@@ -575,7 +575,7 @@ class _HelpButton extends StatelessWidget {
             SizedBox(width: 6.w),
             Text(
               label,
-              style: context.textStyle.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
                 color: foreground,

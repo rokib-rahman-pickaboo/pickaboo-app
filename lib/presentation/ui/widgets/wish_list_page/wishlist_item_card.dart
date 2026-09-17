@@ -33,8 +33,6 @@ class WishlistItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -61,8 +59,8 @@ class WishlistItemCard extends StatelessWidget {
                   Container(
                     width: 80.w,
                     height: 80.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.r),
+                    decoration: const BoxDecoration(
+                      borderRadius: AppRadius.badgeRadius,
                     ),
                     child: item.thumbnail.isEmpty
                         ? Icon(
@@ -83,14 +81,14 @@ class WishlistItemCard extends StatelessWidget {
                       children: [
                         Text(
                           item.name,
-                          style: textStyle.productName.withColor(AppColors.text),
+                          style: AppTypography.titleMicro.withColor(AppColors.text),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 4.h),
                         Text(
                           "Sold by: ${item.soldBy ?? 'Pickaboo'}",
-                          style: textStyle.caption.withColor(AppColors.muted),
+                          style: AppTypography.bodyTiny.withColor(AppColors.muted),
                         ),
                         SizedBox(height: 8.h),
 
@@ -99,7 +97,7 @@ class WishlistItemCard extends StatelessWidget {
                             children: [
                               Text(
                                 "৳${_formatPrice(item.price)}",
-                                style: textStyle.productPrice.withColor(
+                                style: AppTypography.priceStandard.withColor(
                                   AppColors.text,
                                 ),
                               ),
@@ -107,7 +105,7 @@ class WishlistItemCard extends StatelessWidget {
                                 SizedBox(width: 8.w),
                                 Text(
                                   "৳${_formatPrice(item.regularPrice ?? 0)}",
-                                  style: textStyle.productPriceStrike.withColor(
+                                  style: AppTypography.priceStrike.withColor(
                                     AppColors.muted,
                                   ),
                                 ),
@@ -121,11 +119,11 @@ class WishlistItemCard extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: AppColors.orange.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4.r),
+                                    borderRadius: AppRadius.badgeRadius,
                                   ),
                                   child: Text(
                                     "-${item.discount}%",
-                                    style: textStyle.productDiscount.withColor(
+                                    style: AppTypography.savingsText.withColor(
                                       AppColors.orange,
                                     ),
                                   ),
@@ -141,11 +139,11 @@ class WishlistItemCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4.r),
+                              borderRadius: AppRadius.badgeRadius,
                             ),
                             child: Text(
                               "Out of Stock",
-                              style: textStyle.tag.withColor(AppColors.red),
+                              style: AppTypography.brandTag.withColor(AppColors.red),
                             ),
                           ),
                         ],
@@ -159,7 +157,7 @@ class WishlistItemCard extends StatelessWidget {
             Divider(height: 1.h, color: AppColors.border),
             Row(
               children: [
-                Expanded(child: _buildPrimaryAction(textStyle)),
+                Expanded(child: _buildPrimaryAction()),
                 Container(
                   width: 1.w,
                   height: 24.h,
@@ -170,8 +168,8 @@ class WishlistItemCard extends StatelessWidget {
                     color: AppColors.black.withValues(alpha: 0.0),
                     child: InkWell(
                       onTap: onRemove,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: Radius.circular(8.r),
+                      borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(AppRadius.button),
                       ),
                       splashColor: AppColors.red.withAlpha(20),
                       highlightColor: AppColors.red.withAlpha(10),
@@ -188,7 +186,7 @@ class WishlistItemCard extends StatelessWidget {
                             SizedBox(width: 6.w),
                             Text(
                               'Remove',
-                              style: textStyle.buttonLink.withColor(
+                              style: AppTypography.link.withColor(
                                 AppColors.black,
                               ),
                             ),
@@ -206,10 +204,9 @@ class WishlistItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPrimaryAction(AppTextStyles textStyle) {
+  Widget _buildPrimaryAction() {
     if (item.isConfigurable) {
       return _actionButton(
-        textStyle: textStyle,
         icon: Icons.tune_rounded,
         label: 'View Details',
         onTap: onTap,
@@ -219,7 +216,6 @@ class WishlistItemCard extends StatelessWidget {
     final canAdd = item.inStock && !isAddingToCart;
 
     return _actionButton(
-      textStyle: textStyle,
       icon: Icons.shopping_cart_outlined,
       label: 'Add to Cart',
       onTap: canAdd ? onAddToCart : null,
@@ -228,7 +224,6 @@ class WishlistItemCard extends StatelessWidget {
   }
 
   Widget _actionButton({
-    required AppTextStyles textStyle,
     required IconData icon,
     required String label,
     required VoidCallback? onTap,
@@ -241,7 +236,9 @@ class WishlistItemCard extends StatelessWidget {
       color: AppColors.black.withValues(alpha: 0.0),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(8.r)),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(AppRadius.button),
+        ),
         splashColor: AppColors.pickabooBlue.withAlpha(20),
         highlightColor: AppColors.pickabooBlue.withAlpha(10),
         child: Padding(
@@ -256,7 +253,7 @@ class WishlistItemCard extends StatelessWidget {
               SizedBox(width: 6.w),
               Text(
                 label,
-                style: textStyle.buttonLink.withColor(foreground),
+                style: AppTypography.link.withColor(foreground),
               ),
             ],
           ),

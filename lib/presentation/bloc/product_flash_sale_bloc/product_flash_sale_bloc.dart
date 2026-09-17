@@ -19,18 +19,29 @@ class ProductFlashSaleBloc extends Bloc<ProductFlashSaleEvent, ProductFlashSaleS
         fetch: (req) async {
           emit(state.copyWith(status: ProductFlashSaleStatus.loading));
 
-          final result = await repository.getProductFlashSale(slug: req.slug);
-          result.fold(
-            (l) => emit(
-              state.copyWith(error: l, status: ProductFlashSaleStatus.error),
-            ),
-            (r) => emit(
+          try {
+            final result = await repository
+                .getProductFlashSale(slug: req.slug)
+                .timeout(const Duration(seconds: 4));
+            result.fold(
+              (l) => emit(
+                state.copyWith(error: l, status: ProductFlashSaleStatus.error),
+              ),
+              (r) => emit(
+                state.copyWith(
+                  status: ProductFlashSaleStatus.success,
+                  flashSale: r,
+                ),
+              ),
+            );
+          } catch (_) {
+            emit(
               state.copyWith(
                 status: ProductFlashSaleStatus.success,
-                flashSale: r,
+                flashSale: const ProductFlashSaleEntity(inFlashSale: false),
               ),
-            ),
-          );
+            );
+          }
         },
       );
     });

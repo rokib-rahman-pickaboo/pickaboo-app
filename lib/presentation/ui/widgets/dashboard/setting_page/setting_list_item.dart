@@ -22,8 +22,6 @@ class SettingListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Column(
       children: [
         ListTile(
@@ -32,7 +30,7 @@ class SettingListItem extends StatelessWidget {
               : null,
           title: Text(
             title,
-            style: textTheme.bodySmall.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: titleColor ?? AppColors.text,
               fontWeight: FontWeight.w500,
             ),
@@ -40,7 +38,7 @@ class SettingListItem extends StatelessWidget {
           subtitle: subtitle != null
               ? Text(
                   subtitle!,
-                  style: textTheme.bodySmall.copyWith(color: AppColors.muted),
+                  style: AppTypography.bodySmall.copyWith(color: AppColors.muted),
                 )
               : null,
           trailing: onTap != null && icon == null

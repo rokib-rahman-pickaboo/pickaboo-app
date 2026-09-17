@@ -8,6 +8,8 @@ import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 /// Bottom sheet dialog for presenting CMS content (e.g. Pickaboo Verified, Express Delivery info)
 class CmsContentBottomSheet extends StatelessWidget {
   final CmsBlockEntity cmsBlock;
@@ -21,7 +23,7 @@ class CmsContentBottomSheet extends StatelessWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (ctx) => CmsContentBottomSheet(cmsBlock: cmsBlock),
     );
   }
@@ -64,7 +66,7 @@ class CmsContentBottomSheet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       cmsBlock.title,
-                      style: AppTypography.sectionTitle.copyWith(
+                      style: AppTypography.titleMedium.copyWith(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w800,
                       ),

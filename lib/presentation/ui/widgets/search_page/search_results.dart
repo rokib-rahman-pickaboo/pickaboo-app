@@ -106,10 +106,11 @@ class SearchResults extends StatelessWidget {
               product: product,
               onTap: (product) {
                 context.goToProductDetail(
-                product.id.toString(),
-                slug: product.slug,
-                productName: product.productName,
-              );
+                  product.id.toString(),
+                  slug: product.slug,
+                  productName: product.productName,
+                  product: product,
+                );
               },
             );
           },
@@ -139,7 +140,7 @@ class SearchResults extends StatelessWidget {
             child: Center(
               child: Text(
                 "Couldn't load more items",
-                style: context.textStyle.caption.copyWith(color: AppColors.muted),
+                style: AppTypography.bodyTiny.copyWith(color: AppColors.muted),
               ),
             ),
           ),
@@ -157,6 +158,7 @@ class SearchResults extends StatelessWidget {
                   product.id.toString(),
                   slug: product.slug,
                   productName: product.productName,
+                  product: product,
                 );
               },
             );
@@ -221,7 +223,7 @@ class SearchResults extends StatelessWidget {
           padding: EdgeInsets.all(12.h),
           decoration: BoxDecoration(
             color: AppColors.orange.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: AppRadius.buttonRadius,
           ),
           child: Row(
             children: [
@@ -234,7 +236,7 @@ class SearchResults extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Did you mean "$correctedQuery"?',
-                  style: context.textStyle.bodyLarge.copyWith(
+                  style: AppTypography.bodyLarge.copyWith(
                     color: AppColors.orange,
                   ),
                 ),

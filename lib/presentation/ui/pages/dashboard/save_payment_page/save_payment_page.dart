@@ -19,6 +19,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class SavePaymentPage extends StatefulWidget {
@@ -134,12 +135,12 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
                     children: [
                       Text(
                         'Saved Payment Methods',
-                        style: AppTypography.sectionTitle,
+                        style: AppTypography.titleMedium,
                       ),
                       SizedBox(height: 2.h),
                       Text(
                         'Manage your saved methods for faster checkout',
-                        style: AppTypography.bodyMuted,
+                        style: AppTypography.bodySmall,
                       ),
                     ],
                   ),
@@ -181,7 +182,7 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
                 SizedBox(width: 10.w),
                 Text(
                   'Mobile Wallets & Cards',
-                  style: AppTypography.sectionTitle,
+                  style: AppTypography.titleMedium,
                 ),
               ],
             ),
@@ -227,7 +228,7 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
               border: Border.all(color: AppColors.border),
             ),
             child: SvgPicture.asset(
-              'assets/new/svg/payment/bkash_icon.svg',
+              AppAssets.bkash,
               fit: BoxFit.contain,
               errorBuilder: (_, _, _) => Icon(
                 Icons.account_balance_wallet_rounded,
@@ -243,40 +244,32 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
               children: [
                 Text(
                   payment.network.isNotEmpty ? payment.network : 'bKash',
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   _maskNumber(payment.phoneNumber),
-                  style: AppTypography.bodyMuted.withLetterSpacing(1),
+                  style: AppTypography.bodySmall.withLetterSpacing(1),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 8.w),
-          OutlinedButton.icon(
-            onPressed: () => _showDeleteConfirmation(payment),
+          AppSpacing.gapH8,
+          AppButton.outline(
+            text: 'Delete',
             icon: Icon(
               Icons.delete_outline_rounded,
               color: AppColors.red,
               size: 15.sp,
             ),
-            label: Text(
-              'Delete',
-              style: AppTypography.brandActionText.withColor(AppColors.red),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                color: AppColors.red.withValues(alpha: 0.35),
-                width: 1.w,
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
+            textColor: AppColors.red,
+            borderColor: AppColors.red.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(8.r),
+            isFullWidth: false,
+            size: AppButtonSize.sm,
+            height: 32.h,
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+            onPressed: () => _showDeleteConfirmation(payment),
           ),
         ],
       ),
@@ -296,21 +289,23 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
         ),
         title: Text(
           'Remove Payment Method?',
-          style: AppTypography.pageTitle,
+          style: AppTypography.titleLarge,
         ),
         content: Text(
           'Are you sure you want to remove ${_maskNumber(payment.phoneNumber)}?',
-          style: AppTypography.bodyMuted,
+          style: AppTypography.bodySmall,
         ),
         actions: [
-          TextButton(
+          AppButton.ghost(
+            size: AppButtonSize.sm,
+            isFullWidth: false,
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: AppTypography.bodyLarge.withColor(AppColors.muted),
-            ),
+            text: 'Cancel',
+            textColor: AppColors.muted,
           ),
-          ElevatedButton(
+          AppButton.danger(
+            size: AppButtonSize.sm,
+            isFullWidth: false,
             onPressed: () {
               Navigator.pop(context);
               context.read<SavedPaymentBloc>().add(
@@ -320,16 +315,7 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.red,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            child: Text(
-              'Remove',
-              style: AppTypography.buttonPrimary,
-            ),
+            text: 'Remove',
           ),
         ],
       ),

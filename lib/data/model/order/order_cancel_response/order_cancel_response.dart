@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pickaboo/core/utils/date_time_utils.dart';
 
 part 'order_cancel_response.freezed.dart';
 part 'order_cancel_response.g.dart';
@@ -30,8 +31,8 @@ class OrderCancelResponse with _$OrderCancelResponse {
     @JsonKey(name: "base_to_global_rate") int? baseToGlobalRate,
     @JsonKey(name: "base_to_order_rate") int? baseToOrderRate,
     @JsonKey(name: "billing_address_id") int? billingAddressId,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "customer_dob") DateTime? customerDob,
+    @JsonKey(name: "created_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? createdAt,
+    @JsonKey(name: "customer_dob", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? customerDob,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_firstname") String? customerFirstname,
     @JsonKey(name: "customer_gender") int? customerGender,
@@ -78,7 +79,7 @@ class OrderCancelResponse with _$OrderCancelResponse {
     @JsonKey(name: "total_due") int? totalDue,
     @JsonKey(name: "total_item_count") int? totalItemCount,
     @JsonKey(name: "total_qty_ordered") int? totalQtyOrdered,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(name: "updated_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? updatedAt,
     @JsonKey(name: "weight") double? weight,
     @JsonKey(name: "x_forwarded_for") String? xForwardedFor,
     @JsonKey(name: "items") List<Item>? items,
@@ -173,7 +174,7 @@ class Item with _$Item {
     @JsonKey(name: "base_row_total_incl_tax") int? baseRowTotalInclTax,
     @JsonKey(name: "base_tax_amount") int? baseTaxAmount,
     @JsonKey(name: "base_tax_invoiced") int? baseTaxInvoiced,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(name: "created_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? createdAt,
     @JsonKey(name: "discount_amount") int? discountAmount,
     @JsonKey(name: "discount_invoiced") int? discountInvoiced,
     @JsonKey(name: "discount_percent") int? discountPercent,
@@ -206,7 +207,7 @@ class Item with _$Item {
     @JsonKey(name: "tax_amount") int? taxAmount,
     @JsonKey(name: "tax_invoiced") int? taxInvoiced,
     @JsonKey(name: "tax_percent") int? taxPercent,
-    @JsonKey(name: "updated_at") DateTime? updatedAt,
+    @JsonKey(name: "updated_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? updatedAt,
     @JsonKey(name: "weight") double? weight,
     @JsonKey(name: "discount_tax_compensation_canceled")
     int? discountTaxCompensationCanceled,
@@ -276,7 +277,7 @@ class Payment with _$Payment {
 class StatusHistory with _$StatusHistory {
   const factory StatusHistory({
     @JsonKey(name: "comment") String? comment,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(name: "created_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? createdAt,
     @JsonKey(name: "entity_id") int? entityId,
     @JsonKey(name: "entity_name") String? entityName,
     @JsonKey(name: "is_customer_notified") int? isCustomerNotified,

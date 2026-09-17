@@ -3,6 +3,7 @@ import 'package:pickaboo/data/model/cart/cart_response/cart_response.dart';
 import 'package:pickaboo/data/model/cart/cart_item_response/cart_item_response.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/common/region_entity.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
 
 extension CartResponseMapper on CartResponse {
   CartEntity toEntity() {
@@ -94,7 +95,8 @@ extension ItemMapper on Item {
       regularPrice: (extAttrs?.regularPrice ?? 0).toDouble(),
       specialPrice: (extAttrs?.spacialPrice ?? 0).toDouble(),
       discount: extAttrs?.discount ?? '0',
-      imageUrl: extAttrs?.imageUrl ?? '',
+      imageUrl: ProductImageResolver.getCachedImage(extAttrs?.productId ?? 0) ??
+          extAttrs?.imageUrl ?? '',
       productUrlKey: extAttrs?.productUrlKey ?? '',
       productId: extAttrs?.productId ?? 0,
       brand: extAttrs?.brand ?? '',
@@ -200,7 +202,8 @@ extension BillingAddressMapper on BillingAddressClass {
           regionId:
               int.tryParse(regionMap['region_id']?.toString() ?? '0') ?? 0,
         );
-      } catch (e) {
+      } catch (_) {
+        // Region could not be parsed as a map; mappedRegion remains empty fallback
       }
     }
 

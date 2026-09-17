@@ -29,6 +29,7 @@ import 'package:pickaboo/data/model/promotion_slider_response/promotion_slider_r
 import 'package:pickaboo/data/model/promo_response/promo_response.dart';
 import 'package:pickaboo/data/model/discover_category_response/discover_category_response.dart';
 import 'package:pickaboo/data/model/user_review_response/user_review_response.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'product_api_service.dart';
 
 @LazySingleton(as: ProductApiService)
@@ -93,17 +94,7 @@ class IProductApiService extends ProductApiService {
   }
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
-    }
-    return ErrorResponse(
-      success: false,
-      message: err.message ?? err.error?.toString() ?? 'Network error (${err.type})',
-    );
+    return ApiErrorParser.parse(err);
   }
 
   String _buildFiltersJson(Map<String, List<String>> filters) {
@@ -470,39 +461,16 @@ class IProductApiService extends ProductApiService {
       final data = response.data;
 
       if (data is Map<String, dynamic>) {
-        final modifiedJson = Map<String, dynamic>.from(data);
-        final listKeys = [
-          'category_ids', 'images', 'varient', 'extra_options', 'buys_togather',
-          'more_information', 'detailed_ratings', 'detailed_summary', 'all_review_images',
-          'reviews_collection', 'similar_products', 'you_may_also_like', 'other_brands',
-          'recently_viewed_products'
-        ];
-        for (var key in listKeys) {
-          if (modifiedJson[key] != null && modifiedJson[key] is! List) {
-            modifiedJson[key] = null;
-          }
+        final ProductDetailResponse result;
+        final rawReviewImages = data['all_review_images'];
+        final isLargePayload = (rawReviewImages is List && rawReviewImages.length > 50) ||
+            (data['reviews_collection'] is List && (data['reviews_collection'] as List).length > 20);
+
+        if (isLargePayload) {
+          result = await compute(_parseProductDetailResponse, data);
+        } else {
+          result = _parseProductDetailResponse(data);
         }
-        final stringListKeys = [
-          'category_ids',
-          'images',
-          'all_review_images',
-        ];
-        for (var key in stringListKeys) {
-          if (modifiedJson[key] is List) {
-            modifiedJson[key] = (modifiedJson[key] as List)
-                .map((e) => e.toString())
-                .toList();
-          }
-        }
-        if (modifiedJson['detailed_summary'] is List) {
-          modifiedJson['detailed_summary'] = (modifiedJson['detailed_summary'] as List)
-              .map((e) => (e is num) ? e.toInt() : (int.tryParse(e.toString()) ?? 0))
-              .toList();
-        }
-        if (modifiedJson['variant_matrix'] is! Map<String, dynamic>) {
-          modifiedJson['variant_matrix'] = null;
-        }
-        final result = ProductDetailResponse.fromJson(modifiedJson);
         return right(result);
       } else {
         final errorList = _tryParseErrorList(data);
@@ -1225,4 +1193,59 @@ class IProductApiService extends ProductApiService {
       return left(checkErrorResponse(e));
     }
   }
+}
+
+/// Parses and cleans ProductDetailResponse in a background isolate via [compute].
+ProductDetailResponse _parseProductDetailResponse(Map<String, dynamic> data) {
+  final modifiedJson = Map<String, dynamic>.from(data);
+  final listKeys = [
+    'category_ids',
+    'images',
+    'varient',
+    'extra_options',
+    'buys_togather',
+    'more_information',
+    'detailed_ratings',
+    'detailed_summary',
+    'all_review_images',
+    'reviews_collection',
+    'similar_products',
+    'you_may_also_like',
+    'other_brands',
+    'recently_viewed_products',
+  ];
+  for (var key in listKeys) {
+    if (modifiedJson[key] != null && modifiedJson[key] is! List) {
+      modifiedJson[key] = null;
+    }
+  }
+  final stringListKeys = [
+    'category_ids',
+    'images',
+  ];
+  for (var key in stringListKeys) {
+    if (modifiedJson[key] is List) {
+      modifiedJson[key] = (modifiedJson[key] as List)
+          .map((e) => e.toString())
+          .toList();
+    }
+  }
+  if (modifiedJson['all_review_images'] is List) {
+    // Cap all_review_images to 24 items to prevent memory thrashing and isolate/Hive disk bloat.
+    // Some backend products return 3,800+ images (360KB+) when UI only displays at most 12.
+    final rawImages = modifiedJson['all_review_images'] as List;
+    modifiedJson['all_review_images'] = rawImages
+        .take(24)
+        .map((e) => e.toString())
+        .toList();
+  }
+  if (modifiedJson['detailed_summary'] is List) {
+    modifiedJson['detailed_summary'] = (modifiedJson['detailed_summary'] as List)
+        .map((e) => (e is num) ? e.toInt() : (int.tryParse(e.toString()) ?? 0))
+        .toList();
+  }
+  if (modifiedJson['variant_matrix'] is! Map<String, dynamic>) {
+    modifiedJson['variant_matrix'] = null;
+  }
+  return ProductDetailResponse.fromJson(modifiedJson);
 }

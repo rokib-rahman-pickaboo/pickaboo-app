@@ -87,6 +87,7 @@ extension AttrListMapper on AttrList {
       value: value ?? '',
       iconUrl: iconUrl ?? '',
       icon: icon ?? '',
+      isFeatured: isFeatured,
     );
   }
 }

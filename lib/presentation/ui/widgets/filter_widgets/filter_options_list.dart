@@ -1,4 +1,4 @@
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 // ============================================================================
 // ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
 // All text styles in this file originate from [AppTypography] design tokens.
@@ -41,13 +41,13 @@ class _FilterOptionsListState extends State<FilterOptionsList> {
         final items = category.items;
 
         return Container(
-          color: Colors.white,
+          color: AppColors.white,
           child: RawScrollbar(
             controller: _scrollController,
             thumbVisibility: true,
             trackVisibility: false,
             thickness: 4.w,
-            radius: Radius.circular(3.r),
+            radius: const Radius.circular(AppRadius.badge),
             thumbColor: AppColors.pickabooBlue,
             child: ListView.builder(
               controller: _scrollController,
@@ -96,8 +96,8 @@ class _FilterOptionsListState extends State<FilterOptionsList> {
               width: 18.w,
               height: 18.w,
               decoration: BoxDecoration(
-                color: option.isSelected ? AppColors.pickabooBlue : Colors.white,
-                borderRadius: BorderRadius.circular(3.r),
+                color: option.isSelected ? AppColors.pickabooBlue : AppColors.white,
+                borderRadius: AppRadius.badgeRadius,
                 border: Border.all(
                   color: option.isSelected
                       ? AppColors.pickabooBlue
@@ -109,7 +109,7 @@ class _FilterOptionsListState extends State<FilterOptionsList> {
                   ? Icon(
                       Icons.check,
                       size: 13.sp,
-                      color: Colors.white,
+                      color: AppColors.white,
                     )
                   : null,
             ),
@@ -127,8 +127,8 @@ class _FilterOptionsListState extends State<FilterOptionsList> {
               child: Text(
                 option.label.removeHtmlTags,
                 style: option.isSelected
-                    ? AppTypography.cardTitle.withColor(AppColors.pickabooBlue)
-                    : AppTypography.bodyRegular.withColor(AppColors.navy),
+                    ? AppTypography.titleSmall.withColor(AppColors.pickabooBlue)
+                    : AppTypography.bodyMedium.withColor(AppColors.navy),
               ),
             ),
             if (option.count != null &&

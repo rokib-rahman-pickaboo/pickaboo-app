@@ -70,6 +70,7 @@ class CheckoutState with _$CheckoutState {
 
   const factory CheckoutState.paymentMethodsLoaded({
     @Default([]) List<PaymentMethodEntity> availablePaymentMethods,
+    CartTotalsEntity? totals,
   }) = _PaymentMethodsLoaded;
 
   const factory CheckoutState.error({

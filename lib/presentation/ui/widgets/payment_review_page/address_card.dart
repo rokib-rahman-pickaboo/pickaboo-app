@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// ============================================================================
 /// 📍 ADDRESS CARD (Modern, Clean & Standardized)
@@ -54,7 +55,7 @@ class AddressCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Please select or add a shipping address to proceed.',
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       color: AppColors.navy,
                       fontWeight: FontWeight.w500,
                     ),
@@ -64,28 +65,16 @@ class AddressCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.h),
-          SizedBox(
-            width: double.infinity,
+          AppButton.primary(
             height: 38.h,
-            child: ElevatedButton.icon(
-              onPressed: onAddNew,
-              icon: Icon(Icons.add_location_alt_outlined, size: 16.sp),
-              label: Text(
-                "Add Address",
-                style: AppTypography.bodyRegular.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.white,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.pickabooBlue,
-                foregroundColor: AppColors.white,
-                elevation: 0,
-                padding: EdgeInsets.zero,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: AppRadius.buttonRadius,
-                ),
-              ),
+            borderRadius: AppRadius.buttonRadius,
+            padding: EdgeInsets.zero,
+            onPressed: onAddNew,
+            icon: Icon(Icons.add_location_alt_outlined, size: 16.sp, color: AppColors.white),
+            text: "Add Address",
+            textStyle: AppTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.white,
             ),
           ),
         ],
@@ -122,7 +111,7 @@ class AddressCard extends StatelessWidget {
             Expanded(
               child: Text(
                 name.isNotEmpty ? name : 'Recipient',
-                style: AppTypography.cardTitle,
+                style: AppTypography.titleSmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -132,7 +121,7 @@ class AddressCard extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.5.h),
                 decoration: BoxDecoration(
                   color: AppColors.pageBg,
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: AppRadius.smRadius,
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
@@ -146,7 +135,7 @@ class AddressCard extends StatelessWidget {
                     SizedBox(width: 5.w),
                     Text(
                       phone,
-                      style: AppTypography.cardTitle.copyWith(
+                      style: AppTypography.titleSmall.copyWith(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: AppColors.navy,
@@ -175,14 +164,14 @@ class AddressCard extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: 'Address: ',
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       color: AppColors.muted,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   TextSpan(
                     text: fullAddress,
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       color: AppColors.navy,
                       fontWeight: FontWeight.w500,
                       height: 1.35,
@@ -201,63 +190,41 @@ class AddressCard extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: SizedBox(
+              child: AppButton.secondary(
                 height: 34.h,
-                child: OutlinedButton.icon(
-                  onPressed: onChange,
-                  icon: Icon(
-                    Icons.edit_location_alt_outlined,
-                    size: 14.sp,
-                    color: AppColors.pickabooBlue,
-                  ),
-                  label: Text(
-                    "Change Address",
-                    style: AppTypography.bodyMuted.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.pickabooBlue,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.pickabooBlue,
-                    side: const BorderSide(
-                      color: AppColors.pickabooBlue,
-                      width: 1,
-                    ),
-                    padding: EdgeInsets.zero,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadius.buttonRadius,
-                    ),
-                  ),
+                borderRadius: AppRadius.buttonRadius,
+                padding: EdgeInsets.zero,
+                onPressed: onChange,
+                icon: Icon(
+                  Icons.edit_location_alt_outlined,
+                  size: 14.sp,
+                  color: AppColors.pickabooBlue,
+                ),
+                text: "Change Address",
+                textStyle: AppTypography.bodySmall.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.pickabooBlue,
                 ),
               ),
             ),
             SizedBox(width: 8.w),
             Expanded(
-              child: SizedBox(
+              child: AppButton(
                 height: 34.h,
-                child: ElevatedButton.icon(
-                  onPressed: onAddNew,
-                  icon: Icon(
-                    Icons.add_location_alt_outlined,
-                    size: 14.sp,
-                    color: AppColors.white,
-                  ),
-                  label: Text(
-                    "Add New Address",
-                    style: AppTypography.bodyMuted.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.navy,
-                    foregroundColor: AppColors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.zero,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadius.buttonRadius,
-                    ),
-                  ),
+                borderRadius: AppRadius.buttonRadius,
+                padding: EdgeInsets.zero,
+                backgroundColor: AppColors.navy,
+                textColor: AppColors.white,
+                onPressed: onAddNew,
+                icon: Icon(
+                  Icons.add_location_alt_outlined,
+                  size: 14.sp,
+                  color: AppColors.white,
+                ),
+                text: "Add New Address",
+                textStyle: AppTypography.bodySmall.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
                 ),
               ),
             ),

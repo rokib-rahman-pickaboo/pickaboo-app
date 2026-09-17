@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
-import 'package:pickaboo/core/utils/delivery_time_utils.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 
 class RibbonBadgeItem {
@@ -79,23 +78,7 @@ class _PdpTrustRibbonWidgetState extends State<PdpTrustRibbonWidget> {
   List<List<RibbonBadgeItem>> _buildPages() {
     final pages = <List<RibbonBadgeItem>>[];
 
-    // ── Page 1: Delivery by Info (Prominent First Trust Signal - In-stock only) ──
-    /*if (widget.product.stockAvailable) {
-      final isExpress = widget.product.expressDelivery == 1;
-      final deliveryInfo = DeliveryTimeUtils.getTrustRibbonDeliveryInfo(
-        isExpress: isExpress,
-      );
-      pages.add([
-        RibbonBadgeItem(
-          icon: Icons.local_shipping_outlined,
-          iconColor: AppColors.green,
-          label: deliveryInfo.label,
-          boldSuffix: deliveryInfo.boldSuffix,
-        ),
-      ]);
-    }*/
-
-    // ── Page 2: Authentic & Easy Return (Grouped together) ──
+    // ── Authentic & Easy Return (Grouped together) ──
     pages.add([
       const RibbonBadgeItem(
         icon: Icons.verified_user_outlined,
@@ -212,7 +195,7 @@ class _RibbonPageWidgetState extends State<_RibbonPageWidget> {
                   padding: EdgeInsets.symmetric(horizontal: 8.w),
                   child: Text(
                     '|',
-                    style: AppTypography.bodyMuted.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
                       color: AppColors.muted.withValues(alpha: 0.5),
                       fontSize: 12.sp,
                     ),
@@ -234,13 +217,13 @@ class _RibbonPageWidgetState extends State<_RibbonPageWidget> {
                         children: [
                           TextSpan(
                             text: widget.badges[i].label,
-                            style: AppTypography.deliveryByLabel.copyWith(
+                            style: AppTypography.bodyTiny.copyWith(
                               fontSize: 11.5.sp,
                             ),
                           ),
                           TextSpan(
                             text: widget.badges[i].boldSuffix,
-                            style: AppTypography.deliveryByDate.copyWith(
+                            style: AppTypography.bodyTiny.bold().navy.copyWith(
                               fontSize: 11.5.sp,
                             ),
                           ),
@@ -250,7 +233,7 @@ class _RibbonPageWidgetState extends State<_RibbonPageWidget> {
                   ] else ...[
                     Text(
                       widget.badges[i].label,
-                      style: AppTypography.cardTitle.copyWith(
+                      style: AppTypography.titleSmall.copyWith(
                         fontSize: 11.5.sp,
                         fontWeight: FontWeight.w600,
                         color: AppColors.navy,

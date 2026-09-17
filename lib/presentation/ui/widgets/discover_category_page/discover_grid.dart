@@ -82,7 +82,7 @@ class DiscoverTileLabel extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
-        style: context.textStyle.bodySmall.copyWith(
+        style: AppTypography.bodySmall.copyWith(
           color: AppColors.navy,
           fontSize: 10.sp,
           fontWeight: FontWeight.w600,
@@ -107,7 +107,7 @@ class DiscoverTileAction extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: context.textStyle.bodySmall.copyWith(
+        style: AppTypography.bodySmall.copyWith(
           color: AppColors.pickabooBlue,
           fontSize: 10.sp,
           fontWeight: FontWeight.w700,

@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/app_typography.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// Shared "we can't ask again" dialog.
 ///
@@ -30,19 +30,25 @@ class PermissionPrompt {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadius.dialogRadius,
+        ),
         title: Text(title),
         content: Text(message),
         actions: [
-          TextButton(
+          AppButton.ghost(
+            text: AppStrings.notNow,
+            isFullWidth: false,
+            size: AppButtonSize.sm,
+            textColor: AppColors.muted,
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text('Not now', style: AppTypography.bodyRegular),
           ),
-          TextButton(
+          AppButton.primary(
+            text: AppStrings.openSettings,
+            isFullWidth: false,
+            size: AppButtonSize.sm,
+            borderRadius: AppRadius.buttonRadius,
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(
-              'Open Settings',
-              style: AppTypography.bodyRegular,
-            ),
           ),
         ],
       ),

@@ -4,12 +4,14 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modern Home Category Navigation Bar
 /// Positioned directly below the Top Search Bar and before the Main Banner Carousel.
@@ -91,7 +93,7 @@ class HomeCategoryNav extends StatelessWidget {
 
     return InkWell(
       onTap: () => onCategorySelected('For You'),
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: AppRadius.chipRadius,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: itemWidth,
@@ -146,7 +148,7 @@ class HomeCategoryNav extends StatelessWidget {
                       textAlign: TextAlign.center,
                       maxLines: isCollapsed ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.homeCategoryNavTitle.copyWith(
+                      style: AppTypography.bodyTiny.medium().navy.copyWith(
                         height: 1.2,
                         color: isSelected
                             ? AppColors.navy
@@ -167,8 +169,8 @@ class HomeCategoryNav extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.pickabooBlue
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(2.r),
+                      : AppColors.transparent,
+                  borderRadius: AppRadius.badgeRadius,
                 ),
               ),
             ],
@@ -188,7 +190,7 @@ class HomeCategoryNav extends StatelessWidget {
 
     return InkWell(
       onTap: () => onCategorySelected(category.name),
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: AppRadius.chipRadius,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: itemWidth,
@@ -224,15 +226,15 @@ class HomeCategoryNav extends StatelessWidget {
                     child: Center(
                       child: category.icon.isNotEmpty
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8.r),
-                              child: CachedNetworkImage(
+                              borderRadius: AppRadius.buttonRadius,
+                              child: AppImage(
                                 imageUrl: category.icon,
                                 width: 40.w,
                                 height: 40.w,
                                 fit: BoxFit.contain,
-                                placeholder: (_, _) =>
+                                placeholder:
                                     const AppLoader.inline(size: 16),
-                                errorWidget: (_, _, _) => Icon(
+                                errorWidget: Icon(
                                   Icons.category_outlined,
                                   color: AppColors.muted,
                                   size: 22.sp,
@@ -261,7 +263,7 @@ class HomeCategoryNav extends StatelessWidget {
                       textAlign: TextAlign.center,
                       maxLines: isCollapsed ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.homeCategoryNavTitle.copyWith(
+                      style: AppTypography.bodyTiny.medium().navy.copyWith(
                         height: 1.2,
                         color: isSelected
                             ? AppColors.navy
@@ -282,8 +284,8 @@ class HomeCategoryNav extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.pickabooBlue
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(2.r),
+                      : AppColors.transparent,
+                  borderRadius: AppRadius.badgeRadius,
                 ),
               ),
             ],
@@ -300,7 +302,7 @@ class HomeCategoryNav extends StatelessWidget {
   ) {
     return InkWell(
       onTap: onViewAll,
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: AppRadius.chipRadius,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: itemWidth,
@@ -344,7 +346,7 @@ class HomeCategoryNav extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.homeCategoryNavTitle.copyWith(
+                    style: AppTypography.bodyTiny.medium().navy.copyWith(
                       height: 1.2,
                       color: AppColors.pickabooBlue,
                     ),
@@ -358,9 +360,9 @@ class HomeCategoryNav extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 height: 2.5.h,
                 width: 0,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(2.r),
+                decoration: const BoxDecoration(
+                  color: AppColors.transparent,
+                  borderRadius: AppRadius.badgeRadius,
                 ),
               ),
             ],

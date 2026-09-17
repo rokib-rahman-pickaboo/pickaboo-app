@@ -50,12 +50,12 @@ class ActiveFilterChipsBar extends StatelessWidget {
               padding: EdgeInsets.only(right: 8.w),
               child: InkWell(
                 onTap: onClearAll,
-                borderRadius: BorderRadius.circular(6.r),
+                borderRadius: AppRadius.smRadius,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                   decoration: BoxDecoration(
                     color: AppColors.redBg,
-                    borderRadius: BorderRadius.circular(6.r),
+                    borderRadius: AppRadius.smRadius,
                     border: Border.all(
                       color: AppColors.red.withValues(alpha: 0.5),
                       width: 1.w,
@@ -67,8 +67,8 @@ class ActiveFilterChipsBar extends StatelessWidget {
                       Icon(Icons.close_rounded, size: 13.sp, color: AppColors.red),
                       SizedBox(width: 4.w),
                       Text(
-                        'CLEAR ALL',
-                        style: AppTypography.badgeStockOut,
+                        AppStrings.clearAll.toUpperCase(),
+                        style: AppTypography.bodyTiny.extraBold().red,
                       ),
                     ],
                   ),
@@ -87,7 +87,7 @@ class ActiveFilterChipsBar extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(
                 color: AppColors.surfaceBlue,
-                borderRadius: BorderRadius.circular(6.r),
+                borderRadius: AppRadius.smRadius,
                 border: Border.all(
                   color: AppColors.pickabooBlue.withValues(alpha: 0.6),
                   width: 1.w,
@@ -98,12 +98,12 @@ class ActiveFilterChipsBar extends StatelessWidget {
                 children: [
                   Text(
                     displayLabel,
-                    style: AppTypography.brandActionText,
+                    style: AppTypography.brandAction,
                   ),
                   SizedBox(width: 6.w),
                   InkWell(
                     onTap: () => onRemoveFilter(filterCode),
-                    borderRadius: BorderRadius.circular(10.r),
+                    borderRadius: AppRadius.chipRadius,
                     child: Padding(
                       padding: EdgeInsets.all(2.w),
                       child: Icon(

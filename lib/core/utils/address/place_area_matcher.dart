@@ -30,7 +30,7 @@ Map<String, dynamic> matchArea(
   for (final candidate in candidates) {
     final target = candidate.toLowerCase();
     final match = areas.firstWhere(
-      (a) => norm(a['cities_name']) == target || norm(a['zip_code']) == target,
+      (a) => norm(a['states_name']) == target || norm(a['zip_code']) == target,
       orElse: () => <String, dynamic>{},
     );
     if (match.isNotEmpty) return match;
@@ -48,9 +48,15 @@ Map<String, dynamic> matchArea(
   for (final candidate in candidates) {
     final target = candidate.toLowerCase();
     final match = areas.firstWhere((a) {
-      final name = norm(a['cities_name']);
-      if (name.isEmpty) return false;
-      return name.contains(target) || target.contains(name);
+      final zip = norm(a['zip_code']);
+      if (zip.isNotEmpty && (zip.contains(target) || target.contains(zip))) {
+        return true;
+      }
+      final name = norm(a['states_name']);
+      if (name.isNotEmpty && (name.contains(target) || target.contains(name))) {
+        return true;
+      }
+      return false;
     }, orElse: () => <String, dynamic>{});
     if (match.isNotEmpty) return match;
   }

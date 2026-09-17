@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/popup/popup_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_html.dart';
 
@@ -43,7 +43,7 @@ class PopupBannerView extends StatelessWidget {
             child: GestureDetector(
               onTap: onClose,
               child: Image.asset(
-                'assets/images/ic-close-2.png',
+                AppAssets.closeCircle,
                 width: 42.w,
                 height: 42.h,
               ),
@@ -57,8 +57,8 @@ class PopupBannerView extends StatelessWidget {
           },
           child: Container(
             width: width * 0.9,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.r),
+            decoration: const BoxDecoration(
+              borderRadius: AppRadius.cardRadius,
               color: AppColors.transparent,
             ),
             clipBehavior: Clip.antiAlias,

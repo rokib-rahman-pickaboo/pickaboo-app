@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class ChangePasswordSection extends StatefulWidget {
   final bool isEnabled;
@@ -46,14 +48,12 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Container(
       margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: AppRadius.dialogRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.04),
@@ -70,7 +70,7 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
               Expanded(
                 child: Text(
                   'Change Password',
-                  style: textTheme.bodyMediumMedium.copyWith(
+                  style: AppTypography.bodyMedium.medium().copyWith(
                     color: AppColors.text,
                   ),
                 ),
@@ -92,27 +92,27 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                   TextFormField(
                     controller: _currentPasswordController,
                     obscureText: true,
-                    style: textTheme.bodyMedium.copyWith(color: AppColors.text),
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: 'Current password',
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-                      hintStyle: textTheme.bodyMedium.copyWith(
+                      hintStyle: AppTypography.bodyMedium.copyWith(
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -130,27 +130,27 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                   TextFormField(
                     controller: _newPasswordController,
                     obscureText: true,
-                    style: textTheme.bodyMedium.copyWith(color: AppColors.text),
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: 'New password',
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-                      hintStyle: textTheme.bodyMedium.copyWith(
+                      hintStyle: AppTypography.bodyMedium.copyWith(
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -168,27 +168,27 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: true,
-                    style: textTheme.bodyMedium.copyWith(color: AppColors.text),
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: 'Confirm new password',
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.w),
-                      hintStyle: textTheme.bodyMedium.copyWith(
+                      hintStyle: AppTypography.bodyMedium.copyWith(
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.cardRadius,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -206,24 +206,11 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                     },
                   ),
                   SizedBox(height: 16.h),
-                  SizedBox(
-                    width: double.infinity,
+                  AppButton.primary(
                     height: 48.h,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.pickabooBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: Text(
-                        'Save Password',
-                        style: textTheme.buttonMedium.copyWith(
-                          color: AppColors.white,
-                        ),
-                      ),
-                    ),
+                    borderRadius: AppRadius.cardRadius,
+                    text: 'Save Password',
+                    onPressed: _submit,
                   ),
                 ],
               ),

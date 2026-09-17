@@ -17,7 +17,9 @@ import 'package:pickaboo/core/validatator/validator.dart' as validators;
 import 'package:pickaboo/presentation/bloc/auth/forgot_password_bloc/forgot_password_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 /// Modernized Pickaboo Forgot Password Page
 /// Allows users to request a password reset OTP via mobile number or email.
@@ -191,13 +193,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           },
         ),
       ],
-      child: GestureDetector(
-        onTap: _dismissKeyboard,
-        behavior: HitTestBehavior.opaque,
-        child: Scaffold(
-          backgroundColor: AppColors.pageBg,
-          body: ResponsiveContainer(
-            child: SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: AppColors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: GestureDetector(
+          onTap: _dismissKeyboard,
+          behavior: HitTestBehavior.opaque,
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            body: ResponsiveContainer(
+              child: SafeArea(
               child: Stack(
                 children: [
                   // ── BALANCED MAIN CONTENT ──
@@ -220,12 +228,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               children: [
                                 // Brand Logo
                                 Image.asset(
-                                  'assets/images/pickaboo_new_logo.png',
+                                  AppAssets.logoNew,
                                   height: 44.h,
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Image.asset(
-                                      'assets/images/pickaboo-login-logo.png',
+                                      AppAssets.logoLogin,
                                       height: 44.h,
                                       fit: BoxFit.contain,
                                     );
@@ -251,7 +259,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                                 Text(
                                   'Enter your mobile number or email address below to receive an OTP code.',
-                                  style: AppTypography.bodyMutedLight,
+                                  style: AppTypography.bodySmall.mutedLight,
                                   textAlign: TextAlign.center,
                                 ),
 
@@ -262,7 +270,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   child: TextField(
                                     controller: _emailOrPhoneController,
                                     keyboardType: TextInputType.text,
-                                    style: AppTypography.inputText,
+                                    style: AppTypography.bodyLarge.regular(),
                                     decoration: _buildInputDecoration(
                                       hintText: 'Mobile number or email address',
                                       prefixIcon: Icon(
@@ -319,7 +327,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                                 '5 minutes',
                                                 _formattedTime,
                                               ),
-                                              style: AppTypography.cardTitle,
+                                              style: AppTypography.titleSmall,
                                             ),
                                           ),
                                         ],
@@ -328,28 +336,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ),
 
                                 // Primary CTA Button
-                                SizedBox(
-                                  width: double.infinity,
+                                AppButton.primary(
                                   height: 50.h,
-                                  child: ElevatedButton(
-                                    onPressed: (_isLoading || _secondsRemaining > 0)
-                                        ? null
-                                        : _handleContinue,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.pickabooBlue,
-                                      foregroundColor: AppColors.white,
-                                      elevation: 0,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: AppRadius.cardRadius,
-                                      ),
-                                    ),
-                                    child: _isLoading
-                                        ? const AppLoader.button()
-                                        : Text(
-                                            'Continue',
-                                            style: AppTypography.buttonPrimary,
-                                          ),
-                                  ),
+                                  isLoading: _isLoading,
+                                  isDisabled: _secondsRemaining > 0,
+                                  onPressed: _handleContinue,
+                                  text: 'Continue',
                                 ),
 
                                 SizedBox(height: 20.h),
@@ -390,7 +382,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   children: [
                                     Text(
                                       'Remember your password? ',
-                                      style: AppTypography.bodyMutedLight,
+                                      style: AppTypography.bodySmall.mutedLight,
                                     ),
                                     GestureDetector(
                                       onTap: () {
@@ -399,7 +391,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                       },
                                       child: Text(
                                         'Sign in',
-                                        style: AppTypography.brandActionText,
+                                        style: AppTypography.brandAction,
                                       ),
                                     ),
                                   ],
@@ -417,7 +409,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     top: 8.h,
                     left: 8.w,
                     child: Material(
-                      color: Colors.transparent,
+                      color: AppColors.transparent,
                       child: InkWell(
                         onTap: () {
                           _dismissKeyboard();
@@ -444,6 +436,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

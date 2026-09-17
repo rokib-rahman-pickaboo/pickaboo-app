@@ -31,7 +31,7 @@ class RatingInputRow extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
           ),
           Expanded(

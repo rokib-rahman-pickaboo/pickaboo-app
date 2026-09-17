@@ -76,7 +76,7 @@ class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
 
     return RepaintBoundary(
       child: SizedBox(
-        height: 78.h,
+        height: 80.h,
         child: ListView.builder(
           controller: _scrollController,
           scrollDirection: Axis.horizontal,
@@ -108,7 +108,7 @@ class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
                 padding: EdgeInsets.all(6.w),
                 decoration: BoxDecoration(
                   color: AppColors.pageBg,
-                  borderRadius: BorderRadius.circular(AppRadius.card),
+                  borderRadius: AppRadius.cardRadius,
                   border: Border.all(
                     color: AppColors.border,
                     width: 1.w,
@@ -119,7 +119,7 @@ class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
                     // ── Promo Thumbnail (Increased 20% to 65x65) ──
                     if (imageUrl.isNotEmpty) ...[
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(6.r),
+                        borderRadius: AppRadius.smRadius,
                         child: AppImage(
                           imageUrl: imageUrl,
                           width: 65.w,
@@ -138,19 +138,20 @@ class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
                         children: [
                           Text(
                             slide.title,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTypography.cardTitle.copyWith(
+                            style: AppTypography.titleSmall.copyWith(
                               fontSize: 11.5.sp,
+                              height: 1.25,
                             ),
                           ),
                           if (subtitle.isNotEmpty) ...[
                             SizedBox(height: 2.h),
                             Text(
                               subtitle,
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: AppTypography.bodyMuted,
+                              style: AppTypography.bodySmall,
                             ),
                           ],
                         ],

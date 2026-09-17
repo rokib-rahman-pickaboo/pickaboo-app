@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// Modern minimal RewardPointsWidget matching base Pickaboo logic:
 /// - Title & available points subtitle
@@ -139,7 +140,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
         children: [
           Text(
             'Use Club Points',
-            style: AppTypography.cardTitle.copyWith(
+            style: AppTypography.titleSmall.copyWith(
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: AppColors.navy,
@@ -150,7 +151,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
             _canRedeem
                 ? 'You can use up to ${widget.maxPoints} Club Points on this order'
                 : 'No Club Points can be used on this order',
-            style: AppTypography.bodyMuted.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: AppColors.muted,
             ),
           ),
@@ -158,7 +159,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
             SizedBox(height: 4.h),
             Text(
               "You'll earn ${widget.pointsToEarn} Club Points from this order",
-              style: AppTypography.bodyMuted.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: AppColors.green,
                 fontWeight: FontWeight.w600,
               ),
@@ -182,7 +183,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                   });
                 }
               },
-              style: AppTypography.cardTitle.copyWith(
+              style: AppTypography.titleSmall.copyWith(
                 fontSize: 13.sp,
                 color: AppColors.navy,
               ),
@@ -198,21 +199,21 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                   horizontal: 14.w,
                   vertical: 12.h,
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: const BorderSide(color: AppColors.border),
+                border: const OutlineInputBorder(
+                  borderRadius: AppRadius.inputRadius,
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: const BorderSide(color: AppColors.border),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: AppRadius.inputRadius,
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: const BorderSide(color: AppColors.border),
+                disabledBorder: const OutlineInputBorder(
+                  borderRadius: AppRadius.inputRadius,
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: const BorderSide(
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: AppRadius.inputRadius,
+                  borderSide: BorderSide(
                     color: AppColors.pickabooBlue,
                     width: 1.2,
                   ),
@@ -248,7 +249,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                   Expanded(
                     child: Text(
                       'Use maximum ${widget.maxPoints} Club Points',
-                      style: AppTypography.bodyMuted.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
                         color: AppColors.navy,
                         fontWeight: FontWeight.w500,
                       ),
@@ -258,36 +259,24 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
               ),
             ),
           ],
-          SizedBox(height: 12.h),
-          SizedBox(
-            width: double.infinity,
-            height: 42.h,
-            child: ElevatedButton(
-              onPressed: _isPointsApplied
-                  ? _handleCancel
-                  : (_canRedeem ? _handleApply : null),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isPointsApplied
-                    ? AppColors.pageBg
-                    : AppColors.pickabooBlue,
-                foregroundColor: _isPointsApplied
-                    ? AppColors.navy
-                    : AppColors.white,
-                disabledBackgroundColor: AppColors.pageBg,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  side: _isPointsApplied
-                      ? const BorderSide(color: AppColors.border)
-                      : BorderSide.none,
+          AppSpacing.gapV12,
+          _isPointsApplied
+              ? AppButton.outline(
+                  text: 'Cancel Points',
+                  onPressed: _handleCancel,
+                  isFullWidth: true,
+                  height: 42.h,
+                  backgroundColor: AppColors.pageBg,
+                  borderColor: AppColors.border,
+                  textColor: AppColors.navy,
+                )
+              : AppButton.primary(
+                  text: 'Apply Points',
+                  onPressed: _canRedeem ? _handleApply : null,
+                  isDisabled: !_canRedeem,
+                  isFullWidth: true,
+                  height: 42.h,
                 ),
-                elevation: 0,
-              ),
-              child: Text(
-                _isPointsApplied ? 'Cancel Points' : 'Apply Points',
-                style: _isPointsApplied ? AppTypography.buttonSecondary.withColor(AppColors.navy) : (_canRedeem ? AppTypography.buttonPrimary : AppTypography.buttonPrimary.withColor(AppColors.mutedLight)),
-              ),
-            ),
-          ),
         ],
       ),
     );

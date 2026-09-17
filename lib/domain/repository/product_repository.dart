@@ -31,6 +31,8 @@ abstract class ProductRepository {
     bool forceRefresh = false,
   });
 
+  Future<bool> isHomeContentStale();
+
   Future<Either<AppErrorEntity, PopupEntity>> getPopupContent();
 
   Future<Either<AppErrorEntity, ProductListEntity>> getJustForYouProducts({
@@ -66,6 +68,7 @@ abstract class ProductRepository {
   Future<Either<AppErrorEntity, ProductDetailEntity>> getProductDetail({
     required String productId,
     int? customerId,
+    bool cache = true,
   });
 
   Future<Either<AppErrorEntity, void>> saveProductDetailsForCache({
@@ -79,6 +82,10 @@ abstract class ProductRepository {
   Future<Either<AppErrorEntity, void>> clearProductDetailsCache();
 
   Future<Either<AppErrorEntity, List<ProductDetailEntity>>> getAllSavedProductDetails();
+
+  Future<Either<AppErrorEntity, ProductDetailEntity?>> getSavedProductDetail({
+    required String productId,
+  });
 
   Future<Either<AppErrorEntity, SlugResolutionEntity>> resolveSlug({
     required String slug,
@@ -101,7 +108,9 @@ abstract class ProductRepository {
     required String slug,
   });
 
-  Future<Either<AppErrorEntity, HomeFlashSaleEntity>> getHomeFlashSale();
+  Future<Either<AppErrorEntity, HomeFlashSaleEntity>> getHomeFlashSale({
+    bool forceRefresh = false,
+  });
 
   Future<Either<AppErrorEntity, ProductFlashSaleEntity>> getProductFlashSale({
     required String slug,

@@ -14,8 +14,25 @@ part 'cms_content_bloc.freezed.dart';
 class CmsContentBloc extends Bloc<CmsContentEvent, CmsContentState> {
   final ProductApiService apiService;
 
+  static CmsContentState? _memoryCache;
+  static DateTime? _lastFetchedTime;
+  static const Duration _cacheDuration = Duration(hours: 1);
+
+  /// Clears the global in-memory CMS cache (useful for tests or logout/refresh).
+  static void clearCache() {
+    _memoryCache = null;
+    _lastFetchedTime = null;
+  }
+
+  /// Whether the cache is populated and has not expired.
+  static bool get isCacheValid {
+    if (_memoryCache == null || _lastFetchedTime == null) return false;
+    return DateTime.now().difference(_lastFetchedTime!) < _cacheDuration;
+  }
+
   CmsContentBloc(this.apiService)
     : super(
+        _memoryCache ??
         const CmsContentState(
           productOffer: null,
           priceGuarantee: null,
@@ -31,7 +48,15 @@ class CmsContentBloc extends Bloc<CmsContentEvent, CmsContentState> {
   }
 
   Future<void> _onLoadAll(_LoadAll event, Emitter<CmsContentState> emit) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    // If cache is still fresh, serve it immediately without firing 5 network requests
+    if (isCacheValid && _memoryCache != null) {
+      if (state != _memoryCache) {
+        emit(_memoryCache!);
+      }
+      return;
+    }
+
+    emit(state.copyWith(isLoading: _memoryCache == null, error: null));
 
     final results = await Future.wait([
       apiService.getCmsBlock(blockUrl: ApiEndpoints.productOfferUrl),
@@ -53,16 +78,19 @@ class CmsContentBloc extends Bloc<CmsContentEvent, CmsContentState> {
     results[3].fold((_) {}, (block) => pickabooVerified = _mapToEntity(block));
     results[4].fold((_) {}, (block) => expressDelivery = _mapToEntity(block));
 
-    emit(
-      state.copyWith(
-        productOffer: productOffer,
-        priceGuarantee: priceGuarantee,
-        priceGuaranteeTc: priceGuaranteeTc,
-        pickabooVerified: pickabooVerified,
-        expressDelivery: expressDelivery,
-        isLoading: false,
-      ),
+    final newState = state.copyWith(
+      productOffer: productOffer,
+      priceGuarantee: priceGuarantee,
+      priceGuaranteeTc: priceGuaranteeTc,
+      pickabooVerified: pickabooVerified,
+      expressDelivery: expressDelivery,
+      isLoading: false,
     );
+
+    _memoryCache = newState;
+    _lastFetchedTime = DateTime.now();
+
+    emit(newState);
   }
 
   Future<void> _onLoadBlock(

@@ -4,8 +4,8 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +22,8 @@ import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_rating_
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_review_tile.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 class AllProductReviewPage extends StatefulWidget {
   final ProductDetailEntity product;
@@ -96,7 +98,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                               showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
-                                backgroundColor: Colors.black,
+                                backgroundColor: AppColors.black,
                                 useSafeArea: true,
                                 builder: (_) => ReviewImageViewerSheet(
                                   imageUrls: customerPhotos,
@@ -108,7 +110,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                           SizedBox(height: 16.h),
                           Text(
                             'Customer Reviews ($totalReviewCount)',
-                            style: AppTypography.sectionTitle,
+                            style: AppTypography.titleMedium,
                           ),
                           SizedBox(height: 10.h),
                         ],
@@ -144,7 +146,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                         child: Center(
                           child: Text(
                             state.error?.message ?? 'Failed to load reviews',
-                            style: AppTypography.bodyMuted,
+                            style: AppTypography.bodySmall,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -155,7 +157,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                         child: Center(
                           child: Text(
                             'No reviews yet for this product.',
-                            style: AppTypography.bodyMuted,
+                            style: AppTypography.bodySmall,
                           ),
                         ),
                       ),
@@ -192,12 +194,12 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
               border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(8.r),
             ),
-            child: CachedNetworkImage(
+            child: AppImage(
               imageUrl: widget.product.images.isNotEmpty
                   ? widget.product.images.first
                   : '',
               fit: BoxFit.contain,
-              errorWidget: (context, url, error) => Icon(
+              errorWidget: Icon(
                 Icons.image_not_supported_outlined,
                 color: AppColors.muted,
                 size: 20.sp,
@@ -211,7 +213,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
               children: [
                 Text(
                   widget.product.name,
-                  style: AppTypography.cardTitle,
+                  style: AppTypography.titleSmall,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

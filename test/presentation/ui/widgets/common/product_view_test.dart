@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pickaboo/core/constants/app_assets.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/product_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/slider_product_view.dart';
+
+Finder findFastDelivery() => find.byWidgetPredicate(
+      (w) =>
+          w is SvgPicture &&
+          w.bytesLoader is SvgAssetLoader &&
+          (w.bytesLoader as SvgAssetLoader).assetName == AppAssets.fastDelivery,
+    );
 
 void main() {
   Widget createWidgetUnderTest(ProductEntity product) {
@@ -139,7 +148,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Divider), findsOneWidget);
-      expect(find.byIcon(Icons.local_shipping_outlined), findsOneWidget);
+      expect(findFastDelivery(), findsOneWidget);
       expect(find.text('৳12,990'), findsOneWidget);
       expect(find.text('Out of Stock'), findsNothing);
       expect(tester.takeException(), isNull);
@@ -151,7 +160,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Divider), findsOneWidget);
-      expect(find.byIcon(Icons.local_shipping_outlined), findsOneWidget);
+      expect(findFastDelivery(), findsOneWidget);
       expect(find.text('৳12,990'), findsOneWidget);
       expect(find.text('Out of Stock'), findsNothing);
       expect(tester.takeException(), isNull);
@@ -163,7 +172,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Divider), findsNothing);
-      expect(find.byIcon(Icons.local_shipping_outlined), findsNothing);
+      expect(findFastDelivery(), findsNothing);
       expect(find.text('৳12,990'), findsNothing);
       expect(find.text('Out of Stock'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -175,7 +184,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Divider), findsNothing);
-      expect(find.byIcon(Icons.local_shipping_outlined), findsNothing);
+      expect(findFastDelivery(), findsNothing);
       expect(find.text('৳12,990'), findsNothing);
       expect(find.text('Out of Stock'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -229,7 +238,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Divider), findsOneWidget);
-      expect(find.byIcon(Icons.local_shipping_outlined), findsOneWidget);
+      expect(findFastDelivery(), findsOneWidget);
       expect(find.text('Out of Stock'), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -240,7 +249,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Divider), findsOneWidget);
-      expect(find.byIcon(Icons.local_shipping_outlined), findsOneWidget);
+      expect(findFastDelivery(), findsOneWidget);
       expect(find.text('Out of Stock'), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -294,6 +303,38 @@ void main() {
       expect(size3.height, equals(size1.height));
       expect(size4.height, equals(size1.height));
     });
+
+    testWidgets('SliderProductView renders 2-3 days delivery text cleanly without overflow',
+        (WidgetTester tester) async {
+      const standardProduct = ProductEntity(
+        id: '99',
+        expressDelivery: false,
+        productName: 'MI Pro 23 Cam',
+        sku: 'MI-23',
+        slug: 'mi-pro-23-cam',
+        typeId: 'simple',
+        stockAvailable: true,
+        freeDelivery: false,
+        productPrice: 1230,
+        productSpecialPrice: 0,
+        productDiscount: 0,
+        offers: '',
+        rating: 4.5,
+        clubPoint: 5,
+        ratingCount: 12,
+        productImg: '',
+        emiAvailable: false,
+        comingSoon: false,
+        deliveryInfo: '',
+      );
+
+      await tester.pumpWidget(createSliderWidgetUnderTest(standardProduct));
+      await tester.pumpAndSettle();
+
+      expect(findFastDelivery(), findsOneWidget);
+      expect(find.textContaining('2-3 days'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 
   test('ProductEntityX handles delivery text formatting properly', () {
@@ -316,9 +357,9 @@ void main() {
       productImg: '',
       emiAvailable: false,
       comingSoon: false,
-      deliveryInfo: 'Delivery by Tomorrow, 4 Sep',
+      deliveryInfo: '',
     );
-    expect(p1.deliveryTargetText, 'Tomorrow, 4 Sep');
+    expect(p1.deliveryLabelText, 'Delivery by ');
 
     const p2 = ProductEntity(
       id: '2',
@@ -366,8 +407,8 @@ void main() {
       emiAvailable: false,
       comingSoon: false,
     );
-    expect(p3.deliveryLabelText, 'Delivery by ');
-    expect(p3.deliveryTargetText, '3-4 working days');
-    expect(p3.displayDeliveryText, 'Delivery by 3-4 working days');
+    expect(p3.deliveryLabelText, 'Tentative ');
+    expect(p3.deliveryTargetText, '2-3 days');
+    expect(p3.displayDeliveryText, 'Tentative 2-3 days');
   });
 }

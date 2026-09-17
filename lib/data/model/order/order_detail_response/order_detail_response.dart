@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pickaboo/core/utils/date_time_utils.dart';
 
 part 'order_detail_response.freezed.dart';
 part 'order_detail_response.g.dart';
@@ -9,7 +10,7 @@ class OrderDetailResponse with _$OrderDetailResponse {
     @JsonKey(name: "order_id") int? orderId,
     @JsonKey(name: "order_number") String? orderNumber,
     @JsonKey(name: "customer_id") int? customerId,
-    @JsonKey(name: "created_at") DateTime? createdAt,
+    @JsonKey(name: "created_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? createdAt,
     @JsonKey(name: "state") String? state,
     @JsonKey(name: "status") String? status,
     @JsonKey(name: "items") List<OrderItemDetailModel>? items,
@@ -22,7 +23,11 @@ class OrderDetailResponse with _$OrderDetailResponse {
     @JsonKey(name: "shipping_method") String? shippingMethod,
     @JsonKey(name: "remote_ip") String? remoteIp,
     @JsonKey(name: "payment_method") String? paymentMethod,
-    @JsonKey(name: "payment_information")
+    @JsonKey(
+      name: "payment_information",
+      fromJson: safePaymentInformationFromJson,
+      toJson: safePaymentInformationToJson,
+    )
     List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") Object? justForYou,
     @JsonKey(name: "status_history") List<StatusHistoryModel>? statusHistory,
@@ -30,6 +35,13 @@ class OrderDetailResponse with _$OrderDetailResponse {
     @JsonKey(name: "customer_name") String? customerName,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_phone") String? customerPhone,
+    @JsonKey(name: "convenience_fee") num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
+    @JsonKey(name: "payment_mode") String? paymentMode,
+    @JsonKey(name: "emi_tenure") dynamic emiTenure,
+    @JsonKey(name: "emi_bank") String? emiBank,
+    @JsonKey(name: "bank_name") String? bankName,
+    @JsonKey(name: "tenure") dynamic tenure,
   }) = _OrderDetailResponse;
 
   factory OrderDetailResponse.fromJson(Map<String, dynamic> json) =>
@@ -62,13 +74,18 @@ class OrderItemDetailModel with _$OrderItemDetailModel {
 @freezed
 class OrderSummaryDetailModel with _$OrderSummaryDetailModel {
   const factory OrderSummaryDetailModel({
-    @JsonKey(name: "subtotal") int? subtotal,
+    @JsonKey(name: "subtotal") num? subtotal,
     @JsonKey(name: "total_order_qty") int? totalOrderQty,
-    @JsonKey(name: "discount_amount") int? discountAmount,
-    @JsonKey(name: "rewards_discount") int? rewardsDiscount,
-    @JsonKey(name: "shipping_fee") int? shippingFee,
-    @JsonKey(name: "grand_total") int? grandTotal,
+    @JsonKey(name: "discount_amount") num? discountAmount,
+    @JsonKey(name: "rewards_discount") num? rewardsDiscount,
+    @JsonKey(name: "shipping_fee") num? shippingFee,
+    @JsonKey(name: "grand_total") num? grandTotal,
     @JsonKey(name: "reward_earned") int? rewardEarned,
+    @JsonKey(name: "convenience_fee") num? convenienceFee,
+    @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
+    @JsonKey(name: "convenience_amount") num? convenienceAmount,
+    @JsonKey(name: "convenience_price") num? conveniencePrice,
+    @JsonKey(name: "fee") num? fee,
   }) = _OrderSummaryDetailModel;
 
   factory OrderSummaryDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -133,8 +150,9 @@ class StatusHistoryModel with _$StatusHistoryModel {
     @JsonKey(name: "is_visible_on_front") String? isVisibleOnFront,
     @JsonKey(name: "comment") String? comment,
     @JsonKey(name: "status") String? status,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "entity_name") EntityName? entityName,
+    @JsonKey(name: "created_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? createdAt,
+    @JsonKey(name: "entity_name", fromJson: safeEntityNameFromJson, toJson: safeEntityNameToJson)
+    EntityName? entityName,
     @JsonKey(name: "seller_order_id") dynamic sellerOrderId,
   }) = _StatusHistoryModel;
 
@@ -147,11 +165,38 @@ enum EntityName {
   invoice,
   @JsonValue("order")
   order,
+  @JsonValue("shipment")
+  shipment,
+  @JsonValue("creditmemo")
+  creditmemo,
+}
+
+EntityName? safeEntityNameFromJson(Object? json) {
+  if (json == null) return null;
+  final str = json.toString().toLowerCase().trim();
+  switch (str) {
+    case 'invoice':
+      return EntityName.invoice;
+    case 'order':
+      return EntityName.order;
+    case 'shipment':
+      return EntityName.shipment;
+    case 'creditmemo':
+      return EntityName.creditmemo;
+    default:
+      return null;
+  }
+}
+
+String? safeEntityNameToJson(EntityName? entityName) {
+  return entityName?.name;
 }
 
 final entityNameValues = EnumValues({
   "invoice": EntityName.invoice,
   "order": EntityName.order,
+  "shipment": EntityName.shipment,
+  "creditmemo": EntityName.creditmemo,
 });
 
 @freezed
@@ -178,3 +223,33 @@ class EnumValues<T> {
     return reverseMap;
   }
 }
+
+List<PaymentInfoModel>? safePaymentInformationFromJson(Object? json) {
+  if (json == null) return null;
+  if (json is List) {
+    return json.map((e) {
+      if (e is Map<String, dynamic>) {
+        return PaymentInfoModel.fromJson(e);
+      }
+      return const PaymentInfoModel();
+    }).toList();
+  }
+  if (json is Map<String, dynamic>) {
+    return json.entries.map((entry) {
+      if (entry.value is Map<String, dynamic>) {
+        return PaymentInfoModel.fromJson(entry.value as Map<String, dynamic>);
+      }
+      return PaymentInfoModel(
+        code: entry.key,
+        title: entry.key,
+        value: entry.value,
+      );
+    }).toList();
+  }
+  return null;
+}
+
+List<dynamic>? safePaymentInformationToJson(List<PaymentInfoModel>? list) {
+  return list?.map((e) => e.toJson()).toList();
+}
+

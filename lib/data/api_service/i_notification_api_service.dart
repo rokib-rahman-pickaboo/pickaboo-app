@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/notification_api_service.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 import 'package:pickaboo/data/model/notification_item/notification_item.dart';
@@ -16,43 +16,42 @@ class INotificationApiService extends NotificationApiService {
   INotificationApiService(this._client);
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      final errorData = err.response?.data;
-
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
-    }
-    return const ErrorResponse(message: 'Something went wrong');
+    return ApiErrorParser.parse(err);
   }
 
   @override
   Future<Either<ErrorResponse, void>> saveFcmToken({
     required String fcmToken,
   }) async {
+    // Commented out as requested: Tokens are not stored in our DB; managed directly in Firebase
+    /*
+    final osName = Platform.isAndroid ? 'android' : 'ios';
     try {
-      await _client.post(
+      final response = await _client.post(
         ApiEndpoints.saveFcmTokenUrl,
         data: {
           'token': fcmToken,
           'device_type': 'mobile',
-          'os_name': Platform.isAndroid ? 'android' : 'ios',
+          'os_name': osName,
           'browser_name': 'pickaboo_app',
           'status': 'subscribed',
         },
       );
-
-      if (kDebugMode) {
-        print('save_fcm_token -> Success');
-      }
-
       return right(null);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('save_fcm_token_error -> $e');
-      }
       return left(checkErrorResponse(e));
     }
+    */
+
+    debugPrint('╔═══════════════════════════════════════════════════════════════════════════════════════');
+    debugPrint('║ 🔥 [FIREBASE_DIRECT] Device Token is active in Firebase:');
+    debugPrint('║ 🔑 Token: $fcmToken');
+    debugPrint('║ ℹ️ (Backend DB sync disabled: device token is managed directly via Firebase)');
+    debugPrint('╚═══════════════════════════════════════════════════════════════════════════════════════');
+    // ignore: avoid_print
+    print('FIREBASE_ACTIVE_TOKEN: $fcmToken');
+
+    return right(null);
   }
 
   @override

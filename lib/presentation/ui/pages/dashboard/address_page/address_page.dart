@@ -16,6 +16,7 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
@@ -33,37 +34,31 @@ class _AddressPageState extends State<AddressPage> {
     showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadius.dialogRadius,
         ),
         title: Text(
-          'Remove Address',
-          style: AppTypography.pageTitle,
+          AppStrings.removeAddress,
+          style: AppTypography.titleLarge,
         ),
         content: Text(
-          'Are you sure you want to remove this address?',
-          style: AppTypography.bodyMuted,
+          AppStrings.removeAddressConfirm,
+          style: AppTypography.bodySmall,
         ),
         actions: [
-          TextButton(
+          AppButton.ghost(
+            text: AppStrings.cancel,
+            textColor: AppColors.muted,
+            isFullWidth: false,
+            size: AppButtonSize.sm,
             onPressed: () => context.pop(false),
-            child: Text(
-              'Cancel',
-              style: AppTypography.bodyLarge.withColor(AppColors.muted),
-            ),
           ),
-          ElevatedButton(
+          AppButton.danger(
+            text: AppStrings.remove,
+            isFullWidth: false,
+            size: AppButtonSize.sm,
+            borderRadius: AppRadius.buttonRadius,
             onPressed: () => context.pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.red,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            child: Text(
-              'Remove',
-              style: AppTypography.buttonPrimary,
-            ),
           ),
         ],
       ),
@@ -108,28 +103,17 @@ class _AddressPageState extends State<AddressPage> {
           padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: SafeArea(
             top: false,
-            child: SizedBox(
-              height: 48.h,
-              child: ElevatedButton.icon(
-                onPressed: _navigateToAddAddress,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.pickabooBlue,
-                  foregroundColor: AppColors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
-                icon: Icon(
-                  Icons.add_location_alt_outlined,
-                  color: AppColors.white,
-                  size: 18.sp,
-                ),
-                label: Text(
-                  'Add New Address',
-                  style: AppTypography.buttonPrimary,
-                ),
+            child: AppButton.primary(
+              text: 'Add New Address',
+              icon: Icon(
+                Icons.add_location_alt_outlined,
+                color: AppColors.white,
+                size: 18.sp,
               ),
+              isFullWidth: true,
+              height: 48.h,
+              borderRadius: BorderRadius.circular(12.r),
+              onPressed: _navigateToAddAddress,
             ),
           ),
         ),
@@ -304,7 +288,7 @@ class _AddressCard extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         borderRadius: BorderRadius.circular(14.r),
         child: InkWell(
           onTap: onEdit,
@@ -327,7 +311,7 @@ class _AddressCard extends StatelessWidget {
                           if (isDefaultShipping && isDefaultBilling)
                             _buildStatusBadge(
                               icon: Icons.star_rounded,
-                              label: 'Default Address',
+                              label: 'Default Shipping & Billing',
                             )
                           else ...[
                             if (isDefaultShipping)
@@ -407,7 +391,7 @@ class _AddressCard extends StatelessWidget {
                                 SizedBox(width: 4.w),
                                 Text(
                                   'Edit',
-                                  style: AppTypography.brandActionText.copyWith(
+                                  style: AppTypography.brandAction.copyWith(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.pickabooBlue,
@@ -470,7 +454,7 @@ class _AddressCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         fullName.isNotEmpty ? fullName : 'Recipient',
-                        style: AppTypography.cardTitle.copyWith(
+                        style: AppTypography.titleSmall.copyWith(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
                           color: AppColors.navy,
@@ -502,7 +486,7 @@ class _AddressCard extends StatelessWidget {
                             SizedBox(width: 4.w),
                             Text(
                               phone,
-                              style: AppTypography.cardTitle.copyWith(
+                              style: AppTypography.titleSmall.copyWith(
                                 fontSize: 11.5.sp,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.navy,
@@ -546,7 +530,7 @@ class _AddressCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           formattedAddress,
-                          style: AppTypography.bodyMuted.copyWith(
+                          style: AppTypography.bodySmall.copyWith(
                             color: AppColors.navy,
                             fontSize: 12.5.sp,
                             height: 1.4,

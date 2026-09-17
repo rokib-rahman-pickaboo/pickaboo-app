@@ -43,9 +43,9 @@ class AppSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveHint = hintText ?? 'Search what you are looking for...';
+    final effectiveHint = hintText ?? AppStrings.searchHint;
     final effectiveHeight = height ?? 36.h;
-    final effectiveRadius = borderRadius ?? 10.r;
+    final effectiveRadius = borderRadius ?? AppRadius.chip.r;
 
     final bool hasRotatingHints =
         readOnly && rotatingHints != null && rotatingHints!.isNotEmpty;
@@ -80,7 +80,7 @@ class AppSearchBar extends StatelessWidget {
                     ? (hasRotatingHints
                         ? _RotatingSearchHint(
                             hints: rotatingHints!,
-                            style: AppTypography.bodyMuted,
+                            style: AppTypography.bodySmall,
                             interval: rotationInterval ??
                                 const Duration(milliseconds: 3000),
                             initialDelay: rotationInitialDelay ??
@@ -88,7 +88,7 @@ class AppSearchBar extends StatelessWidget {
                           )
                         : Text(
                             effectiveHint,
-                            style: AppTypography.bodyMuted,
+                            style: AppTypography.bodySmall,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ))
@@ -98,12 +98,12 @@ class AppSearchBar extends StatelessWidget {
                         onSubmitted: onSubmitted,
                         textInputAction: TextInputAction.search,
                         cursorColor: AppColors.pickabooBlue,
-                        style: AppTypography.bodyRegular,
+                        style: AppTypography.bodyMedium,
                         decoration: InputDecoration(
                           hintText: effectiveHint,
                           hintStyle: AppTypography.inputHint,
                           filled: true,
-                          fillColor: Colors.transparent,
+                          fillColor: AppColors.transparent,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,

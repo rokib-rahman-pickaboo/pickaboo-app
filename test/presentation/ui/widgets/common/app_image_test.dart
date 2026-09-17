@@ -154,5 +154,42 @@ void main() {
       expect(networkImage.width, width);
       expect(networkImage.height, height);
     });
+
+    testWidgets('should default filterQuality to FilterQuality.medium', (
+      WidgetTester tester,
+    ) async {
+      const testUrl = 'https://example.com/image.jpg';
+
+      await _pumpAppImage(tester, const AppImage(imageUrl: testUrl));
+
+      final networkImage = tester.widget<CachedNetworkImage>(
+        find.byType(CachedNetworkImage),
+      );
+      expect(networkImage.filterQuality, FilterQuality.medium);
+    });
+
+    testWidgets('should respect custom filterQuality and constrainHeightInMemCache', (
+      WidgetTester tester,
+    ) async {
+      const testUrl = 'https://example.com/image.jpg';
+
+      await _pumpAppImage(
+        tester,
+        const AppImage(
+          imageUrl: testUrl,
+          width: 300,
+          height: 200,
+          filterQuality: FilterQuality.high,
+          constrainHeightInMemCache: false,
+        ),
+      );
+
+      final networkImage = tester.widget<CachedNetworkImage>(
+        find.byType(CachedNetworkImage),
+      );
+      expect(networkImage.filterQuality, FilterQuality.high);
+      expect(networkImage.memCacheWidth, isNotNull);
+      expect(networkImage.memCacheHeight, isNull);
+    });
   });
 }

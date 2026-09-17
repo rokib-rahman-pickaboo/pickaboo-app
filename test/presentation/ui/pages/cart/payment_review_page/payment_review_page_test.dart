@@ -13,7 +13,8 @@ import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/checkout_bloc/checkout_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/payment_review_page/payment_review_page.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/style/app_text_styles.dart';
+import 'package:pickaboo/core/theme/app_themes.dart';
+import 'package:pickaboo/core/theme/app_typography.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/cart_item_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/payment_review_page/address_card.dart';
 
@@ -67,12 +68,7 @@ void main() {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          theme: ThemeData(
-            extensions: [
-              AppColors.light(),
-              AppTextStyles.build(Brightness.light),
-            ],
-          ),
+          theme: AppTheme.light(),
           home: MultiBlocProvider(
             providers: [
               BlocProvider<CartBloc>.value(value: mockCartBloc),

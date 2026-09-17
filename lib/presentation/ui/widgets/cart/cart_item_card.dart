@@ -9,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
 /// ─────────────────────────────────────────────────────────────
@@ -61,25 +62,7 @@ class CartItemCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // ── 1. LEFT: ROUNDED PRODUCT THUMBNAIL (80x80px) ──
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.r),
-            child: Container(
-              width: 80.w,
-              height: 80.w,
-              color: AppColors.pageBg,
-              child: item.imageUrl.isNotEmpty
-                  ? AppImage(
-                      imageUrl: item.imageUrl,
-                      fit: BoxFit.contain,
-                    )
-                  : const Center(
-                      child: Icon(
-                        Icons.image_outlined,
-                        color: AppColors.mutedLight,
-                      ),
-                    ),
-            ),
-          ),
+          CartItemThumbnail(item: item, size: 80.w),
           SizedBox(width: 10.w),
 
           // ── 2. RIGHT: PRODUCT DETAILS (TITLE, SELLER, PRICE+QTY, ACTIONS) ──
@@ -92,7 +75,7 @@ class CartItemCard extends StatelessWidget {
                   item.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.cardTitle.copyWith(
+                  style: AppTypography.titleSmall.copyWith(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.navy,
@@ -108,11 +91,11 @@ class CartItemCard extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: 'Sold by ',
-                          style: AppTypography.bodyMuted,
+                          style: AppTypography.bodySmall,
                         ),
                         TextSpan(
                           text: item.soldBy,
-                          style: AppTypography.bodyMuted.copyWith(
+                          style: AppTypography.bodySmall.copyWith(
                             color: AppColors.navy,
                             fontWeight: FontWeight.w600,
                           ),
@@ -140,7 +123,7 @@ class CartItemCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.pageBg,
-                            borderRadius: BorderRadius.circular(4.r),
+                            borderRadius: AppRadius.badgeRadius,
                             border: Border.all(
                               color: AppColors.border,
                               width: 0.8.w,
@@ -151,7 +134,7 @@ class CartItemCard extends StatelessWidget {
                               children: [
                                 TextSpan(
                                   text: '${o.title}: ',
-                                  style: AppTypography.bodyMuted.copyWith(
+                                  style: AppTypography.bodySmall.copyWith(
                                     fontSize: 10.sp,
                                     color: AppColors.muted,
                                     fontWeight: FontWeight.w500,
@@ -159,7 +142,7 @@ class CartItemCard extends StatelessWidget {
                                 ),
                                 TextSpan(
                                   text: o.value,
-                                  style: AppTypography.bodyRegular.copyWith(
+                                  style: AppTypography.bodyMedium.copyWith(
                                     fontSize: 10.sp,
                                     color: AppColors.navy,
                                     fontWeight: FontWeight.w600,
@@ -187,7 +170,7 @@ class CartItemCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceBlue,
-                            borderRadius: BorderRadius.circular(4.r),
+                            borderRadius: AppRadius.badgeRadius,
                             border: Border.all(
                               color: AppColors.pickabooBlue.withValues(alpha: 0.25),
                               width: 0.8.w,
@@ -198,7 +181,7 @@ class CartItemCard extends StatelessWidget {
                               children: [
                                 TextSpan(
                                   text: '${o.title}: ',
-                                  style: AppTypography.bodyMuted.copyWith(
+                                  style: AppTypography.bodySmall.copyWith(
                                     fontSize: 10.sp,
                                     color: AppColors.pickabooBlue,
                                     fontWeight: FontWeight.w500,
@@ -206,7 +189,7 @@ class CartItemCard extends StatelessWidget {
                                 ),
                                 TextSpan(
                                   text: '${o.value}$priceTag',
-                                  style: AppTypography.bodyRegular.copyWith(
+                                  style: AppTypography.bodyMedium.copyWith(
                                     fontSize: 10.sp,
                                     color: AppColors.navy,
                                     fontWeight: FontWeight.w600,
@@ -235,7 +218,7 @@ class CartItemCard extends StatelessWidget {
                     ),
                     child: Text(
                       'Out of Stock',
-                      style: AppTypography.badgeStockOut,
+                      style: AppTypography.bodyTiny.extraBold().red,
                     ),
                   ),
                 ],
@@ -264,7 +247,7 @@ class CartItemCard extends StatelessWidget {
                           if (hasDiscount)
                             Text(
                               '৳${_formatPrice(originalPrice)}',
-                              style: AppTypography.priceStrikethrough.copyWith(
+                              style: AppTypography.priceStrike.copyWith(
                                 fontSize: 10.5.sp,
                               ),
                             ),
@@ -282,7 +265,7 @@ class CartItemCard extends StatelessWidget {
                         offset: Offset(0, 4.h),
                         constraints: BoxConstraints(minWidth: 68.w),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: AppRadius.buttonRadius,
                           side: BorderSide(
                             color: AppColors.border,
                             width: 1.w,
@@ -302,12 +285,12 @@ class CartItemCard extends StatelessWidget {
                               child: Text(
                                 '$qty',
                                 style: isSelected
-                                    ? AppTypography.cardTitle.copyWith(
+                                    ? AppTypography.titleSmall.copyWith(
                                         color: AppColors.pickabooBlue,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12.sp,
                                       )
-                                    : AppTypography.bodyRegular.copyWith(
+                                    : AppTypography.bodyMedium.copyWith(
                                         color: AppColors.navy,
                                         fontSize: 12.sp,
                                       ),
@@ -327,7 +310,7 @@ class CartItemCard extends StatelessWidget {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: AppColors.pageBg,
-                            borderRadius: BorderRadius.circular(6.r),
+                            borderRadius: AppRadius.smRadius,
                             border: Border.all(color: AppColors.border),
                           ),
                           child: Row(
@@ -336,7 +319,7 @@ class CartItemCard extends StatelessWidget {
                             children: [
                               Text(
                                 'Qty: ${item.qty}',
-                                style: AppTypography.cardTitle.copyWith(
+                                style: AppTypography.titleSmall.copyWith(
                                   fontSize: 11.5.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -364,12 +347,12 @@ class CartItemCard extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: AppColors.pageBg,
-                          borderRadius: BorderRadius.circular(6.r),
+                          borderRadius: AppRadius.smRadius,
                           border: Border.all(color: AppColors.border),
                         ),
                         child: Text(
                           'Qty: ${item.qty}',
-                          style: AppTypography.cardTitle.copyWith(
+                          style: AppTypography.titleSmall.copyWith(
                             fontSize: 11.5.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -387,7 +370,7 @@ class CartItemCard extends StatelessWidget {
                       // Save for later
                       InkWell(
                         onTap: onSaveForLater,
-                        borderRadius: BorderRadius.circular(4.r),
+                        borderRadius: AppRadius.badgeRadius,
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 2.h),
                           child: Row(
@@ -401,7 +384,7 @@ class CartItemCard extends StatelessWidget {
                               SizedBox(width: 4.w),
                               Text(
                                 'Save for later',
-                                style: AppTypography.bodyRegular.copyWith(
+                                style: AppTypography.bodyMedium.copyWith(
                                   fontSize: 11.5.sp,
                                   color: AppColors.navy,
                                   fontWeight: FontWeight.w500,
@@ -415,7 +398,7 @@ class CartItemCard extends StatelessWidget {
                       // Remove
                       InkWell(
                         onTap: onRemove,
-                        borderRadius: BorderRadius.circular(4.r),
+                        borderRadius: AppRadius.badgeRadius,
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 2.h),
                           child: Row(
@@ -429,7 +412,7 @@ class CartItemCard extends StatelessWidget {
                               SizedBox(width: 4.w),
                               Text(
                                 'Remove',
-                                style: AppTypography.bodyRegular.copyWith(
+                                style: AppTypography.bodyMedium.copyWith(
                                   fontSize: 11.5.sp,
                                   color: AppColors.red,
                                   fontWeight: FontWeight.w500,
@@ -492,6 +475,129 @@ class CartItemCard extends StatelessWidget {
             color: AppColors.border,
           ),
       ],
+    );
+  }
+}
+
+/// ─────────────────────────────────────────────────────────────
+/// 🖼️ CART ITEM THUMBNAIL
+/// Robustly renders cart item thumbnails with auto-resolution from
+/// [ProductImageResolver] when backend returns empty or broken placeholder URLs.
+/// ─────────────────────────────────────────────────────────────
+class CartItemThumbnail extends StatefulWidget {
+  final CartItemEntity item;
+  final double size;
+
+  const CartItemThumbnail({
+    super.key,
+    required this.item,
+    required this.size,
+  });
+
+  @override
+  State<CartItemThumbnail> createState() => _CartItemThumbnailState();
+}
+
+class _CartItemThumbnailState extends State<CartItemThumbnail> {
+  String? _resolvedImageUrl;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAndResolve();
+  }
+
+  @override
+  void didUpdateWidget(covariant CartItemThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.item.itemId != widget.item.itemId ||
+        oldWidget.item.productId != widget.item.productId ||
+        oldWidget.item.imageUrl != widget.item.imageUrl) {
+      _checkAndResolve();
+    }
+  }
+
+  void _checkAndResolve() {
+    final rawUrl = widget.item.imageUrl;
+
+    // 1. If item.imageUrl is a valid real image URL (not placeholder / broken)
+    if (!ProductImageResolver.isPlaceholderOrBroken(rawUrl)) {
+      _resolvedImageUrl = rawUrl;
+      ProductImageResolver.cacheImage(widget.item.productId, rawUrl);
+      return;
+    }
+
+    // 2. Check if already cached in ProductImageResolver
+    final cached = ProductImageResolver.getCachedImage(widget.item.productId);
+    if (cached != null && !ProductImageResolver.isPlaceholderOrBroken(cached)) {
+      _resolvedImageUrl = cached;
+      return;
+    }
+
+    // 3. Resolve asynchronously if productId is valid
+    if (widget.item.productId > 0) {
+      _isLoading = true;
+      ProductImageResolver.resolveImage(
+        productId: widget.item.productId,
+        currentUrl: rawUrl,
+      ).then((resolved) {
+        if (mounted) {
+          setState(() {
+            _resolvedImageUrl = resolved;
+            _isLoading = false;
+          });
+        }
+      }).catchError((_) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: AppRadius.buttonRadius,
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        color: AppColors.pageBg,
+        child: _buildImageContent(),
+      ),
+    );
+  }
+
+  Widget _buildImageContent() {
+    if (_resolvedImageUrl != null &&
+        !ProductImageResolver.isPlaceholderOrBroken(_resolvedImageUrl)) {
+      return AppImage(
+        imageUrl: _resolvedImageUrl!,
+        fit: BoxFit.contain,
+      );
+    }
+
+    if (_isLoading) {
+      return const Center(
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.primary,
+          ),
+        ),
+      );
+    }
+
+    return const Center(
+      child: Icon(
+        Icons.image_outlined,
+        color: AppColors.mutedLight,
+      ),
     );
   }
 }

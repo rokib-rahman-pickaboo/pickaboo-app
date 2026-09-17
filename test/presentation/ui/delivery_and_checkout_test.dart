@@ -73,7 +73,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Delivery by 3-4 working days'), findsOneWidget);
+      expect(find.text('Tentative 2-3 days'), findsOneWidget);
     });
 
     testWidgets('displays Express Delivery when isExpress is true', (tester) async {
@@ -146,25 +146,34 @@ void main() {
     });
   });
 
-  group('PriceSummaryWidget Shipping Label', () {
-    testWidgets('displays "Shipping and Handeling" instead of just "Shipping"', (tester) async {
+  group('PriceSummaryWidget Display & Floor Calculations', () {
+    testWidgets('displays "Shipping" and applies floor() to fractional discount', (tester) async {
       await tester.pumpWidget(
         wrapWithScreenUtil(
           const PriceSummaryWidget(
-            subtotal: 1000,
-            grandTotal: 1060,
-            discountAmount: 0,
-            shippingAmount: 60,
-            discountTitle: '',
+            subtotal: 7490,
+            grandTotal: 7166,
+            discountAmount: 374.5,
+            shippingAmount: 50,
+            discountTitle: 'Discount (EBL)',
             clubPointDiscount: 0,
-            itemsCount: 2,
+            itemsCount: 1,
           ),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Shipping and Handeling'), findsOneWidget);
-      expect(find.text('Shipping'), findsNothing);
+      expect(find.text('Shipping'), findsOneWidget);
+      expect(find.text('Discount (EBL)'), findsOneWidget);
+      // Verify floor() is applied: 374.5 -> -৳374
+      expect(find.text('-৳374'), findsOneWidget);
+      expect(find.text('৳7,166'), findsOneWidget);
+      expect(
+        find.text(
+          'You will save ৳374 on this order, may vary based on payment method.',
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

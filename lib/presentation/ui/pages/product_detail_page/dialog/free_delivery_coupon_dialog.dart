@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class FreeDeliveryCouponDialog extends StatelessWidget {
   final String couponCode;
@@ -25,8 +27,6 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.textStyle;
-
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -39,16 +39,16 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildHeader(context, textStyle),
+              _buildHeader(context),
               const Divider(height: 1),
               SizedBox(height: 24.h),
-              _buildTitle(textStyle),
+              _buildTitle(),
               SizedBox(height: 20.h),
-              _buildCouponCodeBox(textStyle),
+              _buildCouponCodeBox(),
               SizedBox(height: 12.h),
-              _buildSubtitle(textStyle),
+              _buildSubtitle(),
               SizedBox(height: 24.h),
-              _buildCopyButton(context, textStyle),
+              _buildCopyButton(context),
             ],
           ),
         ),
@@ -58,7 +58,6 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
 
   Widget _buildHeader(
     BuildContext context,
-    AppTextStyles textStyle,
   ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
@@ -67,7 +66,7 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
         children: [
           Text(
             'Free Delivery',
-            style: textStyle.headingMedium.copyWith(
+            style: AppTypography.titleMedium.copyWith(
               color: AppColors.text,
               fontWeight: FontWeight.w700,
             ),
@@ -81,13 +80,13 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildTitle(AppTextStyles textStyle) {
+  Widget _buildTitle() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Text(
         'To get the free delivery, collect your coupon here',
         textAlign: TextAlign.center,
-        style: textStyle.headingSmall.copyWith(
+        style: AppTypography.titleLarge.copyWith(
           color: AppColors.text,
           fontWeight: FontWeight.w500,
           height: 1.4,
@@ -96,7 +95,7 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildCouponCodeBox(AppTextStyles textStyle) {
+  Widget _buildCouponCodeBox() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Container(
@@ -114,7 +113,7 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
         child: Text(
           couponCode,
           textAlign: TextAlign.center,
-          style: textStyle.bodyLarge.copyWith(
+          style: AppTypography.bodyLarge.copyWith(
             color: AppColors.muted,
             letterSpacing: 1.2,
           ),
@@ -123,13 +122,13 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildSubtitle(AppTextStyles textStyle) {
+  Widget _buildSubtitle() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Text(
         'Redeem your free delivery by applying this code at checkout.',
         textAlign: TextAlign.center,
-        style: textStyle.bodySmall.copyWith(
+        style: AppTypography.bodySmall.copyWith(
           color: AppColors.muted,
           height: 1.5,
         ),
@@ -139,31 +138,19 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
 
   Widget _buildCopyButton(
     BuildContext context,
-    AppTextStyles textStyle,
   ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: couponCode));
-            SnackBarUtils.showPositive(context, 'Coupon code copied!');
-          },
-          icon: Icon(Icons.copy_rounded, color: AppColors.white, size: 20.sp),
-          label: Text(
-            'Copy Coupon Code',
-            style: textStyle.bodyLargeBold.copyWith(color: AppColors.white),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.pickabooBlue,
-            padding: EdgeInsets.symmetric(vertical: 14.h),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.r),
-            ),
-            elevation: 0,
-          ),
-        ),
+      child: AppButton.primary(
+        borderRadius: BorderRadius.circular(30.r),
+        padding: EdgeInsets.symmetric(vertical: 14.h),
+        icon: Icon(Icons.copy_rounded, color: AppColors.white, size: 20.sp),
+        text: 'Copy Coupon Code',
+        textStyle: AppTypography.bodyLarge.bold().copyWith(color: AppColors.white),
+        onPressed: () {
+          Clipboard.setData(ClipboardData(text: couponCode));
+          SnackBarUtils.showPositive(context, 'Coupon code copied!');
+        },
       ),
     );
   }

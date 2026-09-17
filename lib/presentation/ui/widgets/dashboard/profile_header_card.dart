@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/auth/user_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/user_image_widget.dart';
 
@@ -51,21 +52,21 @@ class ProfileHeaderCard extends StatelessWidget {
               children: [
                 Text(
                   '${user.firstname} ${user.lastname}'.trim(),
-                  style: NewAppTypography.mainHeaderTitle,
+                  style: AppTypography.titleLarge,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   user.email.isNotEmpty ? user.email : 'Pickaboo Customer',
-                  style: NewAppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   'User ID: #${user.id}',
-                  style: NewAppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
               ],
             ),
@@ -125,41 +126,32 @@ class ProfileHeaderCard extends StatelessWidget {
               children: [
                 Text(
                   'Welcome to Pickaboo!',
-                  style: NewAppTypography.mainHeaderTitle,
+                  style: AppTypography.titleLarge,
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   'Login to continue & unlock exclusive deals',
-                  style: NewAppTypography.bodyMuted,
+                  style: AppTypography.bodySmall,
                 ),
                 SizedBox(height: 10.h),
-                ElevatedButton.icon(
+                AppButton.primary(
+                  isFullWidth: false,
                   onPressed: onLoginTap,
+                  height: 32.h,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 8.h,
+                  ),
+                  borderRadius: AppRadius.fullRadius,
                   icon: Icon(
                     Icons.login_rounded,
                     size: 14.sp,
                     color: AppColors.white,
                   ),
-                  label: Text(
-                    'LOGIN / REGISTER',
-                    style: AppTypography.buttonPrimary.copyWith(
-                      fontSize: 11.sp,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.pickabooBlue,
-                    foregroundColor: AppColors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 14.w,
-                      vertical: 8.h,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
+                  text: AppStrings.loginOrRegister,
+                  textStyle: AppTypography.button.copyWith(
+                    fontSize: 11.sp,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],

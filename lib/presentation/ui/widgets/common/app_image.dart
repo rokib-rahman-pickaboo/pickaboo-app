@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 
 typedef AppImageBuilder =
@@ -31,6 +31,40 @@ class AppImage extends StatefulWidget {
   final Function(Object)? errorListener;
 
   final int? cacheWidth;
+  final FilterQuality filterQuality;
+  final bool constrainHeightInMemCache;
+
+  /// Returns a [CachedNetworkImageProvider] with URL normalization applied.
+  /// Use this when an [ImageProvider] is needed instead of a widget
+  /// (e.g., [PhotoView], [DecorationImage]).
+  static CachedNetworkImageProvider provider(String url) {
+    return CachedNetworkImageProvider(_normalizeUrlStatic(url));
+  }
+
+  static String _normalizeUrlStatic(String url) {
+    if (url.isEmpty) return '';
+    final trimmed = url.trim();
+    final lower = trimmed.toLowerCase();
+    if (lower.contains('placeholder/.jpg') ||
+        lower.contains('placeholder/.png') ||
+        lower.contains('magento_catalog/images/product/placeholder') ||
+        lower.contains('/placeholder/default') ||
+        lower.contains('pickaboo-plholder') ||
+        lower.contains('plholder') ||
+        lower.contains('/placeholder/') ||
+        lower.endsWith('/.jpg') ||
+        lower.endsWith('/.png')) {
+      return '';
+    }
+    if (trimmed.startsWith('http')) return trimmed;
+    if (trimmed.startsWith('//')) return 'https:$trimmed';
+    final cleanRelativePath = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+    return '$_cleanBaseUrl$cleanRelativePath';
+  }
+
+  static final String _cleanBaseUrl = ApiEndpoints.baseUrl.endsWith('/')
+      ? ApiEndpoints.baseUrl.substring(0, ApiEndpoints.baseUrl.length - 1)
+      : ApiEndpoints.baseUrl;
 
   const AppImage({
     super.key,
@@ -50,6 +84,8 @@ class AppImage extends StatefulWidget {
     this.fadeInDuration = const Duration(milliseconds: 120),
     this.errorListener,
     this.cacheWidth,
+    this.filterQuality = FilterQuality.medium,
+    this.constrainHeightInMemCache = true,
   });
 
   @override
@@ -60,10 +96,6 @@ class _AppImageState extends State<AppImage> {
   int _retryCount = 0;
   Key _imageKey = UniqueKey();
   Timer? _retryTimer;
-
-  static final String _cleanBaseUrl = ApiEndpoints.baseUrl.endsWith('/')
-      ? ApiEndpoints.baseUrl.substring(0, ApiEndpoints.baseUrl.length - 1)
-      : ApiEndpoints.baseUrl;
 
   @override
   void dispose() {
@@ -81,22 +113,10 @@ class _AppImageState extends State<AppImage> {
     }
   }
 
-  String _normalizeUrl(String url) {
-    if (url.isEmpty) return '';
-    final trimmed = url.trim();
-
-    if (trimmed.startsWith('http')) return trimmed;
-
-    if (trimmed.startsWith('//')) return 'https:$trimmed';
-
-    final cleanRelativePath = trimmed.startsWith('/') ? trimmed : '/$trimmed';
-    return '$_cleanBaseUrl$cleanRelativePath';
-  }
-
   @override
   Widget build(BuildContext context) {
     final validUrl = widget.imageUrl != null
-        ? _normalizeUrl(widget.imageUrl!)
+        ? AppImage._normalizeUrlStatic(widget.imageUrl!)
         : '';
 
     if (validUrl.isEmpty) {
@@ -121,9 +141,12 @@ class _AppImageState extends State<AppImage> {
       width: widget.width,
       height: widget.height,
       fit: widget.fit,
-      filterQuality: FilterQuality.low,
+      filterQuality: widget.filterQuality,
       memCacheWidth: widget.useMemCache ? targetWidth : null,
-      memCacheHeight: widget.useMemCache ? targetHeight : null,
+      memCacheHeight:
+          (widget.useMemCache && widget.constrainHeightInMemCache)
+              ? targetHeight
+              : null,
       maxWidthDiskCache: widget.maxWidthDiskCache,
       maxHeightDiskCache: widget.maxHeightDiskCache,
       fadeInDuration: widget.fadeInDuration,
@@ -169,9 +192,9 @@ class _AppImageState extends State<AppImage> {
           child: Container(
             width: width,
             height: height,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.pageBg,
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: AppRadius.badgeRadius,
             ),
           ),
         );

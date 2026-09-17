@@ -72,7 +72,7 @@ class ClubPointsHeader extends StatelessWidget {
             AppColors.navy,
           ],
         ),
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: AppRadius.dialogRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.pickabooBlue.withValues(alpha: 0.35),
@@ -91,12 +91,12 @@ class ClubPointsHeader extends StatelessWidget {
                   children: [
                     Text(
                       'My lifetime points',
-                      style: AppTypography.bodyRegular.withColor(Colors.white.withValues(alpha: 0.85)),
+                      style: AppTypography.bodyMedium.withColor(AppColors.white.withValues(alpha: 0.85)),
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       '${data.myLifeTimePoints}',
-                      style: AppTypography.heroTitle.size(28.sp).withColor(Colors.white),
+                      style: AppTypography.heroTitle.size(28.sp).withColor(AppColors.white),
                     ),
                   ],
                 ),
@@ -104,10 +104,10 @@ class ClubPointsHeader extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12.r),
+                  color: AppColors.white.withValues(alpha: 0.2),
+                  borderRadius: AppRadius.cardRadius,
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: AppColors.white.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Column(
@@ -115,12 +115,12 @@ class ClubPointsHeader extends StatelessWidget {
                   children: [
                     Text(
                       'Balance',
-                      style: AppTypography.bodyMuted.withColor(Colors.white.withValues(alpha: 0.85)),
+                      style: AppTypography.bodySmall.withColor(AppColors.white.withValues(alpha: 0.85)),
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       '${data.myPoints}',
-                      style: AppTypography.pageTitleWhite,
+                      style: AppTypography.titleLarge.white,
                     ),
                   ],
                 ),
@@ -131,10 +131,10 @@ class ClubPointsHeader extends StatelessWidget {
           if (data.tiers.isNotEmpty) ...[
             SizedBox(height: 16.h),
             ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.buttonRadius,
               child: LinearProgressIndicator(
                 value: _getProgressPercentage(data),
-                backgroundColor: Colors.white.withValues(alpha: 0.25),
+                backgroundColor: AppColors.white.withValues(alpha: 0.25),
                 valueColor: const AlwaysStoppedAnimation<Color>(
                   AppColors.green,
                 ),
@@ -147,11 +147,11 @@ class ClubPointsHeader extends StatelessWidget {
               children: [
                 Text(
                   data.tiers.first.name,
-                  style: AppTypography.bodyMuted.withColor(Colors.white.withValues(alpha: 0.85)),
+                  style: AppTypography.bodySmall.withColor(AppColors.white.withValues(alpha: 0.85)),
                 ),
                 Text(
                   data.tiers.last.name,
-                  style: AppTypography.bodyMuted.withColor(Colors.white.withValues(alpha: 0.85)),
+                  style: AppTypography.bodySmall.withColor(AppColors.white.withValues(alpha: 0.85)),
                 ),
               ],
             ),
@@ -162,21 +162,21 @@ class ClubPointsHeader extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20.r),
+                color: AppColors.white.withValues(alpha: 0.2),
+                borderRadius: AppRadius.fullRadius,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.emoji_events_rounded,
-                    color: Colors.white,
+                    color: AppColors.white,
                     size: 15.sp,
                   ),
                   SizedBox(width: 6.w),
                   Text(
                     _getReachGoalText(data),
-                    style: AppTypography.buttonPrimary.size(11.5.sp),
+                    style: AppTypography.button.size(11.5.sp),
                   ),
                 ],
               ),

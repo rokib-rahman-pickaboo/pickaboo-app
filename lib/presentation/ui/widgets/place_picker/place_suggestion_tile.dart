@@ -33,7 +33,7 @@ class PlaceSuggestionTile extends StatelessWidget {
                 children: [
                   Text(
                     address,
-                    style: context.textStyle.bodyMediumMedium.withColor(AppColors.navy),
+                    style: AppTypography.bodyMedium.medium().withColor(AppColors.navy),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -41,7 +41,7 @@ class PlaceSuggestionTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: context.textStyle.bodySmall.withColor(AppColors.muted),
+                      style: AppTypography.bodySmall.withColor(AppColors.muted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

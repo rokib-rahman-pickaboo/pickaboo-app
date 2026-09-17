@@ -11,6 +11,8 @@ import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/product_media_dialog.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 enum PdpMediaTab { videos, images, customer }
 
 /// 1. HERO MEDIA GALLERY WITH FLOATING TOP BAR (Back, Search, Cart) AND RIGHT-SIDE BUTTONS (Wishlist, Compare, Share)
@@ -284,7 +286,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                                         ),
                                         child: Text(
                                           '${widget.cartCount}',
-                                          style: AppTypography.buttonPrimary,
+                                          style: AppTypography.button,
                                         ),
                                       ),
                                     ),
@@ -349,7 +351,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                     ),
                     child: Text(
                       _getIndicatorText(images.length, videoCount, customerPhotoCount),
-                      style: AppTypography.buttonPrimary,
+                      style: AppTypography.button,
                     ),
                   ),
                 ),
@@ -447,7 +449,7 @@ class _FloatingCircleButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: AppColors.black.withValues(alpha: 0.08),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -499,7 +501,7 @@ class _MediaPill extends StatelessWidget {
             SizedBox(width: 4.w),
             Text(
               label,
-              style: AppTypography.brandActionText.copyWith(
+              style: AppTypography.brandAction.copyWith(
                 color: isSelected ? AppColors.pickabooBlue : AppColors.navy,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),

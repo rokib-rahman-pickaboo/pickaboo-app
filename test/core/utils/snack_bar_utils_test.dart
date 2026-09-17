@@ -29,7 +29,7 @@ void main() {
       expect(type.accentColor, AppColors.red);
       expect(type.surfaceColor, AppColors.redBg);
       expect(type.defaultIcon, Icons.warning_amber_rounded);
-      expect(type.defaultTitle, 'Something went wrong');
+      expect(type.defaultTitle, AppStrings.somethingWentWrong);
       expect(type.defaultTag, 'FAILED');
     });
 
@@ -194,6 +194,55 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Dismissible message'), findsNothing);
+    });
+
+    testWidgets('defaultMsgDuration is 1 second and auto-dismisses after 1s', (tester) async {
+      expect(SnackBarUtils.defaultMsgDuration, const Duration(seconds: 1));
+
+      await tester.pumpWidget(
+        buildTestHarness((context) {
+          SnackBarUtils.showRegular(
+            context,
+            'Auto dismissing in 2s',
+          );
+        }),
+      );
+
+      await tester.tap(find.text('Show'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+
+      expect(find.text('Auto dismissing in 2s'), findsOneWidget);
+
+      // Advance by 1.5 seconds - should still be present
+      await tester.pump(const Duration(milliseconds: 1500));
+      expect(find.text('Auto dismissing in 2s'), findsOneWidget);
+
+      // Advance past the 2s mark (+ fade out)
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Auto dismissing in 2s'), findsNothing);
+    });
+
+    testWidgets('showCartItemAdded formats multiple items correctly', (tester) async {
+      await tester.pumpWidget(
+        buildTestHarness((context) {
+          SnackBarUtils.showCartItemAdded(
+            context,
+            itemCount: 3,
+            message: '3 items added to cart',
+          );
+        }),
+      );
+
+      await tester.tap(find.text('Show'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+
+      expect(find.text('Added to Cart'), findsOneWidget);
+      expect(find.text('3 ITEMS'), findsOneWidget);
+      expect(find.text('3 items added to cart'), findsOneWidget);
+      expect(find.text('View Cart'), findsOneWidget);
     });
   });
 }

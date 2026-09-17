@@ -45,7 +45,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 8.h),
             decoration: BoxDecoration(
               color: AppColors.redBg,
-              borderRadius: BorderRadius.circular(6.r),
+              borderRadius: AppRadius.smRadius,
               border: Border.all(color: AppColors.red.withValues(alpha: 0.3)),
             ),
             child: Row(
@@ -53,8 +53,8 @@ class PdpVariantSelectorSection extends StatelessWidget {
                 Icon(Icons.info_outline, size: 14.sp, color: AppColors.red),
                 SizedBox(width: 6.w),
                 Text(
-                  'Please select all variant options to proceed',
-                  style: AppTypography.badgeStockOut,
+                  AppStrings.pdpSelectAllVariantOptions,
+                  style: AppTypography.bodyTiny.extraBold().red,
                 ),
               ],
             ),
@@ -134,7 +134,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
           children: [
             Text(
               '$groupTitle:',
-              style: AppTypography.cardTitle,
+              style: AppTypography.titleSmall,
             ),
             GestureDetector(
               onTap: onHeaderTap,
@@ -142,7 +142,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
                 isOptionSelected
                     ? currentSelectedLabel
                     : 'Select $groupTitle',
-                style: AppTypography.brandActionText,
+                style: AppTypography.brandAction,
               ),
             ),
           ],
@@ -182,7 +182,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
                             padding: EdgeInsets.all(2.w),
                             decoration: BoxDecoration(
                               color: isSel ? AppColors.surfaceBlue : AppColors.white,
-                              borderRadius: BorderRadius.circular(8.r),
+                              borderRadius: AppRadius.buttonRadius,
                               border: Border.all(
                                 color: isSel ? AppColors.pickabooBlue : AppColors.border,
                                 width: isSel ? 1.5.w : 1.w,
@@ -198,7 +198,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
                                   : null,
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(6.r),
+                              borderRadius: AppRadius.smRadius,
                               child: SizedBox(
                                 width: 52.w,
                                 height: 52.w,
@@ -211,7 +211,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
                                           opt.optionText.isNotEmpty
                                               ? opt.optionText.substring(0, 1).toUpperCase()
                                               : 'C',
-                                          style: AppTypography.sectionTitle,
+                                          style: AppTypography.titleMedium,
                                         ),
                                       ),
                               ),
@@ -241,8 +241,8 @@ class PdpVariantSelectorSection extends StatelessWidget {
                       Text(
                         opt.optionText,
                         style: isSel
-                            ? AppTypography.brandActionText
-                            : AppTypography.brandActionText.withColor(AppColors.navy),
+                            ? AppTypography.brandAction
+                            : AppTypography.brandAction.withColor(AppColors.navy),
                       ),
                     ],
                   ),
@@ -278,7 +278,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                         decoration: BoxDecoration(
                           color: isSel ? AppColors.surfaceBlue : AppColors.white,
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: AppRadius.buttonRadius,
                           border: Border.all(
                             color: isSel ? AppColors.pickabooBlue : AppColors.border,
                             width: isSel ? 1.5.w : 1.w,
@@ -296,8 +296,8 @@ class PdpVariantSelectorSection extends StatelessWidget {
                         child: Text(
                           opt.optionText,
                           style: isSel
-                              ? AppTypography.brandActionText
-                              : AppTypography.brandActionText.withColor(AppColors.navy),
+                              ? AppTypography.brandAction
+                              : AppTypography.brandAction.withColor(AppColors.navy),
                         ),
                       ),
                       if (isSel)

@@ -15,6 +15,7 @@ import 'package:pickaboo/domain/entity/auth/user_entity.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
@@ -166,7 +167,7 @@ class ContactUsPage extends StatelessWidget {
                         SizedBox(width: 10.w),
                         const Text(
                           'Corporate Office',
-                          style: AppTypography.sectionTitle,
+                          style: AppTypography.titleMedium,
                         ),
                       ],
                     ),
@@ -198,14 +199,14 @@ class ContactUsPage extends StatelessWidget {
                     children: [
                       Text(
                         'Pickaboo Headquarters',
-                        style: AppTypography.cardTitle.copyWith(
+                        style: AppTypography.titleSmall.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       SizedBox(height: 6.h),
                       Text(
                         address,
-                        style: AppTypography.bodyRegular.copyWith(
+                        style: AppTypography.bodyMedium.copyWith(
                           color: AppColors.navy,
                           height: 1.4,
                         ),
@@ -216,32 +217,19 @@ class ContactUsPage extends StatelessWidget {
                 SizedBox(height: 20.h),
 
                 // "Open in Google Maps" button
-                SizedBox(
-                  width: double.infinity,
+                AppButton.primary(
                   height: 46.h,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(sheetContext);
-                      _launchMaps(context, address);
-                    },
-                    icon: Icon(
-                      Icons.map_outlined,
-                      size: 18.sp,
-                      color: AppColors.white,
-                    ),
-                    label: const Text(
-                      'Open in Google Maps',
-                      style: AppTypography.buttonPrimary,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pickabooBlue,
-                      foregroundColor: AppColors.white,
-                      elevation: 0,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: AppRadius.buttonRadius,
-                      ),
-                    ),
+                  borderRadius: AppRadius.buttonRadius,
+                  icon: Icon(
+                    Icons.map_outlined,
+                    size: 18.sp,
+                    color: AppColors.white,
                   ),
+                  text: 'Open in Google Maps',
+                  onPressed: () {
+                    Navigator.pop(sheetContext);
+                    _launchMaps(context, address);
+                  },
                 ),
               ],
             ),
@@ -308,12 +296,12 @@ class ContactUsPage extends StatelessWidget {
                               children: [
                                 Text(
                                   'Create a Support Ticket',
-                                  style: AppTypography.sectionTitle,
+                                  style: AppTypography.titleMedium,
                                 ),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(
                                   'Have an issue with your order? Our team is here to help',
-                                  style: AppTypography.bodyMuted,
+                                  style: AppTypography.bodySmall,
                                 ),
                               ],
                             ),
@@ -321,32 +309,19 @@ class ContactUsPage extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 14.h),
-                      SizedBox(
-                        width: double.infinity,
+                      AppButton.primary(
                         height: 44.h,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _requireAuth(
-                            context,
-                            () => context.push(Routes.createTicket),
-                            user: user,
-                          ),
-                          icon: Icon(
-                            Icons.add_circle_outline_rounded,
-                            size: 18.sp,
-                            color: AppColors.white,
-                          ),
-                          label: Text(
-                            AppStrings.createTicket,
-                            style: AppTypography.buttonPrimary,
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.pickabooBlue,
-                            foregroundColor: AppColors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                          ),
+                        borderRadius: BorderRadius.circular(10.r),
+                        icon: Icon(
+                          Icons.add_circle_outline_rounded,
+                          size: 18.sp,
+                          color: AppColors.white,
+                        ),
+                        text: AppStrings.createTicket,
+                        onPressed: () => _requireAuth(
+                          context,
+                          () => context.push(Routes.createTicket),
+                          user: user,
                         ),
                       ),
                     ],
@@ -366,7 +341,7 @@ class ContactUsPage extends StatelessWidget {
                         icon: Icons.phone_in_talk_outlined,
                         customIconColor: AppColors.green,
                         title: 'Customer Hotline',
-                        subtitle: '+88 09666 745 745 (9 AM - 10 PM)',
+                        subtitle: '+88 09666 745 745 (10 AM - 9 PM)',
                         onTap: () => _launchPhone(context, '+8809666745745'),
                       ),
                       Divider(
@@ -377,12 +352,12 @@ class ContactUsPage extends StatelessWidget {
                       ),
 
                       // 2. WhatsApp
-                      AppMenuTile(
-                        icon: Icons.chat_outlined,
-                        customIconColor: const Color(0xFF25D366),
-                        title: 'WhatsApp',
-                        onTap: () => _launchWhatsApp(context, '+8801708127000'),
-                      ),
+                      // AppMenuTile(
+                      //   icon: Icons.chat_outlined,
+                      //   customIconColor: AppColors.whatsApp,
+                      //   title: 'WhatsApp',
+                      //   onTap: () => _launchWhatsApp(context, '+8801708127000'),
+                      // ),
 
                       // // 3. Support Email
                       // Divider(

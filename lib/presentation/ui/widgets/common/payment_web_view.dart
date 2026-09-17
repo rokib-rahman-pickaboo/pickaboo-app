@@ -1,10 +1,21 @@
+// ============================================================================
+// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
+// All text styles in this file originate from [AppTypography] design tokens.
+// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
+// ============================================================================
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaymentWebView extends StatefulWidget {
@@ -12,11 +23,8 @@ class PaymentWebView extends StatefulWidget {
   final String title;
   final Map<String, String>? formFields;
   final Function(bool success, String? message) onPaymentResult;
-
   final void Function(String type, String paymentId)? onBkashCallback;
-
   final void Function(Map<String, String> params)? onNagadCallback;
-
   final VoidCallback? onUserClosed;
 
   const PaymentWebView({
@@ -37,7 +45,9 @@ class PaymentWebView extends StatefulWidget {
 class _PaymentWebViewState extends State<PaymentWebView> {
   late final WebViewController _controller;
   bool _isLoading = true;
-
+  int _progress = 0;
+  bool _hasError = false;
+  String? _errorMessage;
   bool _resultSent = false;
 
   @override
@@ -52,14 +62,30 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       )
       ..setNavigationDelegate(
         NavigationDelegate(
+          onProgress: (progress) {
+            if (mounted) {
+              setState(() {
+                _progress = progress;
+                if (progress >= 100) _isLoading = false;
+              });
+            }
+          },
           onPageStarted: (String url) {
             debugPrint('🌐 WebView: Page started loading: $url');
-            setState(() => _isLoading = true);
+            if (mounted) {
+              setState(() {
+                _isLoading = true;
+                _hasError = false;
+                _errorMessage = null;
+              });
+            }
             _checkUrl(url);
           },
           onPageFinished: (String url) {
             debugPrint('🌐 WebView: Page finished loading: $url');
-            setState(() => _isLoading = false);
+            if (mounted) {
+              setState(() => _isLoading = false);
+            }
             _checkUrl(url);
           },
           onWebResourceError: (WebResourceError error) {
@@ -67,9 +93,28 @@ class _PaymentWebViewState extends State<PaymentWebView> {
             debugPrint('   Description: ${error.description}');
             debugPrint('   Type: ${error.errorType}');
             debugPrint('   Code: ${error.errorCode}');
+            if (error.isForMainFrame ?? true) {
+              if (mounted) {
+                setState(() {
+                  _hasError = true;
+                  _errorMessage = error.description.isNotEmpty
+                      ? error.description
+                      : 'Could not connect to payment gateway.';
+                  _isLoading = false;
+                });
+              }
+            }
           },
           onNavigationRequest: (NavigationRequest request) {
-            if (_checkUrl(request.url)) {
+            final url = request.url;
+            final uri = Uri.tryParse(url);
+            if (uri != null && uri.scheme != 'http' && uri.scheme != 'https') {
+              debugPrint('ℹ️ WebView: Non-HTTP scheme: ${uri.scheme}');
+              if (url.startsWith('intent://') || url.startsWith('market://')) {
+                return NavigationDecision.prevent;
+              }
+            }
+            if (_checkUrl(url)) {
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;
@@ -77,10 +122,28 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         ),
       );
 
+    _startLoading();
+  }
+
+  void _startLoading() {
+    if (mounted) {
+      setState(() {
+        _hasError = false;
+        _errorMessage = null;
+        _isLoading = true;
+        _progress = 0;
+      });
+    }
+
     if (widget.formFields != null && widget.formFields!.isNotEmpty) {
       _loadFormPost();
     } else {
-      _controller.loadRequest(Uri.parse(widget.url));
+      final uri = Uri.tryParse(widget.url.trim());
+      if (uri != null && uri.hasScheme) {
+        _controller.loadRequest(uri);
+      } else {
+        _fireResult(false, 'Invalid payment gateway URL');
+      }
     }
   }
 
@@ -88,7 +151,10 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     final fields = widget.formFields;
     if (fields == null || fields.isEmpty) {
       debugPrint('⚠️ EBL FormPost: formFields is null/empty — falling back to GET');
-      _controller.loadRequest(Uri.parse(widget.url));
+      final uri = Uri.tryParse(widget.url.trim());
+      if (uri != null && uri.hasScheme) {
+        _controller.loadRequest(uri);
+      }
       return;
     }
 
@@ -107,15 +173,17 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         )
         .join('&');
 
-    debugPrint('   Encoded body (first 300 chars): ${body.substring(0, body.length.clamp(0, 300))}');
-    debugPrint('══════════════════════════════════════════════');
-
-    _controller.loadRequest(
-      Uri.parse(widget.url),
-      method: LoadRequestMethod.post,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: Uint8List.fromList(utf8.encode(body)),
-    );
+    final uri = Uri.tryParse(widget.url.trim());
+    if (uri != null && uri.hasScheme) {
+      _controller.loadRequest(
+        uri,
+        method: LoadRequestMethod.post,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: Uint8List.fromList(utf8.encode(body)),
+      );
+    } else {
+      _fireResult(false, 'Invalid payment gateway URL');
+    }
   }
 
   void _fireResult(bool success, String? message) {
@@ -129,6 +197,71 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     FocusScope.of(context).unfocus();
     _controller.runJavaScript(
       'if (document.activeElement) document.activeElement.blur();',
+    );
+  }
+
+  Future<void> _handlePop() async {
+    final canGoBack = await _controller.canGoBack();
+    if (canGoBack) {
+      await _controller.goBack();
+      return;
+    }
+    _showCancelConfirmationDialog();
+  }
+
+  void _showCancelConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadius.dialogRadius,
+        ),
+        title: Text(
+          'Cancel Payment?',
+          style: AppTypography.titleMedium.bold().withColor(AppColors.text),
+        ),
+        content: Text(
+          'Are you sure you want to cancel the payment? Your order will remain pending.',
+          style: AppTypography.bodyMedium.withColor(AppColors.muted),
+        ),
+        actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: AppButton.outline(
+                  size: AppButtonSize.sm,
+                  borderRadius: AppRadius.buttonRadius,
+                  borderColor: AppColors.red,
+                  textColor: AppColors.red,
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  text: 'Cancel Payment',
+                  textStyle: AppTypography.bodySmall.bold().withColor(AppColors.red),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    _fireResult(false, 'Payment cancelled by user');
+                    widget.onUserClosed?.call();
+                    if (mounted && Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: AppButton.primary(
+                  size: AppButtonSize.sm,
+                  borderRadius: AppRadius.buttonRadius,
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  text: 'Continue',
+                  textStyle: AppTypography.bodySmall.bold().withColor(AppColors.white),
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -284,17 +417,108 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        behavior: HitTestBehavior.translucent,
-        child: SafeArea(
-          bottom: false,
-          child: Stack(
-            children: [
-              WebViewWidget(controller: _controller),
-              if (_isLoading) const AppLoader.fullPage(),
-            ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _handlePop();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: PickabooAppBar(
+          title: widget.title.isNotEmpty ? widget.title : "Payment",
+          centerTitle: false,
+          showBackButton: true,
+          onBackTap: _handlePop,
+        ),
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.translucent,
+          child: SafeArea(
+            top: false,
+            child: Stack(
+              children: [
+                if (!_hasError) WebViewWidget(controller: _controller),
+                if (_isLoading && _progress < 100)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: LinearProgressIndicator(
+                      value: _progress > 0 ? _progress / 100.0 : null,
+                      backgroundColor: AppColors.border,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.pickabooBlue,
+                      ),
+                      minHeight: 3.h,
+                    ),
+                  ),
+                if (_isLoading && _progress == 0 && !_hasError)
+                  const AppLoader.fullPage(),
+                if (_hasError)
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.w),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 72.w,
+                            height: 72.w,
+                            decoration: BoxDecoration(
+                              color: AppColors.red.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.wifi_off_rounded,
+                              size: 36.sp,
+                              color: AppColors.red,
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          Text(
+                            'Payment Connection Issue',
+                            style: AppTypography.titleMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            _errorMessage ??
+                                'Unable to connect to payment gateway. Please check your internet connection.',
+                            style: AppTypography.bodySmall.mutedLight,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 24.h),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: AppButton.outline(
+                                  text: 'Cancel',
+                                  borderColor: AppColors.border,
+                                  textColor: AppColors.navy,
+                                  onPressed: () {
+                                    _fireResult(false, 'Payment cancelled');
+                                    widget.onUserClosed?.call();
+                                    if (Navigator.canPop(context)) {
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: AppButton.primary(
+                                  text: 'Try Again',
+                                  onPressed: _startLoading,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

@@ -9643,7 +9643,10 @@ mixin _$CheckoutState {
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -9690,7 +9693,10 @@ mixin _$CheckoutState {
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -9730,7 +9736,10 @@ mixin _$CheckoutState {
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -9911,7 +9920,10 @@ class _$InitialImpl with DiagnosticableTreeMixin implements _Initial {
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -9962,7 +9974,10 @@ class _$InitialImpl with DiagnosticableTreeMixin implements _Initial {
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -10006,7 +10021,10 @@ class _$InitialImpl with DiagnosticableTreeMixin implements _Initial {
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -10220,7 +10238,10 @@ class _$LoadingImpl with DiagnosticableTreeMixin implements _Loading {
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -10271,7 +10292,10 @@ class _$LoadingImpl with DiagnosticableTreeMixin implements _Loading {
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -10315,7 +10339,10 @@ class _$LoadingImpl with DiagnosticableTreeMixin implements _Loading {
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -10678,7 +10705,10 @@ class _$CheckoutLoadedImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -10737,7 +10767,10 @@ class _$CheckoutLoadedImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -10789,7 +10822,10 @@ class _$CheckoutLoadedImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -11033,7 +11069,10 @@ class _$PlacingOrderImpl with DiagnosticableTreeMixin implements _PlacingOrder {
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -11084,7 +11123,10 @@ class _$PlacingOrderImpl with DiagnosticableTreeMixin implements _PlacingOrder {
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -11128,7 +11170,10 @@ class _$PlacingOrderImpl with DiagnosticableTreeMixin implements _PlacingOrder {
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -11426,7 +11471,10 @@ class _$OrderPlacedImpl with DiagnosticableTreeMixin implements _OrderPlaced {
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -11483,7 +11531,10 @@ class _$OrderPlacedImpl with DiagnosticableTreeMixin implements _OrderPlaced {
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -11533,7 +11584,10 @@ class _$OrderPlacedImpl with DiagnosticableTreeMixin implements _OrderPlaced {
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -11788,7 +11842,10 @@ class _$PaymentProcessingImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -11839,7 +11896,10 @@ class _$PaymentProcessingImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -11883,7 +11943,10 @@ class _$PaymentProcessingImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -12142,7 +12205,10 @@ class _$PaymentSuccessImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -12193,7 +12259,10 @@ class _$PaymentSuccessImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -12237,7 +12306,10 @@ class _$PaymentSuccessImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -12479,7 +12551,10 @@ class _$PaymentFailedImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -12530,7 +12605,10 @@ class _$PaymentFailedImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -12574,7 +12652,10 @@ class _$PaymentFailedImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -12815,7 +12896,10 @@ class _$PaymentMethodUpdatedImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -12866,7 +12950,10 @@ class _$PaymentMethodUpdatedImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -12910,7 +12997,10 @@ class _$PaymentMethodUpdatedImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -13154,7 +13244,10 @@ class _$OrderPaymentMethodSyncedImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -13205,7 +13298,10 @@ class _$OrderPaymentMethodSyncedImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -13249,7 +13345,10 @@ class _$OrderPaymentMethodSyncedImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -13489,7 +13588,10 @@ class _$OrderConfirmedImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -13540,7 +13642,10 @@ class _$OrderConfirmedImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -13584,7 +13689,10 @@ class _$OrderConfirmedImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -13856,7 +13964,10 @@ class _$NavigateToPaymentGatewayImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -13907,7 +14018,10 @@ class _$NavigateToPaymentGatewayImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -13951,7 +14065,10 @@ class _$NavigateToPaymentGatewayImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -14183,7 +14300,10 @@ class _$EmiDetailsLoadedImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -14234,7 +14354,10 @@ class _$EmiDetailsLoadedImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -14278,7 +14401,10 @@ class _$EmiDetailsLoadedImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
@@ -14384,7 +14510,10 @@ abstract class _$$PaymentMethodsLoadedImplCopyWith<$Res> {
     $Res Function(_$PaymentMethodsLoadedImpl) then,
   ) = __$$PaymentMethodsLoadedImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({List<PaymentMethodEntity> availablePaymentMethods});
+  $Res call({
+    List<PaymentMethodEntity> availablePaymentMethods,
+    CartTotalsEntity? totals,
+  });
 }
 
 /// @nodoc
@@ -14400,7 +14529,10 @@ class __$$PaymentMethodsLoadedImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? availablePaymentMethods = null}) {
+  $Res call({
+    Object? availablePaymentMethods = null,
+    Object? totals = freezed,
+  }) {
     return _then(
       _$PaymentMethodsLoadedImpl(
         availablePaymentMethods:
@@ -14408,6 +14540,11 @@ class __$$PaymentMethodsLoadedImplCopyWithImpl<$Res>
                 ? _value._availablePaymentMethods
                 : availablePaymentMethods // ignore: cast_nullable_to_non_nullable
                     as List<PaymentMethodEntity>,
+        totals:
+            freezed == totals
+                ? _value.totals
+                : totals // ignore: cast_nullable_to_non_nullable
+                    as CartTotalsEntity?,
       ),
     );
   }
@@ -14420,6 +14557,7 @@ class _$PaymentMethodsLoadedImpl
     implements _PaymentMethodsLoaded {
   const _$PaymentMethodsLoadedImpl({
     final List<PaymentMethodEntity> availablePaymentMethods = const [],
+    this.totals,
   }) : _availablePaymentMethods = availablePaymentMethods;
 
   final List<PaymentMethodEntity> _availablePaymentMethods;
@@ -14433,8 +14571,11 @@ class _$PaymentMethodsLoadedImpl
   }
 
   @override
+  final CartTotalsEntity? totals;
+
+  @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CheckoutState.paymentMethodsLoaded(availablePaymentMethods: $availablePaymentMethods)';
+    return 'CheckoutState.paymentMethodsLoaded(availablePaymentMethods: $availablePaymentMethods, totals: $totals)';
   }
 
   @override
@@ -14444,7 +14585,8 @@ class _$PaymentMethodsLoadedImpl
       ..add(DiagnosticsProperty('type', 'CheckoutState.paymentMethodsLoaded'))
       ..add(
         DiagnosticsProperty('availablePaymentMethods', availablePaymentMethods),
-      );
+      )
+      ..add(DiagnosticsProperty('totals', totals));
   }
 
   @override
@@ -14455,13 +14597,15 @@ class _$PaymentMethodsLoadedImpl
             const DeepCollectionEquality().equals(
               other._availablePaymentMethods,
               _availablePaymentMethods,
-            ));
+            ) &&
+            (identical(other.totals, totals) || other.totals == totals));
   }
 
   @override
   int get hashCode => Object.hash(
     runtimeType,
     const DeepCollectionEquality().hash(_availablePaymentMethods),
+    totals,
   );
 
   /// Create a copy of CheckoutState
@@ -14523,7 +14667,10 @@ class _$PaymentMethodsLoadedImpl
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -14531,7 +14678,7 @@ class _$PaymentMethodsLoadedImpl
     )
     error,
   }) {
-    return paymentMethodsLoaded(availablePaymentMethods);
+    return paymentMethodsLoaded(availablePaymentMethods, totals);
   }
 
   @override
@@ -14574,12 +14721,15 @@ class _$PaymentMethodsLoadedImpl
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
   }) {
-    return paymentMethodsLoaded?.call(availablePaymentMethods);
+    return paymentMethodsLoaded?.call(availablePaymentMethods, totals);
   }
 
   @override
@@ -14618,13 +14768,16 @@ class _$PaymentMethodsLoadedImpl
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),
   }) {
     if (paymentMethodsLoaded != null) {
-      return paymentMethodsLoaded(availablePaymentMethods);
+      return paymentMethodsLoaded(availablePaymentMethods, totals);
     }
     return orElse();
   }
@@ -14707,9 +14860,11 @@ class _$PaymentMethodsLoadedImpl
 abstract class _PaymentMethodsLoaded implements CheckoutState {
   const factory _PaymentMethodsLoaded({
     final List<PaymentMethodEntity> availablePaymentMethods,
+    final CartTotalsEntity? totals,
   }) = _$PaymentMethodsLoadedImpl;
 
   List<PaymentMethodEntity> get availablePaymentMethods;
+  CartTotalsEntity? get totals;
 
   /// Create a copy of CheckoutState
   /// with the given fields replaced by the non-null parameter values.
@@ -14851,7 +15006,10 @@ class _$ErrorImpl with DiagnosticableTreeMixin implements _Error {
     )
     navigateToPaymentGateway,
     required TResult Function(CheckoutEmiEntity emiData) emiDetailsLoaded,
-    required TResult Function(List<PaymentMethodEntity> availablePaymentMethods)
+    required TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )
     paymentMethodsLoaded,
     required TResult Function(
       AppErrorEntity error,
@@ -14902,7 +15060,10 @@ class _$ErrorImpl with DiagnosticableTreeMixin implements _Error {
     )?
     navigateToPaymentGateway,
     TResult? Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult? Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult? Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult? Function(AppErrorEntity error, CheckoutEntity? lastCheckout)?
     error,
@@ -14946,7 +15107,10 @@ class _$ErrorImpl with DiagnosticableTreeMixin implements _Error {
     TResult Function(String url, String title, Map<String, String>? formFields)?
     navigateToPaymentGateway,
     TResult Function(CheckoutEmiEntity emiData)? emiDetailsLoaded,
-    TResult Function(List<PaymentMethodEntity> availablePaymentMethods)?
+    TResult Function(
+      List<PaymentMethodEntity> availablePaymentMethods,
+      CartTotalsEntity? totals,
+    )?
     paymentMethodsLoaded,
     TResult Function(AppErrorEntity error, CheckoutEntity? lastCheckout)? error,
     required TResult orElse(),

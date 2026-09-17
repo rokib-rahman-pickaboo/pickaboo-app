@@ -53,9 +53,7 @@ class PaymentReviewSection extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             decoration: const BoxDecoration(
               color: AppColors.pageBg,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(AppRadius.card),
-              ),
+              borderRadius: AppRadius.cardTop,
             ),
             child: Row(
               children: [
@@ -77,7 +75,7 @@ class PaymentReviewSection extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: AppTypography.sectionTitle.copyWith(
+                    style: AppTypography.titleMedium.copyWith(
                       fontSize: 13.5.sp,
                       fontWeight: FontWeight.w700,
                       color: AppColors.navy,

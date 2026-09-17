@@ -29,8 +29,6 @@ class EarningRuleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -50,14 +48,14 @@ class EarningRuleItem extends StatelessWidget {
             children: [
               Text(
                 rule.title,
-                style: textTheme.bodyMediumMedium.copyWith(
+                style: AppTypography.bodyMedium.medium().copyWith(
                   color: AppColors.text,
                 ),
               ),
               SizedBox(height: 4.h),
               Text(
                 rule.message,
-                style: textTheme.bodyMedium.copyWith(
+                style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.muted,
                 ),
               ),

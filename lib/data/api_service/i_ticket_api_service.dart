@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/ticket_api_service.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 import 'package:pickaboo/data/model/ticket/create_ticket_model.dart';
@@ -199,66 +200,137 @@ class ITicketApiService extends TicketApiService {
   Future<Either<ErrorResponse, TicketOrderInfoResponse>>
   getTicketOrders() async {
     try {
-      final response = await _client.get(ApiEndpoints.ticketOrderInfoUrl);
+      List<TicketOrderModel> orders = [];
+      List<TicketIssueTypeModel> issueTypes = [];
 
-      if (kDebugMode) {
-        print("ticket_orderinfo_response -> ${jsonEncode(response.data)}");
-      }
+      // 1. Try to fetch from Helpdesk orderinfo endpoint
+      try {
+        final response = await _client.get(ApiEndpoints.ticketOrderInfoUrl);
 
-      if (response.data is List) {
-        final outerList = response.data as List;
-        List<TicketOrderModel> orders = [];
-        List<TicketIssueTypeModel> issueTypes = [];
-
-        if (outerList.isNotEmpty && outerList.first is List) {
-          // 2D Array format: [ [orders...], [departments...] ]
-          final ordersRaw = outerList[0] as List;
-          orders = ordersRaw
-              .whereType<Map<String, dynamic>>()
-              .map((e) => TicketOrderModel.fromJson(_sanitizeJsonStrings(e)))
-              .toList();
-
-          if (outerList.length > 1 && outerList[1] is List) {
-            final issuesRaw = outerList[1] as List;
-            issueTypes = issuesRaw
-                .whereType<Map<String, dynamic>>()
-                .map((e) =>
-                    TicketIssueTypeModel.fromJson(_sanitizeJsonStrings(e)))
-                .toList();
-          }
-        } else {
-          // Fallback: 1D Array format
-          orders = outerList
-              .whereType<Map<String, dynamic>>()
-              .map((e) => TicketOrderModel.fromJson(_sanitizeJsonStrings(e)))
-              .toList();
+        if (kDebugMode) {
+          print("ticket_orderinfo_response -> ${jsonEncode(response.data)}");
         }
 
-        return right(
-          TicketOrderInfoResponse(
-            orders: orders,
-            issueTypes: issueTypes,
-          ),
-        );
+        if (response.data is List) {
+          final outerList = response.data as List;
+
+          if (outerList.isNotEmpty && outerList.first is List) {
+            // 2D Array format: [ [orders...], [departments...] ]
+            final ordersRaw = outerList[0] as List;
+            orders = ordersRaw
+                .whereType<Map>()
+                .map((e) => TicketOrderModel.fromJson(
+                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
+                .toList();
+
+            if (outerList.length > 1 && outerList[1] is List) {
+              final issuesRaw = outerList[1] as List;
+              issueTypes = issuesRaw
+                  .whereType<Map>()
+                  .map((e) => TicketIssueTypeModel.fromJson(
+                      _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
+                  .toList();
+            }
+          } else {
+            // Fallback: 1D Array format
+            orders = outerList
+                .whereType<Map>()
+                .map((e) => TicketOrderModel.fromJson(
+                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
+                .toList();
+          }
+        } else if (response.data is Map) {
+          final dataMap = response.data as Map;
+          if (dataMap['orders'] is List) {
+            orders = (dataMap['orders'] as List)
+                .whereType<Map>()
+                .map((e) => TicketOrderModel.fromJson(
+                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
+                .toList();
+          }
+          final issuesList = dataMap['issue_types'] ?? dataMap['departments'];
+          if (issuesList is List) {
+            issueTypes = issuesList
+                .whereType<Map>()
+                .map((e) => TicketIssueTypeModel.fromJson(
+                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
+                .toList();
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print("Failed fetching ticketOrderInfoUrl: $e");
+        }
       }
-      return right(const TicketOrderInfoResponse());
+
+      // 2. ALWAYS query /rest/V1/orders/mine to ensure ANY placed order is in the list
+      try {
+        final mineOrdersResponse = await _client.get(
+          ApiEndpoints.getOrderListUrl,
+          queryParameters: {'limit': 50, 'current_page': 1},
+        );
+
+        if (mineOrdersResponse.data is Map) {
+          final mineMap = mineOrdersResponse.data as Map;
+          final items = mineMap['items'];
+          if (items is List) {
+            final existingIds = orders
+                .map((o) => o.orderId ?? o.incrementId)
+                .where((id) => id != null && id.isNotEmpty)
+                .toSet();
+
+            for (final item in items.whereType<Map>()) {
+              final itemMap = Map<String, dynamic>.from(item);
+              final orderId = itemMap['order_id']?.toString();
+              final orderNumber = itemMap['order_number']?.toString() ??
+                  itemMap['increment_id']?.toString() ??
+                  orderId;
+
+              // If this order is not already in the helpdesk list, add it
+              if (orderId != null &&
+                  !existingIds.contains(orderId) &&
+                  (orderNumber == null || !existingIds.contains(orderNumber))) {
+                final grandTotal = (itemMap['grandtotal'] as num?)?.toDouble() ??
+                    (itemMap['grand_total'] as num?)?.toDouble();
+
+                orders.add(
+                  TicketOrderModel(
+                    orderId: orderId,
+                    incrementId: orderNumber,
+                    createdAt: itemMap['created_at']?.toString(),
+                    status: itemMap['status']?.toString(),
+                    grandTotal: grandTotal,
+                  ),
+                );
+                existingIds.add(orderId);
+                if (orderNumber != null) existingIds.add(orderNumber);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print("Failed fetching fallback orders from /orders/mine: $e");
+        }
+      }
+
+      return right(
+        TicketOrderInfoResponse(
+          orders: orders,
+          issueTypes: issueTypes,
+        ),
+      );
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
     }
   }
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      if (err.response?.statusCode == 413) {
-        return const ErrorResponse(
-          message:
-              'Attachments are too large for the server. Please reduce the file size.',
-        );
-      }
-      final errorData = err.response?.data;
-      if (errorData is Map<String, dynamic>) {
-        return ErrorResponse.fromJson(errorData);
-      }
+    if (err.response?.statusCode == 413) {
+      return const ErrorResponse(
+        message:
+            'Attachments are too large for the server. Please reduce the file size.',
+      );
     }
     final errorMsg = err.message?.toLowerCase() ?? '';
     final errStr = err.error?.toString().toLowerCase() ?? '';
@@ -272,6 +344,6 @@ class ITicketApiService extends TicketApiService {
             'Upload failed: Server closed the connection. Attachments may exceed the server size limit.',
       );
     }
-    return const ErrorResponse(message: 'Something went wrong');
+    return ApiErrorParser.parse(err);
   }
 }

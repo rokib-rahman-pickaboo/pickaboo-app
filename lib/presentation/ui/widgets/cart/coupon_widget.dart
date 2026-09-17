@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 /// Clean CouponWidget matching Image 1 & 2:
 /// - Rounded card container
@@ -101,7 +102,7 @@ class _CouponWidgetState extends State<CouponWidget> {
         children: [
           Text(
             'Apply Discount Code',
-            style: AppTypography.cardTitle.copyWith(
+            style: AppTypography.titleSmall.copyWith(
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: AppColors.navy,
@@ -113,7 +114,7 @@ class _CouponWidgetState extends State<CouponWidget> {
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
               decoration: BoxDecoration(
                 color: AppColors.surfaceBlue,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: AppRadius.buttonRadius,
                 border: Border.all(
                   color: AppColors.pickabooBlue.withValues(alpha: 0.2),
                 ),
@@ -132,14 +133,14 @@ class _CouponWidgetState extends State<CouponWidget> {
                       children: [
                         Text(
                           widget.appliedCoupon,
-                          style: AppTypography.cardTitle.copyWith(
+                          style: AppTypography.titleSmall.copyWith(
                             color: AppColors.pickabooBlue,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         Text(
                           'Coupon code applied',
-                          style: AppTypography.bodyMuted,
+                          style: AppTypography.bodySmall,
                         ),
                       ],
                     ),
@@ -150,7 +151,7 @@ class _CouponWidgetState extends State<CouponWidget> {
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       child: Text(
                         'Remove',
-                        style: AppTypography.bodyMuted.copyWith(
+                        style: AppTypography.bodySmall.copyWith(
                           color: AppColors.red,
                           fontWeight: FontWeight.w700,
                         ),
@@ -168,7 +169,7 @@ class _CouponWidgetState extends State<CouponWidget> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      style: AppTypography.cardTitle.copyWith(
+                      style: AppTypography.titleSmall.copyWith(
                         fontSize: 13.sp,
                         color: AppColors.navy,
                       ),
@@ -182,17 +183,17 @@ class _CouponWidgetState extends State<CouponWidget> {
                           horizontal: 14.w,
                           vertical: 12.5.h,
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: const BorderSide(color: AppColors.border),
+                        border: const OutlineInputBorder(
+                          borderRadius: AppRadius.inputRadius,
+                          borderSide: BorderSide(color: AppColors.border),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: const BorderSide(color: AppColors.border),
+                        enabledBorder: const OutlineInputBorder(
+                          borderRadius: AppRadius.inputRadius,
+                          borderSide: BorderSide(color: AppColors.border),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: const BorderSide(
+                        focusedBorder: const OutlineInputBorder(
+                          borderRadius: AppRadius.inputRadius,
+                          borderSide: BorderSide(
                             color: AppColors.pickabooBlue,
                             width: 1.2,
                           ),
@@ -200,22 +201,12 @@ class _CouponWidgetState extends State<CouponWidget> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10.w),
-                  ElevatedButton(
+                  AppSpacing.gapH10,
+                  AppButton.primary(
+                    text: 'Apply',
+                    isFullWidth: false,
+                    padding: EdgeInsets.symmetric(horizontal: 22.w),
                     onPressed: _handleApply,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.pickabooBlue,
-                      foregroundColor: AppColors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 22.w),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Apply',
-                      style: AppTypography.buttonPrimary,
-                    ),
                   ),
                 ],
               ),

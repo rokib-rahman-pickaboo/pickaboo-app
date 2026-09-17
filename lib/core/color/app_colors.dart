@@ -93,4 +93,17 @@ abstract class AppColors {
 
   /// Verified Customer VIP Shield & Monsoon Promo Ribbon
   static const Color gold         = Color(0xFFFFD700);
+
+  /// WhatsApp Brand Green (Floating support button, Chat launcher)
+  static const Color whatsApp     = Color(0xFF25D366);
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // ── 🛡️ PART 3: MODAL BACKDROPS & LIGHT OVERLAYS ─────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Modal Barrier Backdrop Overlay (equivalent to Colors.black87)
+  static const Color black87      = Color(0xDD000000);
+
+  /// Light Black Overlay / Shadow (equivalent to Colors.black26)
+  static const Color black26      = Color(0x42000000);
 }

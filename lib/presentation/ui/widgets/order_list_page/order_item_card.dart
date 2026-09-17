@@ -10,6 +10,9 @@ import 'package:intl/intl.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/date_time_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_item_entity.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+
+import 'package:pickaboo/core/color/app_colors.dart';
 
 class OrderItemCard extends StatefulWidget {
   final OrderItemEntity order;
@@ -154,7 +157,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
         borderRadius: AppRadius.cardRadius,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: AppColors.black.withValues(alpha: 0.04),
             blurRadius: 10.r,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -181,7 +184,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                             children: [
                               Text(
                                 "Order #${widget.order.orderNumber}",
-                                style: AppTypography.cardTitle,
+                                style: AppTypography.titleSmall,
                               ),
                               SizedBox(height: 4.h),
                               Row(
@@ -194,7 +197,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                                   SizedBox(width: 4.w),
                                   Text(
                                     _formatDate(widget.order.createdAt),
-                                    style: AppTypography.bodyMuted,
+                                    style: AppTypography.bodySmall,
                                   ),
                                 ],
                               ),
@@ -212,7 +215,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                               decoration: BoxDecoration(
                                 color: statusAttributes.backgroundColor
                                     .withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(20.r),
+                                borderRadius: AppRadius.pillRadius,
                                 border: Border.all(
                                   color: statusAttributes.backgroundColor
                                       .withValues(alpha: 0.25),
@@ -221,7 +224,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                               ),
                               child: Text(
                                 statusAttributes.text,
-                                style: AppTypography.badgeStockOut.withColor(statusAttributes.backgroundColor),
+                                style: AppTypography.bodyTiny.extraBold().red.withColor(statusAttributes.backgroundColor),
                               ),
                             ),
                           ],
@@ -238,7 +241,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                           children: [
                             Text(
                               "Total",
-                              style: AppTypography.bodyMuted,
+                              style: AppTypography.bodySmall,
                             ),
                             SizedBox(height: 2.h),
                             Text(
@@ -248,7 +251,15 @@ class _OrderItemCardState extends State<OrderItemCard> {
                           ],
                         ),
                         if (_shouldShowPayNow(widget.order))
-                          ElevatedButton(
+                          AppButton.primary(
+                            isFullWidth: false,
+                            height: 32.h,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 8.h,
+                            ),
+                            borderRadius: AppRadius.buttonRadius,
+                            isDisabled: _payPressed,
                             onPressed: _payPressed
                                 ? null
                                 : () {
@@ -264,24 +275,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                                       },
                                     );
                                   },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.pickabooBlue,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 8.h,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: Text(
-                              "Pay Now",
-                              style: AppTypography.buttonPrimary,
-                            ),
+                            text: "Pay Now",
                           ),
                       ],
                     ),
@@ -355,7 +349,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
     VoidCallback onTap,
   ) {
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: InkWell(
         onTap: onTap,
         splashColor: color.withValues(alpha: 0.1),
@@ -369,7 +363,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
               SizedBox(width: 6.w),
               Text(
                 label,
-                style: AppTypography.cardTitle.withColor(color),
+                style: AppTypography.titleSmall.withColor(color),
               ),
             ],
           ),

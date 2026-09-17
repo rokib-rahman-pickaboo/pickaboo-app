@@ -50,7 +50,7 @@ class BrandItem extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.pageTitle,
+                    style: AppTypography.titleLarge,
                   ),
                 ),
               ),

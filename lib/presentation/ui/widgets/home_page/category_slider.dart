@@ -23,15 +23,13 @@ class CategorySlider extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return RepaintBoundary(
-      child: Container(
-        margin: EdgeInsets.only(bottom: AppSpacing.groupToGroupSpacing.h),
-        child: CommonProductSectionSlider(
-          title: categoryProduct.categoryName,
-          products: categoryProduct.products,
-          onProductTap: onProductTap,
-          onViewAll: onCategoryTap != null ? () => onCategoryTap!(categoryProduct) : null,
-        ),
+    return Container(
+      margin: EdgeInsets.only(bottom: AppSpacing.groupToGroupSpacing.h),
+      child: CommonProductSectionSlider(
+        title: categoryProduct.categoryName,
+        products: categoryProduct.products,
+        onProductTap: onProductTap,
+        onViewAll: onCategoryTap != null ? () => onCategoryTap!(categoryProduct) : null,
       ),
     );
   }

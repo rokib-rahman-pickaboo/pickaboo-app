@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 
+import 'package:pickaboo/core/color/app_colors.dart';
+
 /// Floating persistent top bar for the Product Detail Page.
 ///
 /// Only shown when the user has scrolled past the hero image.
@@ -64,7 +66,7 @@ class PdpTopAppBar extends StatelessWidget {
                   ],
                 )
               : const BoxDecoration(
-                  color: Colors.transparent,
+                  color: AppColors.transparent,
                 ),
           padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.sameGroupItemSpacing.w,
@@ -96,7 +98,7 @@ class PdpTopAppBar extends StatelessWidget {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.pageTitle.copyWith(
+                        style: AppTypography.titleLarge.copyWith(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
                           color: AppColors.navy,
@@ -146,7 +148,7 @@ class PdpTopAppBar extends StatelessWidget {
                               ),
                               child: Text(
                                 '$cartCount',
-                                style: AppTypography.buttonPrimary.copyWith(
+                                style: AppTypography.button.copyWith(
                                   fontSize: 10.sp,
                                 ),
                               ),
@@ -188,7 +190,7 @@ class _PdpCircleButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: AppColors.black.withValues(alpha: 0.08),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

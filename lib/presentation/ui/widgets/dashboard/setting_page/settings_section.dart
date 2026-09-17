@@ -14,13 +14,11 @@ class SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = context.textStyle;
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: AppRadius.dialogRadius,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.05),
@@ -36,7 +34,7 @@ class SettingsSection extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 8.h),
             child: Text(
               title,
-              style: textTheme.bodyMediumMedium.copyWith(
+              style: AppTypography.bodyMedium.medium().copyWith(
                 color: AppColors.text,
               ),
             ),

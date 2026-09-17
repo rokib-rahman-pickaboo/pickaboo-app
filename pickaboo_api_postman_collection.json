@@ -1,0 +1,6375 @@
+{
+  "info": {
+    "_postman_id": "pickaboo-app-complete-api-collection-v2",
+    "name": "Pickaboo App - Complete API Collection",
+    "description": "Comprehensive Postman collection for all APIs used in Pickaboo Flutter App (Magento 2 REST, Searchanise, Barikoi, Payment Gateways). Includes auto-token capture and pre-configured environment variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://gcpbeta.pickaboo.com",
+      "type": "string"
+    },
+    {
+      "key": "prodBaseUrl",
+      "value": "https://www.pickaboo.com",
+      "type": "string"
+    },
+    {
+      "key": "stagingGcpAdminUrl",
+      "value": "https://gcpadmin.pickaboo.com",
+      "type": "string"
+    },
+    {
+      "key": "searchaniseBaseUrl",
+      "value": "https://searchserverapi.com",
+      "type": "string"
+    },
+    {
+      "key": "searchaniseApiKey",
+      "value": "6W7Z0N7U0T",
+      "type": "string"
+    },
+    {
+      "key": "barikoiBaseUrl",
+      "value": "https://barikoi.xyz/v2/api",
+      "type": "string"
+    },
+    {
+      "key": "barikoiApiKey",
+      "value": "bkoi_1400e6dfbaa8adf41f3ca5b1791208ba89669177f941d491492b663aaa441ef8",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cartId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "guestCartId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "12345",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "13149",
+      "type": "string"
+    },
+    {
+      "key": "productSlug",
+      "value": "haier-1-5-ton-ac",
+      "type": "string"
+    },
+    {
+      "key": "categoryKey",
+      "value": "air-conditioner",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "100012345",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "addressId",
+      "value": "100",
+      "type": "string"
+    },
+    {
+      "key": "ticketId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "brandKey",
+      "value": "samsung",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Authentication & Authorization",
+      "description": "Customer verification, mobile OTP, registration, password reset, social login, and session token generation.",
+      "item": [
+        {
+          "name": "Check Customer Exists",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/customer-check/exist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "customer-check",
+                "exist"
+              ]
+            },
+            "description": "Checks if a user account exists with the specified phone number.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"01700000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Login (Phone & Password)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/integration/mobile/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "integration",
+                "mobile",
+                "token"
+              ]
+            },
+            "description": "Authenticates customer with phone and password. Automatically saves Bearer token to {{token}} collection variable.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"01700000000\",\n  \"password\": \"YourPassword123!\",\n  \"websiteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-capture Bearer token on successful login\n",
+                  "if (pm.response.code === 200) {\n",
+                  "    var rawText = pm.response.text().trim();\n",
+                  "    // Magento returns token either as quoted string \"abc...\" or raw string\n",
+                  "    var cleanToken = rawText.replace(/^\"|\"$/g, '').trim();\n",
+                  "    if (cleanToken && cleanToken.length > 10 && !cleanToken.includes(\"message\")) {\n",
+                  "        pm.collectionVariables.set(\"token\", cleanToken);\n",
+                  "        console.log(\"\u2705 Bearer token automatically saved to {{token}}:\", cleanToken);\n",
+                  "    }\n",
+                  "}\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Mobile OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/all/V1/sendotp?resend=0&storeId=1&store_id=1&mobile=01700000000&eventType=login&event_type=login&platform=android",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "all",
+                "V1",
+                "sendotp"
+              ],
+              "query": [
+                {
+                  "key": "resend",
+                  "value": "0"
+                },
+                {
+                  "key": "storeId",
+                  "value": "1"
+                },
+                {
+                  "key": "store_id",
+                  "value": "1"
+                },
+                {
+                  "key": "mobile",
+                  "value": "01700000000"
+                },
+                {
+                  "key": "eventType",
+                  "value": "login"
+                },
+                {
+                  "key": "event_type",
+                  "value": "login"
+                },
+                {
+                  "key": "platform",
+                  "value": "android"
+                }
+              ]
+            },
+            "description": "Triggers SMS OTP verification for login, registration, or profile updates."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Mobile OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/all/V1/validateOtp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "all",
+                "V1",
+                "validateOtp"
+              ]
+            },
+            "description": "Validates OTP received via SMS.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"01700000000\",\n  \"otp\": \"1234\",\n  \"storeId\": 1,\n  \"store_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Customer After OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/customersignupafterotpv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "customersignupafterotpv"
+              ]
+            },
+            "description": "Registers a new customer account after OTP has been verified.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": {\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"custom_attributes\": [\n      {\n        \"attribute_code\": \"mobile_number\",\n        \"value\": \"01700000000\"\n      }\n    ]\n  },\n  \"password\": \"Password123!\",\n  \"otp\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Email Verification Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-emailverification/sendcode?customer_email=john.doe@example.com&platform=android",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-emailverification",
+                "sendcode"
+              ],
+              "query": [
+                {
+                  "key": "customer_email",
+                  "value": "john.doe@example.com"
+                },
+                {
+                  "key": "platform",
+                  "value": "android"
+                }
+              ]
+            },
+            "description": "Sends a verification PIN code to the specified email address."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email OTP Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-emailverification/checkcode?customer_email=john.doe@example.com&code=1234",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-emailverification",
+                "checkcode"
+              ],
+              "query": [
+                {
+                  "key": "customer_email",
+                  "value": "john.doe@example.com"
+                },
+                {
+                  "key": "code",
+                  "value": "1234"
+                }
+              ]
+            },
+            "description": "Checks and validates email verification code."
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password - Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-forgetpassword/forgetpasswordnew?platform=android&mobile=01700000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-forgetpassword",
+                "forgetpasswordnew"
+              ],
+              "query": [
+                {
+                  "key": "platform",
+                  "value": "android"
+                },
+                {
+                  "key": "mobile",
+                  "value": "01700000000"
+                }
+              ]
+            },
+            "description": "Sends OTP code to recover/reset forgotten password."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password with OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-forgetpassword/resetpassword",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-forgetpassword",
+                "resetpassword"
+              ]
+            },
+            "description": "Sets a new password using verified OTP.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"01700000000\",\n  \"otp\": \"1234\",\n  \"newPassword\": \"NewPassword123!\",\n  \"confirmPassword\": \"NewPassword123!\",\n  \"new_password\": \"NewPassword123!\",\n  \"confirm_password\": \"NewPassword123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Social Login (Google / Apple / Facebook)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-socialintegration/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-socialintegration",
+                "login"
+              ]
+            },
+            "description": "Logs in or registers user via Google ID token or Apple Identity Token. Returns Bearer token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessToken\": \"google_or_apple_identity_or_access_token\",\n  \"type\": \"google\",\n  \"source\": \"android\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-capture Bearer token on successful login\n",
+                  "if (pm.response.code === 200) {\n",
+                  "    var rawText = pm.response.text().trim();\n",
+                  "    // Magento returns token either as quoted string \"abc...\" or raw string\n",
+                  "    var cleanToken = rawText.replace(/^\"|\"$/g, '').trim();\n",
+                  "    if (cleanToken && cleanToken.length > 10 && !cleanToken.includes(\"message\")) {\n",
+                  "        pm.collectionVariables.set(\"token\", cleanToken);\n",
+                  "        console.log(\"\u2705 Bearer token automatically saved to {{token}}:\", cleanToken);\n",
+                  "    }\n",
+                  "}\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/customers/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "customers",
+                "me"
+              ]
+            },
+            "description": "Fetches authenticated customer's profile info."
+          },
+          "response": []
+        },
+        {
+          "name": "Send OTP (Direct Fallback)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/sendotp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "sendotp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"{{mobileNumber}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Direct fallback OTP dispatch endpoint without session wrapper."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. User Profile & Account",
+      "description": "User profile management, photo upload, email/phone update, Club points, and referrals.",
+      "item": [
+        {
+          "name": "Get Customer Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/customers/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "customers",
+                "me"
+              ]
+            },
+            "description": "Returns current customer details including custom attributes."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile Picture",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/customers/image/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "customers",
+                "image",
+                "mine"
+              ]
+            },
+            "description": "Returns customer avatar image URL."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Basic Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-address/customers/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-address",
+                "customers",
+                "me"
+              ]
+            },
+            "description": "Updates first name, last name, date of birth, and gender.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": {\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"gender\": 1,\n    \"dob\": \"1995-05-15\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/customers/me/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "customers",
+                "me",
+                "password"
+              ]
+            },
+            "description": "Changes customer password (requires current password).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldPassword123!\",\n  \"newPassword\": \"NewPassword123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Phone Update OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilelogin/sendotp?mobile=01800000000&resend=0&platform=android",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilelogin",
+                "sendotp"
+              ],
+              "query": [
+                {
+                  "key": "mobile",
+                  "value": "01800000000"
+                },
+                {
+                  "key": "resend",
+                  "value": "0"
+                },
+                {
+                  "key": "platform",
+                  "value": "android"
+                }
+              ]
+            },
+            "description": "Sends OTP to the new phone number to verify phone number change."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Customer Mobile with OTP",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/address/customers/me/mobile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "address",
+                "customers",
+                "me",
+                "mobile"
+              ]
+            },
+            "description": "Finalizes mobile number update with valid OTP.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"01800000000\",\n  \"otp\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Email Update OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-emailverification/sendcode?customer_email=newemail@example.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-emailverification",
+                "sendcode"
+              ],
+              "query": [
+                {
+                  "key": "customer_email",
+                  "value": "newemail@example.com"
+                }
+              ]
+            },
+            "description": "Sends OTP code to the new email address."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Customer Email with OTP",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/address/customers/me/email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "address",
+                "customers",
+                "me",
+                "email"
+              ]
+            },
+            "description": "Finalizes customer email address update.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newemail@example.com\",\n  \"otp\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Club Points & History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/clubpoints/mine?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "clubpoints",
+                "mine"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Returns customer reward club points balance and transaction history."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Referral History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia/referral/history?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia",
+                "referral",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lists referral invites, friends joined, and earned rewards."
+          },
+          "response": []
+        },
+        {
+          "name": "Invite Friend via Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia/referral/invite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia",
+                "referral",
+                "invite"
+              ]
+            },
+            "description": "Sends referral invite to a friend.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"friend@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Profile Picture",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/customer/upload/profilepicture/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "customer",
+                "upload",
+                "profilepicture",
+                "mine"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Image file (JPEG/PNG)"
+                }
+              ]
+            },
+            "description": "Uploads new avatar picture for currently authenticated user."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Addresses & Geography",
+      "description": "Saved customer address book, administrative city/area lookups, and Barikoi geocoding.",
+      "item": [
+        {
+          "name": "Get Customer Saved Addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/address/customers/me/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "address",
+                "customers",
+                "me",
+                "address"
+              ]
+            },
+            "description": "Lists all saved shipping/billing addresses in customer address book."
+          },
+          "response": []
+        },
+        {
+          "name": "Add New Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/address/customers/me/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "address",
+                "customers",
+                "me",
+                "address"
+              ]
+            },
+            "description": "Adds a new delivery address to the customer's account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": {\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"telephone\": \"01700000000\",\n    \"street\": [\n      \"House 12, Road 5, Block C\"\n    ],\n    \"city\": \"Dhaka City\",\n    \"region\": \"Dhaka\",\n    \"postcode\": \"1205\",\n    \"country_id\": \"BD\",\n    \"default_shipping\": true,\n    \"default_billing\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Existing Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/address/customers/me/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "address",
+                "customers",
+                "me",
+                "address"
+              ]
+            },
+            "description": "Updates an existing delivery address.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": {\n    \"id\": 100,\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"telephone\": \"01700000000\",\n    \"street\": [\n      \"House 12, Road 5, Block C\"\n    ],\n    \"city\": \"Dhaka City\",\n    \"region\": \"Dhaka\",\n    \"postcode\": \"1205\",\n    \"country_id\": \"BD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/address/customers/me/address/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "address",
+                "customers",
+                "me",
+                "address",
+                "{{addressId}}"
+              ]
+            },
+            "description": "Removes an address by address ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cities by Division",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/dcastalia-address/getcity?param=Dhaka",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "dcastalia-address",
+                "getcity"
+              ],
+              "query": [
+                {
+                  "key": "param",
+                  "value": "Dhaka"
+                }
+              ]
+            },
+            "description": "Lists all cities under a given division (e.g. Dhaka, Chittagong)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Areas by City",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/dcastalia-address/getarea?param=Dhaka%20City",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "dcastalia-address",
+                "getarea"
+              ],
+              "query": [
+                {
+                  "key": "param",
+                  "value": "Dhaka%20City"
+                }
+              ]
+            },
+            "description": "Lists sub-areas / thanas under a city."
+          },
+          "response": []
+        },
+        {
+          "name": "Barikoi Place Autocomplete",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{barikoiBaseUrl}}/search/autocomplete/place?api_key={{barikoiApiKey}}&q=dhanmondi&sub_area=true&sub_district=true",
+              "host": [
+                "{{barikoiBaseUrl}}"
+              ],
+              "path": [
+                "search",
+                "autocomplete",
+                "place"
+              ],
+              "query": [
+                {
+                  "key": "api_key",
+                  "value": "{{barikoiApiKey}}"
+                },
+                {
+                  "key": "q",
+                  "value": "dhanmondi"
+                },
+                {
+                  "key": "sub_area",
+                  "value": "true"
+                },
+                {
+                  "key": "sub_district",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Barikoi mapping engine address suggestion and autocomplete."
+          },
+          "response": []
+        },
+        {
+          "name": "Barikoi Reverse Geocode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{barikoiBaseUrl}}/search/reverse/geocode?api_key={{barikoiApiKey}}&longitude=90.3760&latitude=23.7465&country=true&district=true&post_code=true&thana=true&area=true&address=true",
+              "host": [
+                "{{barikoiBaseUrl}}"
+              ],
+              "path": [
+                "search",
+                "reverse",
+                "geocode"
+              ],
+              "query": [
+                {
+                  "key": "api_key",
+                  "value": "{{barikoiApiKey}}"
+                },
+                {
+                  "key": "longitude",
+                  "value": "90.3760"
+                },
+                {
+                  "key": "latitude",
+                  "value": "23.7465"
+                },
+                {
+                  "key": "country",
+                  "value": "true"
+                },
+                {
+                  "key": "district",
+                  "value": "true"
+                },
+                {
+                  "key": "post_code",
+                  "value": "true"
+                },
+                {
+                  "key": "thana",
+                  "value": "true"
+                },
+                {
+                  "key": "area",
+                  "value": "true"
+                },
+                {
+                  "key": "address",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Translates GPS latitude/longitude into structured Bangladeshi address details."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Home Feed, Banners & CMS",
+      "description": "Homepage layout, dynamic promo feeds, sliders, flash sales, and CMS widgets.",
+      "item": [
+        {
+          "name": "Get Home Feed Content",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/new-homepageapi?prod_limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "new-homepageapi"
+              ],
+              "query": [
+                {
+                  "key": "prod_limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Main dynamic home feed containing featured categories, top deals, and promo blocks."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Flash Sales",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/flashsales/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "flashsales",
+                "active"
+              ]
+            },
+            "description": "Returns current active flash sale items with countdown timer."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Home Banners (Top Carousel)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/custom-banners/homepage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "custom-banners",
+                "homepage"
+              ]
+            },
+            "description": "Returns main hero banners shown at the top of the homepage."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Custom Banners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/custom-banners/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "custom-banners",
+                "active"
+              ]
+            },
+            "description": "Returns active promotional banners across the app."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category Banners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/custom-banners/category/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "custom-banners",
+                "category",
+                "{{categoryId}}"
+              ]
+            },
+            "description": "Returns banners specific to a category storefront."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Homepage Offers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/homepage-offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "homepage-offers"
+              ]
+            },
+            "description": "Returns promotional offer grids on the homepage."
+          },
+          "response": []
+        },
+        {
+          "name": "Get 'Just For You' Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/home-products?prod_limit=10&currentPage=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "home-products"
+              ],
+              "query": [
+                {
+                  "key": "prod_limit",
+                  "value": "10"
+                },
+                {
+                  "key": "currentPage",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Paginated infinite scroll product feed on the homepage."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Discover Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/discover-category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "discover-category"
+              ]
+            },
+            "description": "Categories listed in the Discover / Explore tab."
+          },
+          "response": []
+        },
+        {
+          "name": "Promotion / Service Slider",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/allslides?searchCriteria[filter_groups][0][filters][0][field]=alias&searchCriteria[filter_groups][0][filters][0][value]=Service+Slider&searchCriteria[filter_groups][0][filters][0][condition_type]=eq",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "allslides"
+              ],
+              "query": [
+                {
+                  "key": "searchCriteria[filter_groups][0][filters][0][field]",
+                  "value": "alias"
+                },
+                {
+                  "key": "searchCriteria[filter_groups][0][filters][0][value]",
+                  "value": "Service+Slider"
+                },
+                {
+                  "key": "searchCriteria[filter_groups][0][filters][0][condition_type]",
+                  "value": "eq"
+                }
+              ]
+            },
+            "description": "Slider slides for service guarantees and highlights."
+          },
+          "response": []
+        },
+        {
+          "name": "Product Banners Management Slider",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/allslides?searchCriteria[filter_groups][0][filters][0][field]=alias&searchCriteria[filter_groups][0][filters][0][value]=product-banner-management&searchCriteria[filter_groups][0][filters][0][condition_type]=eq",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "allslides"
+              ],
+              "query": [
+                {
+                  "key": "searchCriteria[filter_groups][0][filters][0][field]",
+                  "value": "alias"
+                },
+                {
+                  "key": "searchCriteria[filter_groups][0][filters][0][value]",
+                  "value": "product-banner-management"
+                },
+                {
+                  "key": "searchCriteria[filter_groups][0][filters][0][condition_type]",
+                  "value": "eq"
+                }
+              ]
+            },
+            "description": "Management slider for promotional product banners."
+          },
+          "response": []
+        },
+        {
+          "name": "CMS Block - Popup Advertisement",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/pickaboo-cms-block/dc-popup-adv-app",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "pickaboo-cms-block",
+                "dc-popup-adv-app"
+              ]
+            },
+            "description": "Popup modal campaign displayed on app startup."
+          },
+          "response": []
+        },
+        {
+          "name": "CMS Block - Product Detail Offer",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/pickaboo-cms-block/pickaboo-dc-product-offer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "pickaboo-cms-block",
+                "pickaboo-dc-product-offer"
+              ]
+            },
+            "description": "Available bank discounts and coupons block on PDP."
+          },
+          "response": []
+        },
+        {
+          "name": "CMS Block - Best Price Guarantee",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/pickaboo-cms-block/best-price-guaranteed-by-pickaboo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "pickaboo-cms-block",
+                "best-price-guaranteed-by-pickaboo"
+              ]
+            },
+            "description": "Price guarantee badge description block."
+          },
+          "response": []
+        },
+        {
+          "name": "CMS Block - Best Price Guarantee T&C",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/pickaboo-cms-block/best-price-guaranteed-by-pickaboo-t-and-c",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "pickaboo-cms-block",
+                "best-price-guaranteed-by-pickaboo-t-and-c"
+              ]
+            },
+            "description": "Price guarantee full terms and conditions."
+          },
+          "response": []
+        },
+        {
+          "name": "CMS Block - Pickaboo Verified / Assured",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/pickaboo-cms-block/pickaboo-verified",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "pickaboo-cms-block",
+                "pickaboo-verified"
+              ]
+            },
+            "description": "100% Authentic, 3-hour express, warranty badge trust ribbon."
+          },
+          "response": []
+        },
+        {
+          "name": "CMS Block - Express Delivery Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/pickaboo-cms-block/delivery-options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "pickaboo-cms-block",
+                "delivery-options"
+              ]
+            },
+            "description": "Express delivery terms and cut-off timing information."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05. Catalog, Products & Storefront",
+      "description": "Category hierarchies, brand storefronts, product detail (PDP), related items, and EMI details.",
+      "item": [
+        {
+          "name": "Get All Categories Tree",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/all-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "all-categories"
+              ]
+            },
+            "description": "Full nested tree of categories, sub-categories, and icons."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category Products (Storefront)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/categorypageapi/{{categoryKey}}?prod_limit=12&currentPage=1&featProdLimit=4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "categorypageapi",
+                "{{categoryKey}}"
+              ],
+              "query": [
+                {
+                  "key": "prod_limit",
+                  "value": "12"
+                },
+                {
+                  "key": "currentPage",
+                  "value": "1"
+                },
+                {
+                  "key": "featProdLimit",
+                  "value": "4"
+                }
+              ]
+            },
+            "description": "Returns product listing, available filters, and sorting for a category."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Special Category Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/categorypageapi/{{categoryKey}}?prod_limit=12&currentPage=1&featProdLimit=4&sort=price_desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "categorypageapi",
+                "{{categoryKey}}"
+              ],
+              "query": [
+                {
+                  "key": "prod_limit",
+                  "value": "12"
+                },
+                {
+                  "key": "currentPage",
+                  "value": "1"
+                },
+                {
+                  "key": "featProdLimit",
+                  "value": "4"
+                },
+                {
+                  "key": "sort",
+                  "value": "price_desc"
+                }
+              ]
+            },
+            "description": "Special category products with sorting and filter options."
+          },
+          "response": []
+        },
+        {
+          "name": "Resolve Category ID by Slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/category-id/slug/{{categoryKey}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "category-id",
+                "slug",
+                "{{categoryKey}}"
+              ]
+            },
+            "description": "Translates URL slug into numeric category ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Brand Products (Storefront)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/brandpageapi/samsung?prod_limit=12&currentPage=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "brandpageapi",
+                "samsung"
+              ],
+              "query": [
+                {
+                  "key": "prod_limit",
+                  "value": "12"
+                },
+                {
+                  "key": "currentPage",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Returns product catalog for a specific brand."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Detail by ID (PDP)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/product/info/id/{{productId}}?customerId={{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "product",
+                "info",
+                "id",
+                "{{productId}}"
+              ],
+              "query": [
+                {
+                  "key": "customerId",
+                  "value": "{{customerId}}"
+                }
+              ]
+            },
+            "description": "Full product detail page payload: price, stock, variants, attributes, images, warranty, EMI, and badges."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Detail by Slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/product-id/slug/{{productSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "product-id",
+                "slug",
+                "{{productSlug}}"
+              ]
+            },
+            "description": "Resolves slug to product details."
+          },
+          "response": []
+        },
+        {
+          "name": "Product Flash Sale Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/flashsales/product/{{productSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "flashsales",
+                "product",
+                "{{productSlug}}"
+              ]
+            },
+            "description": "Returns flash sale pricing and remaining stock quota for a product."
+          },
+          "response": []
+        },
+        {
+          "name": "Recommended Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/seller-recommended-products/{{productSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "seller-recommended-products",
+                "{{productSlug}}"
+              ]
+            },
+            "description": "Products recommended on PDP based on the current product."
+          },
+          "response": []
+        },
+        {
+          "name": "Related Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/related-products/{{productSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "related-products",
+                "{{productSlug}}"
+              ]
+            },
+            "description": "Frequently bought together and related accessory products."
+          },
+          "response": []
+        },
+        {
+          "name": "Seller Merchant Shop Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-vendorshop/products?shopUrl=pickaboo&currentPage=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-vendorshop",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "shopUrl",
+                  "value": "pickaboo"
+                },
+                {
+                  "key": "currentPage",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Products belonging to a marketplace vendor."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Delivery Charge",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/pickaboo/delivery-charge/product?productId={{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "pickaboo",
+                "delivery-charge",
+                "product"
+              ],
+              "query": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                }
+              ]
+            },
+            "description": "Calculates delivery fee estimate based on item weight/dimension."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product EMI Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/product-emi/details?id={{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "product-emi",
+                "details"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{productId}}"
+                }
+              ]
+            },
+            "description": "Lists eligible bank cards, interest rates, and monthly installments."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Free Coupon / Promo Code",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/product-free-coupon/{{productSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "product-free-coupon",
+                "{{productSlug}}"
+              ]
+            },
+            "description": "Returns coupon code applicable specifically to this item."
+          },
+          "response": []
+        },
+        {
+          "name": "Brand Storefront Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/brandpageapi/{{brandKey}}?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "brandpageapi",
+                "{{brandKey}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Returns paginated products, category filters, and brands banner for a specific brand slug or ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Related Products (By Product ID)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/product/related-products/id/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "product",
+                "related-products",
+                "id",
+                "{{productId}}"
+              ]
+            },
+            "description": "Returns frequently bought together and cross-sell products for a numeric product ID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06. Search & Suggestions (Searchanise)",
+      "description": "Full-text search, live suggestions, facets, category filters, and product recommendations via Searchanise SaaS.",
+      "item": [
+        {
+          "name": "Instant Search & Facets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{searchaniseBaseUrl}}/getresults?api_key={{searchaniseApiKey}}&q=phone&maxResults=10&startIndex=0&queryCorrection=true&suggestions=true&categories=true&facets=true&restrictBy[visibility]=3|4&restrictBy[status]=1",
+              "host": [
+                "{{searchaniseBaseUrl}}"
+              ],
+              "path": [
+                "getresults"
+              ],
+              "query": [
+                {
+                  "key": "api_key",
+                  "value": "{{searchaniseApiKey}}"
+                },
+                {
+                  "key": "q",
+                  "value": "phone"
+                },
+                {
+                  "key": "maxResults",
+                  "value": "10"
+                },
+                {
+                  "key": "startIndex",
+                  "value": "0"
+                },
+                {
+                  "key": "queryCorrection",
+                  "value": "true"
+                },
+                {
+                  "key": "suggestions",
+                  "value": "true"
+                },
+                {
+                  "key": "categories",
+                  "value": "true"
+                },
+                {
+                  "key": "facets",
+                  "value": "true"
+                },
+                {
+                  "key": "restrictBy[visibility]",
+                  "value": "3|4"
+                },
+                {
+                  "key": "restrictBy[status]",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Performs keyword search returning matching products, category counts, price facets, and suggestions."
+          },
+          "response": []
+        },
+        {
+          "name": "Search with Category Filter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{searchaniseBaseUrl}}/getresults?api_key={{searchaniseApiKey}}&q=phone&restrictBy[category_ids]={{categoryId}}&maxResults=10&startIndex=0&queryCorrection=true&suggestions=true",
+              "host": [
+                "{{searchaniseBaseUrl}}"
+              ],
+              "path": [
+                "getresults"
+              ],
+              "query": [
+                {
+                  "key": "api_key",
+                  "value": "{{searchaniseApiKey}}"
+                },
+                {
+                  "key": "q",
+                  "value": "phone"
+                },
+                {
+                  "key": "restrictBy[category_ids]",
+                  "value": "{{categoryId}}"
+                },
+                {
+                  "key": "maxResults",
+                  "value": "10"
+                },
+                {
+                  "key": "startIndex",
+                  "value": "0"
+                },
+                {
+                  "key": "queryCorrection",
+                  "value": "true"
+                },
+                {
+                  "key": "suggestions",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Filters search results within a specific category."
+          },
+          "response": []
+        },
+        {
+          "name": "Search with Price Sort",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{searchaniseBaseUrl}}/getresults?api_key={{searchaniseApiKey}}&q=samsung&maxResults=10&startIndex=0&sortBy=price&sortOrder=asc",
+              "host": [
+                "{{searchaniseBaseUrl}}"
+              ],
+              "path": [
+                "getresults"
+              ],
+              "query": [
+                {
+                  "key": "api_key",
+                  "value": "{{searchaniseApiKey}}"
+                },
+                {
+                  "key": "q",
+                  "value": "samsung"
+                },
+                {
+                  "key": "maxResults",
+                  "value": "10"
+                },
+                {
+                  "key": "startIndex",
+                  "value": "0"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "price"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            },
+            "description": "Sorts search results by price ascending/descending."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07. Cart & Coupons",
+      "description": "Cart creation, adding items, updating quantities, coupon application, club points discount, and guest cart operations.",
+      "item": [
+        {
+          "name": "Create / Get Customer Cart (Mine)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/carts/mine/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "carts",
+                "mine"
+              ]
+            },
+            "description": "Creates an active customer cart and stores cartId in {{cartId}} variable."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-capture Cart ID\n",
+                  "if (pm.response.code === 200) {\n",
+                  "    var raw = pm.response.text().trim().replace(/^\"|\"$/g, '');\n",
+                  "    pm.collectionVariables.set(\"cartId\", raw);\n",
+                  "    console.log(\"\u2705 Cart ID automatically saved to {{cartId}}:\", raw);\n",
+                  "}\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Customer Cart Checkout Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/dcastalia-checkout/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "dcastalia-checkout",
+                "checkout"
+              ]
+            },
+            "description": "Full checkout-level cart details: items, line subtotals, applied discount, savings, club points, and grand total."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to Customer Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/carts/mine/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "carts",
+                "mine",
+                "items"
+              ]
+            },
+            "description": "Adds a product SKU and quantity to the authenticated customer's cart.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartItem\": {\n    \"sku\": \"SAMPLE-SKU-123\",\n    \"qty\": 1,\n    \"quote_id\": \"{{cartId}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Cart Item Quantity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/carts/mine/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "carts",
+                "mine",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "description": "Modifies the quantity of an item in the cart.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartItem\": {\n    \"item_id\": 1,\n    \"qty\": 2,\n    \"quote_id\": \"{{cartId}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Item from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/carts/mine/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "carts",
+                "mine",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "description": "Deletes an item from the cart."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Coupon Code",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-coupon/apply?cart_id={{cartId}}&coupon=PICKABOO50&is_app=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-coupon",
+                "apply"
+              ],
+              "query": [
+                {
+                  "key": "cart_id",
+                  "value": "{{cartId}}"
+                },
+                {
+                  "key": "coupon",
+                  "value": "PICKABOO50"
+                },
+                {
+                  "key": "is_app",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Applies a promotional coupon code to the active cart."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Coupon Code",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-coupon/remove?cart_id={{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-coupon",
+                "remove"
+              ],
+              "query": [
+                {
+                  "key": "cart_id",
+                  "value": "{{cartId}}"
+                }
+              ]
+            },
+            "description": "Removes applied coupon code from the cart."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Reward Club Points",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/rewards/mine/apply?cart_id={{cartId}}&pointAmount=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "rewards",
+                "mine",
+                "apply"
+              ],
+              "query": [
+                {
+                  "key": "cart_id",
+                  "value": "{{cartId}}"
+                },
+                {
+                  "key": "pointAmount",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Redeems customer club points for discount."
+          },
+          "response": []
+        },
+        {
+          "name": "Empty Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-emptycart/emptycart?qouteid={{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-emptycart",
+                "emptycart"
+              ],
+              "query": [
+                {
+                  "key": "qouteid",
+                  "value": "{{cartId}}"
+                }
+              ]
+            },
+            "description": "Clears all items from the current cart."
+          },
+          "response": []
+        },
+        {
+          "name": "Save for Later",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-saveforlater/save?customer_id={{customerId}}&cart_id={{cartId}}&item_id={{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-saveforlater",
+                "save"
+              ],
+              "query": [
+                {
+                  "key": "customer_id",
+                  "value": "{{customerId}}"
+                },
+                {
+                  "key": "cart_id",
+                  "value": "{{cartId}}"
+                },
+                {
+                  "key": "item_id",
+                  "value": "{{itemId}}"
+                }
+              ]
+            },
+            "description": "Moves item from cart to Save for Later wishlist list."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Guest Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/guest-carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "guest-carts"
+              ]
+            },
+            "description": "Creates an anonymous cart for unauthenticated users. Saves guestCartId to {{guestCartId}}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-capture Guest Cart ID\n",
+                  "if (pm.response.code === 200) {\n",
+                  "    var raw = pm.response.text().trim().replace(/^\"|\"$/g, '');\n",
+                  "    pm.collectionVariables.set(\"guestCartId\", raw);\n",
+                  "    console.log(\"\u2705 Guest Cart ID automatically saved to {{guestCartId}}:\", raw);\n",
+                  "}\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Guest Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/guest-carts/{{guestCartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "guest-carts",
+                "{{guestCartId}}"
+              ]
+            },
+            "description": "Retrieves basic guest cart contents."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Guest Checkout Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/dcastalia-checkout/checkout?cart_id={{guestCartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "dcastalia-checkout",
+                "checkout"
+              ],
+              "query": [
+                {
+                  "key": "cart_id",
+                  "value": "{{guestCartId}}"
+                }
+              ]
+            },
+            "description": "Returns full breakdown of items and charges for guest cart."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to Guest Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/guest-carts/{{guestCartId}}/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "guest-carts",
+                "{{guestCartId}}",
+                "items"
+              ]
+            },
+            "description": "Adds item to guest cart.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartItem\": {\n    \"sku\": \"SAMPLE-SKU-123\",\n    \"qty\": 1,\n    \"quote_id\": \"{{guestCartId}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Merge Guest Cart to Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/guest-carts/{{guestCartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "guest-carts",
+                "{{guestCartId}}"
+              ]
+            },
+            "description": "Transfers items from guest cart into logged-in customer cart upon login.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": 12345,\n  \"storeId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08. Checkout & Order Placement",
+      "description": "Shipping estimation, address attachment, payment method selection, and order creation.",
+      "item": [
+        {
+          "name": "Estimate Shipping Methods (Custom Address)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/carts/mine/estimate-shipping-methods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "carts",
+                "mine",
+                "estimate-shipping-methods"
+              ]
+            },
+            "description": "Calculates shipping rates (regular / express delivery) for the given destination address.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": {\n    \"country_id\": \"BD\",\n    \"region\": \"Dhaka\",\n    \"region_id\": 0,\n    \"city\": \"Dhaka City\",\n    \"street\": [\n      \"House 12, Road 5\"\n    ],\n    \"postcode\": \"1205\",\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"telephone\": \"01700000000\",\n    \"email\": \"john.doe@example.com\",\n    \"same_as_billing\": 1\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estimate Shipping by Address ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/carts/mine/estimate-shipping-methods-by-address-id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "carts",
+                "mine",
+                "estimate-shipping-methods-by-address-id"
+              ]
+            },
+            "description": "Calculates shipping rates using a saved address ID from the address book.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Save Shipping Information",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/carts/mine/shipping-information",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "carts",
+                "mine",
+                "shipping-information"
+              ]
+            },
+            "description": "Saves chosen shipping address and shipping carrier. Returns available payment methods.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressInformation\": {\n    \"shipping_address\": {\n      \"country_id\": \"BD\",\n      \"region\": \"Dhaka\",\n      \"city\": \"Dhaka City\",\n      \"street\": [\n        \"House 12, Road 5\"\n      ],\n      \"postcode\": \"1205\",\n      \"firstname\": \"John\",\n      \"lastname\": \"Doe\",\n      \"telephone\": \"01700000000\",\n      \"email\": \"john.doe@example.com\"\n    },\n    \"billing_address\": {\n      \"country_id\": \"BD\",\n      \"region\": \"Dhaka\",\n      \"city\": \"Dhaka City\",\n      \"street\": [\n        \"House 12, Road 5\"\n      ],\n      \"postcode\": \"1205\",\n      \"firstname\": \"John\",\n      \"lastname\": \"Doe\",\n      \"telephone\": \"01700000000\",\n      \"email\": \"john.doe@example.com\"\n    },\n    \"shipping_carrier_code\": \"flatrate\",\n    \"shipping_method_code\": \"flatrate\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cart Payment Methods & Totals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-carts/{{cartId}}/shipping-information",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-carts",
+                "{{cartId}}",
+                "shipping-information"
+              ]
+            },
+            "description": "Returns payment methods and totals summary for an existing cart ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Select Payment Method",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dccheckout/payment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dccheckout",
+                "payment"
+              ]
+            },
+            "description": "Selects payment method (e.g., cashondelivery, bkash, patahopay, amex, visamaster, paymentpending, emi) for the active cart session.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": \"{{cartId}}\",\n  \"paymentMethod\": {\n    \"method\": \"cashondelivery\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dccheckout/orderplace",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dccheckout",
+                "orderplace"
+              ]
+            },
+            "description": "Finalizes order placement. Automatically captures orderId into {{orderId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": \"{{cartId}}\",\n  \"payment_method\": \"cashondelivery\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-capture Order ID\n",
+                  "if (pm.response.code === 200) {\n",
+                  "    try {\n",
+                  "        var json = pm.response.json();\n",
+                  "        var orderId = json.order_id || json.entity_id || json.increment_id || pm.response.text().replace(/^\"|\"$/g, '');\n",
+                  "        pm.collectionVariables.set(\"orderId\", String(orderId));\n",
+                  "        console.log(\"\u2705 Order ID automatically saved to {{orderId}}:\", orderId);\n",
+                  "    } catch(e) {\n",
+                  "        var raw = pm.response.text().trim().replace(/^\"|\"$/g, '');\n",
+                  "        pm.collectionVariables.set(\"orderId\", raw);\n",
+                  "    }\n",
+                  "}\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Order Payment Method",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-order/updateorderpayment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-order",
+                "updateorderpayment"
+              ]
+            },
+            "description": "Updates payment method on an order (e.g. from COD to online payment).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\",\n  \"payment_method\": \"mobilebkash\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DM Order Placement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/dcastalia/dmorder-place/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "dcastalia",
+                "dmorder-place"
+              ]
+            },
+            "description": "Direct message notification order confirmation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Select Payment Method (Pathao Pay)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dccheckout/payment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dccheckout",
+                "payment"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": \"{{cartId}}\",\n  \"paymentMethod\": {\n    \"method\": \"patahopay\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Selects newly added Pathao Pay (code: patahopay) as the checkout payment gateway."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09. Card BIN & EMI Calculations",
+      "description": "Credit card BIN discounts, bank EMI tenure selections, and Cardless EMI (CEMI).",
+      "item": [
+        {
+          "name": "Get Card BIN Promotion Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/cardbin/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "cardbin",
+                "status"
+              ]
+            },
+            "description": "Checks if bank Card BIN discounts are currently active."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Card BIN for Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/orders/{{orderId}}/cardbin/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "orders",
+                "{{orderId}}",
+                "cardbin",
+                "verify"
+              ]
+            },
+            "description": "Checks if order is eligible for Card BIN discount."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Card BIN Discount",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/orders/{{orderId}}/cardbin/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "orders",
+                "{{orderId}}",
+                "cardbin",
+                "apply"
+              ]
+            },
+            "description": "Applies discount based on credit card first 6 digits (BIN).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"card_bin\": \"411111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Card BIN Discount",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/orders/{{orderId}}/cardbin/remove",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "orders",
+                "{{orderId}}",
+                "cardbin",
+                "remove"
+              ]
+            },
+            "description": "Removes applied Card BIN discount from the order."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Bank EMI Details for Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-emi/get-emi-details",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-emi",
+                "get-emi-details"
+              ]
+            },
+            "description": "Returns bank tenure options (3, 6, 9, 12 months) and interest charges.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quote_id\": \"{{cartId}}\",\n  \"order_id\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update EMI Quote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-emi/emiUpdateQuote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-emi",
+                "emiUpdateQuote"
+              ]
+            },
+            "description": "Applies selected EMI plan to order.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quote_id\": \"{{cartId}}\",\n  \"order_id\": \"{{orderId}}\",\n  \"bank_name\": \"City Bank\",\n  \"tenure_months\": \"6\",\n  \"payment_method\": \"citybank\",\n  \"payment_mode\": \"emi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cardless EMI (CEMI) Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-crdemi/get-crdemi-details",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-crdemi",
+                "get-crdemi-details"
+              ]
+            },
+            "description": "Returns available Cardless EMI financial partner options.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quote_id\": \"{{cartId}}\",\n  \"order_id\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update CEMI Quote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-emi/cemiUpdateQuote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-emi",
+                "cemiUpdateQuote"
+              ]
+            },
+            "description": "Confirms Cardless EMI selection for checkout.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quote_id\": \"{{cartId}}\",\n  \"order_id\": \"{{orderId}}\",\n  \"bank_name\": \"IPDC\",\n  \"tenure_months\": \"12\",\n  \"payment_method\": \"cemi\",\n  \"payment_mode\": \"cemi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Payment Gateways (bKash, Nagad, Banks)",
+      "description": "bKash tokenized payment & saved agreements, Nagad PG, City Bank, BRAC Bank, MTB, SSLCommerz, and EBL.",
+      "item": [
+        {
+          "name": "bKash - Get Initial Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/gettoken",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "gettoken"
+              ]
+            },
+            "description": "Generates session token from bKash API."
+          },
+          "response": []
+        },
+        {
+          "name": "bKash - Create Agreement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/agreementcreate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "agreementcreate"
+              ]
+            },
+            "description": "Initiates tokenized agreement with bKash for 1-click checkout.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_token\": \"sample_bkash_id_token\",\n  \"user_id\": \"{{customerId}}\",\n  \"return_path\": \"https://www.pickaboo.com/bkash/agreement-callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "bKash - Execute Agreement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/agreementexecute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "agreementexecute"
+              ]
+            },
+            "description": "Executes agreement after customer OTP and PIN verification.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_token\": \"sample_bkash_id_token\",\n  \"payment_id\": \"bkash_payment_id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "bKash - Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/paymentcreate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "paymentcreate"
+              ]
+            },
+            "description": "Creates bKash charge request.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_token\": \"sample_bkash_id_token\",\n  \"agreement_id\": \"agreement_id_123\",\n  \"amount\": \"1500.00\",\n  \"order_id\": \"{{orderId}}\",\n  \"return_path\": \"https://www.pickaboo.com/bkash/payment-callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "bKash - Execute Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/paymentexecute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "paymentexecute"
+              ]
+            },
+            "description": "Confirms and deducts payment amount from bKash.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_token\": \"sample_bkash_id_token\",\n  \"payment_id\": \"bkash_payment_id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "bKash - Save Agreement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/saveagreement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "saveagreement"
+              ]
+            },
+            "description": "Stores agreement ID in database for future fast checkout.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\",\n  \"payment_id\": \"payment_id_123\",\n  \"trx_id\": \"TRX998877\",\n  \"phone_number\": \"01700000000\",\n  \"agreement_id\": \"agreement_123\",\n  \"user_id\": \"{{customerId}}\",\n  \"is_saved\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "bKash - Get Saved Agreements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/getagreements?customer_id={{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "getagreements"
+              ],
+              "query": [
+                {
+                  "key": "customer_id",
+                  "value": "{{customerId}}"
+                }
+              ]
+            },
+            "description": "Lists saved bKash numbers for customer."
+          },
+          "response": []
+        },
+        {
+          "name": "bKash - Delete Saved Agreement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-mobilebkash/deleteagreement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-mobilebkash",
+                "deleteagreement"
+              ]
+            },
+            "description": "Unlinks saved bKash account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customerId}}\",\n  \"phone_number\": \"01700000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Nagad - Execute Payment / Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-dcastalianagadapi/paymentexecute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-dcastalianagadapi",
+                "paymentexecute"
+              ]
+            },
+            "description": "Generates Nagad payment redirect URL.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\",\n  \"return_path\": \"https://www.pickaboo.com/payment-status/nagod\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Nagad - Finalize Callback",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-dcastalianagadapi/nagadcallback?payment_ref_id=REF123&status=Success",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-dcastalianagadapi",
+                "nagadcallback"
+              ],
+              "query": [
+                {
+                  "key": "payment_ref_id",
+                  "value": "REF123"
+                },
+                {
+                  "key": "status",
+                  "value": "Success"
+                }
+              ]
+            },
+            "description": "Verifies Nagad payment callback status."
+          },
+          "response": []
+        },
+        {
+          "name": "City Bank - Create Order Gateway",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-citybank/createorder",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-citybank",
+                "createorder"
+              ]
+            },
+            "description": "Generates City Bank gateway URL.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "BRAC Bank - Create Order Gateway",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-bracbank/createorder",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-bracbank",
+                "createorder"
+              ]
+            },
+            "description": "Generates BRAC Bank gateway URL.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MTB Gateway - Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/mtb-gateway/createorder",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "mtb-gateway",
+                "createorder"
+              ]
+            },
+            "description": "Generates Mutual Trust Bank gateway URL.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SSLCommerz - Payment Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-sslcommerz/payment/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-sslcommerz",
+                "payment",
+                "request"
+              ]
+            },
+            "description": "Generates SSLCommerz payment gateway session.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EBL - Payment Process",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/default/V1/dcastalia-ebl/payment-process?order_id={{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "default",
+                "V1",
+                "dcastalia-ebl",
+                "payment-process"
+              ],
+              "query": [
+                {
+                  "key": "order_id",
+                  "value": "{{orderId}}"
+                }
+              ]
+            },
+            "description": "Eastern Bank payment processing endpoint."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11. Orders & Tracking",
+      "description": "Order history, item status, cancellation, and reordering.",
+      "item": [
+        {
+          "name": "Get My Orders (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/orders/mine?limit=10&currentPage=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "orders",
+                "mine"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "currentPage",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Lists all orders placed by the customer with status and price summary."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/orders/mine/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "orders",
+                "mine",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Full order details: line items, shipping address, invoice, tracking status."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/order/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "order",
+                "cancel"
+              ]
+            },
+            "description": "Cancels an order if within allowable cancellation window.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\",\n  \"reason\": \"Change of mind\",\n  \"note\": \"Ordered accidentally\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reorder Past Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-reorderapi/reorder/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-reorderapi",
+                "reorder",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Copies all items from a past order into active cart.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customerId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12. Reviews & Ratings",
+      "description": "Product review listing, helpful voting, photo review submission, and customer's own reviews.",
+      "item": [
+        {
+          "name": "Get Product Reviews (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/product/info/id/{{productId}}/review?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "product",
+                "info",
+                "id",
+                "{{productId}}",
+                "review"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Returns customer reviews, ratings, and customer uploaded photo reviews."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Review Votes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-reviewvote/product/votes?productId={{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-reviewvote",
+                "product",
+                "votes"
+              ],
+              "query": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                }
+              ]
+            },
+            "description": "Fetches like/dislike counts for all reviews on the product."
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Review (Multipart)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/reviews/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "reviews",
+                "new"
+              ]
+            },
+            "description": "Submits star ratings, text review, and optional image attachments.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "product_id",
+                  "value": "{{productId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Great AC!",
+                  "type": "text"
+                },
+                {
+                  "key": "detail",
+                  "value": "Fast cooling and energy efficient.",
+                  "type": "text"
+                },
+                {
+                  "key": "ratings",
+                  "value": "[{\"rating_id\":1,\"percent\":100,\"value\":5}]",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Vote on Review (Helpful / Not Helpful)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-reviewvote/reviewvote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-reviewvote",
+                "reviewvote"
+              ]
+            },
+            "description": "Likes or dislikes a product review.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"reviewsId\": \"1\",\n  \"type\": \"like\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Submitted Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/reviews/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "reviews",
+                "mine"
+              ]
+            },
+            "description": "Lists all reviews written by logged-in customer."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "13. Wishlist",
+      "description": "Customer wishlist listing, item addition, and removal.",
+      "item": [
+        {
+          "name": "Get Wishlist Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/wishlist/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "wishlist",
+                "items"
+              ]
+            },
+            "description": "Returns all products currently saved in customer's wishlist."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Product to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/wishlist/add/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "wishlist",
+                "add",
+                "{{productId}}"
+              ]
+            },
+            "description": "Adds product to customer's wishlist."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Product from Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/wishlist/delete?productId={{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "wishlist",
+                "delete"
+              ],
+              "query": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                }
+              ]
+            },
+            "description": "Removes product from customer's wishlist."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "14. Push Notifications",
+      "description": "FCM device registration, push inbox, read statuses, and mark all read.",
+      "item": [
+        {
+          "name": "Save / Subscribe FCM Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-pushnotification/subscriber",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-pushnotification",
+                "subscriber"
+              ]
+            },
+            "description": "Registers device token for Firebase Cloud Messaging push campaigns.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"sample_fcm_token_string\",\n  \"device_type\": \"mobile\",\n  \"os_name\": \"android\",\n  \"browser_name\": \"pickaboo_app\",\n  \"status\": \"subscribed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete FCM Token",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-pushnotification/subscriber/delete?token=sample_fcm_token_string",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-pushnotification",
+                "subscriber",
+                "delete"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "sample_fcm_token_string"
+                }
+              ]
+            },
+            "description": "Unsubscribes device token on logout."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Notifications List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-pushnotification/notification/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-pushnotification",
+                "notification",
+                "list"
+              ]
+            },
+            "description": "Returns notifications in user's in-app inbox."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Notification Status (Read/Clicked)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-pushnotification/notification/update?tag=1&is_fetched=1&is_clicked=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-pushnotification",
+                "notification",
+                "update"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "1"
+                },
+                {
+                  "key": "is_fetched",
+                  "value": "1"
+                },
+                {
+                  "key": "is_clicked",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Updates specific notification as opened or clicked."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All Notifications Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-pushnotification/notification/markasread",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-pushnotification",
+                "notification",
+                "markasread"
+              ]
+            },
+            "description": "Marks entire notification inbox as read."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "15. Helpdesk & Support Tickets",
+      "description": "Customer support tickets, department inquiries, message replies, and attachments.",
+      "item": [
+        {
+          "name": "Get Support Tickets List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-helpdesk/ticket/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-helpdesk",
+                "ticket",
+                "list"
+              ]
+            },
+            "description": "Lists all open and closed support tickets filed by the user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Order Info & Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-helpdesk/orderinfo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-helpdesk",
+                "orderinfo"
+              ]
+            },
+            "description": "Returns customer past orders and available support department categories."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Details & Thread",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-helpdesk/ticket/details?ticket_id={{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-helpdesk",
+                "ticket",
+                "details"
+              ],
+              "query": [
+                {
+                  "key": "ticket_id",
+                  "value": "{{ticketId}}"
+                }
+              ]
+            },
+            "description": "Full conversation thread and admin replies for a ticket."
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Support Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-helpdesk/ticket/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-helpdesk",
+                "ticket",
+                "create"
+              ]
+            },
+            "description": "Submits a new helpdesk ticket.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Delivery Inquiry",
+                  "type": "text"
+                },
+                {
+                  "key": "body",
+                  "value": "When will my order arrive?",
+                  "type": "text"
+                },
+                {
+                  "key": "department_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "order_id",
+                  "value": "{{orderId}}",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reply to Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-helpdesk/ticket/reply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-helpdesk",
+                "ticket",
+                "reply"
+              ]
+            },
+            "description": "Sends a reply in an existing ticket thread.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "ticket_id",
+                  "value": "{{ticketId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "body",
+                  "value": "Thank you for the update.",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Close Support Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-helpdesk/ticket/close",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-helpdesk",
+                "ticket",
+                "close"
+              ]
+            },
+            "description": "Closes an active ticket.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticket_id\": \"{{ticketId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "16. Knowledge Base & Legal",
+      "description": "FAQ articles, help categories, and legal policy pages.",
+      "item": [
+        {
+          "name": "Get Help Support Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-help/categoryList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-help",
+                "categoryList"
+              ]
+            },
+            "description": "Lists help center FAQ categories (e.g. Account, Orders, Payment, Warranty)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Help Articles by Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-help/articleList?category_id=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-help",
+                "articleList"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Returns articles and answers under a help category."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Help Articles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/dcastalia-help/searchArticle?query_string=refund",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "dcastalia-help",
+                "searchArticle"
+              ],
+              "query": [
+                {
+                  "key": "query_string",
+                  "value": "refund"
+                }
+              ]
+            },
+            "description": "Performs keyword search through knowledge base help articles."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Support Categories (Alternative)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/support-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "support-categories"
+              ]
+            },
+            "description": "Alternative endpoint for support categories."
+          },
+          "response": []
+        },
+        {
+          "name": "Terms & Conditions Page",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/terms-and-conditions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "terms-and-conditions"
+              ]
+            },
+            "description": "Pickaboo app terms of service."
+          },
+          "response": []
+        },
+        {
+          "name": "Privacy Policy Page",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/getpage/privacy-policy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "getpage",
+                "privacy-policy"
+              ]
+            },
+            "description": "Official privacy policy content."
+          },
+          "response": []
+        },
+        {
+          "name": "Return Policy Page",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rest/V1/getpage/return-policy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rest",
+                "V1",
+                "getpage",
+                "return-policy"
+              ]
+            },
+            "description": "Return and refund policy documentation."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

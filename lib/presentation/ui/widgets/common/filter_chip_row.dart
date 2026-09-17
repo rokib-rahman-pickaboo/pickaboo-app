@@ -30,8 +30,6 @@ class FilterChipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyles = context.textStyle;
-
     if (chips.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -46,7 +44,7 @@ class FilterChipRow extends StatelessWidget {
           itemCount: chips.length,
           separatorBuilder: (_, _) => SizedBox(width: 12.w),
           itemBuilder: (context, index) {
-            return _buildChip(chips[index], textStyles);
+            return _buildChip(chips[index]);
           },
         ),
       ),
@@ -55,18 +53,17 @@ class FilterChipRow extends StatelessWidget {
 
   Widget _buildChip(
     FilterChipData chip,
-    AppTextStyles textStyles,
   ) {
     final isSelected = chip.isSelected;
 
     return InkWell(
       onTap: chip.onTap,
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: AppRadius.fullRadius,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue : AppColors.white,
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: AppRadius.fullRadius,
           border: Border.all(
             color: isSelected
                 ? AppColors.pickabooBlue
@@ -80,7 +77,7 @@ class FilterChipRow extends StatelessWidget {
             children: [
               Text(
                 chip.label,
-                style: textStyles.bodyMedium.copyWith(
+                style: AppTypography.bodyMedium.copyWith(
                   color: isSelected ? AppColors.white : AppColors.text,
                 ),
               ),

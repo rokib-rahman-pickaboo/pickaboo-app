@@ -529,7 +529,7 @@ class IUserProfileApiService implements UserProfileApiService {
     } on DioException catch (e) {
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      return Left(ErrorResponse(message: e.toString()));
+      return Left(ErrorResponse(message: ApiErrorParser.sanitize(e.toString(), fallback: 'Failed to load order details. Please try again.')));
     }
   }
 

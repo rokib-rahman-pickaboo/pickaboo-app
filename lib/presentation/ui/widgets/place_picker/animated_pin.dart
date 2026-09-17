@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
 class AnimatedPin extends StatefulWidget {
   final bool isDragging;
@@ -57,7 +57,7 @@ class _AnimatedPinState extends State<AnimatedPin>
             height: widget.isDragging ? 4 : 4,
             decoration: BoxDecoration(
               color: AppColors.black.withValues(alpha: 0.26),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: AppRadius.badgeRadius,
             ),
           ),
         ],

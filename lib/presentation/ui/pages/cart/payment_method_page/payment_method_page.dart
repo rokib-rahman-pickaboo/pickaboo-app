@@ -22,6 +22,7 @@ import 'package:pickaboo/domain/entity/checkout/checkout_emi_entity.dart';
 import 'package:pickaboo/domain/entity/checkout/payment_methods_entity.dart';
 import 'package:pickaboo/domain/entity/payment/saved_payment_entity.dart';
 import 'package:pickaboo/injection.dart';
+import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
 import 'package:pickaboo/presentation/bloc/card_bin_bloc/card_bin_bloc.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/checkout_bloc/checkout_bloc.dart';
@@ -31,6 +32,7 @@ import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/bottom_sheet/card_bin_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/bottom_sheet/emi_selection_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/payment_method_page/card_bin_applied_view.dart';
+import 'package:pickaboo/presentation/ui/widgets/cart/payment_method_page/payment_method_skeleton_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/payment_method_page/payment_option_item.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/payment_method_page/payment_order_summary.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
@@ -45,6 +47,13 @@ class PaymentMethodPage extends StatefulWidget {
   final String? orderId;
   final String? cartId;
   final List<PaymentMethodEntity>? availablePaymentMethods;
+  final CartTotalsEntity? initialTotals;
+  final int? initialItemsCount;
+  final double? grandTotal;
+  final double? subtotal;
+  final double? shippingAmount;
+  final double? discountAmount;
+  final int? itemsCount;
 
   const PaymentMethodPage({
     super.key,
@@ -52,6 +61,13 @@ class PaymentMethodPage extends StatefulWidget {
     this.orderId,
     this.cartId,
     this.availablePaymentMethods,
+    this.initialTotals,
+    this.initialItemsCount,
+    this.grandTotal,
+    this.subtotal,
+    this.shippingAmount,
+    this.discountAmount,
+    this.itemsCount,
   });
 
   @override
@@ -69,6 +85,9 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   EmiTenureDetailEntity? _selectedEmiTenure;
   String _emiPaymentMode = 'Pay online';
   String? _cachedEmiQuoteId;
+  String? _resolvedCartId;
+  CheckoutEmiEntity? _loadedEmiData;
+  bool _isLoadingEmi = false;
   List<PaymentMethodEntity> _availablePaymentMethods = [];
   bool _savedAgreementsRequested = false;
   bool _isSyncingSelection = false;
@@ -83,20 +102,104 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   @override
   void initState() {
     super.initState();
+    _resolvedCartId = widget.cartId;
     _currentSelection = widget.selectedMethod ?? '';
+    if (widget.initialTotals != null) {
+      _lastTotals = widget.initialTotals;
+    } else if (widget.grandTotal != null || widget.subtotal != null) {
+      final gTotal = widget.grandTotal ?? 0.0;
+      final sTotal = widget.subtotal ?? gTotal;
+      final dAmount = widget.discountAmount ?? 0.0;
+      final shipAmount = widget.shippingAmount ?? 0.0;
+      _lastTotals = CartTotalsEntity(
+        grandTotal: gTotal,
+        baseGrandTotal: gTotal,
+        subtotal: sTotal,
+        baseSubtotal: sTotal,
+        discountAmount: dAmount,
+        baseDiscountAmount: dAmount,
+        subtotalWithDiscount: sTotal + dAmount,
+        baseSubtotalWithDiscount: sTotal + dAmount,
+        shippingAmount: shipAmount,
+        baseShippingAmount: shipAmount,
+        shippingDiscountAmount: 0,
+        baseShippingDiscountAmount: 0,
+        taxAmount: 0,
+        baseTaxAmount: 0,
+        shippingTaxAmount: 0,
+        baseShippingTaxAmount: 0,
+        subtotalInclTax: sTotal,
+        shippingInclTax: shipAmount,
+        baseShippingInclTax: shipAmount,
+        baseCurrencyCode: 'BDT',
+        quoteCurrencyCode: 'BDT',
+        couponCode: '',
+        itemsQty: widget.itemsCount ?? widget.initialItemsCount ?? 1,
+        items: const [],
+        totalSegments: const [],
+      );
+    }
+    _lastItemsCount = widget.initialItemsCount ?? widget.itemsCount ?? 0;
     if (widget.availablePaymentMethods != null &&
         widget.availablePaymentMethods!.isNotEmpty) {
-      _availablePaymentMethods = widget.availablePaymentMethods!;
+      _availablePaymentMethods = List.from(widget.availablePaymentMethods!);
+    } else {
+      _availablePaymentMethods = [];
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadSavedAgreements();
       _getCardBinStatus();
     });
-    Future.microtask(_loadPaymentInfo);
+    if (widget.orderId != null) {
+      context.read<OrderBloc>().add(
+        OrderEvent.loadOrderDetails(widget.orderId!),
+      );
+    }
+    final initialCartId = _resolveCartId();
+    if (_availablePaymentMethods.isEmpty &&
+        initialCartId != null &&
+        initialCartId.isNotEmpty &&
+        initialCartId != '0') {
+      Future.microtask(_loadPaymentInfo);
+    }
+  }
+
+  String? _resolveCartId() {
+    if (widget.cartId != null &&
+        widget.cartId!.isNotEmpty &&
+        widget.cartId != '0') {
+      return widget.cartId;
+    }
+    if (_resolvedCartId != null &&
+        _resolvedCartId!.isNotEmpty &&
+        _resolvedCartId != '0') {
+      return _resolvedCartId;
+    }
+    final stateCheckout = context.read<CheckoutBloc>().state.maybeMap(
+      checkoutLoaded: (s) => s.checkout.cart.id.toString(),
+      placingOrder: (s) => s.checkout.cart.id.toString(),
+      orderPlaced: (s) => s.checkout.cart.id.toString(),
+      orElse: () => null,
+    );
+    if (stateCheckout != null &&
+        stateCheckout.isNotEmpty &&
+        stateCheckout != '0') {
+      return stateCheckout;
+    }
+    final orderQuoteId = context.read<OrderBloc>().state.orderDetails?.paymentAddress?.quoteId;
+    if (orderQuoteId != null &&
+        orderQuoteId.isNotEmpty &&
+        orderQuoteId != '0') {
+      return orderQuoteId;
+    }
+    if (widget.orderId == null) {
+      return CheckoutBloc.cachedCartId;
+    }
+    return null;
   }
 
   void _loadPaymentInfo() {
-    final cartId = widget.cartId;
+    final cartId = _resolveCartId();
     if (kDebugMode) {
       print('💳 PaymentMethodPage: _loadPaymentInfo cartId=$cartId');
     }
@@ -127,10 +230,22 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   }
 
   String? _resolveCustomerId() {
-    return context.read<CheckoutBloc>().state.maybeMap(
+    final checkoutCustId = context.read<CheckoutBloc>().state.maybeMap(
       checkoutLoaded: (s) => s.checkout.cart.customer?.id.toString(),
       orElse: () => null,
     );
+    if (checkoutCustId != null && checkoutCustId.isNotEmpty) {
+      return checkoutCustId;
+    }
+    try {
+      final authState = context.read<AuthBloc>().state;
+      return authState.maybeMap(
+        authenticated: (s) => s.user.id.toString(),
+        orElse: () => null,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   String _maskLast4(String phone) => phone.length <= 4
@@ -151,12 +266,18 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         agreementId: agreement.agreementId,
       ),
     );
+    _beginSelectionSync();
     if (widget.orderId != null) {
-      _beginSelectionSync();
       context.read<CheckoutBloc>().add(
         CheckoutEvent.syncOrderPaymentMethod(
           orderId: widget.orderId!,
-          paymentMethod: 'bkash',
+          paymentMethod: 'dynamicpaymentgateway',
+        ),
+      );
+    } else {
+      context.read<CheckoutBloc>().add(
+        const CheckoutEvent.selectPaymentMethod(
+          paymentMethod: 'dynamicpaymentgateway',
         ),
       );
     }
@@ -171,6 +292,13 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           listener: (context, orderState) {
             final details = orderState.orderDetails;
             if (details != null) {
+              final quoteId = details.paymentAddress?.quoteId;
+              if (quoteId != null && quoteId.isNotEmpty && quoteId != '0') {
+                _resolvedCartId = quoteId;
+                context.read<CheckoutBloc>().add(
+                  CheckoutEvent.loadPaymentInfo(cartId: quoteId),
+                );
+              }
               setState(() {
                 _isTotalsFromOrderApi = true;
                 _lastTotals = CartTotalsEntity(
@@ -231,33 +359,50 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       child: BlocConsumer<CheckoutBloc, CheckoutState>(
         listener: (context, state) {
           state.maybeWhen(
+            checkoutLoaded: (
+              checkout,
+              selectedShippingAddress,
+              selectedBillingAddress,
+              selectedPaymentMethod,
+              selectedShippingMethodCode,
+              availableShippingMethods,
+              availablePaymentMethods,
+            ) {
+              setState(() {
+                if (availablePaymentMethods.isNotEmpty) {
+                  _availablePaymentMethods = List.from(availablePaymentMethods);
+                }
+                if (!_isTotalsFromOrderApi) {
+                  _lastTotals = checkout.cartTotals;
+                }
+              });
+              if (_isSyncingSelection) {
+                _endSelectionSync();
+              }
+            },
+            paymentMethodsLoaded: (availablePaymentMethods, totals) {
+              setState(() {
+                _availablePaymentMethods = List.from(availablePaymentMethods);
+                if (totals != null) {
+                  _lastTotals = totals;
+                }
+              });
+              _endSelectionSync();
+            },
             emiDetailsLoaded: (emiData) {
               if (kDebugMode) {
                 print('💳 PaymentMethodPage: emiDetailsLoaded received — ${emiData.bankEmiData.length} banks');
               }
-              EmiSelectionBottomSheet.show(
-                context,
-                emiData: emiData,
-                initialBank: _selectedEmiBank,
-                initialTenure: _selectedEmiTenure,
-                initialMode: _emiPaymentMode,
-                isCheckoutFlow: widget.orderId == null,
-                onConfirm: (bank, tenure, mode) {
-                  setState(() {
-                    _selectedEmiBank = bank;
-                    _selectedEmiTenure = tenure;
-                    _emiPaymentMode = mode;
-                  });
-                  _logAddPaymentInfo();
-                  if (widget.orderId == null) {
-                    _storeEmiSelection(context);
-                  } else {
-                    _dispatchConfirmEmi(context);
-                  }
-                },
-              );
+              setState(() {
+                _isLoadingEmi = false;
+                _loadedEmiData = emiData;
+              });
+              _showEmiBottomSheet(emiData);
             },
             orderPaymentMethodSynced: (success, method) {
+              if (kDebugMode) {
+                print('💳 PaymentMethodPage: orderPaymentMethodSynced success=$success method=$method');
+              }
               if (success && widget.orderId != null) {
                 context.read<OrderBloc>().add(
                   OrderEvent.loadOrderDetails(widget.orderId!),
@@ -309,9 +454,36 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               }
             },
             navigateToPaymentGateway: (url, title, formFields) {
+              final selectedMethod = _availablePaymentMethods.firstWhereOrNull(
+                (m) =>
+                    m.code.toLowerCase().trim() ==
+                    _currentSelection.toLowerCase().trim(),
+              );
+              String exactTitle = selectedMethod?.title.trim() ?? '';
+              if (exactTitle.isEmpty &&
+                  title.isNotEmpty &&
+                  title != 'Secure Payment' &&
+                  title != 'EBL Payment') {
+                exactTitle = title.trim();
+              }
+              if (exactTitle.isEmpty) {
+                const knownTitles = {
+                  'pickabooeblmastercard': 'Pickaboo EBL Mastercard',
+                  'visamaster': 'Visa/Master',
+                  'bkash': 'bKash Payment',
+                  'nagad': 'Nagad',
+                  'amex': 'AMEX',
+                  'cashondelivery': 'Cash On Delivery',
+                  'cardondelivery': 'Card On Delivery',
+                };
+                exactTitle =
+                    knownTitles[_currentSelection.toLowerCase().trim()] ??
+                        (title.isNotEmpty ? title : 'Payment');
+              }
+
               context.goToPaymentWebView(
                 url: url,
-                title: title,
+                title: exactTitle,
                 formFields: formFields,
                 onPaymentResult: (success, message) {
                   if (Navigator.canPop(context)) {
@@ -359,10 +531,16 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                 const CheckoutEvent.resetCheckout(),
               );
               context.read<CartBloc>().add(const CartEvent.getCart());
-              context.goToOrderPlaced(orderId: orderId);
+              final targetOrderId = orderId.isNotEmpty
+                  ? orderId
+                  : (widget.orderId ?? '');
+              context.goToOrderPlaced(orderId: targetOrderId);
             },
             paymentFailed: (orderId, errorMessage) {
-              context.goToOrderFailed(orderId: orderId);
+              final targetOrderId = orderId.isNotEmpty
+                  ? orderId
+                  : (widget.orderId ?? '');
+              context.goToOrderFailed(orderId: targetOrderId);
               SnackBarUtils.showError(
                 context,
                 errorMessage.isNotEmpty
@@ -371,17 +549,18 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               );
             },
             orderConfirmed: (success, _) {
-              if (success && widget.orderId != null) {
+              final targetOrderId = widget.orderId ?? '';
+              if (success) {
                 context.read<CheckoutBloc>().add(
                   const CheckoutEvent.resetCheckout(),
                 );
 
                 context.read<CartBloc>().add(const CartEvent.getCart());
 
-                context.goToOrderPlaced(orderId: widget.orderId!);
-              } else if (!success) {
-                if (widget.orderId != null) {
-                  context.goToOrderFailed(orderId: widget.orderId);
+                context.goToOrderPlaced(orderId: targetOrderId);
+              } else {
+                if (targetOrderId.isNotEmpty) {
+                  context.goToOrderFailed(orderId: targetOrderId);
                 }
                 SnackBarUtils.showError(
                   context,
@@ -390,6 +569,9 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               }
             },
             error: (error, lastCheckout) {
+              if (_isLoadingEmi) {
+                setState(() => _isLoadingEmi = false);
+              }
               if (kDebugMode) {
                 print(
                   '❌ PaymentMethodPage: CheckoutState.error — "${error.message}" '
@@ -411,17 +593,23 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         builder: (context, state) {
           state.mapOrNull(
             checkoutLoaded: (loaded) {
-              if (loaded.selectedPaymentMethod != null) {
+              if (loaded.selectedPaymentMethod != null &&
+                  loaded.selectedPaymentMethod!.isNotEmpty &&
+                  _currentSelection.isEmpty) {
                 _currentSelection = loaded.selectedPaymentMethod!;
               }
               if (!_isTotalsFromOrderApi) {
                 _lastTotals = loaded.checkout.cartTotals;
                 _lastItemsCount = loaded.checkout.cart.itemsCount;
               }
-              _availablePaymentMethods = loaded.availablePaymentMethods;
+              if (loaded.availablePaymentMethods.isNotEmpty) {
+                _availablePaymentMethods = List.from(loaded.availablePaymentMethods);
+              }
             },
             paymentMethodsLoaded: (loaded) {
-              _availablePaymentMethods = loaded.availablePaymentMethods;
+              if (loaded.availablePaymentMethods.isNotEmpty) {
+                _availablePaymentMethods = List.from(loaded.availablePaymentMethods);
+              }
             },
             placingOrder: (placing) {
               if (!_isTotalsFromOrderApi) {
@@ -505,16 +693,21 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                           },
                         ),
 
-                        if (_lastTotals != null)
-                          PaymentOrderSummary(
-                            totals: _lastTotals!,
-                            itemsCount: _lastItemsCount,
-                            emiTenure: _selectedEmiTenure,
-                          )
-                        else
-                          const AppLoader.inline(
-                            padding: EdgeInsets.symmetric(vertical: 20),
-                          ),
+                        BlocBuilder<CardBinBloc, CardBinState>(
+                          builder: (context, cardBinState) {
+                            if (_lastTotals != null) {
+                              return PaymentOrderSummary(
+                                totals: _lastTotals!,
+                                itemsCount: _lastItemsCount,
+                                emiTenure: _selectedEmiTenure,
+                                cardBinResponse: cardBinState.cardBinResponse,
+                                cardBinVerifyResponse:
+                                    cardBinState.cardBinVerifyResponse,
+                              );
+                            }
+                            return const PaymentSummarySkeleton();
+                          },
+                        ),
 
                         SizedBox(height: 20.h),
                       ],
@@ -529,9 +722,11 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             ),
           );
 
-          final isProcessing = _isSyncingSelection ||
+          final isInitialLoading = _availablePaymentMethods.isEmpty;
+          final isProcessing = !isInitialLoading &&
               state.maybeMap(
                 paymentProcessing: (_) => true,
+                placingOrder: (_) => true,
                 loading: (_) => true,
                 orElse: () => false,
               );
@@ -548,21 +743,21 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   String _assetForCode(String code) {
     switch (code.toLowerCase()) {
       case 'pickabooeblmastercard':
-        return 'assets/new/svg/payment/pickaboo_mastercard_icon.svg';
+        return AppAssets.pickabooMastercard;
       case 'visamaster':
-        return 'assets/new/svg/payment/visa_mastercard_icon.svg';
+        return AppAssets.visaMastercard;
       case 'cashondelivery':
-        return 'assets/new/svg/payment/cash_on_delivery_icon.svg';
+        return AppAssets.cashOnDelivery;
       case 'emi':
-        return 'assets/new/svg/payment/emi_icon.svg';
+        return AppAssets.emiPayment;
       case 'bkash':
-        return 'assets/new/svg/payment/bkash_icon.svg';
+        return AppAssets.bkash;
       case 'nagad':
-        return 'assets/new/svg/payment/nagad_icon.svg';
+        return AppAssets.nagad;
       case 'amex':
-        return 'assets/new/svg/payment/amex_icon.svg';
+        return AppAssets.amex;
       default:
-        return 'assets/new/svg/payment/cash_on_delivery_icon.svg';
+        return AppAssets.cashOnDelivery;
     }
   }
 
@@ -582,9 +777,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
   Widget _buildPaymentMethodSection(BuildContext context) {
     if (_availablePaymentMethods.isEmpty) {
-      return AppLoader.inline(
-        padding: EdgeInsets.symmetric(vertical: 32.h),
-      );
+      return const PaymentMethodListSkeleton();
     }
 
     final methods = _visiblePaymentMethods(_availablePaymentMethods);
@@ -599,7 +792,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             child: Text(
               'Select Payment Method',
-              style: AppTypography.sectionTitle,
+              style: AppTypography.titleMedium,
             ),
           ),
           Divider(
@@ -622,12 +815,18 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     );
   }
 
+  String? _subtitleForMethod(PaymentMethodEntity method) {
+    final sub = method.subtitle.trim();
+    return sub.isNotEmpty ? sub : null;
+  }
+
   Widget _buildSingleMethodItem(
     BuildContext context,
     PaymentMethodEntity method,
   ) {
     final code = method.code;
     final asset = _assetForCode(code);
+    final subtitle = _subtitleForMethod(method);
 
     if (code == 'emi') {
       final eligible = _isEmiEligible();
@@ -639,13 +838,15 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         asset: asset,
         isSelected: _currentSelection == code,
         isEnabled: eligible,
-        subtitle: eligible
-            ? (_selectedEmiBank != null && _selectedEmiTenure != null
-                ? '${_selectedEmiBank!.name} · ${_selectedEmiTenure!.tenure} months · ৳${_selectedEmiTenure!.monthlyPayable}/mo · $_emiPaymentMode'
-                : 'Tap to select bank & tenure')
-            : (remaining > 0
-                ? 'Add BDT ${remaining.toStringAsFixed(0)} more to unlock EMI'
-                : 'Minimum BDT ${AppConstants.minEmiAmount.toStringAsFixed(0)} required for EMI'),
+        subtitle: _isLoadingEmi
+            ? 'Loading EMI options...'
+            : (eligible
+                ? (_selectedEmiBank != null && _selectedEmiTenure != null
+                    ? '${_selectedEmiBank!.name} · ${_selectedEmiTenure!.tenure} months · ৳${_selectedEmiTenure!.monthlyPayable}/mo · $_emiPaymentMode'
+                    : 'Tap to select bank & tenure')
+                : (remaining > 0
+                    ? 'Add BDT ${remaining.toStringAsFixed(0)} more to unlock EMI'
+                    : 'Minimum BDT ${AppConstants.minEmiAmount.toStringAsFixed(0)} required for EMI')),
         onTap: () {
           _updateSelection('emi');
           _openEmiSheet();
@@ -657,11 +858,9 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       return PaymentOptionItem(
         id: code,
         title: method.title,
-        subtitle: method.subtitle.isNotEmpty ? method.subtitle : null,
+        subtitle: subtitle,
         asset: asset,
-        isSelected: _currentSelection == code ||
-            (_currentSelection == 'dynamicpaymentgateway' &&
-                _selectedAgreementId != null),
+        isSelected: _currentSelection == code && _selectedAgreementId == null,
         onTap: () => _updateSelection(code),
       );
     }
@@ -674,7 +873,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           return PaymentOptionItem(
             id: code,
             title: method.title,
-            subtitle: method.subtitle.isNotEmpty ? method.subtitle : null,
+            subtitle: subtitle,
             asset: asset,
             isSelected: _currentSelection == code,
             badge: isApplied ? Container(
@@ -685,7 +884,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               ),
               child: Text(
                 'DISCOUNT APPLIED',
-                style: AppTypography.badgeDiscount,
+                style: AppTypography.bodyLarge.extraBold().white,
               ),
             ) : null,
             onTap: () {
@@ -703,7 +902,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     return PaymentOptionItem(
       id: code,
       title: method.title,
-      subtitle: method.subtitle.isNotEmpty ? method.subtitle : null,
+      subtitle: subtitle,
       asset: asset,
       isSelected: _currentSelection == code,
       onTap: () => _updateSelection(code),
@@ -732,7 +931,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
                   child: Text(
                     'Saved Payment Methods',
-                    style: AppTypography.sectionTitle,
+                    style: AppTypography.titleMedium,
                   ),
                 ),
                 Divider(
@@ -790,14 +989,10 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       }
     });
     if (widget.orderId == null) {
+      _beginSelectionSync();
       context.read<CheckoutBloc>().add(
         CheckoutEvent.selectPaymentMethod(paymentMethod: id),
       );
-      return;
-    }
-
-    // For EMI, do not sync until bank and tenure are selected
-    if (id == 'emi') {
       return;
     }
 
@@ -809,6 +1004,12 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         paymentGateway: _getGatewayForMethod(context, id),
       ),
     );
+    final quoteId = _resolvedCartId ?? CheckoutBloc.cachedCartId;
+    if (quoteId != null && quoteId.isNotEmpty && quoteId != '0') {
+      context.read<CheckoutBloc>().add(
+        CheckoutEvent.selectPaymentMethod(paymentMethod: id),
+      );
+    }
   }
 
   void _beginSelectionSync() {
@@ -827,7 +1028,42 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     }
   }
 
+  void _showEmiBottomSheet(CheckoutEmiEntity emiData) {
+    if (!mounted) return;
+    EmiSelectionBottomSheet.show(
+      context,
+      emiData: emiData,
+      initialBank: _selectedEmiBank,
+      initialTenure: _selectedEmiTenure,
+      initialMode: _emiPaymentMode,
+      isCheckoutFlow: widget.orderId == null,
+      onConfirm: (bank, tenure, mode) {
+        setState(() {
+          _selectedEmiBank = bank;
+          _selectedEmiTenure = tenure;
+          _emiPaymentMode = mode;
+        });
+        _logAddPaymentInfo();
+        if (widget.orderId == null) {
+          _storeEmiSelection(context);
+        } else {
+          _dispatchConfirmEmi(context);
+        }
+      },
+    );
+  }
+
   void _openEmiSheet() {
+    if (_loadedEmiData != null && _loadedEmiData!.bankEmiData.isNotEmpty) {
+      if (kDebugMode) {
+        print('💳 PaymentMethodPage: _openEmiSheet — using cached EMI data (${_loadedEmiData!.bankEmiData.length} banks)');
+      }
+      _showEmiBottomSheet(_loadedEmiData!);
+      return;
+    }
+
+    if (_isLoadingEmi) return;
+
     final quoteId = _resolveQuoteId();
     if (kDebugMode) {
       print('💳 PaymentMethodPage: _openEmiSheet called, quoteId=$quoteId, orderId=${widget.orderId}');
@@ -840,6 +1076,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       return;
     }
     _cachedEmiQuoteId = quoteId;
+    setState(() => _isLoadingEmi = true);
     context.read<CheckoutBloc>().add(
       CheckoutEvent.loadEmiDetails(
         quoteId: quoteId,
@@ -853,40 +1090,12 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       return _cachedEmiQuoteId;
     }
 
-    final navCartId = widget.cartId;
-    if (navCartId != null && navCartId.isNotEmpty && navCartId != '0') {
-      if (kDebugMode) {
-        print('💳 PaymentMethodPage: _resolveQuoteId → "$navCartId" (from widget.cartId)');
-      }
-      return navCartId;
-    }
-
-    final bloc = context.read<CheckoutBloc>();
-    final cartId = bloc.state.maybeMap(
-      checkoutLoaded: (s) => s.checkout.cart.id.toString(),
-      orderPlaced: (s) => s.checkout.cart.id.toString(),
-      placingOrder: (s) => s.checkout.cart.id.toString(),
-      loading: (s) => s.lastCheckout?.cart.id.toString(),
-      paymentMethodUpdated: (s) => s.checkout?.cart.id.toString(),
-      orderConfirmed: (s) => s.checkout?.cart.id.toString(),
-      orElse: () => null,
-    );
+    final cartId = _resolveCartId();
     if (cartId != null && cartId.isNotEmpty && cartId != '0') {
       if (kDebugMode) {
-        print('💳 PaymentMethodPage: _resolveQuoteId → "$cartId" (from CheckoutBloc)');
+        print('💳 PaymentMethodPage: _resolveQuoteId → "$cartId" (from _resolveCartId)');
       }
       return cartId;
-    }
-
-    final cartBlocId = context.read<CartBloc>().state.maybeMap(
-      loaded: (s) => s.cart.id.toString(),
-      orElse: () => null,
-    );
-    if (cartBlocId != null && cartBlocId.isNotEmpty && cartBlocId != '0') {
-      if (kDebugMode) {
-        print('💳 PaymentMethodPage: _resolveQuoteId → "$cartBlocId" (from CartBloc)');
-      }
-      return cartBlocId;
     }
 
     if (widget.orderId != null && widget.orderId!.isNotEmpty) {
@@ -966,6 +1175,15 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       );
     }
 
+    double extraDiscount = 0.0;
+    if (cardBinState.cardBinResponse?.success == true) {
+      extraDiscount = cardBinState.cardBinResponse!.discountAmount.toDouble();
+    } else if (cardBinState.cardBinVerifyResponse?.success == true) {
+      extraDiscount =
+          cardBinState.cardBinVerifyResponse!.discountAmount.toDouble();
+    }
+    total -= extraDiscount;
+
     if (_lastTotals != null) {
       total += PaymentOrderSummary.convenienceFeeFor(
         _lastTotals!,
@@ -980,7 +1198,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       totalPrice: total,
       buttonText: _confirmButtonLabel(),
       showArrow: false,
-      isLoading: state.maybeWhen(
+      isLoading: _isSyncingSelection || state.maybeWhen(
         loading: (_) => true,
         orElse: () => false,
       ),
@@ -1079,6 +1297,25 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   }
 
   String? _getGatewayForMethod(BuildContext context, String methodCode) {
+    final method = methodCode.toLowerCase().trim();
+    const directMethods = {
+      'nagad',
+      'bkash',
+      'dynamicpaymentgateway',
+      'cashondelivery',
+      'free',
+    };
+    if (directMethods.contains(method)) return null;
+
+    final localGateway = _availablePaymentMethods
+        .firstWhereOrNull((e) => e.code == methodCode)
+        ?.paymentGateway;
+    if (localGateway != null &&
+        localGateway.isNotEmpty &&
+        !directMethods.contains(localGateway.toLowerCase().trim())) {
+      return localGateway;
+    }
+
     final state = context.read<CheckoutBloc>().state;
     final stateGateway = state.maybeMap(
       checkoutLoaded: (loaded) => loaded.availablePaymentMethods
@@ -1086,17 +1323,17 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           ?.paymentGateway,
       orElse: () => null,
     );
-    if (stateGateway != null && stateGateway.isNotEmpty) return stateGateway;
+    if (stateGateway != null &&
+        stateGateway.isNotEmpty &&
+        !directMethods.contains(stateGateway.toLowerCase().trim())) {
+      return stateGateway;
+    }
 
-    final method = methodCode.toLowerCase().trim();
     if (method == 'amex') return 'citybank';
     if (method == 'visamaster') return 'mtb';
     if (method == 'pickabooeblmastercard' || method.contains('eblmastercard')) {
       return 'eblbank';
     }
-    if (method == 'bkash') return 'bkash';
-    if (method == 'dynamicpaymentgateway') return 'bkash';
-    if (method == 'nagad') return 'nagad';
     if (method == 'sslcommerz') return 'sslcommerz';
 
     return null;

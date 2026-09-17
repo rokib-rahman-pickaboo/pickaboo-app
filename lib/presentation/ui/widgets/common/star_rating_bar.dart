@@ -57,7 +57,7 @@ class StarRatingBar extends StatelessWidget {
 
   Widget _buildStar(Color color) {
     return SvgPicture.asset(
-      'assets/new/svg/star_icon.svg',
+      AppAssets.star,
       width: starSize.w,
       height: starSize.w,
       fit: BoxFit.contain,

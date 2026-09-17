@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
@@ -47,7 +47,7 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
             scrollPhysics: const BouncingScrollPhysics(),
             builder: (BuildContext context, int index) {
               return PhotoViewGalleryPageOptions(
-                imageProvider: CachedNetworkImageProvider(
+                imageProvider: AppImage.provider(
                   widget.imageUrls[index],
                 ),
                 initialScale: PhotoViewComputedScale.contained,
@@ -115,7 +115,7 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
                         ),
                         child: Text(
                           "${_currentIndex + 1}/${widget.imageUrls.length}",
-                          style: context.textStyle.bodyMediumBold.withColor(AppColors.white),
+                          style: AppTypography.bodyMedium.bold().withColor(AppColors.white),
                         ),
                       ),
                       GestureDetector(
