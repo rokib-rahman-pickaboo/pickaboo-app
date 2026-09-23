@@ -25,7 +25,10 @@ abstract class ProductRepository {
 
   ProductRepository(this.apiService);
 
-  Future<Either<AppErrorEntity, List<CategoryEntity>>> getAllCategories();
+  Future<List<CategoryEntity>?> getCachedCategories();
+  Future<Either<AppErrorEntity, List<CategoryEntity>>> getAllCategories({
+    bool forceRefresh = false,
+  });
   Future<Either<AppErrorEntity, HomeContentEntity>> getHomeFeedContent({
     required int productLimit,
     bool forceRefresh = false,

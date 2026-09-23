@@ -354,5 +354,81 @@ void main() {
         ],
       );
     });
+
+    group('SelectShippingMethod & EstimateShipping preservation', () {
+      final tOfficePick = ShippingMethodEntity(
+        carrierCode: 'officepick',
+        methodCode: 'officepick',
+        carrierTitle: 'Click & Collect',
+        methodTitle: 'Office Pick',
+        amount: 0,
+        baseAmount: 0,
+        available: true,
+        errorMessage: '',
+        priceExclTax: 0,
+        priceInclTax: 0,
+      );
+
+      final tFastPick = ShippingMethodEntity(
+        carrierCode: 'fastpickshipping',
+        methodCode: 'fastpickshipping',
+        carrierTitle: 'Express Delivery',
+        methodTitle: 'Express',
+        amount: 150,
+        baseAmount: 150,
+        available: true,
+        errorMessage: '',
+        priceExclTax: 150,
+        priceInclTax: 150,
+      );
+
+      blocTest<CheckoutBloc, CheckoutState>(
+        'preserves user-selected shipping method when estimateShipping runs if method is still valid',
+        setUp: () {
+          when(() => mockRepository.getCartCheckout())
+              .thenAnswer((_) async => Right(tCheckoutEntity));
+          when(() => mockRepository.estimateShippingMethods(address: any(named: 'address')))
+              .thenAnswer((_) async => Right([tFastPick, tOfficePick]));
+          when(
+            () => mockRepository.saveShippingInformation(
+              address: any(named: 'address'),
+              carrierCode: any(named: 'carrierCode'),
+              methodCode: any(named: 'methodCode'),
+              billingAddress: any(named: 'billingAddress'),
+            ),
+          ).thenAnswer((_) async => Right(tPaymentMethodsEntity));
+        },
+        build: () => checkoutBloc,
+        act: (bloc) async {
+          // 1. Initial load
+          bloc.add(const CheckoutEvent.loadCheckout());
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          // 2. User explicitly selects Click & Collect (officepick)
+          bloc.add(
+            const CheckoutEvent.selectShippingMethod(
+              carrierCode: 'officepick',
+              methodCode: 'officepick',
+            ),
+          );
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          // 3. Address update triggers re-estimate with same available methods
+          bloc.add(
+            CheckoutEvent.estimateShipping(address: tAddress),
+          );
+          await Future.delayed(const Duration(milliseconds: 100));
+        },
+        verify: (bloc) {
+          final state = bloc.state;
+          state.maybeMap(
+            checkoutLoaded: (loaded) {
+              expect(loaded.selectedShippingMethodCode, equals('officepick_officepick'));
+            },
+            orElse: () => fail('State should be checkoutLoaded'),
+          );
+        },
+      );
+    });
   });
 }

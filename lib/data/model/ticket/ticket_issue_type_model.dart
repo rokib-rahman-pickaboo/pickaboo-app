@@ -8,11 +8,21 @@ class TicketIssueTypeModel {
   });
 
   factory TicketIssueTypeModel.fromJson(Map<String, dynamic> json) {
+    final id = json['department_id']?.toString() ??
+        json['id']?.toString() ??
+        json['issue_id']?.toString() ??
+        json['issue_type_id']?.toString() ??
+        json['value']?.toString() ??
+        '';
+    final name = json['name']?.toString() ??
+        json['title']?.toString() ??
+        json['label']?.toString() ??
+        json['department_name']?.toString() ??
+        json['issue_type']?.toString() ??
+        '';
     return TicketIssueTypeModel(
-      id: json['department_id']?.toString() ??
-          json['id']?.toString() ??
-          '',
-      name: json['name']?.toString() ?? '',
+      id: id.isNotEmpty ? id : name,
+      name: name.isNotEmpty ? name : id,
     );
   }
 

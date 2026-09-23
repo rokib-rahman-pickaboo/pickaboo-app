@@ -68,6 +68,7 @@ class CommonProductSectionSlider extends StatelessWidget {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
+                clipBehavior: Clip.none,
                 padding: EdgeInsets.symmetric(
                   horizontal: AppSpacing.sameGroupItemSpacing.w,
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 
 export 'package:pickaboo/core/color/app_colors.dart';
@@ -168,4 +169,25 @@ class AppDecorations {
       borderRadius: borderRadius ?? AppRadius.cardTop,
     );
   }
+
+  /// Tuned Shimmer Effect for Skeletonizer
+  /// - High-contrast base color [AppColors.skeletonBase] against white surfaces
+  /// - Luminous white highlight [AppColors.skeletonHighlight]
+  /// - Energetic 1100ms cadence (replaces sluggish 2000ms default)
+  static const ShimmerEffect shimmerEffect = ShimmerEffect(
+    baseColor: AppColors.skeletonBase,
+    highlightColor: AppColors.skeletonHighlight,
+    duration: Duration(milliseconds: 1100),
+  );
+}
+
+/// Centralized Skeleton & Shimmer Tokens
+class AppShimmer {
+  AppShimmer._();
+
+  /// Tuned Shimmer Effect:
+  /// - High-contrast base color on white card surfaces
+  /// - Radiant white highlight wave
+  /// - Energetic 1100ms cadence (replaces sluggish 2000ms default)
+  static const ShimmerEffect effect = AppDecorations.shimmerEffect;
 }

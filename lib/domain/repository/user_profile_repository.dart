@@ -55,6 +55,8 @@ abstract class UserProfileRepository {
 
   Future<Either<AppErrorEntity, String>> uploadImage({required File image});
 
+  OrderListEntity? getCachedFirstPageOrders();
+
   Future<Either<AppErrorEntity, OrderListEntity>> getOrders({
     int limit = 10,
     int currentPage = 1,

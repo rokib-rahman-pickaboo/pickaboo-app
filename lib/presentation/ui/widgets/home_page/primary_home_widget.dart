@@ -24,6 +24,7 @@ import 'package:pickaboo/presentation/ui/widgets/home_page/flash_sale_banner_wid
 import 'package:pickaboo/presentation/ui/widgets/home_page/flash_sale_category_slider.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/homepage_offers_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/promotion_banner_slider.dart';
+export 'package:pickaboo/presentation/ui/widgets/home_page/primary_home_skeleton_widget.dart';
 
 /// ─────────────────────────────────────────────────────────────
 /// ⚡ HIGH-PERFORMANCE 3-SLIVER PRIMARY HOME WIDGET ("For You" Feed)

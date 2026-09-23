@@ -22,9 +22,12 @@ class FastCacheManager {
   }
 
   static String? getString(String key) => _box.read<String>(key);
+  static int? getInt(String key) => _box.read<int>(key);
   static bool containsKey(String key) => _box.hasData(key);
 
   static Future<void> setString(String key, String value) =>
+      _box.write(key, value);
+  static Future<void> setInt(String key, int value) =>
       _box.write(key, value);
   static Future<void> remove(String key) => _box.remove(key);
 

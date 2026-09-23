@@ -160,16 +160,34 @@ extension CurrencyMapper on Currency {
 
 extension CartTotalsMapper on CartTotals {
   CartTotalsEntity toEntity() {
+    double? segmentGrandTotal;
+    double? segmentSubtotal;
+    double? segmentShipping;
+    double? segmentDiscount;
+    if (totalSegments != null) {
+      for (final s in totalSegments!) {
+        if (s.code == 'grand_total' && s.value != null) {
+          segmentGrandTotal = s.value!.toDouble();
+        } else if (s.code == 'subtotal' && s.value != null) {
+          segmentSubtotal = s.value!.toDouble();
+        } else if (s.code == 'shipping' && s.value != null) {
+          segmentShipping = s.value!.toDouble();
+        } else if (s.code == 'discount' && s.value != null) {
+          segmentDiscount = s.value!.toDouble();
+        }
+      }
+    }
+
     return CartTotalsEntity(
-      grandTotal: (grandTotal ?? 0).toDouble(),
+      grandTotal: segmentGrandTotal ?? (grandTotal ?? 0).toDouble(),
       baseGrandTotal: (baseGrandTotal ?? 0).toDouble(),
-      subtotal: (subtotal ?? 0).toDouble(),
+      subtotal: segmentSubtotal ?? (subtotal ?? 0).toDouble(),
       baseSubtotal: (baseSubtotal ?? 0).toDouble(),
-      discountAmount: (discountAmount ?? 0).toDouble(),
+      discountAmount: segmentDiscount ?? (discountAmount ?? 0).toDouble(),
       baseDiscountAmount: (baseDiscountAmount ?? 0).toDouble(),
       subtotalWithDiscount: (subtotalWithDiscount ?? 0).toDouble(),
       baseSubtotalWithDiscount: (baseSubtotalWithDiscount ?? 0).toDouble(),
-      shippingAmount: (shippingAmount ?? 0).toDouble(),
+      shippingAmount: segmentShipping ?? (shippingAmount ?? 0).toDouble(),
       baseShippingAmount: (baseShippingAmount ?? 0).toDouble(),
       shippingDiscountAmount: (shippingDiscountAmount ?? 0).toDouble(),
       baseShippingDiscountAmount: (baseShippingDiscountAmount ?? 0).toDouble(),
@@ -202,10 +220,10 @@ extension CartTotalsItemMapper on CartTotalsItem {
       rowTotalWithDiscount: (rowTotalWithDiscount ?? 0).toDouble(),
       taxAmount: (taxAmount ?? 0).toDouble(),
       baseTaxAmount: (baseTaxAmount ?? 0).toDouble(),
-      taxPercent: taxPercent ?? 0,
+      taxPercent: (taxPercent ?? 0).round(),
       discountAmount: (discountAmount ?? 0).toDouble(),
       baseDiscountAmount: (baseDiscountAmount ?? 0).toDouble(),
-      discountPercent: discountPercent ?? 0,
+      discountPercent: (discountPercent ?? 0).round(),
       priceInclTax: (priceInclTax ?? 0).toDouble(),
       basePriceInclTax: (basePriceInclTax ?? 0).toDouble(),
       rowTotalInclTax: (rowTotalInclTax ?? 0).toDouble(),

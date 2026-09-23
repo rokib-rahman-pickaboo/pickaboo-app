@@ -25,6 +25,7 @@ import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/catalog_grid_skeleton.dart';
 
 class SellerProductPage extends StatefulWidget {
   final String shopUrl;
@@ -127,7 +128,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
               if (allProducts.isEmpty &&
                   (state.pagingState.isLoading ||
                       state.pagingState.pages == null)) {
-                return const AppLoader.fullPage();
+                return const CatalogGridSkeleton();
               }
 
               if (state.pagingState.error != null && allProducts.isEmpty) {
@@ -297,7 +298,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
           firstPageErrorIndicatorBuilder: (context) => _buildErrorState(),
           newPageErrorIndicatorBuilder: (context) => const SizedBox(),
           firstPageProgressIndicatorBuilder: (context) =>
-              const AppLoader.fullPage(),
+              const CatalogGridSkeleton(),
           newPageProgressIndicatorBuilder: (context) =>
               const AppLoader.pagination(),
           noItemsFoundIndicatorBuilder: (context) =>

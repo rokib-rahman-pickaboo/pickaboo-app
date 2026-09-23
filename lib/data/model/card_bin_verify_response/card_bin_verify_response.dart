@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-
 part 'card_bin_verify_response.freezed.dart';
 part 'card_bin_verify_response.g.dart';
 

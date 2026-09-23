@@ -17,17 +17,37 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     on<CategoryEvent>((event, emit) async {
       await event.map(
         getCategories: (_GetCategories req) async {
-          emit(state.copyWith(status: CategoryStatus.loading));
+          // SWR Step 1: Render cached data immediately (~2ms)
+          final cached =
+              state.categories ?? await repository.getCachedCategories();
+          if (cached != null && cached.isNotEmpty) {
+            emit(
+              state.copyWith(
+                status: CategoryStatus.success,
+                categories: cached,
+              ),
+            );
+          } else {
+            emit(state.copyWith(status: CategoryStatus.loading));
+          }
 
-          final result = await repository.getAllCategories();
+          // SWR Step 2: Background revalidation from network
+          final result = await repository.getAllCategories(forceRefresh: true);
           result.fold(
-            (l) => emit(state.copyWith(error: l, status: CategoryStatus.error)),
+            (l) {
+              if (state.categories == null || state.categories!.isEmpty) {
+                emit(
+                  state.copyWith(error: l, status: CategoryStatus.error),
+                );
+              }
+            },
             (r) async {
-              if (r.isNotEmpty == true) {
+              if (r.isNotEmpty) {
                 emit(
                   state.copyWith(status: CategoryStatus.success, categories: r),
                 );
-              } else {
+              } else if (state.categories == null ||
+                  state.categories!.isEmpty) {
                 emit(state.copyWith(status: CategoryStatus.empty));
               }
             },
@@ -35,8 +55,6 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
         },
 
         refresh: (_Refresh req) async {
-          emit(state.copyWith(status: CategoryStatus.loading));
-          await Future.delayed(const Duration(milliseconds: 100));
           add(const CategoryEvent.getCategories());
         },
       );

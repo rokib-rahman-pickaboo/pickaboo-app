@@ -120,8 +120,8 @@ class SnackBarUtils {
   static DateTime? _lastShownAt;
   static const _dedupeWindow = Duration(milliseconds: 1200);
 
-  /// Default toast display duration (1 second)
-  static const Duration defaultMsgDuration = Duration(seconds: 1);
+  /// Default toast display duration (1/2 second)
+  static const Duration defaultMsgDuration = Duration(seconds: 2);
 
   /// Dismiss currently visible floating snackbar
   static void dismiss() {

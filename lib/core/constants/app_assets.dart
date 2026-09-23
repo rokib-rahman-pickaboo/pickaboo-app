@@ -62,6 +62,7 @@ class AppAssets {
   static const String detailMinus = 'assets/new/svg/detail/minus_icon.svg';
   static const String detailOffer = 'assets/new/svg/detail/offer_icon.svg';
   static const String detailProtection = 'assets/new/svg/detail/pickaboo_protection_icon.svg';
+  static const String deviceInsuranceShield = 'assets/images/device_insurance_shield.png';
   static const String detailPlus = 'assets/new/svg/detail/plus_icon.svg';
   static const String detailQuestion = 'assets/new/svg/detail/question_icon.svg';
   static const String detailRefrigerator = 'assets/new/svg/detail/refrigerator_icon.svg';

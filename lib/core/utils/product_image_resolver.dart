@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:pickaboo/data/local_data_source/product_detail_local_data_source.dart';
 import 'package:pickaboo/domain/repository/product_repository.dart';
 import 'package:pickaboo/injection.dart';
@@ -111,11 +110,6 @@ class ProductImageResolver {
                 (img) => !isPlaceholderOrBroken(img),
               );
               if (firstImg != null) {
-                if (kDebugMode) {
-                  print(
-                    '🖼️ [ProductImageResolver] Found image in Hive local cache for $productId: $firstImg',
-                  );
-                }
                 return firstImg;
               }
             }
@@ -130,11 +124,6 @@ class ProductImageResolver {
             await repo.getProductDetail(productId: productId.toString());
         return result.fold(
           (error) {
-            if (kDebugMode) {
-              print(
-                '⚠️ [ProductImageResolver] Failed to fetch product $productId: ${error.message}',
-              );
-            }
             return null;
           },
           (detail) {
@@ -143,11 +132,6 @@ class ProductImageResolver {
                 (i) => !isPlaceholderOrBroken(i),
               );
               if (img != null) {
-                if (kDebugMode) {
-                  print(
-                    '🖼️ [ProductImageResolver] Successfully fetched image for $productId: $img',
-                  );
-                }
                 return img;
               }
             }
@@ -156,11 +140,6 @@ class ProductImageResolver {
         );
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(
-          '⚠️ [ProductImageResolver] Error resolving image for $productId: $e',
-        );
-      }
     }
     return null;
   }

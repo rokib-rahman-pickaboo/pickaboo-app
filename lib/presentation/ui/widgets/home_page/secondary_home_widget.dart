@@ -4,7 +4,6 @@ import 'package:pickaboo/core/cache/category_preload_cache.dart';
 import 'package:pickaboo/core/services/category_preload_queue.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
-import 'package:pickaboo/domain/repository/product_repository.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/banner_bloc/banner_bloc.dart';
 import 'package:pickaboo/presentation/bloc/category_banner_bloc/category_banner_bloc.dart';

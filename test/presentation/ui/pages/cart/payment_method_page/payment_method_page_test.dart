@@ -976,7 +976,7 @@ void main() {
           CheckoutState.checkoutLoaded(
             checkout: tCheckout,
             availablePaymentMethods: tPaymentMethods,
-            selectedPaymentMethod: 'dynamicpaymentgateway',
+            selectedPaymentMethod: 'bkash',
           ),
         );
 
@@ -1023,7 +1023,7 @@ void main() {
           CheckoutState.checkoutLoaded(
             checkout: tCheckout,
             availablePaymentMethods: tPaymentMethods,
-            selectedPaymentMethod: 'dynamicpaymentgateway',
+            selectedPaymentMethod: 'bkash',
           ),
         );
 

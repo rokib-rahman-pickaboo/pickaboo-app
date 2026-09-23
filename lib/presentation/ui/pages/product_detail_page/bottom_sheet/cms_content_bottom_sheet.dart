@@ -144,7 +144,6 @@ class CmsContentBottomSheet extends StatelessWidget {
                             mode: LaunchMode.externalApplication,
                           );
                         } catch (e) {
-                          debugPrint('Could not launch $url: $e');
                         }
                       }
                     }

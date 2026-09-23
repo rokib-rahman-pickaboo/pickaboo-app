@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -43,13 +42,7 @@ class INotificationApiService extends NotificationApiService {
     }
     */
 
-    debugPrint('╔═══════════════════════════════════════════════════════════════════════════════════════');
-    debugPrint('║ 🔥 [FIREBASE_DIRECT] Device Token is active in Firebase:');
-    debugPrint('║ 🔑 Token: $fcmToken');
-    debugPrint('║ ℹ️ (Backend DB sync disabled: device token is managed directly via Firebase)');
-    debugPrint('╚═══════════════════════════════════════════════════════════════════════════════════════');
     // ignore: avoid_print
-    print('FIREBASE_ACTIVE_TOKEN: $fcmToken');
 
     return right(null);
   }
@@ -64,15 +57,8 @@ class INotificationApiService extends NotificationApiService {
         queryParameters: {'token': fcmToken},
       );
 
-      if (kDebugMode) {
-        print('delete_fcm_token -> Success');
-      }
-
       return right(null);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('delete_fcm_token_error -> $e');
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -82,10 +68,6 @@ class INotificationApiService extends NotificationApiService {
   getNotificationList() async {
     try {
       final response = await _client.get(ApiEndpoints.getNotificationListUrl);
-
-      if (kDebugMode) {
-        print('get_notification_list -> ${response.data}');
-      }
 
       if (response.data is List) {
         final notifications = (response.data as List)
@@ -99,9 +81,6 @@ class INotificationApiService extends NotificationApiService {
         const ErrorResponse(message: 'Invalid notification list response'),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('get_notification_list_error -> $e');
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -116,15 +95,8 @@ class INotificationApiService extends NotificationApiService {
         queryParameters: {'tag': tag, 'is_fetched': 1, 'is_clicked': 1},
       );
 
-      if (kDebugMode) {
-        print('update_notification_status -> Success');
-      }
-
       return right(null);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('update_notification_status_error -> $e');
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -134,15 +106,8 @@ class INotificationApiService extends NotificationApiService {
     try {
       await _client.put(ApiEndpoints.markAllAsReadUrl);
 
-      if (kDebugMode) {
-        print('mark_all_as_read -> Success');
-      }
-
       return right(null);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('mark_all_as_read_error -> $e');
-      }
       return left(checkErrorResponse(e));
     }
   }

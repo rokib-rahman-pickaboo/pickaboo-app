@@ -45,12 +45,37 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       return;
     }
 
-    emit(
-      state.copyWith(
-        pagingState: currentState.copyWith(isLoading: true),
-        errorMessage: null,
-      ),
-    );
+    // SWR for Page 1: Serve cached orders immediately (~2ms)
+    if (nextPageKey == 1 && (currentState.pages == null || currentState.pages!.isEmpty)) {
+      final cached = _repository.getCachedFirstPageOrders();
+      if (cached != null && cached.items.isNotEmpty) {
+        emit(
+          state.copyWith(
+            pagingState: PagingState(
+              pages: [cached.items],
+              keys: const [1],
+              hasNextPage: cached.items.length >= 10,
+              isLoading: true,
+            ),
+            errorMessage: null,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            pagingState: currentState.copyWith(isLoading: true),
+            errorMessage: null,
+          ),
+        );
+      }
+    } else {
+      emit(
+        state.copyWith(
+          pagingState: currentState.copyWith(isLoading: true),
+          errorMessage: null,
+        ),
+      );
+    }
 
     final result = await _repository.getOrders(
       currentPage: nextPageKey,
@@ -58,27 +83,53 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     );
 
     result.fold(
-      (error) => emit(
-        state.copyWith(
-          pagingState: currentState.copyWith(isLoading: false, error: error),
-          errorMessage: error.message,
-        ),
-      ),
+      (error) {
+        final hasExistingItems = state.pagingState.pages?.isNotEmpty == true &&
+            state.pagingState.pages!.any((p) => p.isNotEmpty);
+        if (hasExistingItems) {
+          emit(
+            state.copyWith(
+              pagingState: state.pagingState.copyWith(isLoading: false),
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              pagingState: currentState.copyWith(isLoading: false, error: error),
+              errorMessage: error.message,
+            ),
+          );
+        }
+      },
       (orderListEntity) {
         final newItems = orderListEntity.items;
         final bool isLastPage = newItems.isEmpty || newItems.length < 10;
 
-        emit(
-          state.copyWith(
-            pagingState: currentState.copyWith(
-              isLoading: false,
-              hasNextPage: !isLastPage,
-              pages: [...currentState.pages ?? [], newItems],
-              keys: [...currentState.keys ?? [], nextPageKey],
+        if (nextPageKey == 1) {
+          emit(
+            state.copyWith(
+              pagingState: PagingState(
+                isLoading: false,
+                hasNextPage: !isLastPage,
+                pages: [newItems],
+                keys: const [1],
+              ),
+              errorMessage: null,
             ),
-            errorMessage: null,
-          ),
-        );
+          );
+        } else {
+          emit(
+            state.copyWith(
+              pagingState: currentState.copyWith(
+                isLoading: false,
+                hasNextPage: !isLastPage,
+                pages: [...currentState.pages ?? [], newItems],
+                keys: [...currentState.keys ?? [], nextPageKey],
+              ),
+              errorMessage: null,
+            ),
+          );
+        }
       },
     );
   }

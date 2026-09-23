@@ -23,9 +23,6 @@ class ForgotPasswordBloc
     _SendOtp event,
     Emitter<ForgotPasswordState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🔵 ForgotPasswordBloc: Sending OTP to ${event.identifier}');
-    }
     emit(const ForgotPasswordState.sendingOtp());
 
     final result = await repository.sendForgotPasswordOtp(
@@ -35,13 +32,9 @@ class ForgotPasswordBloc
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ ForgotPasswordBloc: OTP send failed - ${error.message}');
-        }
         emit(ForgotPasswordState.otpSendFailed(error.message));
       },
       (message) {
-        if (kDebugMode) print('✅ ForgotPasswordBloc: OTP sent - $message');
         emit(ForgotPasswordState.otpSent(message));
       },
     );
@@ -51,7 +44,6 @@ class ForgotPasswordBloc
     _ResetPassword event,
     Emitter<ForgotPasswordState> emit,
   ) async {
-    if (kDebugMode) print('🔵 ForgotPasswordBloc: Resetting password');
     emit(const ForgotPasswordState.resettingPassword());
 
     final result = await repository.resetPassword(
@@ -63,17 +55,9 @@ class ForgotPasswordBloc
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print(
-            '❌ ForgotPasswordBloc: Password reset failed - ${error.message}',
-          );
-        }
         emit(ForgotPasswordState.passwordResetFailure(error.message));
       },
       (message) {
-        if (kDebugMode) {
-          print('✅ ForgotPasswordBloc: Password reset successful - $message');
-        }
         emit(ForgotPasswordState.passwordResetSuccess(message));
       },
     );

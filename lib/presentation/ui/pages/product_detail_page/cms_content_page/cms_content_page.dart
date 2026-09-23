@@ -25,8 +25,6 @@ class CmsContentPage extends StatelessWidget {
         child: AppHtml(
           data: cmsBlock.content,
           onLinkTap: (url, attributes, element) async {
-            debugPrint('Link clicked: ${element?.text}');
-            debugPrint('Link URL: $url');
 
             if (url != null) {
               final trimmedUrl = url.trim();
@@ -52,7 +50,6 @@ class CmsContentPage extends StatelessWidget {
                     mode: LaunchMode.externalApplication,
                   );
                 } catch (e) {
-                  debugPrint('Could not launch $url: $e');
                 }
               }
             }

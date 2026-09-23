@@ -23,9 +23,6 @@ class _DeepLinkResolverPageState extends State<DeepLinkResolverPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint(
-      'DeepLinkResolverPage: Resolving slug: ${widget.slug} (type: ${widget.type})',
-    );
     _resolve();
   }
 
@@ -52,16 +49,10 @@ class _DeepLinkResolverPageState extends State<DeepLinkResolverPage> {
 
     result.fold(
       (error) {
-        debugPrint(
-          'DeepLinkResolverPage: Error resolving slug: ${error.message}',
-        );
         context.go(Routes.home);
       },
       (resolution) {
         if (!mounted) return;
-        debugPrint(
-          'DeepLinkResolverPage: Successfully resolved to: ${resolution.type} (ID: ${resolution.id})',
-        );
 
         final String target;
         if (resolution.type == 'product') {
@@ -86,15 +77,9 @@ class _DeepLinkResolverPageState extends State<DeepLinkResolverPage> {
   void _navigateToTarget(String target) {
     if (!mounted) return;
     if (!context.canPop()) {
-      debugPrint(
-        'DeepLinkResolverPage: Cold start detected, establishing home stack',
-      );
       context.go(Routes.home);
       context.push(target);
     } else {
-      debugPrint(
-        'DeepLinkResolverPage: Warm start detected, replacing resolver with target',
-      );
       context.pushReplacement(target);
     }
   }

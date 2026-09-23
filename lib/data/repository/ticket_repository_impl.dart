@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/data/api_service/ticket_api_service.dart';
@@ -22,6 +21,18 @@ class TicketRepositoryImpl implements TicketRepository {
   TicketRepositoryImpl(this._apiService, this._mapper, this._localDataSource);
 
   @override
+  Future<List<TicketEntity>?> getCachedTickets() async {
+    final cached = await _localDataSource.getCachedTickets() ??
+        await _localDataSource.getTicketsIfValid();
+    if (cached != null && cached.isNotEmpty) {
+      return cached
+          .map((e) => _mapper.mapTicketResponseToEntity(e))
+          .toList();
+    }
+    return null;
+  }
+
+  @override
   Future<Either<AppErrorEntity, List<TicketEntity>>> getTickets({
     bool forceRefresh = false,
   }) async {
@@ -33,10 +44,6 @@ class TicketRepositoryImpl implements TicketRepository {
             .toList();
         return Right(entities);
       }
-    }
-
-    if (kDebugMode) {
-      print('🌐 Fetching tickets from API');
     }
 
     final result = await _apiService.getTickets();

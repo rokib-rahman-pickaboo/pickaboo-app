@@ -26,7 +26,6 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     _SendOtp event,
     Emitter<RegistrationState> emit,
   ) async {
-    if (kDebugMode) print('🔵 RegistrationBloc: Sending OTP');
     emit(const RegistrationState.sendingOtp());
 
     final result = await repository.sendOtp(
@@ -40,13 +39,9 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ RegistrationBloc: OTP send failed - ${error.message}');
-        }
         emit(RegistrationState.otpSendFailed(error.message));
       },
       (message) {
-        if (kDebugMode) print('✅ RegistrationBloc: OTP sent - $message');
         emit(RegistrationState.otpSent(message));
       },
     );
@@ -56,7 +51,6 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     _VerifyOtp event,
     Emitter<RegistrationState> emit,
   ) async {
-    if (kDebugMode) print('🔵 RegistrationBloc: Verifying OTP');
     emit(const RegistrationState.verifyingOtp());
 
     final result = await repository.verifyOtp(
@@ -66,15 +60,9 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print(
-            '❌ RegistrationBloc: OTP verification failed - ${error.message}',
-          );
-        }
         emit(RegistrationState.otpVerificationFailed(error.message));
       },
       (message) {
-        if (kDebugMode) print('✅ RegistrationBloc: OTP verified - $message');
         emit(const RegistrationState.otpVerified());
       },
     );
@@ -84,9 +72,6 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     _RegisterUser event,
     Emitter<RegistrationState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🔵 RegistrationBloc: Registering user - ${event.email}');
-    }
     emit(const RegistrationState.registrationLoading());
 
     final result = await repository.registerUser(
@@ -101,15 +86,9 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ RegistrationBloc: Registration failed - ${error.message}');
-        }
         emit(RegistrationState.registrationFailure(error.message));
       },
       (user) {
-        if (kDebugMode) {
-          print('✅ RegistrationBloc: Registration successful - ${user.email}');
-        }
         _analytics.logEvent(name: 'sign_up', parameters: {'method': 'email'});
         emit(
           const RegistrationState.registrationSuccess(

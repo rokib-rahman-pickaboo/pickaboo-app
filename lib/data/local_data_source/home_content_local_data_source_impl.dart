@@ -14,12 +14,6 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
     final box = Hive.isBoxOpen(dbHomeContentName)
         ? Hive.box<HomeContentCacheWrapper>(dbHomeContentName)
         : await Hive.openBox<HomeContentCacheWrapper>(dbHomeContentName);
-    if (kDebugMode) {
-      print(
-        '📦 Home box → entries=${box.length} '
-        'reopened=${!Hive.isBoxOpen(dbHomeContentName)} path=${box.path}',
-      );
-    }
     return box;
   }
 
@@ -34,9 +28,6 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
       final box = await _cacheBox();
 
       if (box.isEmpty) {
-        if (kDebugMode) {
-          print('📦 Home Content Cache: Empty');
-        }
         return null;
       }
 
@@ -46,9 +37,6 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
       }
 
       if (wrapper.isExpired) {
-        if (kDebugMode) {
-          print('⏰ Home Content Cache: Expired (cached ${wrapper.cachedAt})');
-        }
         // Deliberately NOT cleared: an expired copy is still the offline
         // fallback ([getHomeContentStale]). It is overwritten by the next
         // successful fetch.
@@ -57,16 +45,10 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
 
       if (kDebugMode) {
         final remaining = wrapper.timeUntilExpiration;
-        print(
-          '✅ Home Content Cache: Valid (expires in ${remaining.inHours}h ${remaining.inMinutes % 60}m)',
-        );
       }
 
       return wrapper.homeContent;
     } catch (e, s) {
-      if (kDebugMode) {
-        print('⚠️ Home Content Cache: unreadable → dropping box. $e');
-      }
       CrashReporter.record(e, s);
       await _deleteBox();
       return null;
@@ -80,16 +62,8 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
       if (box.isEmpty) return null;
       final wrapper = box.getAt(0);
       if (wrapper == null) return null;
-      if (kDebugMode) {
-        print(
-          '📦 Home Content Cache: Serving STALE copy from ${wrapper.cachedAt}',
-        );
-      }
       return wrapper.homeContent;
     } catch (e, s) {
-      if (kDebugMode) {
-        print('⚠️ Home Content Cache: stale read failed → dropping box. $e');
-      }
       CrashReporter.record(e, s);
       await _deleteBox();
       return null;
@@ -161,17 +135,8 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
       // cache is never used" on the next launch.
       await box.flush();
 
-      if (kDebugMode) {
-        print(
-          '📦 Home Content Cache: Saved home content at ${wrapper.cachedAt} '
-          '(entries=${box.length})',
-        );
-      }
     } catch (e, s) {
       // Writing is best-effort — the caller already has the fresh payload.
-      if (kDebugMode) {
-        print('⚠️ Home Content Cache: write failed. $e');
-      }
       CrashReporter.record(e, s);
     }
   }
@@ -181,9 +146,6 @@ class HomeContentLocalDataSourceImpl implements HomeContentLocalDataSource {
     try {
       final box = await _cacheBox();
       await box.clear();
-      if (kDebugMode) {
-        print('📦 Home Content Cache: Cleared');
-      }
     } catch (_) {
       await _deleteBox();
     }

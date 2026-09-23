@@ -4,7 +4,6 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -182,7 +181,7 @@ class NavDrawer extends StatelessWidget {
     String? profileImage,
     String mobileNumber,
   ) {
-    final borderRadius = AppRadius.cardRadius;
+    const borderRadius = AppRadius.cardRadius;
 
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
@@ -304,19 +303,12 @@ class NavDrawer extends StatelessWidget {
         if (state.status == CategoryStatus.success &&
             state.categories != null) {
           final topCategories = state.categories!.toList();
-          return _DrawerSection(
-            title: 'Shop for',
-            children: topCategories
-                .map(
-                  (category) => _DrawerCategoryItem(
-                    category: category,
-                    onCategoryTap: (selectedCategory) {
-                      context.pop();
-                      _navigateToCategory(context, selectedCategory);
-                    },
-                  ),
-                )
-                .toList(),
+          return DrawerShopForSection(
+            categories: topCategories,
+            onCategoryTap: (selectedCategory) {
+              context.pop();
+              _navigateToCategory(context, selectedCategory);
+            },
           );
         }
         return const SizedBox.shrink();
@@ -427,9 +419,6 @@ class NavDrawer extends StatelessWidget {
         text: isLoggedIn ? AppStrings.logout : AppStrings.login,
         onPressed: () {
           if (isLoggedIn) {
-            if (kDebugMode) {
-              print('🚪 [LOGOUT] Logout button pressed');
-            }
 
             final authBloc = context.read<AuthBloc>();
             context.pop();
@@ -590,23 +579,92 @@ class _DrawerMenuItem extends StatelessWidget {
   }
 }
 
-class _DrawerCategoryItem extends StatefulWidget {
+@visibleForTesting
+class DrawerShopForSection extends StatefulWidget {
+  final List<CategoryEntity> categories;
+  final void Function(CategoryEntity) onCategoryTap;
+
+  const DrawerShopForSection({
+    super.key,
+    required this.categories,
+    required this.onCategoryTap,
+  });
+
+  @override
+  State<DrawerShopForSection> createState() => _DrawerShopForSectionState();
+}
+
+class _DrawerShopForSectionState extends State<DrawerShopForSection> {
+  String? _expandedCategoryId;
+
+  void _handleToggle(String categoryId) {
+    setState(() {
+      if (_expandedCategoryId == categoryId) {
+        _expandedCategoryId = null;
+      } else {
+        _expandedCategoryId = categoryId;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _DrawerSection(
+      title: 'Shop for',
+      children: widget.categories.map((category) {
+        return DrawerCategoryItem(
+          key: ValueKey('drawer_cat_${category.id}'),
+          category: category,
+          isExpanded: _expandedCategoryId == category.id,
+          onToggleExpand: () => _handleToggle(category.id),
+          onCategoryTap: widget.onCategoryTap,
+        );
+      }).toList(),
+    );
+  }
+}
+
+@visibleForTesting
+class DrawerCategoryItem extends StatefulWidget {
   final CategoryEntity category;
+  final bool isExpanded;
+  final VoidCallback onToggleExpand;
   final Function(CategoryEntity) onCategoryTap;
   final int level;
 
-  const _DrawerCategoryItem({
+  const DrawerCategoryItem({
+    super.key,
     required this.category,
+    required this.isExpanded,
+    required this.onToggleExpand,
     required this.onCategoryTap,
     this.level = 0,
   });
 
   @override
-  State<_DrawerCategoryItem> createState() => _DrawerCategoryItemState();
+  State<DrawerCategoryItem> createState() => _DrawerCategoryItemState();
 }
 
-class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
-  bool _isExpanded = false;
+class _DrawerCategoryItemState extends State<DrawerCategoryItem> {
+  String? _expandedChildId;
+
+  @override
+  void didUpdateWidget(covariant DrawerCategoryItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.isExpanded && oldWidget.isExpanded) {
+      _expandedChildId = null;
+    }
+  }
+
+  void _handleChildToggle(String childId) {
+    setState(() {
+      if (_expandedChildId == childId) {
+        _expandedChildId = null;
+      } else {
+        _expandedChildId = childId;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -697,21 +755,19 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
 
                 if (hasChildren)
                   GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isExpanded = !_isExpanded;
-                      });
-                    },
+                    onTap: widget.onToggleExpand,
                     behavior: HitTestBehavior.opaque,
                     child: Padding(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                      child: Icon(
-                        _isExpanded
-                            ? Icons.keyboard_arrow_up_rounded
-                            : Icons.keyboard_arrow_down_rounded,
-                        color: AppColors.muted,
-                        size: 22.sp,
+                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                      child: AnimatedRotation(
+                        turns: widget.isExpanded ? 0.5 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: AppColors.muted,
+                          size: 22.sp,
+                        ),
                       ),
                     ),
                   )
@@ -730,52 +786,64 @@ class _DrawerCategoryItemState extends State<_DrawerCategoryItem> {
           ),
         ),
 
-        if (hasChildren && _isExpanded)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                borderRadius: AppRadius.buttonRadius,
-                splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
-                highlightColor:
-                    AppColors.pickabooBlue.withValues(alpha: 0.05),
-                onTap: () => widget.onCategoryTap(widget.category),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  child: Row(
+        if (hasChildren)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: widget.isExpanded
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(width: 48.w + (12.w * widget.level)),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: AppColors.border.withValues(
-                                  alpha: 0.7,
+                      InkWell(
+                        borderRadius: AppRadius.buttonRadius,
+                        splashColor:
+                            AppColors.pickabooBlue.withValues(alpha: 0.15),
+                        highlightColor:
+                            AppColors.pickabooBlue.withValues(alpha: 0.05),
+                        onTap: () => widget.onCategoryTap(widget.category),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 48.w + (12.w * widget.level)),
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: AppColors.border.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                        width: 1.h,
+                                      ),
+                                    ),
+                                  ),
+                                  padding:
+                                      EdgeInsets.only(top: 10.h, bottom: 10.h),
+                                  child: Text(
+                                    'All in ${widget.category.name}',
+                                    style: AppTypography.brandAction,
+                                  ),
                                 ),
-                                width: 1.h,
                               ),
-                            ),
-                          ),
-                          padding: EdgeInsets.only(top: 10.h, bottom: 10.h),
-                          child: Text(
-                            'All in ${widget.category.name}',
-                            style: AppTypography.brandAction,
+                            ],
                           ),
                         ),
                       ),
+                      ...widget.category.children.map(
+                        (childCategory) => DrawerCategoryItem(
+                          key: ValueKey('drawer_cat_${childCategory.id}'),
+                          category: childCategory,
+                          isExpanded: _expandedChildId == childCategory.id,
+                          onToggleExpand: () =>
+                              _handleChildToggle(childCategory.id),
+                          onCategoryTap: widget.onCategoryTap,
+                          level: widget.level + 1,
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ),
-              ...widget.category.children.map(
-                (childCategory) => _DrawerCategoryItem(
-                  category: childCategory,
-                  onCategoryTap: widget.onCategoryTap,
-                  level: widget.level + 1,
-                ),
-              ),
-            ],
+                  )
+                : const SizedBox.shrink(),
           ),
       ],
     );

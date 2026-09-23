@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 
 /// Centralized utility for extracting, formatting, and sanitizing error messages
@@ -256,6 +257,10 @@ class ApiErrorParser {
     if (lower.contains('risk score') ||
         lower.contains('recaptcha') ||
         lower.contains('score too low')) {
+      debugPrint(
+        '[RECAPTCHA_ERROR] ⚠️ Intercepted raw backend risk score/reCAPTCHA error: '
+        '"$msg" -> sanitizing to user-friendly message: "Security verification failed. Please wait a moment and try again."',
+      );
       return 'Security verification failed. Please wait a moment and try again.';
     }
 

@@ -13,6 +13,7 @@ import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/catalog_grid_skeleton.dart';
 
 class SearchResults extends StatelessWidget {
   final bool isGridView;
@@ -49,9 +50,7 @@ class SearchResults extends StatelessWidget {
 
         if (pagingState.isLoading &&
             (pagingState.pages == null || pagingState.pages!.isEmpty)) {
-          return const SliverFillRemaining(
-            child: AppLoader.fullPage(),
-          );
+          return const CatalogGridSkeleton.sliver();
         }
 
         if (pagingState.error != null &&
@@ -98,7 +97,7 @@ class SearchResults extends StatelessWidget {
               _buildErrorState(context),
           newPageErrorIndicatorBuilder: (context) => const SizedBox(),
           firstPageProgressIndicatorBuilder: (context) =>
-              const AppLoader.fullPage(),
+              const CatalogGridSkeleton(),
           noItemsFoundIndicatorBuilder: (context) =>
               _buildNoProductsState(context),
           itemBuilder: (context, product, index) {
@@ -145,7 +144,7 @@ class SearchResults extends StatelessWidget {
             ),
           ),
           firstPageProgressIndicatorBuilder: (context) =>
-              const AppLoader.fullPage(),
+              const CatalogGridSkeleton(),
           newPageProgressIndicatorBuilder: (context) =>
               const AppLoader.pagination(),
           noItemsFoundIndicatorBuilder: (context) =>

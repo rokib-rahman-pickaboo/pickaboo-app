@@ -8,6 +8,7 @@ import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/repository/cart_repository.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
+import 'package:flutter/services.dart';
 
 class MockCartRepository extends Mock implements CartRepository {}
 
@@ -16,6 +17,10 @@ class MockAuthCacheManager extends Mock implements AuthCacheManager {}
 class MockAnalyticsService extends Mock implements AnalyticsService {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  const channel = MethodChannel('plugins.flutter.io/path_provider');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (MethodCall methodCall) async => '.');
   late CartBloc cartBloc;
   late MockCartRepository mockRepository;
   late MockAuthCacheManager mockCacheManager;
@@ -93,7 +98,7 @@ void main() {
     stockAvailable: true,
   );
 
-  final tCartWithItems = CartEntity(
+  const tCartWithItems = CartEntity(
     id: '1',
     itemsCount: 1,
     items: [tCartItem],
@@ -192,7 +197,7 @@ void main() {
 
     group('UpdateItemQuantity', () {
       blocTest<CartBloc, CartState>(
-        'directly updates item quantity and emits loaded state',
+        'updates item quantity with operationInProgress and re-fetches verified cart from backend',
         build: () {
           when(() => mockCacheManager.getToken())
               .thenAnswer((_) async => 'token');
@@ -215,18 +220,20 @@ void main() {
         expect: () => [
           const CartState.loading(),
           CartState.loaded(tCartWithItems),
-          CartState.loaded(
-            tCartWithItems.copyWith(
+          CartState.operationInProgress(
+            cart: tCartWithItems.copyWith(
               items: [tCartItem.copyWith(qty: 2, rowTotal: 200)],
               subtotal: 200,
               grandTotal: 200,
             ),
+            operation: 'updating_quantity',
           ),
+          CartState.loaded(tCartWithItems),
         ],
       );
 
       blocTest<CartBloc, CartState>(
-        'updates quantity directly even when server rejects with not enough items',
+        'emits error and restores previous cart when server update fails',
         build: () {
           when(() => mockCacheManager.getToken())
               .thenAnswer((_) async => 'token');
@@ -250,12 +257,17 @@ void main() {
         expect: () => [
           const CartState.loading(),
           CartState.loaded(tCartWithItems),
-          CartState.loaded(
-            tCartWithItems.copyWith(
+          CartState.operationInProgress(
+            cart: tCartWithItems.copyWith(
               items: [tCartItem.copyWith(qty: 7, rowTotal: 700)],
               subtotal: 700,
               grandTotal: 700,
             ),
+            operation: 'updating_quantity',
+          ),
+          CartState.error(
+            error: const AppErrorEntity(message: 'Not enough items for sale'),
+            lastCart: tCartWithItems,
           ),
         ],
       );

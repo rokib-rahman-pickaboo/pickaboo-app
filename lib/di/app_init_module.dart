@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/constants/db_constants.dart';
@@ -124,15 +123,9 @@ abstract class AppInitModule {
 
     try {
       if (await Hive.boxExists(dbCategoryName)) {
-        if (kDebugMode) {
-          print('🔄 Migrating category cache: deleting old format');
-        }
         await Hive.deleteBoxFromDisk(dbCategoryName);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ Migration error (safe to ignore): $e');
-      }
     }
 
     return await Hive.openBox<CategoryCacheWrapper>(dbCategoryName);

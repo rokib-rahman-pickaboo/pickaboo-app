@@ -9,7 +9,7 @@ class OrderItemEntity {
   final double shipping;
   final double grandtotal;
   final String currencyCode;
-  final String remoteIp;
+  final String? remoteIp;
   final String paymentMode;
   final String paymentMethod;
 
@@ -24,7 +24,7 @@ class OrderItemEntity {
     required this.shipping,
     required this.grandtotal,
     required this.currencyCode,
-    required this.remoteIp,
+    this.remoteIp,
     required this.paymentMode,
     required this.paymentMethod,
   });

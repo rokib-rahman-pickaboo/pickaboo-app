@@ -5,7 +5,6 @@
 // ============================================================================
 
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -124,9 +123,6 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signInWithGoogle() async {
     _dismissKeyboard();
     try {
-      if (kDebugMode) {
-        print('🔵 [Google Sign-In] Starting Google sign-in process...');
-      }
 
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
@@ -142,9 +138,6 @@ class _LoginPageState extends State<LoginPage> {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
-        if (kDebugMode) {
-          print('⚠️ [Google Sign-In] User canceled the sign-in');
-        }
         return;
       }
 
@@ -167,10 +160,7 @@ class _LoginPageState extends State<LoginPage> {
           SnackBarUtils.showError(context, 'Failed to get Google access token');
         }
       }
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('❌ [Google Sign-In] Exception occurred: $e\n$stackTrace');
-      }
+    } catch (e) {
       if (mounted) {
         SnackBarUtils.showError(
           context,
@@ -336,7 +326,6 @@ class _LoginPageState extends State<LoginPage> {
               getIt<PushNotificationService>().getStoredToken().then((token) async {
                 final fcmToken = token ?? await FirebaseMessaging.instance.getToken();
                 if (fcmToken != null && context.mounted) {
-                  debugPrint('📱 [LOGIN_PAGE] Dispatching saveFcmToken on loginSuccess: $fcmToken');
                   context.read<NotificationBloc>().add(
                     NotificationEvent.saveFcmToken(token: fcmToken),
                   );

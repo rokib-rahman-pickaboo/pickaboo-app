@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -28,10 +26,6 @@ class ISupportApiService extends SupportApiService {
     try {
       final response = await _client.get(ApiEndpoints.allSupportCategoryUrl);
 
-      if (kDebugMode) {
-        print("all_support_category -> ${response.data}");
-      }
-
       final data = response.data;
 
       if (data is List && data.isNotEmpty && data.first is List) {
@@ -53,9 +47,6 @@ class ISupportApiService extends SupportApiService {
         ),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("all_support_category_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -67,9 +58,6 @@ class ISupportApiService extends SupportApiService {
       final response = await _client.get(
         ApiEndpoints.supportArticleUrl(categoryId: categoryId),
       );
-      if (kDebugMode) {
-        print("all_article -> ${json.encode(response.data)}");
-      }
 
       final data = response.data;
 
@@ -88,9 +76,6 @@ class ISupportApiService extends SupportApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("all_article_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -102,9 +87,6 @@ class ISupportApiService extends SupportApiService {
       final response = await _client.get(
         ApiEndpoints.searchSupportArticleUrl(query: query),
       );
-      if (kDebugMode) {
-        print("all_article -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -123,9 +105,6 @@ class ISupportApiService extends SupportApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("all_article_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -135,9 +114,6 @@ class ISupportApiService extends SupportApiService {
   getTermsAndConditions() async {
     try {
       final response = await _client.get(ApiEndpoints.termsAndConditionUrl);
-      if (kDebugMode) {
-        print("all_terms_and_conditions -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -154,9 +130,6 @@ class ISupportApiService extends SupportApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("all_terms_and_conditions_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -166,9 +139,6 @@ class ISupportApiService extends SupportApiService {
   getPrivacyPolicy() async {
     try {
       final response = await _client.get(ApiEndpoints.privacyPolicyUrl);
-      if (kDebugMode) {
-        print("all_terms_and_conditions -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -185,9 +155,6 @@ class ISupportApiService extends SupportApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("all_terms_and_conditions_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -196,9 +163,6 @@ class ISupportApiService extends SupportApiService {
   Future<Either<ErrorResponse, List<ContentResponse>>> getReturnPolicy() async {
     try {
       final response = await _client.get(ApiEndpoints.returnPolicyUrl);
-      if (kDebugMode) {
-        print("all_terms_and_conditions -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -215,9 +179,6 @@ class ISupportApiService extends SupportApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("all_terms_and_conditions_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }

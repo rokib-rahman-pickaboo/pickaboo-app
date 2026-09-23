@@ -27,22 +27,10 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
   Future<int?> _getCustomerId() async {
     final raw = await _cacheManager.getUserId();
-    if (kDebugMode) {
-      print('[ProductDetailBloc] 🔑 _getCustomerId: raw="${raw ?? 'null'}"');
-    }
     if (raw == null || raw.isEmpty) {
-      if (kDebugMode) {
-        print(
-          '[ProductDetailBloc] ⚠️  customerId=null — userId not in cache. '
-          'User may be logged in but getUserProfile() was never called.',
-        );
-      }
       return null;
     }
     final parsed = int.tryParse(raw);
-    if (kDebugMode) {
-      print('[ProductDetailBloc] ✅ customerId=$parsed');
-    }
     return parsed;
   }
 
@@ -103,11 +91,6 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     // Retrieve customerId instantly from memory cache
     final customerId = await _getCustomerId();
-    if (kDebugMode) {
-      print(
-        '[ProductDetailBloc] _onLoad → productId=$productId  customerId=$customerId',
-      );
-    }
 
     // Launch network request immediately without waiting for disk Hive cache
     final networkFuture = repository.getProductDetail(
@@ -159,11 +142,6 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     if (productId == null) return;
 
     final customerId = await _getCustomerId();
-    if (kDebugMode) {
-      print(
-        '[ProductDetailBloc] _onRefresh → productId=$productId  customerId=$customerId',
-      );
-    }
 
     final result = await repository.getProductDetail(
       productId: productId,
@@ -171,7 +149,12 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     );
 
     result.fold(
-      (error) => emit(ProductDetailState.error(error)),
+      (error) {
+        state.maybeWhen(
+          loaded: (_) {},
+          orElse: () => emit(ProductDetailState.error(error)),
+        );
+      },
       (product) => emit(ProductDetailState.loaded(product)),
     );
   }

@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/presentation/bloc/auth/auth_bloc/auth_bloc.dart';
@@ -22,7 +20,6 @@ import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:collection/collection.dart';
 import 'package:pickaboo/presentation/bloc/nav_drawer/nav_drawer_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/home_category_nav.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/primary_home_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/secondary_home_widget.dart';
@@ -103,9 +100,7 @@ class _HomePageState extends State<HomePage> {
         token,
       ) {
         if (token != null && mounted) {
-          debugPrint('📱 [DEVICE_FCM_TOKEN] $token');
           // ignore: avoid_print
-          print('DEVICE_TOKEN: $token');
           context.read<NotificationBloc>().add(
             NotificationEvent.saveFcmToken(token: token),
           );
@@ -114,9 +109,7 @@ class _HomePageState extends State<HomePage> {
 
       getIt<PushNotificationService>().getStoredToken().then((token) {
         if (token != null && mounted) {
-          debugPrint('📱 [DEVICE_FCM_TOKEN] $token');
           // ignore: avoid_print
-          print('DEVICE_TOKEN: $token');
           context.read<NotificationBloc>().add(
             NotificationEvent.saveFcmToken(token: token),
           );
@@ -132,19 +125,11 @@ class _HomePageState extends State<HomePage> {
       final token = await getIt<PushNotificationService>().getStoredToken() ??
           await FirebaseMessaging.instance.getToken();
       if (token != null) {
-        debugPrint('╔═══════════════════════════════════════════════════════════════════════════════════════');
-        debugPrint('║ 📱 [DEVICE_FCM_TOKEN]');
-        debugPrint('║ $token');
-        debugPrint('╚═══════════════════════════════════════════════════════════════════════════════════════');
         // ignore: avoid_print
-        print('DEVICE_TOKEN: $token');
         // ignore: avoid_print
-        print('FCM_TOKEN: $token');
       } else {
-        debugPrint('⚠️ [DEVICE_FCM_TOKEN] Token is null');
       }
     } catch (e) {
-      debugPrint('❌ [DEVICE_FCM_TOKEN] Error retrieving FCM token: $e');
     }
   }
 
@@ -187,19 +172,9 @@ class _HomePageState extends State<HomePage> {
         ),
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
-            if (kDebugMode) {
-              print('🔐 [AUTH LISTENER] State changed: ${state.runtimeType}');
-            }
 
             state.maybeWhen(
               authenticated: (token, userEntity) {
-                if (kDebugMode) {
-                  print(
-                    '✅ [AUTH LISTENER] User authenticated: ${userEntity.email}',
-                  );
-                  print('   Triggering CartBloc.getCart()');
-                  print('   Triggering UserProfileBloc.loadUserProfile()');
-                }
 
                 context.read<UserProfileBloc>().add(
                   const UserProfileEvent.loadUserProfile(),
@@ -215,11 +190,6 @@ class _HomePageState extends State<HomePage> {
                 });
               },
               unauthenticated: () {
-                if (kDebugMode) {
-                  print('🚪 [AUTH LISTENER] User logged out');
-                  print('   Resetting CartBloc to guest state');
-                  print('   Resetting UserProfileBloc to initial state');
-                }
 
                 context.read<CartBloc>().add(const CartEvent.clearCartSession());
                 context.read<UserProfileBloc>().add(
@@ -242,11 +212,6 @@ class _HomePageState extends State<HomePage> {
                   .matchedLocation;
 
               if (currentLocation != Routes.home) {
-                if (kDebugMode) {
-                  print(
-                    '🏠 [HOME] Skipping popup: Current location is $currentLocation',
-                  );
-                }
                 return;
               }
 
@@ -289,13 +254,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                         categoryName: _selectedCategory,
                       ),
-                      Expanded(
-                        child: Center(
-                          child: AppLoader(
-                            color: AppColors.pickabooBlue,
-                            strokeWidth: 2.w,
-                          ),
-                        ),
+                      const Expanded(
+                        child: PrimaryHomeSkeletonWidget(),
                       ),
                     ],
                   ),
@@ -472,8 +432,8 @@ class _HomePageState extends State<HomePage> {
                               onRefresh: _onRefresh,
                               color: colors.primary,
                               child: CustomScrollView(
-                                controller: _scrollController,
                                 cacheExtent: 1000.0,
+                                controller: _scrollController,
                                 slivers: [
                                   if (homeFeed != null) ...[
                                     PrimaryHomeWidget(
@@ -491,6 +451,8 @@ class _HomePageState extends State<HomePage> {
                                         onRetry: () => _onRefresh(),
                                       ),
                                     ),
+                                  ] else ...[
+                                    const PrimaryHomeSkeletonWidget(asSliver: true),
                                   ],
                                 ],
                               ),

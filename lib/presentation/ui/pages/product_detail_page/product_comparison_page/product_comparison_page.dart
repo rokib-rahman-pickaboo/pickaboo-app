@@ -405,12 +405,12 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                   decoration: BoxDecoration(
-                    color: AppColors.red.withValues(alpha: 0.1),
+                    color: AppColors.orangeBg,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: Text(
                     '$discount% OFF',
-                    style: AppTypography.bodyMedium.extraBold().red,
+                    style: AppTypography.bodyMedium.extraBold().orange,
                   ),
                 ),
               ],

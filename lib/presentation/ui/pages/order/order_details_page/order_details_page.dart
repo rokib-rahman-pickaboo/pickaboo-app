@@ -216,7 +216,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     onPayNow: () {
                       context.goToOrderPayment(
                         orderId: order.orderId.toString(),
-                        selectedMethod: order.paymentMethod,
+                        selectedMethod: order.paymentMethod,//PassingPreviousPaymentMethod
                         grandTotal: order.orderSummary.grandTotal,
                         subtotal: order.orderSummary.subtotal,
                         shippingAmount: order.orderSummary.shippingFee,
@@ -270,7 +270,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                   onPayNow: () {
                     context.goToOrderPayment(
                       orderId: order.orderId.toString(),
-                      selectedMethod: order.paymentMethod,
+                      selectedMethod: order.paymentMethod,//PassingPreviousPaymentMethod
                       grandTotal: order.orderSummary.grandTotal,
                       subtotal: order.orderSummary.subtotal,
                       shippingAmount: order.orderSummary.shippingFee,
@@ -389,6 +389,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   bool _shouldShowPayNow(OrderDetailEntity order) {
+    final remoteIp = order.remoteIp?.trim();
+    if (remoteIp == null || remoteIp.isEmpty || remoteIp.toLowerCase() == 'null') {
+      return false;
+    }
+
     if (order.state.toLowerCase() == 'pending payment') {
       if (order.status.toLowerCase() != 'processing') {
         final method = order.paymentMethod.toLowerCase();
@@ -400,10 +405,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     ?.value ??
                 '';
             if (paymentMode.toLowerCase() != 'card on delivery') {
-              final remoteIp = order.remoteIp ?? '';
-              if (remoteIp.isNotEmpty) {
-                return true;
-              }
+              return true;
             }
           }
         }
@@ -436,7 +438,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     'visamaster': 'Visa/Master',
     'amex': 'AMEX',
     'pickabooeblmastercard': 'Pickaboo EBL Mastercard',
-    'dynamicpaymentgateway': 'Saved Card',
+    'dynamicpaymentgateway': 'bKash Payment',
     'paymentpending': 'Payment Pending',
     'sslcommerz': 'SSLCommerz',
     'rocket': 'Rocket',

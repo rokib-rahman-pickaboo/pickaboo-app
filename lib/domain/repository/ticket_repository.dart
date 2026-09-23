@@ -7,6 +7,7 @@ import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_order_info_entity.dart';
 
 abstract class TicketRepository {
+  Future<List<TicketEntity>?> getCachedTickets();
   Future<Either<AppErrorEntity, List<TicketEntity>>> getTickets({
     bool forceRefresh = false,
   });

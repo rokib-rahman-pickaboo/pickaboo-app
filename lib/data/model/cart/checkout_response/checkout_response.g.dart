@@ -326,7 +326,7 @@ _$ShippingAssignmentItemImpl _$$ShippingAssignmentItemImplFromJson(
   sku: json['sku'] as String?,
   qty: (json['qty'] as num?)?.toInt(),
   name: json['name'] as String?,
-  price: (json['price'] as num?)?.toInt(),
+  price: json['price'] as num?,
   productType: json['product_type'] as String?,
   quoteId: json['quote_id'] as String?,
   extensionAttributes:
@@ -368,10 +368,10 @@ _$$CheckoutItemExtensionAttributesImplFromJson(Map<String, dynamic> json) =>
       brand: json['brand'] as String?,
       imageUrl: json['image_url'] as String?,
       soldBy: json['sold_by'] as String?,
-      regularPrice: (json['regular_price'] as num?)?.toInt(),
-      spacialPrice: (json['spacial_price'] as num?)?.toInt(),
+      regularPrice: json['regular_price'] as num?,
+      spacialPrice: json['spacial_price'] as num?,
       discount: json['discount'] as String?,
-      itemSubtotal: (json['item_subtotal'] as num?)?.toInt(),
+      itemSubtotal: json['item_subtotal'] as num?,
       customOptions:
           (json['custom_options'] as List<dynamic>?)
               ?.map((e) => CustomOption.fromJson(e as Map<String, dynamic>))
@@ -454,44 +454,41 @@ _$ShippingImpl _$$ShippingImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$ShippingImplToJson(_$ShippingImpl instance) =>
     <String, dynamic>{'address': instance.address, 'method': instance.method};
 
-_$CartTotalsImpl _$$CartTotalsImplFromJson(
-  Map<String, dynamic> json,
-) => _$CartTotalsImpl(
-  grandTotal: (json['grand_total'] as num?)?.toInt(),
-  baseGrandTotal: (json['base_grand_total'] as num?)?.toInt(),
-  subtotal: (json['subtotal'] as num?)?.toInt(),
-  baseSubtotal: (json['base_subtotal'] as num?)?.toInt(),
-  discountAmount: (json['discount_amount'] as num?)?.toInt(),
-  baseDiscountAmount: (json['base_discount_amount'] as num?)?.toInt(),
-  subtotalWithDiscount: (json['subtotal_with_discount'] as num?)?.toInt(),
-  baseSubtotalWithDiscount:
-      (json['base_subtotal_with_discount'] as num?)?.toInt(),
-  shippingAmount: (json['shipping_amount'] as num?)?.toInt(),
-  baseShippingAmount: (json['base_shipping_amount'] as num?)?.toInt(),
-  shippingDiscountAmount: (json['shipping_discount_amount'] as num?)?.toInt(),
-  baseShippingDiscountAmount:
-      (json['base_shipping_discount_amount'] as num?)?.toInt(),
-  taxAmount: (json['tax_amount'] as num?)?.toInt(),
-  baseTaxAmount: (json['base_tax_amount'] as num?)?.toInt(),
-  weeeTaxAppliedAmount: json['weee_tax_applied_amount'],
-  shippingTaxAmount: (json['shipping_tax_amount'] as num?)?.toInt(),
-  baseShippingTaxAmount: (json['base_shipping_tax_amount'] as num?)?.toInt(),
-  subtotalInclTax: (json['subtotal_incl_tax'] as num?)?.toInt(),
-  shippingInclTax: (json['shipping_incl_tax'] as num?)?.toInt(),
-  baseShippingInclTax: (json['base_shipping_incl_tax'] as num?)?.toInt(),
-  baseCurrencyCode: json['base_currency_code'] as String?,
-  quoteCurrencyCode: json['quote_currency_code'] as String?,
-  couponCode: json['coupon_code'] as String?,
-  itemsQty: (json['items_qty'] as num?)?.toInt(),
-  items:
-      (json['items'] as List<dynamic>?)
-          ?.map((e) => CartTotalsItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  totalSegments:
-      (json['total_segments'] as List<dynamic>?)
-          ?.map((e) => TotalSegment.fromJson(e as Map<String, dynamic>))
-          .toList(),
-);
+_$CartTotalsImpl _$$CartTotalsImplFromJson(Map<String, dynamic> json) =>
+    _$CartTotalsImpl(
+      grandTotal: json['grand_total'] as num?,
+      baseGrandTotal: json['base_grand_total'] as num?,
+      subtotal: json['subtotal'] as num?,
+      baseSubtotal: json['base_subtotal'] as num?,
+      discountAmount: json['discount_amount'] as num?,
+      baseDiscountAmount: json['base_discount_amount'] as num?,
+      subtotalWithDiscount: json['subtotal_with_discount'] as num?,
+      baseSubtotalWithDiscount: json['base_subtotal_with_discount'] as num?,
+      shippingAmount: json['shipping_amount'] as num?,
+      baseShippingAmount: json['base_shipping_amount'] as num?,
+      shippingDiscountAmount: json['shipping_discount_amount'] as num?,
+      baseShippingDiscountAmount: json['base_shipping_discount_amount'] as num?,
+      taxAmount: json['tax_amount'] as num?,
+      baseTaxAmount: json['base_tax_amount'] as num?,
+      weeeTaxAppliedAmount: json['weee_tax_applied_amount'],
+      shippingTaxAmount: json['shipping_tax_amount'] as num?,
+      baseShippingTaxAmount: json['base_shipping_tax_amount'] as num?,
+      subtotalInclTax: json['subtotal_incl_tax'] as num?,
+      shippingInclTax: json['shipping_incl_tax'] as num?,
+      baseShippingInclTax: json['base_shipping_incl_tax'] as num?,
+      baseCurrencyCode: json['base_currency_code'] as String?,
+      quoteCurrencyCode: json['quote_currency_code'] as String?,
+      couponCode: json['coupon_code'] as String?,
+      itemsQty: (json['items_qty'] as num?)?.toInt(),
+      items:
+          (json['items'] as List<dynamic>?)
+              ?.map((e) => CartTotalsItem.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      totalSegments:
+          (json['total_segments'] as List<dynamic>?)
+              ?.map((e) => TotalSegment.fromJson(e as Map<String, dynamic>))
+              .toList(),
+    );
 
 Map<String, dynamic> _$$CartTotalsImplToJson(_$CartTotalsImpl instance) =>
     <String, dynamic>{
@@ -526,22 +523,22 @@ Map<String, dynamic> _$$CartTotalsImplToJson(_$CartTotalsImpl instance) =>
 _$CartTotalsItemImpl _$$CartTotalsItemImplFromJson(Map<String, dynamic> json) =>
     _$CartTotalsItemImpl(
       itemId: (json['item_id'] as num?)?.toInt(),
-      price: (json['price'] as num?)?.toInt(),
-      basePrice: (json['base_price'] as num?)?.toInt(),
+      price: json['price'] as num?,
+      basePrice: json['base_price'] as num?,
       qty: (json['qty'] as num?)?.toInt(),
-      rowTotal: (json['row_total'] as num?)?.toInt(),
-      baseRowTotal: (json['base_row_total'] as num?)?.toInt(),
-      rowTotalWithDiscount: (json['row_total_with_discount'] as num?)?.toInt(),
-      taxAmount: (json['tax_amount'] as num?)?.toInt(),
-      baseTaxAmount: (json['base_tax_amount'] as num?)?.toInt(),
-      taxPercent: (json['tax_percent'] as num?)?.toInt(),
-      discountAmount: (json['discount_amount'] as num?)?.toInt(),
-      baseDiscountAmount: (json['base_discount_amount'] as num?)?.toInt(),
-      discountPercent: (json['discount_percent'] as num?)?.toInt(),
-      priceInclTax: (json['price_incl_tax'] as num?)?.toInt(),
-      basePriceInclTax: (json['base_price_incl_tax'] as num?)?.toInt(),
-      rowTotalInclTax: (json['row_total_incl_tax'] as num?)?.toInt(),
-      baseRowTotalInclTax: (json['base_row_total_incl_tax'] as num?)?.toInt(),
+      rowTotal: json['row_total'] as num?,
+      baseRowTotal: json['base_row_total'] as num?,
+      rowTotalWithDiscount: json['row_total_with_discount'] as num?,
+      taxAmount: json['tax_amount'] as num?,
+      baseTaxAmount: json['base_tax_amount'] as num?,
+      taxPercent: json['tax_percent'] as num?,
+      discountAmount: json['discount_amount'] as num?,
+      baseDiscountAmount: json['base_discount_amount'] as num?,
+      discountPercent: json['discount_percent'] as num?,
+      priceInclTax: json['price_incl_tax'] as num?,
+      basePriceInclTax: json['base_price_incl_tax'] as num?,
+      rowTotalInclTax: json['row_total_incl_tax'] as num?,
+      baseRowTotalInclTax: json['base_row_total_incl_tax'] as num?,
       options: json['options'] as String?,
       weeeTaxAppliedAmount: json['weee_tax_applied_amount'],
       weeeTaxApplied: json['weee_tax_applied'],

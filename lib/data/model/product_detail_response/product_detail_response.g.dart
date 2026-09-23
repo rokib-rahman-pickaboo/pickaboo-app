@@ -411,7 +411,7 @@ class AttrListAdapter extends TypeAdapter<AttrList> {
       value: fields[1] as String?,
       iconUrl: fields[2] as String?,
       icon: fields[3] as String?,
-      isFeatured: fields[4] == null ? false : fields[4] as bool,
+      isFeatured: fields[4] as bool,
     );
   }
 

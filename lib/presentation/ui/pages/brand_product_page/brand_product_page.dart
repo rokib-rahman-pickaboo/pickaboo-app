@@ -39,6 +39,7 @@ import 'package:pickaboo/presentation/ui/pages/brand_product_page/bottom_sheet/b
 import 'package:pickaboo/presentation/ui/widgets/brand_product_page/brand_product_results.dart';
 import 'package:pickaboo/presentation/ui/widgets/brand_product_page/brand_filter_chips.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/catalog_grid_skeleton.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
 
 class BrandProductPage extends StatefulWidget {
@@ -208,7 +209,7 @@ class _BrandProductPageState extends State<BrandProductPage> {
                 if (!hasFacets &&
                     (state.pagingState.isLoading ||
                         state.pagingState.pages == null)) {
-                  return const AppLoader.fullPage();
+                  return const CatalogGridSkeleton(hasFeaturedRail: true);
                 }
 
                 if (state.pagingState.error != null &&

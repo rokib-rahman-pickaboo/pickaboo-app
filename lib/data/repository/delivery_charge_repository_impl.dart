@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/data/api_service/product_api_service.dart';
 import 'package:pickaboo/data/mapper/delivery_charge_mapper/delivery_charge_mapper.dart';
@@ -22,9 +21,6 @@ class DeliveryChargeRepositoryImpl implements DeliveryChargeRepository {
 
     return result.fold(
       (error) {
-        if (kDebugMode) {
-          debugPrint("delivery_charge_repo_error -> ${error.message}");
-        }
         return left(error.toEntity());
       },
       (response) => right(response.toEntity()),

@@ -64,9 +64,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
     );
 
     if (!_isLoggedIn) {
-      debugPrint('Referral code saved: ${widget.referralCode}');
     } else {
-      debugPrint('User already logged in, referral code not applied');
     }
   }
 

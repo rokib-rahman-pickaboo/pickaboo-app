@@ -70,7 +70,7 @@ void main() {
 
       // Act & Measure
       final result = await PerformanceMonitor.measure('getProfile (Cache)', () {
-        return repository.getProfile();
+        return repository.getProfile(forceRefresh: false);
       });
 
       // Assert

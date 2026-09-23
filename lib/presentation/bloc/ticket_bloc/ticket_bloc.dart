@@ -36,10 +36,31 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     Emitter<TicketState> emit, {
     bool forceRefresh = false,
   }) async {
-    emit(state.copyWith(status: TicketStatus.loading, successMessage: null));
-    final result = await _repository.getTickets(forceRefresh: forceRefresh);
+    // SWR Step 1: Render cached data immediately (~2ms)
+    final cached = state.tickets.isNotEmpty
+        ? state.tickets
+        : await _repository.getCachedTickets();
+
+    if (cached != null && cached.isNotEmpty) {
+      emit(
+        state.copyWith(
+          status: TicketStatus.success,
+          tickets: cached,
+          successMessage: null,
+        ),
+      );
+    } else {
+      emit(state.copyWith(status: TicketStatus.loading, successMessage: null));
+    }
+
+    // SWR Step 2: Background revalidation from network
+    final result = await _repository.getTickets(forceRefresh: true);
     result.fold(
-      (error) => emit(state.copyWith(status: TicketStatus.error, error: error)),
+      (error) {
+        if (state.tickets.isEmpty) {
+          emit(state.copyWith(status: TicketStatus.error, error: error));
+        }
+      },
       (tickets) =>
           emit(state.copyWith(status: TicketStatus.success, tickets: tickets)),
     );

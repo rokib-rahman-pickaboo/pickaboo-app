@@ -35,24 +35,13 @@ class AuthRepositoryImpl implements AuthRepository {
       final result = await apiService.getCurrentUser(token: token);
       await result.fold(
         (l) async {
-          if (kDebugMode) {
-            print('[AuthRepository] ⚠️ Failed to fetch user ID after login');
-          }
         },
         (r) async {
           final entity = r.toEntity();
           await _cacheManager.setUserId(userId: entity.id.toString());
-          if (kDebugMode) {
-            print(
-              '[AuthRepository] ✅ User ID saved after login: userId=${entity.id}',
-            );
-          }
         },
       );
     } catch (e) {
-      if (kDebugMode) {
-        print('[AuthRepository] ⚠️ Error saving user ID after login: $e');
-      }
     }
   }
 
@@ -114,8 +103,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     final String token;
     try {
+      debugPrint('[RECAPTCHA_FLOW] 1/3: sendOtp requesting token for action=$recaptchaAction');
       token = await _recaptcha.executeAction(recaptchaAction);
+      debugPrint('[RECAPTCHA_FLOW] 2/3: sendOtp acquired token (len=${token.length}). Forwarding to apiService.sendOtp...');
     } catch (e) {
+      debugPrint('[RECAPTCHA_FLOW] ❌ sendOtp reCAPTCHA failed: $e');
       return left(
         const AppErrorEntity(
           message:
@@ -132,9 +124,13 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     return result.fold(
-      (l) => left(l.toEntity()),
+      (l) {
+        debugPrint('[RECAPTCHA_FLOW] ❌ sendOtp API returned error: ${l.message}');
+        return left(l.toEntity());
+      },
       (r) {
         if (r.status != null && r.status != 200) {
+          debugPrint('[RECAPTCHA_FLOW] ⚠️ sendOtp server returned non-200 status=${r.status} message="${r.message}"');
           return left(
             AppErrorEntity(
               message: ApiErrorParser.sanitize(
@@ -144,6 +140,7 @@ class AuthRepositoryImpl implements AuthRepository {
             ),
           );
         }
+        debugPrint('[RECAPTCHA_FLOW] 3/3: sendOtp SUCCESS | status=${r.status} message="${r.message}"');
         return right(r.message ?? 'OTP sent');
       },
     );
@@ -192,9 +189,6 @@ class AuthRepositoryImpl implements AuthRepository {
             await login(mobile: email, password: password);
           }
         } catch (e) {
-          if (kDebugMode) {
-            print('[AuthRepository] ⚠️ Auto-login after registration error: $e');
-          }
         }
         return right(r.toEntity());
       },
@@ -208,8 +202,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     final String token;
     try {
+      debugPrint('[RECAPTCHA_FLOW] 1/3: sendEmailOtp requesting token for action=$recaptchaAction');
       token = await _recaptcha.executeAction(recaptchaAction);
+      debugPrint('[RECAPTCHA_FLOW] 2/3: sendEmailOtp acquired token (len=${token.length}). Forwarding to apiService.sendEmailOtp...');
     } catch (e) {
+      debugPrint('[RECAPTCHA_FLOW] ❌ sendEmailOtp reCAPTCHA failed: $e');
       return left(
         const AppErrorEntity(
           message:
@@ -220,9 +217,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
     final result = await apiService.sendEmailOtp(email, recaptchaToken: token);
     return result.fold(
-      (l) => left(l.toEntity()),
+      (l) {
+        debugPrint('[RECAPTCHA_FLOW] ❌ sendEmailOtp API error: ${l.message}');
+        return left(l.toEntity());
+      },
       (r) {
         if (r.status != null && r.status != 200) {
+          debugPrint('[RECAPTCHA_FLOW] ⚠️ sendEmailOtp server non-200 status=${r.status} message="${r.message}"');
           return left(
             AppErrorEntity(
               message: ApiErrorParser.sanitize(
@@ -232,6 +233,7 @@ class AuthRepositoryImpl implements AuthRepository {
             ),
           );
         }
+        debugPrint('[RECAPTCHA_FLOW] 3/3: sendEmailOtp SUCCESS | status=${r.status} message="${r.message}"');
         return right(r.message ?? 'Email OTP sent');
       },
     );
@@ -253,10 +255,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     final String token;
     try {
+      debugPrint('[RECAPTCHA_FLOW] 1/3: sendForgotPasswordOtp requesting token for action=${AppRecaptchaActions.forgotPasswordSubmit}');
       token = await _recaptcha.executeAction(
         AppRecaptchaActions.forgotPasswordSubmit,
       );
+      debugPrint('[RECAPTCHA_FLOW] 2/3: sendForgotPasswordOtp acquired token (len=${token.length}). Forwarding to apiService.sendForgotPasswordOtp...');
     } catch (e) {
+      debugPrint('[RECAPTCHA_FLOW] ❌ sendForgotPasswordOtp reCAPTCHA failed: $e');
       return left(
         const AppErrorEntity(
           message:
@@ -272,9 +277,13 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     return result.fold(
-      (l) => left(l.toEntity()),
+      (l) {
+        debugPrint('[RECAPTCHA_FLOW] ❌ sendForgotPasswordOtp API error: ${l.message}');
+        return left(l.toEntity());
+      },
       (r) {
         if (r.status != null && r.status != 200) {
+          debugPrint('[RECAPTCHA_FLOW] ⚠️ sendForgotPasswordOtp server non-200 status=${r.status} message="${r.message}"');
           return left(
             AppErrorEntity(
               message: ApiErrorParser.sanitize(
@@ -284,6 +293,7 @@ class AuthRepositoryImpl implements AuthRepository {
             ),
           );
         }
+        debugPrint('[RECAPTCHA_FLOW] 3/3: sendForgotPasswordOtp SUCCESS | status=${r.status} message="${r.message}"');
         return right(r.message ?? 'OTP sent');
       },
     );
@@ -299,10 +309,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     String? token;
     try {
+      debugPrint('[RECAPTCHA_FLOW] 1/3: resetPassword requesting token for action=${AppRecaptchaActions.forgotPasswordSubmit}');
       token = await _recaptcha.executeAction(
         AppRecaptchaActions.forgotPasswordSubmit,
       );
-    } catch (_) {
+      debugPrint('[RECAPTCHA_FLOW] 2/3: resetPassword acquired token (len=${token.length}). Forwarding to apiService.resetPassword...');
+    } catch (e) {
+      debugPrint('[RECAPTCHA_FLOW] ⚠️ resetPassword reCAPTCHA token skipped/failed: $e');
       // Allow proceeding even if token generation fails on some devices
     }
 
@@ -315,7 +328,16 @@ class AuthRepositoryImpl implements AuthRepository {
       recaptchaToken: token,
     );
 
-    return result.fold((l) => left(l.toEntity()), (r) => right(r));
+    return result.fold(
+      (l) {
+        debugPrint('[RECAPTCHA_FLOW] ❌ resetPassword API error: ${l.message}');
+        return left(l.toEntity());
+      },
+      (r) {
+        debugPrint('[RECAPTCHA_FLOW] 3/3: resetPassword SUCCESS | result="$r"');
+        return right(r);
+      },
+    );
   }
 
   @override
@@ -351,47 +373,26 @@ class AuthRepositoryImpl implements AuthRepository {
         (r) async {
           final entity = r.toEntity();
           await _cacheManager.setUserId(userId: entity.id.toString());
-          if (kDebugMode) {
-            print(
-              '[AuthRepository] ✅ getCurrentUser: userId=${entity.id} cached',
-            );
-          }
           return right(entity);
         },
       );
     } catch (e) {
-      if (kDebugMode) print('AuthRepository: Error getting user - $e');
       return left(AppErrorEntity(message: e.toString()));
     }
   }
 
   @override
   Future<Either<AppErrorEntity, String>> loginWithGoogle() async {
-    if (kDebugMode) {
-      print('🔵 [Repository] loginWithGoogle: Calling API service...');
-    }
 
     final result = await apiService.loginWithGoogle();
 
     return result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ [Repository] loginWithGoogle: Failed');
-          print('   - Error: ${error.message}');
-        }
         return left(error.toEntity());
       },
       (token) async {
-        if (kDebugMode) {
-          print('✅ [Repository] loginWithGoogle: Success');
-          print('   - Token length: ${token.length}');
-          print('   - Saving token to cache...');
-        }
         await saveToken(token);
         await _saveUserId();
-        if (kDebugMode) {
-          print('✅ [Repository] loginWithGoogle: Token saved successfully');
-        }
         return right(token);
       },
     );

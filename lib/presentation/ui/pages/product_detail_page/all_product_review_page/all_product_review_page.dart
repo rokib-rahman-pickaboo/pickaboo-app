@@ -20,6 +20,7 @@ import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/review_image_viewer_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_rating_breakdown_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_review_tile.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_review_skeleton_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
@@ -138,7 +139,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                         ),
                       ),
                       firstPageProgressIndicatorBuilder: (context) =>
-                          const AppLoader.fullPage(),
+                          const PdpReviewSkeletonWidget(itemCount: 4),
                       newPageProgressIndicatorBuilder: (context) =>
                           const AppLoader.pagination(),
                       firstPageErrorIndicatorBuilder: (context) => Padding(
@@ -151,7 +152,30 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                           ),
                         ),
                       ),
-                      newPageErrorIndicatorBuilder: (context) => const SizedBox.shrink(),
+                      newPageErrorIndicatorBuilder: (context) => Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        child: Center(
+                          child: TextButton.icon(
+                            onPressed: () => context.read<ReviewBloc>().add(
+                                  ReviewEvent.load(
+                                    productId: widget.product.id.toString(),
+                                  ),
+                                ),
+                            icon: Icon(
+                              Icons.refresh,
+                              size: 16.sp,
+                              color: AppColors.pickabooBlue,
+                            ),
+                            label: Text(
+                              'Retry loading more reviews',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.pickabooBlue,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                       noItemsFoundIndicatorBuilder: (context) => Padding(
                         padding: EdgeInsets.all(32.w),
                         child: Center(
@@ -219,10 +243,11 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                 ),
                 SizedBox(height: 8.h),
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     if (isLoggedIn) {
                       if (widget.product.isEligibleForReview) {
-                        context.pushNamed(
+                        final reviewBloc = context.read<ReviewBloc>();
+                        final submitted = await context.pushNamed<bool>(
                           'writeReview',
                           pathParameters: {'id': widget.product.id.toString()},
                           extra: {
@@ -232,6 +257,13 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                                 : '',
                           },
                         );
+                        if (submitted == true && mounted) {
+                          reviewBloc.add(
+                            ReviewEvent.refresh(
+                              productId: widget.product.id.toString(),
+                            ),
+                          );
+                        }
                       } else {
                         SnackBarUtils.showWarning(
                           context,

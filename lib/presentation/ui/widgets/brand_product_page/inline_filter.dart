@@ -4,7 +4,6 @@
 // No direct [TextStyle] or [GoogleFonts] instantiations allowed.
 // ============================================================================
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -164,12 +163,6 @@ class BrandInlineFilter extends StatelessWidget {
             entry.key: List<String>.from(entry.value),
         };
         filters[filterCode] = [filterItem.value.toString()];
-
-        if (kDebugMode) {
-          print(
-            'BrandInlineFilter: Applying filter $filterCode - ${filterItem.value}',
-          );
-        }
 
         bloc.add(
           BrandProductsEvent.applyFilters(

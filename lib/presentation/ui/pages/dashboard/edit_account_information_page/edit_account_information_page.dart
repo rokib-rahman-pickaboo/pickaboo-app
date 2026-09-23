@@ -48,6 +48,7 @@ class _EditAccountInformationPageState
   DateTime? _selectedDate;
 
   bool _hasExistingNumber = false;
+  File? _selectedProfileFile;
   late PhotoPickerBloc _photoPickerBloc;
 
   @override
@@ -123,6 +124,10 @@ class _EditAccountInformationPageState
     );
 
     if (cropped == null || !mounted) return;
+
+    setState(() {
+      _selectedProfileFile = File(cropped.path);
+    });
 
     context.read<UserProfileBloc>().add(
       UserProfileEvent.uploadProfileImage(image: File(cropped.path)),
@@ -388,20 +393,33 @@ class _EditAccountInformationPageState
                                       color: AppColors.pickabooBlue,
                                       width: 2.w,
                                     ),
-                                    image: imageUrl != null && imageUrl.isNotEmpty
-                                        ? DecorationImage(
-                                            image: AppImage.provider(imageUrl),
+                                  ),
+                                  child: ClipOval(
+                                    child: _selectedProfileFile != null
+                                        ? Image.file(
+                                            _selectedProfileFile!,
+                                            width: 96.w,
+                                            height: 96.h,
                                             fit: BoxFit.cover,
                                           )
-                                        : null,
+                                        : (imageUrl != null && imageUrl.isNotEmpty)
+                                            ? AppImage(
+                                                imageUrl: imageUrl,
+                                                width: 96.w,
+                                                height: 96.h,
+                                                fit: BoxFit.cover,
+                                                errorWidget: Icon(
+                                                  Icons.person,
+                                                  size: 48.sp,
+                                                  color: AppColors.pickabooBlue,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.person,
+                                                size: 48.sp,
+                                                color: AppColors.pickabooBlue,
+                                              ),
                                   ),
-                                  child: imageUrl == null || imageUrl.isEmpty
-                                      ? Icon(
-                                          Icons.person,
-                                          size: 48.sp,
-                                          color: AppColors.pickabooBlue,
-                                        )
-                                      : null,
                                 ),
                                 Positioned(
                                   bottom: 0,

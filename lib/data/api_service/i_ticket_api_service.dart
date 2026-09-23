@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -62,10 +61,6 @@ class ITicketApiService extends TicketApiService {
         queryParameters: {'ticket_id': id},
       );
 
-      if (kDebugMode) {
-        print("ticket_details -> ${jsonEncode(response.data)}");
-      }
-
       if (response.data is List && (response.data as List).isNotEmpty) {
         final map = response.data[0] as Map<String, dynamic>;
         return right(TicketDetailResponse.fromJson(_sanitizeJsonStrings(map)));
@@ -87,6 +82,14 @@ class ITicketApiService extends TicketApiService {
     try {
       final Map<String, dynamic> formDataMap = data.toJson();
       formDataMap.removeWhere((key, value) => value == null);
+
+      // Support both subject/title and issue_type/department_id for backend compatibility
+      if (formDataMap.containsKey('subject') && !formDataMap.containsKey('title')) {
+        formDataMap['title'] = formDataMap['subject'];
+      }
+      if (formDataMap.containsKey('issue_type') && !formDataMap.containsKey('department_id')) {
+        formDataMap['department_id'] = formDataMap['issue_type'];
+      }
 
       if (data.attachments != null) {
         for (int i = 0; i < data.attachments!.length; i++) {
@@ -144,26 +147,12 @@ class ITicketApiService extends TicketApiService {
         }
       }
 
-      if (kDebugMode) {
-        print(
-          "reply_ticket_request -> id: $id, body: $message, attachments: ${attachments?.length ?? 0}",
-        );
-      }
       final formData = FormData.fromMap(formDataMap);
 
       final response = await _client.post(
         ApiEndpoints.ticketReplyUrl,
         data: formData,
-        options: Options(
-          headers: {
-            Headers.contentLengthHeader: formData.length,
-          },
-        ),
       );
-
-      if (kDebugMode) {
-        print("reply_ticket_response -> ${jsonEncode(response.data)}");
-      }
 
       if (response.statusCode == 200) {
         return right(true);
@@ -171,9 +160,6 @@ class ITicketApiService extends TicketApiService {
         return left(const ErrorResponse(message: 'Failed to reply'));
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("reply_ticket_error -> ${e.message}");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -200,128 +186,139 @@ class ITicketApiService extends TicketApiService {
   Future<Either<ErrorResponse, TicketOrderInfoResponse>>
   getTicketOrders() async {
     try {
-      List<TicketOrderModel> orders = [];
-      List<TicketIssueTypeModel> issueTypes = [];
+      final response = await _client.get(ApiEndpoints.ticketOrderInfoUrl);
 
-      // 1. Try to fetch from Helpdesk orderinfo endpoint
-      try {
-        final response = await _client.get(ApiEndpoints.ticketOrderInfoUrl);
+      dynamic rawData = response.data;
+      if (rawData is String) {
+        try {
+          rawData = jsonDecode(rawData);
+        } catch (_) {}
+      }
 
-        if (kDebugMode) {
-          print("ticket_orderinfo_response -> ${jsonEncode(response.data)}");
-        }
+      final List<TicketOrderModel> orders = [];
+      final List<TicketIssueTypeModel> issueTypes = [];
 
-        if (response.data is List) {
-          final outerList = response.data as List;
+      bool isOrderMap(Map map) {
+        return map.containsKey('order_id') ||
+            map.containsKey('order_number') ||
+            map.containsKey('increment_id') ||
+            map.containsKey('entity_id') ||
+            map.containsKey('grand_total') ||
+            map.containsKey('grandtotal') ||
+            (map.containsKey('status') && !map.containsKey('department_id'));
+      }
 
-          if (outerList.isNotEmpty && outerList.first is List) {
-            // 2D Array format: [ [orders...], [departments...] ]
-            final ordersRaw = outerList[0] as List;
-            orders = ordersRaw
-                .whereType<Map>()
-                .map((e) => TicketOrderModel.fromJson(
-                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
-                .toList();
+      bool isIssueMap(Map map) {
+        return map.containsKey('department_id') ||
+            map.containsKey('department_name') ||
+            map.containsKey('issue_type') ||
+            map.containsKey('issue_id') ||
+            (!isOrderMap(map) &&
+                (map.containsKey('name') ||
+                    map.containsKey('title') ||
+                    map.containsKey('label')));
+      }
 
-            if (outerList.length > 1 && outerList[1] is List) {
-              final issuesRaw = outerList[1] as List;
-              issueTypes = issuesRaw
-                  .whereType<Map>()
-                  .map((e) => TicketIssueTypeModel.fromJson(
-                      _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
-                  .toList();
+      void processList(List list) {
+        for (final item in list) {
+          if (item is List) {
+            processList(item);
+          } else if (item is Map) {
+            final map = Map<String, dynamic>.from(item);
+            if (isOrderMap(map)) {
+              orders.add(TicketOrderModel.fromJson(map));
+            } else if (isIssueMap(map)) {
+              issueTypes.add(TicketIssueTypeModel.fromJson(map));
             }
-          } else {
-            // Fallback: 1D Array format
-            orders = outerList
-                .whereType<Map>()
-                .map((e) => TicketOrderModel.fromJson(
-                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
-                .toList();
           }
-        } else if (response.data is Map) {
-          final dataMap = response.data as Map;
-          if (dataMap['orders'] is List) {
-            orders = (dataMap['orders'] as List)
-                .whereType<Map>()
-                .map((e) => TicketOrderModel.fromJson(
-                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
-                .toList();
-          }
-          final issuesList = dataMap['issue_types'] ?? dataMap['departments'];
-          if (issuesList is List) {
-            issueTypes = issuesList
-                .whereType<Map>()
-                .map((e) => TicketIssueTypeModel.fromJson(
-                    _sanitizeJsonStrings(Map<String, dynamic>.from(e))))
-                .toList();
-          }
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print("Failed fetching ticketOrderInfoUrl: $e");
         }
       }
 
-      // 2. ALWAYS query /rest/V1/orders/mine to ensure ANY placed order is in the list
-      try {
-        final mineOrdersResponse = await _client.get(
-          ApiEndpoints.getOrderListUrl,
-          queryParameters: {'limit': 50, 'current_page': 1},
-        );
+      if (rawData is List) {
+        processList(rawData);
+      } else if (rawData is Map) {
+        final dataMap = Map<String, dynamic>.from(rawData);
 
-        if (mineOrdersResponse.data is Map) {
-          final mineMap = mineOrdersResponse.data as Map;
-          final items = mineMap['items'];
-          if (items is List) {
-            final existingIds = orders
-                .map((o) => o.orderId ?? o.incrementId)
-                .where((id) => id != null && id.isNotEmpty)
-                .toSet();
+        final innerData =
+            dataMap['data'] ?? dataMap['result'] ?? dataMap['response'];
+        if (innerData is List) {
+          processList(innerData);
+        } else if (innerData is Map) {
+          dataMap.addAll(Map<String, dynamic>.from(innerData));
+        }
 
-            for (final item in items.whereType<Map>()) {
-              final itemMap = Map<String, dynamic>.from(item);
-              final orderId = itemMap['order_id']?.toString();
-              final orderNumber = itemMap['order_number']?.toString() ??
-                  itemMap['increment_id']?.toString() ??
-                  orderId;
+        final ordersRaw = dataMap['orders'] ??
+            dataMap['items'] ??
+            dataMap['orderinfo'] ??
+            dataMap['order_info'] ??
+            dataMap['order_list'];
+        if (ordersRaw is List) {
+          for (final item in ordersRaw.whereType<Map>()) {
+            orders.add(
+              TicketOrderModel.fromJson(Map<String, dynamic>.from(item)),
+            );
+          }
+        }
 
-              // If this order is not already in the helpdesk list, add it
-              if (orderId != null &&
-                  !existingIds.contains(orderId) &&
-                  (orderNumber == null || !existingIds.contains(orderNumber))) {
-                final grandTotal = (itemMap['grandtotal'] as num?)?.toDouble() ??
-                    (itemMap['grand_total'] as num?)?.toDouble();
+        final issuesRaw = dataMap['departments'] ??
+            dataMap['issue_types'] ??
+            dataMap['department'] ??
+            dataMap['issues'] ??
+            dataMap['categories'];
+        if (issuesRaw is List) {
+          for (final item in issuesRaw.whereType<Map>()) {
+            issueTypes.add(
+              TicketIssueTypeModel.fromJson(Map<String, dynamic>.from(item)),
+            );
+          }
+        }
 
-                orders.add(
-                  TicketOrderModel(
-                    orderId: orderId,
-                    incrementId: orderNumber,
-                    createdAt: itemMap['created_at']?.toString(),
-                    status: itemMap['status']?.toString(),
-                    grandTotal: grandTotal,
-                  ),
-                );
-                existingIds.add(orderId);
-                if (orderNumber != null) existingIds.add(orderNumber);
-              }
+        if (orders.isEmpty && issueTypes.isEmpty) {
+          for (final value in dataMap.values) {
+            if (value is List) {
+              processList(value);
             }
           }
         }
-      } catch (e) {
-        if (kDebugMode) {
-          print("Failed fetching fallback orders from /orders/mine: $e");
+      }
+
+      // Deduplicate orders
+      final seenOrderIds = <String>{};
+      final uniqueOrders = <TicketOrderModel>[];
+      for (final o in orders) {
+        final id = o.orderId ?? o.incrementId;
+        if (id != null && id.isNotEmpty) {
+          if (!seenOrderIds.contains(id)) {
+            seenOrderIds.add(id);
+            uniqueOrders.add(o);
+          }
+        } else {
+          uniqueOrders.add(o);
+        }
+      }
+
+      // Deduplicate issue types
+      final seenIssueIds = <String>{};
+      final uniqueIssues = <TicketIssueTypeModel>[];
+      for (final it in issueTypes) {
+        final key = '${it.id}_${it.name}';
+        if (!seenIssueIds.contains(key) && !seenIssueIds.contains(it.name)) {
+          seenIssueIds.add(key);
+          seenIssueIds.add(it.name);
+          uniqueIssues.add(it);
         }
       }
 
       return right(
         TicketOrderInfoResponse(
-          orders: orders,
-          issueTypes: issueTypes,
+          orders: uniqueOrders,
+          issueTypes: uniqueIssues,
         ),
       );
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
+    } catch (e) {
+      return left(ErrorResponse(message: e.toString()));
     }
   }
 

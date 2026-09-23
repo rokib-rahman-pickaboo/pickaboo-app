@@ -1,7 +1,6 @@
 import 'package:pickaboo/data/model/filter/filter_models.dart';
 import 'package:pickaboo/domain/entity/search/search_facet_entity.dart';
 import 'package:pickaboo/domain/entity/search/search_result_entity.dart';
-import 'package:flutter/foundation.dart';
 
 class FilterConverter {
   static const Set<String> _categoryAttributes = {
@@ -55,20 +54,15 @@ class FilterConverter {
   static Map<String, String> toSearchaniseFilters(
     Map<String, List<String>> selectedFilters,
   ) {
-    debugPrint('🔧 [CONVERTER] Input filters: $selectedFilters');
     final searchaniseFilters = <String, String>{};
 
     selectedFilters.forEach((key, values) {
       if (values.isNotEmpty) {
         final joinedValues = values.join('|');
         searchaniseFilters['restrictBy[$key]'] = joinedValues;
-        debugPrint(
-          '🔧 [CONVERTER] Converted $key: ${values.length} values -> restrictBy[$key]=$joinedValues',
-        );
       }
     });
 
-    debugPrint('🔧 [CONVERTER] Output: $searchaniseFilters');
     return searchaniseFilters;
   }
 

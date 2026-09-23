@@ -106,7 +106,6 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
 
       return items;
     } catch (e) {
-      debugPrint('Error parsing dynamic offers: $e');
       return [];
     }
   }
@@ -214,7 +213,6 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                                           try {
                                             await launchUrl(uri, mode: LaunchMode.externalApplication);
                                           } catch (e) {
-                                            debugPrint('Could not launch termsUrl: $e');
                                           }
                                         }
                                       },

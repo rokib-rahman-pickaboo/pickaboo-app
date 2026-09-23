@@ -40,6 +40,7 @@ class BrandFeaturedProductsRail extends StatelessWidget {
             height: _railHeight(context, cardWidth),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
               padding: EdgeInsets.zero,
               itemCount: products.length,
               itemBuilder: (context, index) => SizedBox(

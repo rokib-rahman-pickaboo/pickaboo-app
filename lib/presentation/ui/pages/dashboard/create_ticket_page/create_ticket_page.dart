@@ -40,6 +40,7 @@ class CreateTicketPage extends StatefulWidget {
 class _CreateTicketPageState extends State<CreateTicketPage> {
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _orderSearchController = TextEditingController();
 
   late TicketBloc _ticketBloc;
   TicketOrderEntity? _selectedOrder;
@@ -69,6 +70,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
     _ticketBloc.close();
     _subjectController.dispose();
     _messageController.dispose();
+    _orderSearchController.dispose();
     super.dispose();
   }
 
@@ -94,7 +96,6 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
           }
         }
       } catch (e) {
-        debugPrint('Failed to compress image: $e');
       }
     }
     return file;
@@ -259,7 +260,6 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
         }
       }
     } catch (e) {
-      debugPrint('Error picking from gallery: $e');
     }
   }
 
@@ -296,7 +296,6 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
         }
       }
     } catch (e) {
-      debugPrint('Error capturing photo: $e');
     }
   }
 
@@ -353,7 +352,6 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
         }
       }
     } catch (e) {
-      debugPrint('Error picking files: $e');
     }
   }
 
@@ -523,32 +521,116 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                 hint: Text(
                                   state.status == TicketStatus.loading && orders.isEmpty
                                       ? 'Loading orders...'
-                                      : 'Select order number',
+                                      : 'Search order number',
                                   style: AppTypography.inputHint,
                                 ),
                                 value: _selectedOrder,
-                                items: [
-                                  DropdownMenuItem<TicketOrderEntity?>(
-                                    value: null,
+                                iconStyleData: IconStyleData(
+                                  icon: _selectedOrder != null
+                                      ? GestureDetector(
+                                          onTap: () => setState(() => _selectedOrder = null),
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 18.sp,
+                                            color: AppColors.muted,
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.arrow_drop_down,
+                                          color: AppColors.navy,
+                                        ),
+                                ),
+                                items: orders.map((order) {
+                                  final number = order.displayName;
+                                  return DropdownMenuItem<TicketOrderEntity?>(
+                                    value: order,
                                     child: Text(
-                                      'Select order number',
-                                      style: AppTypography.inputHint,
+                                      'Order #$number',
+                                      style: AppTypography.bodyLarge.regular(),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                  ...orders.map((order) {
-                                    final number = order.displayName;
-                                    return DropdownMenuItem<TicketOrderEntity?>(
-                                      value: order,
-                                      child: Text(
-                                        'Order #$number',
-                                        style: AppTypography.bodyLarge.regular(),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    );
-                                  }),
-                                ],
+                                  );
+                                }).toList(),
                                 onChanged: (val) =>
                                     setState(() => _selectedOrder = val),
+                                dropdownStyleData: DropdownStyleData(
+                                  maxHeight: 320.h,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                                dropdownSearchData: DropdownSearchData(
+                                  searchController: _orderSearchController,
+                                  searchInnerWidgetHeight: 52.h,
+                                  searchInnerWidget: Container(
+                                    height: 52.h,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 6.h,
+                                    ),
+                                    child: TextFormField(
+                                      expands: true,
+                                      maxLines: null,
+                                      controller: _orderSearchController,
+                                      style: AppTypography.bodyLarge.regular(),
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 10.w,
+                                          vertical: 8.h,
+                                        ),
+                                        hintText: 'Search order number (e.g. last 3-4 digits)',
+                                        hintStyle: AppTypography.inputHint.copyWith(
+                                          fontSize: 11.5.sp,
+                                        ),
+                                        prefixIcon: Icon(
+                                          Icons.search,
+                                          size: 18.sp,
+                                          color: AppColors.muted,
+                                        ),
+                                        prefixIconConstraints: BoxConstraints(
+                                          minWidth: 32.w,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8.r),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8.r),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8.r),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.pickabooBlue,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  searchMatchFn: (item, searchValue) {
+                                    final order = item.value;
+                                    if (order == null) return false;
+                                    final query = searchValue.trim().toLowerCase();
+                                    if (query.isEmpty) return true;
+                                    final number = order.displayName.toLowerCase();
+                                    final id = order.orderId.toLowerCase();
+                                    final inc = order.incrementId.toLowerCase();
+                                    return number.contains(query) ||
+                                        id.contains(query) ||
+                                        inc.contains(query);
+                                  },
+                                ),
+                                onMenuStateChange: (isOpen) {
+                                  if (!isOpen) {
+                                    _orderSearchController.clear();
+                                  }
+                                },
                               ),
                             ),
                           ),

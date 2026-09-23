@@ -23,15 +23,9 @@ class BannerBloc extends Bloc<BannerEvent, BannerState> {
           final result = await repository.getBannerContent();
           result.fold(
             (l) {
-              if (kDebugMode) {
-                print('❌ [BannerBloc] Error: ${l.message}');
-              }
               emit(state.copyWith(error: l, status: BannerStatus.error));
             },
             (r) async {
-              if (kDebugMode) {
-                print('✅ [BannerBloc] Success: ${r.length} banners');
-              }
               emit(
                 state.copyWith(
                   status: BannerStatus.success,

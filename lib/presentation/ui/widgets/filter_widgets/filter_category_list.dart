@@ -83,7 +83,7 @@ class FilterCategoryList extends StatelessWidget {
                                 horizontal: 5.w,
                                 vertical: 2.h,
                               ),
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: AppColors.pickabooBlue,
                                 borderRadius: AppRadius.chipRadius,
                               ),

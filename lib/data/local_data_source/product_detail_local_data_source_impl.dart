@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/constants/db_constants.dart';
@@ -10,7 +9,7 @@ import 'package:pickaboo/data/model/product_detail_response/product_detail_respo
 class ProductDetailLocalDataSourceImpl implements ProductDetailLocalDataSource {
   static final Map<String, ProductDetailResponse> _memoryCache = {};
   static final Map<String, DateTime> _memoryTimestamps = {};
-  static const Duration _memoryTtl = Duration(hours: 4);
+  static const Duration _memoryTtl = Duration(minutes: 10);
 
   Future<Box<ProductDetailCacheWrapper>> _cacheBox() async {
     if (Hive.isBoxOpen(dbProductDetailName)) {
@@ -28,9 +27,6 @@ class ProductDetailLocalDataSourceImpl implements ProductDetailLocalDataSource {
       _memoryCache.removeWhere((key, _) => !_memoryTimestamps.containsKey(key));
 
       if (_memoryCache.isNotEmpty) {
-        if (kDebugMode) {
-          print('⚡ ProductDetail Cache: Serving from fast in-memory cache (${_memoryCache.length} items)');
-        }
         return _memoryCache.values.toSet().toList();
       }
     }
@@ -38,9 +34,6 @@ class ProductDetailLocalDataSourceImpl implements ProductDetailLocalDataSource {
     final box = await _cacheBox();
 
     if (box.isEmpty) {
-      if (kDebugMode) {
-        print('📦 ProductDetail Cache: Empty');
-      }
       return null;
     }
 
@@ -50,15 +43,8 @@ class ProductDetailLocalDataSourceImpl implements ProductDetailLocalDataSource {
     }
 
     if (wrapper.isExpired) {
-      if (kDebugMode) {
-        print('⏰ ProductDetail Cache: Expired (cached ${wrapper.cachedAt})');
-      }
       await box.clear();
       return null;
-    }
-
-    if (kDebugMode) {
-      print('✅ ProductDetail Cache: Valid');
     }
 
     // Populate in-memory cache from Hive
@@ -116,13 +102,7 @@ class ProductDetailLocalDataSourceImpl implements ProductDetailLocalDataSource {
 
       await box.add(newWrapper);
 
-      if (kDebugMode) {
-        print('📦 ProductDetail Cache: Saved product ${productDetail.id} at ${newWrapper.cachedAt}');
-      }
     } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ ProductDetail Cache: Error persisting to Hive disk box: $e');
-      }
     }
   }
   @override
@@ -152,9 +132,6 @@ class ProductDetailLocalDataSourceImpl implements ProductDetailLocalDataSource {
 
     await box.add(newWrapper);
 
-    if (kDebugMode) {
-      print('📦 ProductDetail Cache: Removed product $productId');
-    }
   }
 
   @override
@@ -163,8 +140,5 @@ class ProductDetailLocalDataSourceImpl implements ProductDetailLocalDataSource {
     _memoryTimestamps.clear();
     final box = await _cacheBox();
     await box.clear();
-    if (kDebugMode) {
-      print('📦 ProductDetail Cache: Cleared');
-    }
   }
 }

@@ -109,15 +109,18 @@ class _OrderItemCardState extends State<OrderItemCard> {
   }
 
   bool _shouldShowPayNow(OrderItemEntity order) {
+    final remoteIp = order.remoteIp?.trim();
+    if (remoteIp == null || remoteIp.isEmpty || remoteIp.toLowerCase() == 'null') {
+      return false;
+    }
+
     if (order.state.toLowerCase() == 'pending payment') {
       if (order.status.toLowerCase() != 'processing') {
         final method = order.paymentMethod.toLowerCase();
         if (method != 'cashondelivery' && method != 'cardondelivery') {
           if (method != 'cemi') {
             if (order.paymentMode.toLowerCase() != 'card on delivery') {
-              if (order.remoteIp.isNotEmpty) {
-                return true;
-              }
+              return true;
             }
           }
         }

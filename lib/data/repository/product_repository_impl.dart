@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/data/api_service/product_api_service.dart';
 import 'package:pickaboo/data/mapper/brand_products_mapper/brand_products_mapper.dart';
@@ -58,6 +57,10 @@ class ProductRepositoryImpl implements ProductRepository {
   HomeFlashSaleEntity? _cachedFlashSale;
   DateTime? _cachedFlashSaleTime;
 
+  /// In-memory cache for review votes keyed by '$productId:$customerId'.
+  /// Prevents redundant DB queries across paginated review scroll requests.
+  final Map<String, List<ReviewResponse>> _reviewVotesCache = {};
+
   ProductRepositoryImpl(
     this.apiService,
     this._categoryLocalDataSource,
@@ -88,17 +91,26 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<AppErrorEntity, List<CategoryEntity>>>
-  getAllCategories() async {
-    final cachedCategories = await _categoryLocalDataSource
-        .getCategoriesIfValid();
-
-    if (cachedCategories != null && cachedCategories.isNotEmpty) {
-      return right(cachedCategories.map((e) => e.toEntity()).toList());
+  Future<List<CategoryEntity>?> getCachedCategories() async {
+    final cached = await _categoryLocalDataSource.getCachedCategories() ??
+        await _categoryLocalDataSource.getCategoriesIfValid();
+    if (cached != null && cached.isNotEmpty) {
+      return cached.map((e) => e.toEntity()).toList();
     }
+    return null;
+  }
 
-    if (kDebugMode) {
-      print('🌐 Fetching categories from API');
+  @override
+  Future<Either<AppErrorEntity, List<CategoryEntity>>> getAllCategories({
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh) {
+      final cachedCategories =
+          await _categoryLocalDataSource.getCategoriesIfValid();
+
+      if (cachedCategories != null && cachedCategories.isNotEmpty) {
+        return right(cachedCategories.map((e) => e.toEntity()).toList());
+      }
     }
 
     final result = await apiService.getAllCategories();
@@ -123,10 +135,6 @@ class ProductRepositoryImpl implements ProductRepository {
         CategoryPreloadCache.instance.seedFromHomeFeed(aligned);
         return right(aligned);
       }
-    }
-
-    if (kDebugMode) {
-      print('🌐 Fetching home feed content from API');
     }
 
     final result = await apiService.getHomeFeedContent(
@@ -504,23 +512,38 @@ class ProductRepositoryImpl implements ProductRepository {
     required int pageSize,
     int? customerId,
   }) async {
+    final cacheKey = '$productId:${customerId ?? 0}';
+    final cachedVotes = _reviewVotesCache[cacheKey];
+
     final reviewsFuture = apiService.getProductReviews(
       productId: productId,
       page: page,
       pageSize: pageSize,
     );
-    final votesFuture = apiService.getProductReviewVotes(
-      productId: productId,
-      customerId: customerId,
-    );
+
+    // Only query review votes if not already cached in memory for this product session.
+    // This halves network requests and database queries on all subsequent scroll pages.
+    final votesFuture = cachedVotes == null
+        ? apiService.getProductReviewVotes(
+            productId: productId,
+            customerId: customerId,
+          )
+        : null;
 
     final reviewsResult = await reviewsFuture;
-    final votesResult = await votesFuture;
+    final votesResult = votesFuture != null ? await votesFuture : null;
 
     return reviewsResult.fold((error) => left(error.toEntity()), (response) {
       final reviews = response.toEntity();
 
-      final votes = votesResult.fold((_) => <ReviewResponse>[], (v) => v);
+      List<ReviewResponse> votes = cachedVotes ?? const [];
+      if (votesResult != null) {
+        votes = votesResult.fold((_) => <ReviewResponse>[], (v) {
+          _reviewVotesCache[cacheKey] = v;
+          return v;
+        });
+      }
+
       if (votes.isEmpty) return right(reviews);
 
       final votesByReviewId = {
@@ -539,6 +562,8 @@ class ProductRepositoryImpl implements ProductRepository {
     required List<Map<String, dynamic>> ratings,
     required List<String> imagePaths,
   }) async {
+    _reviewVotesCache.removeWhere((key, _) => key.startsWith('$productId:'));
+
     final result = await apiService.submitReview(
       productId: productId,
       detail: detail,
@@ -558,6 +583,8 @@ class ProductRepositoryImpl implements ProductRepository {
     required String reviewId,
     required String voteType,
   }) async {
+    _reviewVotesCache.removeWhere((key, _) => key.startsWith('$productId:'));
+
     final result = await apiService.voteReview(
       productId: productId,
       reviewId: reviewId,

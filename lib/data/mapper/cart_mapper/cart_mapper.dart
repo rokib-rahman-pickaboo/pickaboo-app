@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:pickaboo/data/model/cart/cart_response/cart_response.dart';
 import 'package:pickaboo/data/model/cart/cart_item_response/cart_item_response.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
@@ -7,24 +6,11 @@ import 'package:pickaboo/core/utils/product_image_resolver.dart';
 
 extension CartResponseMapper on CartResponse {
   CartEntity toEntity() {
-    if (kDebugMode) {
-      print('🔄 CartMapper: Converting CartResponse to CartEntity');
-      print('  Cart ID: $id');
-      print('  Items count: $itemsCount');
-      print('  Cart items length: ${items?.length}');
-      print(
-        '  Shipping assignments items: ${extensionAttributes?.shippingAssignments?.firstOrNull?.items?.length}',
-      );
-    }
 
     final cartItems =
         items ??
         extensionAttributes?.shippingAssignments?.firstOrNull?.items ??
         [];
-
-    if (kDebugMode) {
-      print('  Final cartItems length: ${cartItems.length}');
-    }
 
     double calculatedSubtotal = 0.0;
     double calculatedGrandTotal = 0.0;
@@ -34,11 +20,6 @@ extension CartResponseMapper on CartResponse {
           .toDouble();
       calculatedSubtotal += itemSubtotal;
       calculatedGrandTotal += itemSubtotal;
-    }
-
-    if (kDebugMode) {
-      print('  Calculated subtotal: $calculatedSubtotal');
-      print('  Calculated grandTotal: $calculatedGrandTotal');
     }
 
     final entity = CartEntity(
@@ -63,17 +44,6 @@ extension CartResponseMapper on CartResponse {
           ?.address
           ?.toEntity(),
     );
-
-    if (kDebugMode) {
-      print('✅ CartMapper: Entity created');
-      print('  Entity ID: ${entity.id}');
-      print('  Entity items count: ${entity.itemsCount}');
-      print('  Entity items length: ${entity.items.length}');
-      print('  Entity subtotal: ${entity.subtotal}');
-      print('  Entity grand total: ${entity.grandTotal}');
-      print('  Entity couponCode: "${entity.couponCode}"');
-      print('  Entity discountAmount: ${entity.discountAmount}');
-    }
 
     return entity;
   }

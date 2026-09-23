@@ -67,5 +67,91 @@ void main() {
       expect(find.text('Apple'), findsOneWidget);
       expect(find.text('Xiaomi'), findsOneWidget);
     });
+
+    testWidgets('shows right arrow when options overflow, and reveals left arrow after scrolling', (tester) async {
+      String? selected;
+      final manyOptions = List.generate(20, (i) => 'Brand $i');
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          QuestionFilterWidget(
+            questionTitle: 'Choose your preferred Brand',
+            options: manyOptions,
+            selectedOption: selected,
+            onOptionSelected: (val) => selected = val,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Right arrow should be visible (opacity 1.0)
+      final rightArrowFinder = find.byIcon(Icons.chevron_right_rounded);
+      expect(rightArrowFinder, findsOneWidget);
+
+      final leftArrowFinder = find.byIcon(Icons.chevron_left_rounded);
+      expect(leftArrowFinder, findsOneWidget);
+
+      // Left arrow AnimatedOpacity should be 0.0 initially
+      final leftOpacity = tester.widget<AnimatedOpacity>(
+        find.ancestor(of: leftArrowFinder, matching: find.byType(AnimatedOpacity)),
+      );
+      expect(leftOpacity.opacity, equals(0.0));
+
+      final rightOpacity = tester.widget<AnimatedOpacity>(
+        find.ancestor(of: rightArrowFinder, matching: find.byType(AnimatedOpacity)),
+      );
+      expect(rightOpacity.opacity, equals(1.0));
+
+      // Tap right arrow to scroll
+      await tester.tap(rightArrowFinder);
+      await tester.pumpAndSettle();
+
+      // Now left arrow should be visible (opacity 1.0)
+      final leftOpacityAfterScroll = tester.widget<AnimatedOpacity>(
+        find.ancestor(of: leftArrowFinder, matching: find.byType(AnimatedOpacity)),
+      );
+      expect(leftOpacityAfterScroll.opacity, equals(1.0));
+    });
+
+    testWidgets('tapping an option invokes onOptionSelected, and reset button clears selection', (tester) async {
+      String? selected;
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return buildTestWidget(
+              QuestionFilterWidget(
+                questionTitle: 'Choose your preferred Brand',
+                options: const ['Samsung', 'Apple', 'Xiaomi'],
+                selectedOption: selected,
+                onOptionSelected: (val) {
+                  setState(() {
+                    selected = val;
+                  });
+                },
+              ),
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Initially no RESET button
+      expect(find.text('RESET'), findsNothing);
+
+      // Tap Samsung
+      await tester.tap(find.text('Samsung'));
+      await tester.pumpAndSettle();
+
+      expect(selected, equals('Samsung'));
+      expect(find.text('RESET'), findsOneWidget);
+
+      // Tap RESET
+      await tester.tap(find.text('RESET'));
+      await tester.pumpAndSettle();
+
+      expect(selected, isNull);
+      expect(find.text('RESET'), findsNothing);
+    });
   });
 }

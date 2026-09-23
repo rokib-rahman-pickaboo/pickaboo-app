@@ -310,7 +310,7 @@ _$ItemImpl _$$ItemImplFromJson(Map<String, dynamic> json) => _$ItemImpl(
   sku: json['sku'] as String?,
   qty: (json['qty'] as num?)?.toInt(),
   name: json['name'] as String?,
-  price: (json['price'] as num?)?.toInt(),
+  price: json['price'] as num?,
   productType: json['product_type'] as String?,
   quoteId: json['quote_id'] as String?,
   extensionAttributes:
@@ -351,14 +351,14 @@ _$ItemExtensionAttributesImpl _$$ItemExtensionAttributesImplFromJson(
   brand: json['brand'] as String?,
   imageUrl: json['image_url'] as String?,
   soldBy: json['sold_by'] as String?,
-  regularPrice: (json['regular_price'] as num?)?.toInt(),
-  spacialPrice: (json['spacial_price'] as num?)?.toInt(),
+  regularPrice: json['regular_price'] as num?,
+  spacialPrice: json['spacial_price'] as num?,
   discount: json['discount'] as String?,
   customOptions:
       (json['custom_options'] as List<dynamic>?)
           ?.map((e) => CustomOption.fromJson(e as Map<String, dynamic>))
           .toList(),
-  itemSubtotal: (json['item_subtotal'] as num?)?.toInt(),
+  itemSubtotal: json['item_subtotal'] as num?,
   configOptions:
       (json['config_options'] as List<dynamic>?)
           ?.map((e) => ConfigOption.fromJson(e as Map<String, dynamic>))

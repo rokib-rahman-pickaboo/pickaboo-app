@@ -21,6 +21,6 @@ extension ProductDetailCacheWrapperX on ProductDetailCacheWrapper {
   bool get isExpired {
     final now = DateTime.now();
     final difference = now.difference(cachedAt);
-    return difference.inHours >= 24;
+    return difference.inMinutes >= 10;
   }
 }

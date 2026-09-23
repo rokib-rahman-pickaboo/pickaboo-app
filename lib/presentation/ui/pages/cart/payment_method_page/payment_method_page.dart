@@ -7,7 +7,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -200,17 +199,11 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
   void _loadPaymentInfo() {
     final cartId = _resolveCartId();
-    if (kDebugMode) {
-      print('💳 PaymentMethodPage: _loadPaymentInfo cartId=$cartId');
-    }
     if (cartId != null && cartId.isNotEmpty && cartId != '0') {
       context.read<CheckoutBloc>().add(
         CheckoutEvent.loadPaymentInfo(cartId: cartId),
       );
     } else {
-      if (kDebugMode) {
-        print('⚠️ PaymentMethodPage: cartId is null — loadPaymentInfo skipped');
-      }
     }
   }
 
@@ -256,9 +249,9 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       phone.length <= 4 ? phone : phone.substring(phone.length - 4);
 
   void _selectSavedAgreement(SavedPaymentEntity agreement) {
-    _checkAndRemoveCardBin('dynamicpaymentgateway');
+    _checkAndRemoveCardBin('bkash');
     setState(() {
-      _currentSelection = 'dynamicpaymentgateway';
+      _currentSelection = 'bkash';
       _selectedAgreementId = agreement.agreementId;
     });
     context.read<CheckoutBloc>().add(
@@ -271,13 +264,13 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       context.read<CheckoutBloc>().add(
         CheckoutEvent.syncOrderPaymentMethod(
           orderId: widget.orderId!,
-          paymentMethod: 'dynamicpaymentgateway',
+          paymentMethod: 'bkash',
         ),
       );
     } else {
       context.read<CheckoutBloc>().add(
         const CheckoutEvent.selectPaymentMethod(
-          paymentMethod: 'dynamicpaymentgateway',
+          paymentMethod: 'bkash',
         ),
       );
     }
@@ -390,9 +383,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               _endSelectionSync();
             },
             emiDetailsLoaded: (emiData) {
-              if (kDebugMode) {
-                print('💳 PaymentMethodPage: emiDetailsLoaded received — ${emiData.bankEmiData.length} banks');
-              }
               setState(() {
                 _isLoadingEmi = false;
                 _loadedEmiData = emiData;
@@ -400,9 +390,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               _showEmiBottomSheet(emiData);
             },
             orderPaymentMethodSynced: (success, method) {
-              if (kDebugMode) {
-                print('💳 PaymentMethodPage: orderPaymentMethodSynced success=$success method=$method');
-              }
               if (success && widget.orderId != null) {
                 context.read<OrderBloc>().add(
                   OrderEvent.loadOrderDetails(widget.orderId!),
@@ -569,15 +556,11 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               }
             },
             error: (error, lastCheckout) {
+              if (_isSyncingSelection) {
+                _endSelectionSync();
+              }
               if (_isLoadingEmi) {
                 setState(() => _isLoadingEmi = false);
-              }
-              if (kDebugMode) {
-                print(
-                  '❌ PaymentMethodPage: CheckoutState.error — "${error.message}" '
-                  '(hasLastCheckout=${lastCheckout != null}, '
-                  'orderId=${widget.orderId}, cartId=${widget.cartId})',
-                );
               }
               if (isSilentCartError(error.message)) return;
               SnackBarUtils.showError(
@@ -695,7 +678,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
                         BlocBuilder<CardBinBloc, CardBinState>(
                           builder: (context, cardBinState) {
-                            if (_lastTotals != null) {
+                            if (_lastTotals != null && !_isSyncingSelection) {
                               return PaymentOrderSummary(
                                 totals: _lastTotals!,
                                 itemsCount: _lastItemsCount,
@@ -722,17 +705,23 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             ),
           );
 
+          final orderState = context.watch<OrderBloc>().state;
+          final isOrderLoading = widget.orderId != null && orderState.isLoading;
+
           final isInitialLoading = _availablePaymentMethods.isEmpty;
           final isProcessing = !isInitialLoading &&
-              state.maybeMap(
+              (state.maybeMap(
                 paymentProcessing: (_) => true,
                 placingOrder: (_) => true,
                 loading: (_) => true,
                 orElse: () => false,
-              );
+              ) ||
+                  _isSyncingSelection ||
+                  isOrderLoading);
 
           return AppLoader.overlay(
             isLoading: isProcessing,
+            barrierColor: AppColors.transparent,
             child: scaffold,
           );
         },
@@ -943,7 +932,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                   SavedWalletItem(
                     linkedMasked: _maskLast4(payments[i].phoneNumber),
                     last4: _last4(payments[i].phoneNumber),
-                    isSelected: _currentSelection == 'dynamicpaymentgateway' &&
+                    isSelected: _currentSelection == 'bkash' &&
                         _selectedAgreementId == payments[i].agreementId,
                     onTap: () => _selectSavedAgreement(payments[i]),
                   ),
@@ -1055,9 +1044,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
   void _openEmiSheet() {
     if (_loadedEmiData != null && _loadedEmiData!.bankEmiData.isNotEmpty) {
-      if (kDebugMode) {
-        print('💳 PaymentMethodPage: _openEmiSheet — using cached EMI data (${_loadedEmiData!.bankEmiData.length} banks)');
-      }
       _showEmiBottomSheet(_loadedEmiData!);
       return;
     }
@@ -1065,9 +1051,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     if (_isLoadingEmi) return;
 
     final quoteId = _resolveQuoteId();
-    if (kDebugMode) {
-      print('💳 PaymentMethodPage: _openEmiSheet called, quoteId=$quoteId, orderId=${widget.orderId}');
-    }
     if (quoteId == null || quoteId.isEmpty) {
       SnackBarUtils.showError(
         context,
@@ -1092,16 +1075,10 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
     final cartId = _resolveCartId();
     if (cartId != null && cartId.isNotEmpty && cartId != '0') {
-      if (kDebugMode) {
-        print('💳 PaymentMethodPage: _resolveQuoteId → "$cartId" (from _resolveCartId)');
-      }
       return cartId;
     }
 
     if (widget.orderId != null && widget.orderId!.isNotEmpty) {
-      if (kDebugMode) {
-        print('💳 PaymentMethodPage: _resolveQuoteId → "${widget.orderId}" (from widget.orderId)');
-      }
       return widget.orderId;
     }
 
@@ -1194,7 +1171,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     return UnifiedCheckoutBottomBar(
       trustText: '100% Safe and Secure Payments',
       trustIcon: Icons.shield_outlined,
-      priceLabel: 'Total Payable',
+      priceLabel: _isSyncingSelection ? 'Recalculating...' : 'Total Payable',
       totalPrice: total,
       buttonText: _confirmButtonLabel(),
       showArrow: false,
@@ -1203,6 +1180,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         orElse: () => false,
       ),
       onPressed: () {
+        if (_isSyncingSelection) return;
         if (_currentSelection.isEmpty) {
           SnackBarUtils.showWarning(
             context,

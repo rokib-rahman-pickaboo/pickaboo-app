@@ -26,17 +26,6 @@ class PlacePickerRepositoryImpl implements PlacePickerRepository {
         final entities = places.map((p) => p.toEntity()).toList();
         if (kDebugMode && entities.isNotEmpty) {
           final e = entities.first;
-          debugPrint(
-            '🗺️ [PlacePickerRepo] autocomplete → mapped first entity:\n'
-            '   address   : ${e.address}\n'
-            '   area      : ${e.area}\n'
-            '   city      : ${e.city}\n'
-            '   district  : ${e.district}\n'
-            '   division  : ${e.division}\n'
-            '   postCode  : ${e.postCode}\n'
-            '   subArea   : ${e.subArea}\n'
-            '   subDist   : ${e.subDistrict}',
-          );
         }
         return right(entities);
       },
@@ -62,18 +51,6 @@ class PlacePickerRepositoryImpl implements PlacePickerRepository {
           );
         }
         final entity = place.toEntity(latitude: latitude, longitude: longitude);
-        if (kDebugMode) {
-          debugPrint(
-            '🗺️ [PlacePickerRepo] reverseGeocode → mapped entity:\n'
-            '   address   : ${entity.address}\n'
-            '   area      : ${entity.area}\n'
-            '   city      : ${entity.city}\n'
-            '   district  : ${entity.district}\n'
-            '   division  : ${entity.division}   ← will be null if model has no field\n'
-            '   postCode  : ${entity.postCode}\n'
-            '   subDist   : ${entity.subDistrict}',
-          );
-        }
         return right(entity);
       },
     );

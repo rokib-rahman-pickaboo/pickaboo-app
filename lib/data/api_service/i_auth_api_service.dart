@@ -42,10 +42,6 @@ class IAuthApiService extends AuthApiService {
         data: data,
       );
 
-      if (kDebugMode) {
-        print("check_customer -> ${response.data}");
-      }
-
       final responseData = response.data;
 
       if (responseData is Map<String, dynamic>) {
@@ -56,9 +52,6 @@ class IAuthApiService extends AuthApiService {
         const ErrorResponse(message: 'Invalid customer status response format'),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("check_customer_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -76,19 +69,12 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("login -> ${response.data}");
-      }
-
       if (response.data is String) {
         return right(response.data.toString().replaceAll('"', ''));
       }
 
       return left(const ErrorResponse(message: 'Invalid login response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("login_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -104,19 +90,12 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("check_user_exists -> ${response.data}");
-      }
-
       if (response.data is Map<String, dynamic>) {
         return right(CheckUserResponse.fromJson(response.data));
       }
 
       return left(const ErrorResponse(message: 'Invalid response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("check_user_exists_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -131,10 +110,9 @@ class IAuthApiService extends AuthApiService {
     try {
       final platform = Platform.isAndroid ? 'android' : 'ios';
 
-      if (kDebugMode) {
-        print('[RECAPTCHA] sendOtp | resend=$resend rtokenPresent=${recaptchaToken != null} '
-            'rtokenLen=${recaptchaToken?.length ?? 0} platform=$platform');
-      }
+      debugPrint('[RECAPTCHA_API] 🌐 sendOtp POST -> ${ApiEndpoints.sendOtpUrl}');
+      debugPrint('[RECAPTCHA_API]    platform=$platform, mobile=$encryptedMobile, eventType=$eventType');
+      debugPrint('[RECAPTCHA_API]    rtokenLen=${recaptchaToken?.length ?? 0}, rtokenPreview=${recaptchaToken != null && recaptchaToken.length > 20 ? recaptchaToken.substring(0, 20) : recaptchaToken}...');
 
       final response = await _client.post(
         ApiEndpoints.sendOtpUrl,
@@ -152,9 +130,7 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("send_otp -> ${json.encode(response.data)}");
-      }
+      debugPrint('[RECAPTCHA_API] 📥 sendOtp response [${response.statusCode}]: ${response.data}');
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
@@ -179,9 +155,7 @@ class IAuthApiService extends AuthApiService {
         message: 'OTP has been sent to your mobile number.',
       ));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("send_otp_error -> $e");
-      }
+      debugPrint('[RECAPTCHA_API] ❌ sendOtp DioException [${e.response?.statusCode}]: ${e.response?.data ?? e.message}');
       return left(checkErrorResponse(e));
     }
   }
@@ -202,10 +176,6 @@ class IAuthApiService extends AuthApiService {
         },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print("verify_otp -> ${json.encode(response.data)}");
-      }
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
@@ -237,9 +207,6 @@ class IAuthApiService extends AuthApiService {
 
       return right('OTP verified successfully.');
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("verify_otp_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -254,11 +221,6 @@ class IAuthApiService extends AuthApiService {
         data: request.toJson(),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print("register_user -> ${response.data}");
-        print("register_user_type -> ${response.data.runtimeType}");
-      }
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
@@ -298,10 +260,6 @@ class IAuthApiService extends AuthApiService {
 
       return left(const ErrorResponse(message: 'Registration failed'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("register_user_error -> $e");
-        print("register_user_error_data -> ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -314,10 +272,9 @@ class IAuthApiService extends AuthApiService {
     try {
       final platform = Platform.isAndroid ? 'android' : 'ios';
 
-      if (kDebugMode) {
-        print('[RECAPTCHA] sendEmailOtp | rtokenPresent=${recaptchaToken != null} '
-            'rtokenLen=${recaptchaToken?.length ?? 0} platform=$platform');
-      }
+      debugPrint('[RECAPTCHA_API] 🌐 sendEmailOtp POST -> ${ApiEndpoints.sendEmailOtpUrl}');
+      debugPrint('[RECAPTCHA_API]    platform=$platform, email=$email');
+      debugPrint('[RECAPTCHA_API]    rtokenLen=${recaptchaToken?.length ?? 0}, rtokenPreview=${recaptchaToken != null && recaptchaToken.length > 20 ? recaptchaToken.substring(0, 20) : recaptchaToken}...');
 
       final response = await _client.post(
         ApiEndpoints.sendEmailOtpUrl,
@@ -329,9 +286,7 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("send_email_otp -> ${response.data}");
-      }
+      debugPrint('[RECAPTCHA_API] 📥 sendEmailOtp response [${response.statusCode}]: ${response.data}');
 
       if (response.data is Map<String, dynamic>) {
         return right(OtpResponse.fromJson(response.data));
@@ -339,9 +294,7 @@ class IAuthApiService extends AuthApiService {
 
       return left(const ErrorResponse(message: 'Failed to send email OTP'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("send_email_otp_error -> $e");
-      }
+      debugPrint('[RECAPTCHA_API] ❌ sendEmailOtp DioException [${e.response?.statusCode}]: ${e.response?.data ?? e.message}');
       return left(checkErrorResponse(e));
     }
   }
@@ -358,19 +311,12 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("verify_email_otp -> ${response.data}");
-      }
-
       if (response.data is String) {
         return right(response.data.toString());
       }
 
       return left(const ErrorResponse(message: 'Email verification failed'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("verify_email_otp_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -396,6 +342,10 @@ class IAuthApiService extends AuthApiService {
         queryParams['mobile'] = mobile;
       }
 
+      debugPrint('[RECAPTCHA_API] 🌐 sendForgotPasswordOtp POST -> ${ApiEndpoints.sendForgotPasswordOtpUrl}');
+      debugPrint('[RECAPTCHA_API]    platform=$platform, email=$email, mobile=$mobile');
+      debugPrint('[RECAPTCHA_API]    rtokenLen=${recaptchaToken?.length ?? 0}, rtokenPreview=${recaptchaToken != null && recaptchaToken.length > 20 ? recaptchaToken.substring(0, 20) : recaptchaToken}...');
+
       final response = await _client.post(
         ApiEndpoints.sendForgotPasswordOtpUrl,
         queryParameters: queryParams,
@@ -403,9 +353,7 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print('[sendForgotPasswordOtp] response: ${response.data}');
-      }
+      debugPrint('[RECAPTCHA_API] 📥 sendForgotPasswordOtp response [${response.statusCode}]: ${response.data}');
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
@@ -430,9 +378,7 @@ class IAuthApiService extends AuthApiService {
         message: 'OTP has been sent successfully.',
       ));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[sendForgotPasswordOtp] error: $e');
-      }
+      debugPrint('[RECAPTCHA_API] ❌ sendForgotPasswordOtp DioException [${e.response?.statusCode}]: ${e.response?.data ?? e.message}');
       return left(checkErrorResponse(e));
     }
   }
@@ -464,15 +410,17 @@ class IAuthApiService extends AuthApiService {
         body['email'] = email;
       }
 
+      debugPrint('[RECAPTCHA_API] 🌐 resetPassword POST -> ${ApiEndpoints.resetPasswordUrl}');
+      debugPrint('[RECAPTCHA_API]    mobile=$mobile, email=$email');
+      debugPrint('[RECAPTCHA_API]    rtokenLen=${recaptchaToken?.length ?? 0}, rtokenPreview=${recaptchaToken != null && recaptchaToken.length > 20 ? recaptchaToken.substring(0, 20) : recaptchaToken}...');
+
       final response = await _client.post(
         ApiEndpoints.resetPasswordUrl,
         data: body,
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print('[resetPassword] response: ${response.data}');
-      }
+      debugPrint('[RECAPTCHA_API] 📥 resetPassword response [${response.statusCode}]: ${response.data}');
 
       if (response.data is String) {
         final str = response.data.toString().replaceAll('"', '').trim();
@@ -512,9 +460,7 @@ class IAuthApiService extends AuthApiService {
 
       return right('Your password has been reset successfully.');
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[resetPassword] error: $e');
-      }
+      debugPrint('[RECAPTCHA_API] ❌ resetPassword DioException [${e.response?.statusCode}]: ${e.response?.data ?? e.message}');
       return left(checkErrorResponse(e));
     }
   }
@@ -529,10 +475,6 @@ class IAuthApiService extends AuthApiService {
         data: request.toJson(),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print("social_login -> ${response.data}");
-      }
 
       if (response.data is String) {
         final token = response.data.toString().replaceAll('"', '').trim();
@@ -555,9 +497,6 @@ class IAuthApiService extends AuthApiService {
 
       return left(const ErrorResponse(message: 'Social login failed'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("social_login_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -577,19 +516,12 @@ class IAuthApiService extends AuthApiService {
         options: Options(headers: headers),
       );
 
-      if (kDebugMode) {
-        print("get_current_user -> ${response.data}");
-      }
-
       if (response.data is Map<String, dynamic>) {
         return right(UserResponse.fromJson(response.data));
       }
 
       return left(const ErrorResponse(message: 'Failed to get user'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("get_current_user_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -597,9 +529,6 @@ class IAuthApiService extends AuthApiService {
   @override
   Future<Either<ErrorResponse, String>> loginWithGoogle() async {
     try {
-      if (kDebugMode) {
-        print('🔵 [API Service] loginWithGoogle: Starting...');
-      }
 
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
@@ -614,16 +543,7 @@ class IAuthApiService extends AuthApiService {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
-        if (kDebugMode) {
-          print('⚠️ [API Service] loginWithGoogle: User cancelled sign-in');
-        }
         return left(const ErrorResponse(message: 'Google sign-in cancelled'));
-      }
-
-      if (kDebugMode) {
-        print(
-          '🔵 [API Service] loginWithGoogle: User signed in: ${googleUser.email}',
-        );
       }
 
       final GoogleSignInAuthentication googleAuth =
@@ -631,21 +551,11 @@ class IAuthApiService extends AuthApiService {
       final String? accessToken = googleAuth.accessToken ?? googleAuth.idToken;
 
       if (kDebugMode) {
-        print(
-          '🔵 [API Service] loginWithGoogle: Access token received: ${accessToken != null ? "✅ Yes" : "❌ No"}',
-        );
         if (accessToken != null) {
-          print('   - Token length: ${accessToken.length}');
-          print(
-            '   - Token preview: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...',
-          );
         }
       }
 
       if (accessToken == null) {
-        if (kDebugMode) {
-          print('❌ [API Service] loginWithGoogle: Failed to get access token');
-        }
         return left(
           const ErrorResponse(message: 'Failed to get Google access token'),
         );
@@ -658,37 +568,17 @@ class IAuthApiService extends AuthApiService {
         source: source,
       );
 
-      if (kDebugMode) {
-        print('🔵 [API Service] loginWithGoogle: Calling socialLogin API...');
-        print('   - Provider: google');
-        print('   - Source: $source');
-        print('   - Endpoint: ${ApiEndpoints.socialLoginUrl}');
-      }
-
       final result = await socialLogin(request);
 
       result.fold(
         (error) {
-          if (kDebugMode) {
-            print('❌ [API Service] loginWithGoogle: API call failed');
-            print('   - Error: ${error.message}');
-          }
         },
         (token) {
-          if (kDebugMode) {
-            print('✅ [API Service] loginWithGoogle: API call successful');
-            print('   - Auth token received (length: ${token.length})');
-          }
         },
       );
 
       return result;
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('❌ [API Service] loginWithGoogle: Exception occurred');
-        print('   - Error: $e');
-        print('   - Stack trace: $stackTrace');
-      }
+    } catch (e) {
       return left(
         ErrorResponse(message: 'Google Sign-In failed: ${e.toString()}'),
       );
@@ -730,15 +620,8 @@ class IAuthApiService extends AuthApiService {
         source: source,
       );
 
-      if (kDebugMode) {
-        print("login_with_facebook -> initiating with source: $source");
-      }
-
       return await socialLogin(request);
     } catch (e) {
-      if (kDebugMode) {
-        print("login_with_facebook_error -> $e");
-      }
       return left(
         ErrorResponse(message: 'Facebook Sign-In failed: ${e.toString()}'),
       );
@@ -769,15 +652,8 @@ class IAuthApiService extends AuthApiService {
         source: 'ios',
       );
 
-      if (kDebugMode) {
-        print("login_with_apple -> initiating");
-      }
-
       return await socialLogin(request);
     } catch (e) {
-      if (kDebugMode) {
-        print("login_with_apple_error -> $e");
-      }
       return left(
         ErrorResponse(message: 'Apple Sign-In failed: ${e.toString()}'),
       );

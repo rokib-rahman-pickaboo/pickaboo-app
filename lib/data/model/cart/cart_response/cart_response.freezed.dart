@@ -3807,7 +3807,7 @@ mixin _$Item {
   @JsonKey(name: "name")
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: "price")
-  int? get price => throw _privateConstructorUsedError;
+  num? get price => throw _privateConstructorUsedError;
   @JsonKey(name: "product_type")
   String? get productType => throw _privateConstructorUsedError;
   @JsonKey(name: "quote_id")
@@ -3835,7 +3835,7 @@ abstract class $ItemCopyWith<$Res> {
     @JsonKey(name: "sku") String? sku,
     @JsonKey(name: "qty") int? qty,
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "price") int? price,
+    @JsonKey(name: "price") num? price,
     @JsonKey(name: "product_type") String? productType,
     @JsonKey(name: "quote_id") String? quoteId,
     @JsonKey(name: "extension_attributes")
@@ -3895,7 +3895,7 @@ class _$ItemCopyWithImpl<$Res, $Val extends Item>
                 freezed == price
                     ? _value.price
                     : price // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             productType:
                 freezed == productType
                     ? _value.productType
@@ -3946,7 +3946,7 @@ abstract class _$$ItemImplCopyWith<$Res> implements $ItemCopyWith<$Res> {
     @JsonKey(name: "sku") String? sku,
     @JsonKey(name: "qty") int? qty,
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "price") int? price,
+    @JsonKey(name: "price") num? price,
     @JsonKey(name: "product_type") String? productType,
     @JsonKey(name: "quote_id") String? quoteId,
     @JsonKey(name: "extension_attributes")
@@ -4004,7 +4004,7 @@ class __$$ItemImplCopyWithImpl<$Res>
             freezed == price
                 ? _value.price
                 : price // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         productType:
             freezed == productType
                 ? _value.productType
@@ -4056,7 +4056,7 @@ class _$ItemImpl implements _Item {
   final String? name;
   @override
   @JsonKey(name: "price")
-  final int? price;
+  final num? price;
   @override
   @JsonKey(name: "product_type")
   final String? productType;
@@ -4123,7 +4123,7 @@ abstract class _Item implements Item {
     @JsonKey(name: "sku") final String? sku,
     @JsonKey(name: "qty") final int? qty,
     @JsonKey(name: "name") final String? name,
-    @JsonKey(name: "price") final int? price,
+    @JsonKey(name: "price") final num? price,
     @JsonKey(name: "product_type") final String? productType,
     @JsonKey(name: "quote_id") final String? quoteId,
     @JsonKey(name: "extension_attributes")
@@ -4146,7 +4146,7 @@ abstract class _Item implements Item {
   String? get name;
   @override
   @JsonKey(name: "price")
-  int? get price;
+  num? get price;
   @override
   @JsonKey(name: "product_type")
   String? get productType;
@@ -4192,15 +4192,15 @@ mixin _$ItemExtensionAttributes {
   @JsonKey(name: "sold_by")
   String? get soldBy => throw _privateConstructorUsedError;
   @JsonKey(name: "regular_price")
-  int? get regularPrice => throw _privateConstructorUsedError;
+  num? get regularPrice => throw _privateConstructorUsedError;
   @JsonKey(name: "spacial_price")
-  int? get spacialPrice => throw _privateConstructorUsedError;
+  num? get spacialPrice => throw _privateConstructorUsedError;
   @JsonKey(name: "discount")
   String? get discount => throw _privateConstructorUsedError;
   @JsonKey(name: "custom_options")
   List<CustomOption>? get customOptions => throw _privateConstructorUsedError;
   @JsonKey(name: "item_subtotal")
-  int? get itemSubtotal => throw _privateConstructorUsedError;
+  num? get itemSubtotal => throw _privateConstructorUsedError;
   @JsonKey(name: "config_options")
   List<ConfigOption>? get configOptions => throw _privateConstructorUsedError;
   @JsonKey(name: "reward_points")
@@ -4233,11 +4233,11 @@ abstract class $ItemExtensionAttributesCopyWith<$Res> {
     @JsonKey(name: "brand") String? brand,
     @JsonKey(name: "image_url") String? imageUrl,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "spacial_price") int? spacialPrice,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "spacial_price") num? spacialPrice,
     @JsonKey(name: "discount") String? discount,
     @JsonKey(name: "custom_options") List<CustomOption>? customOptions,
-    @JsonKey(name: "item_subtotal") int? itemSubtotal,
+    @JsonKey(name: "item_subtotal") num? itemSubtotal,
     @JsonKey(name: "config_options") List<ConfigOption>? configOptions,
     @JsonKey(name: "reward_points") CartItemRewardPoints? rewardPoints,
   });
@@ -4331,12 +4331,12 @@ class _$ItemExtensionAttributesCopyWithImpl<
                 freezed == regularPrice
                     ? _value.regularPrice
                     : regularPrice // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             spacialPrice:
                 freezed == spacialPrice
                     ? _value.spacialPrice
                     : spacialPrice // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             discount:
                 freezed == discount
                     ? _value.discount
@@ -4351,7 +4351,7 @@ class _$ItemExtensionAttributesCopyWithImpl<
                 freezed == itemSubtotal
                     ? _value.itemSubtotal
                     : itemSubtotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             configOptions:
                 freezed == configOptions
                     ? _value.configOptions
@@ -4401,11 +4401,11 @@ abstract class _$$ItemExtensionAttributesImplCopyWith<$Res>
     @JsonKey(name: "brand") String? brand,
     @JsonKey(name: "image_url") String? imageUrl,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "spacial_price") int? spacialPrice,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "spacial_price") num? spacialPrice,
     @JsonKey(name: "discount") String? discount,
     @JsonKey(name: "custom_options") List<CustomOption>? customOptions,
-    @JsonKey(name: "item_subtotal") int? itemSubtotal,
+    @JsonKey(name: "item_subtotal") num? itemSubtotal,
     @JsonKey(name: "config_options") List<ConfigOption>? configOptions,
     @JsonKey(name: "reward_points") CartItemRewardPoints? rewardPoints,
   });
@@ -4500,12 +4500,12 @@ class __$$ItemExtensionAttributesImplCopyWithImpl<$Res>
             freezed == regularPrice
                 ? _value.regularPrice
                 : regularPrice // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         spacialPrice:
             freezed == spacialPrice
                 ? _value.spacialPrice
                 : spacialPrice // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         discount:
             freezed == discount
                 ? _value.discount
@@ -4520,7 +4520,7 @@ class __$$ItemExtensionAttributesImplCopyWithImpl<$Res>
             freezed == itemSubtotal
                 ? _value.itemSubtotal
                 : itemSubtotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         configOptions:
             freezed == configOptions
                 ? _value._configOptions
@@ -4609,10 +4609,10 @@ class _$ItemExtensionAttributesImpl implements _ItemExtensionAttributes {
   final String? soldBy;
   @override
   @JsonKey(name: "regular_price")
-  final int? regularPrice;
+  final num? regularPrice;
   @override
   @JsonKey(name: "spacial_price")
-  final int? spacialPrice;
+  final num? spacialPrice;
   @override
   @JsonKey(name: "discount")
   final String? discount;
@@ -4629,7 +4629,7 @@ class _$ItemExtensionAttributesImpl implements _ItemExtensionAttributes {
 
   @override
   @JsonKey(name: "item_subtotal")
-  final int? itemSubtotal;
+  final num? itemSubtotal;
   final List<ConfigOption>? _configOptions;
   @override
   @JsonKey(name: "config_options")
@@ -4743,11 +4743,11 @@ abstract class _ItemExtensionAttributes implements ItemExtensionAttributes {
     @JsonKey(name: "brand") final String? brand,
     @JsonKey(name: "image_url") final String? imageUrl,
     @JsonKey(name: "sold_by") final String? soldBy,
-    @JsonKey(name: "regular_price") final int? regularPrice,
-    @JsonKey(name: "spacial_price") final int? spacialPrice,
+    @JsonKey(name: "regular_price") final num? regularPrice,
+    @JsonKey(name: "spacial_price") final num? spacialPrice,
     @JsonKey(name: "discount") final String? discount,
     @JsonKey(name: "custom_options") final List<CustomOption>? customOptions,
-    @JsonKey(name: "item_subtotal") final int? itemSubtotal,
+    @JsonKey(name: "item_subtotal") final num? itemSubtotal,
     @JsonKey(name: "config_options") final List<ConfigOption>? configOptions,
     @JsonKey(name: "reward_points") final CartItemRewardPoints? rewardPoints,
   }) = _$ItemExtensionAttributesImpl;
@@ -4784,10 +4784,10 @@ abstract class _ItemExtensionAttributes implements ItemExtensionAttributes {
   String? get soldBy;
   @override
   @JsonKey(name: "regular_price")
-  int? get regularPrice;
+  num? get regularPrice;
   @override
   @JsonKey(name: "spacial_price")
-  int? get spacialPrice;
+  num? get spacialPrice;
   @override
   @JsonKey(name: "discount")
   String? get discount;
@@ -4796,7 +4796,7 @@ abstract class _ItemExtensionAttributes implements ItemExtensionAttributes {
   List<CustomOption>? get customOptions;
   @override
   @JsonKey(name: "item_subtotal")
-  int? get itemSubtotal;
+  num? get itemSubtotal;
   @override
   @JsonKey(name: "config_options")
   List<ConfigOption>? get configOptions;

@@ -25,6 +25,7 @@ class PaymentMethodListSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Skeletonizer(
       enabled: true,
+      effect: AppDecorations.shimmerEffect,
       child: AppCard(
         padding: EdgeInsets.zero,
         child: Column(
@@ -119,6 +120,7 @@ class PaymentSummarySkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Skeletonizer(
       enabled: true,
+      effect: AppDecorations.shimmerEffect,
       child: Container(
         padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(

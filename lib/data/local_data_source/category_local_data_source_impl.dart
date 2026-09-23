@@ -20,9 +20,6 @@ class CategoryLocalDataSourceImpl extends CategoryLocalDataSource {
     final box = await _cacheBox();
 
     if (box.isEmpty) {
-      if (kDebugMode) {
-        print('📦 Category Cache: Empty');
-      }
       return null;
     }
 
@@ -32,21 +29,23 @@ class CategoryLocalDataSourceImpl extends CategoryLocalDataSource {
     }
 
     if (wrapper.isExpired) {
-      if (kDebugMode) {
-        print('⏰ Category Cache: Expired (cached ${wrapper.cachedAt})');
-      }
       await box.clear();
       return null;
     }
 
     if (kDebugMode) {
       final remaining = wrapper.timeUntilExpiration;
-      print(
-        '✅ Category Cache: Valid (${wrapper.categories.length} items, expires in ${remaining.inHours}h ${remaining.inMinutes % 60}m)',
-      );
     }
 
     return wrapper.categories;
+  }
+
+  @override
+  Future<List<CategoryResponse>?> getCachedCategories() async {
+    final box = await _cacheBox();
+    if (box.isEmpty) return null;
+    final wrapper = box.getAt(0);
+    return wrapper?.categories;
   }
 
   @override
@@ -61,19 +60,11 @@ class CategoryLocalDataSourceImpl extends CategoryLocalDataSource {
 
     await box.add(wrapper);
 
-    if (kDebugMode) {
-      print(
-        '📦 Category Cache: Saved ${categories.length} categories at ${wrapper.cachedAt}',
-      );
-    }
   }
 
   @override
   Future<void> clearCategories() async {
     final box = await _cacheBox();
     await box.clear();
-    if (kDebugMode) {
-      print('📦 Category Cache: Cleared all categories');
-    }
   }
 }

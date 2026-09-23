@@ -19,10 +19,11 @@ import 'package:internet_connection_checker/internet_connection_checker.dart'
 
 import 'core/cache/auth_cache_manager.dart' as _i475;
 import 'core/cache/category_facet_cache.dart' as _i655;
-import 'core/cache/category_preload_cache.dart' as _i656;
 import 'core/cache/category_filter_store.dart' as _i226;
+import 'core/cache/category_preload_cache.dart' as _i547;
 import 'core/cache/special_category_filter_store.dart' as _i568;
 import 'core/endpoints/api_endpoints.dart' as _i560;
+import 'core/services/category_preload_queue.dart' as _i154;
 import 'core/utils/encryption_helper.dart' as _i40;
 import 'data/api_service/auth_api_service.dart' as _i925;
 import 'data/api_service/cart_api_service.dart' as _i411;
@@ -224,13 +225,13 @@ Future<_i174.GetIt> $initGetIt(
   gh.lazySingleton<_i226.CategoryFilterStore>(
     () => _i226.CategoryFilterStore(),
   );
+  gh.lazySingleton<_i547.CategoryPreloadCache>(
+    () => _i547.CategoryPreloadCache(),
+  );
   gh.lazySingleton<_i568.SpecialCategoryFilterStore>(
     () => _i568.SpecialCategoryFilterStore(),
   );
   gh.lazySingleton<_i655.CategoryFacetCache>(() => _i655.CategoryFacetCache());
-  gh.lazySingleton<_i656.CategoryPreloadCache>(
-    () => _i656.CategoryPreloadCache(),
-  );
   gh.lazySingleton<_i475.AuthCacheManager>(() => _i475.AuthCacheManager());
   gh.lazySingleton<_i40.EncryptionHelper>(() => _i40.EncryptionHelper());
   gh.lazySingleton<_i462.SavedPaymentMapper>(() => _i462.SavedPaymentMapper());
@@ -268,6 +269,9 @@ Future<_i174.GetIt> $initGetIt(
     () => _i572.TicketLocalDataSourceImpl(),
   );
   gh.lazySingleton<_i437.IPermissionService>(() => _i902.PermissionService());
+  gh.lazySingleton<_i154.CategoryPreloadQueue>(
+    () => _i154.CategoryPreloadQueue(gh<_i547.CategoryPreloadCache>()),
+  );
   gh.factory<_i481.AuthInterceptor>(
     () => _i481.AuthInterceptor(
       gh<_i475.AuthCacheManager>(),
@@ -467,16 +471,17 @@ Future<_i174.GetIt> $initGetIt(
       gh<_i703.AnalyticsService>(),
     ),
   );
-  gh.factory<_i65.CategoryBannerBloc>(
-    () => _i65.CategoryBannerBloc(gh<_i377.CategoryBannerRepository>()),
-  );
   gh.factory<_i915.CategoryProductsBloc>(
     () => _i915.CategoryProductsBloc(
       gh<_i570.ProductRepository>(),
       gh<_i703.AnalyticsService>(),
       gh<_i226.CategoryFilterStore>(),
       gh<_i655.CategoryFacetCache>(),
+      gh<_i547.CategoryPreloadCache>(),
     ),
+  );
+  gh.factory<_i65.CategoryBannerBloc>(
+    () => _i65.CategoryBannerBloc(gh<_i377.CategoryBannerRepository>()),
   );
   gh.factory<_i158.BrandProductsBloc>(
     () => _i158.BrandProductsBloc(
@@ -506,14 +511,6 @@ Future<_i174.GetIt> $initGetIt(
       gh<_i907.CartRepository>(),
       gh<_i475.AuthCacheManager>(),
       gh<_i703.AnalyticsService>(),
-    ),
-  );
-  gh.factory<_i434.SpecialCategoryProductsBloc>(
-    () => _i434.SpecialCategoryProductsBloc(
-      gh<_i570.ProductRepository>(),
-      gh<_i703.AnalyticsService>(),
-      gh<_i568.SpecialCategoryFilterStore>(),
-      gh<_i655.CategoryFacetCache>(),
     ),
   );
   gh.factory<_i780.HomeBannerBloc>(
@@ -572,6 +569,15 @@ Future<_i174.GetIt> $initGetIt(
     () => _i449.ReviewBloc(
       gh<_i570.ProductRepository>(),
       gh<_i475.AuthCacheManager>(),
+    ),
+  );
+  gh.factory<_i434.SpecialCategoryProductsBloc>(
+    () => _i434.SpecialCategoryProductsBloc(
+      gh<_i570.ProductRepository>(),
+      gh<_i703.AnalyticsService>(),
+      gh<_i568.SpecialCategoryFilterStore>(),
+      gh<_i655.CategoryFacetCache>(),
+      gh<_i547.CategoryPreloadCache>(),
     ),
   );
   gh.factory<_i727.ClubPointBloc>(

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/cache/category_preload_cache.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
@@ -90,10 +89,6 @@ class CategoryPreloadQueue {
       // Verify again in case it became fresh during the wait
       if (cacheKey.isNotEmpty && !_cache.isCategoryFresh(cacheKey)) {
         await _fetchCategory(category, cacheKey);
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ [CategoryPreloadQueue] error: $e');
       }
     } finally {
       _isProcessing = false;

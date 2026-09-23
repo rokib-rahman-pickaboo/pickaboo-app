@@ -55,7 +55,6 @@ extension CategoryProductResponseMapper on CategoryProduct {
   );
 }
 
-
 extension CategorySliderResponseMapper on CategorySlider {
   entity.CategorySliderEntity toEntity() => entity.CategorySliderEntity(
     name: name ?? '',

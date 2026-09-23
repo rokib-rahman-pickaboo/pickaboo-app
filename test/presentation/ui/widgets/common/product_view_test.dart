@@ -335,6 +335,51 @@ void main() {
       expect(find.textContaining('2-3 days'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+        'SliderProductView delivery row has symmetrical vertical spacing between divider and card bottom',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(375, 812),
+          builder: (context, child) => MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (ctx) {
+                  final height = SliderProductView.calculateCardHeight(ctx, 140);
+                  return SizedBox(
+                    width: 140,
+                    height: height,
+                    child: SliderProductView(
+                      product: sample2LineInStock,
+                      width: 140,
+                      onTap: (_) {},
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final dividerBottom = tester.getBottomLeft(find.byType(Divider)).dy;
+      // The delivery SizedBox is height: 14.h
+      final deliverySizedBoxFinder = find.ancestor(
+        of: findFastDelivery(),
+        matching: find.byType(SizedBox),
+      ).first;
+      final deliveryTop = tester.getTopLeft(deliverySizedBoxFinder).dy;
+      final deliveryBottom = tester.getBottomLeft(deliverySizedBoxFinder).dy;
+      final cardBottom = tester.getBottomLeft(find.byType(SliderProductView)).dy;
+
+      final topSpacing = deliveryTop - dividerBottom;
+      final bottomSpacing = cardBottom - deliveryBottom;
+
+      // Delivery text is vertically centered with balanced top margin (to divider) and bottom margin (to card bottom)
+      expect((topSpacing - bottomSpacing).abs(), lessThanOrEqualTo(3.0));
+    });
   });
 
   test('ProductEntityX handles delivery text formatting properly', () {

@@ -26,6 +26,7 @@ class CartItemCard extends StatelessWidget {
   final bool isQuantityModifiable;
   final bool showDivider;
   final bool showOuterCard;
+  final bool isLoading;
 
   const CartItemCard({
     super.key,
@@ -37,6 +38,7 @@ class CartItemCard extends StatelessWidget {
     this.isQuantityModifiable = false,
     this.showDivider = false,
     this.showOuterCard = false,
+    this.isLoading = false,
   });
 
   String _formatPrice(double price) {
@@ -49,12 +51,22 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final price = item.customOptions.isNotEmpty
+    final effectiveQty = item.qty > 0 ? item.qty : 1;
+    final unitPrice = item.customOptions.isNotEmpty
         ? item.price
         : (item.specialPrice > 0 ? item.specialPrice : item.price);
-    final originalPrice = item.regularPrice;
+    final unitOriginalPrice = item.regularPrice;
+
+    // Quantity-wise line item total price: prefer backend item.rowTotal if positive and >= unitPrice,
+    // otherwise compute unitPrice * effectiveQty
+    final lineTotalPrice = (item.rowTotal > 0 && item.rowTotal >= unitPrice)
+        ? item.rowTotal
+        : (unitPrice * effectiveQty);
+
+    final lineOriginalPrice =
+        (unitOriginalPrice > 0 ? unitOriginalPrice : unitPrice) * effectiveQty;
     final hasDiscount =
-        item.specialPrice > 0 && item.specialPrice < item.regularPrice;
+        unitOriginalPrice > unitPrice && lineOriginalPrice > lineTotalPrice;
 
     final itemContent = Padding(
       padding: EdgeInsets.all(10.w),
@@ -230,34 +242,51 @@ class CartItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Price on the Left (+ Strikethrough if discounted)
+                    // Price on the Left (+ Strikethrough if discounted, + unit breakdown if qty > 1)
                     Expanded(
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 6.w,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            '৳${_formatPrice(price)}',
-                            style: AppTypography.priceStandard.copyWith(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.navy,
-                            ),
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6.w,
+                            children: [
+                              Text(
+                                '৳${_formatPrice(lineTotalPrice)}',
+                                style: AppTypography.priceStandard.copyWith(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.navy,
+                                ),
+                              ),
+                              if (hasDiscount)
+                                Text(
+                                  '৳${_formatPrice(lineOriginalPrice)}',
+                                  style: AppTypography.priceStrike.copyWith(
+                                    fontSize: 10.5.sp,
+                                  ),
+                                ),
+                            ],
                           ),
-                          if (hasDiscount)
+                          if (effectiveQty > 1) ...[
+                            SizedBox(height: 2.h),
                             Text(
-                              '৳${_formatPrice(originalPrice)}',
-                              style: AppTypography.priceStrike.copyWith(
+                              '৳${_formatPrice(unitPrice)} x $effectiveQty',
+                              style: AppTypography.bodySmall.copyWith(
                                 fontSize: 10.5.sp,
+                                color: AppColors.muted,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
+                          ],
                         ],
                       ),
                     ),
                     SizedBox(width: 8.w),
 
                     // Qty Dropdown Pill on the Right (Dropdown opens just below)
-                    if (isQuantityModifiable)
+                    if (isQuantityModifiable && !isLoading)
                       PopupMenuButton<int>(
                         initialValue: item.qty,
                         onSelected: onQuantityChanged,
@@ -350,12 +379,35 @@ class CartItemCard extends StatelessWidget {
                           borderRadius: AppRadius.smRadius,
                           border: Border.all(color: AppColors.border),
                         ),
-                        child: Text(
-                          'Qty: ${item.qty}',
-                          style: AppTypography.titleSmall.copyWith(
-                            fontSize: 11.5.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Qty: ${item.qty}',
+                              style: AppTypography.titleSmall.copyWith(
+                                fontSize: 11.5.sp,
+                                fontWeight: FontWeight.w600,
+                                color: isLoading
+                                    ? AppColors.muted
+                                    : AppColors.navy,
+                              ),
+                            ),
+                            if (isLoading) ...[
+                              SizedBox(width: 4.w),
+                              SizedBox(
+                                width: 10.w,
+                                height: 10.w,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 1.5.w,
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                    AppColors.pickabooBlue,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                   ],

@@ -59,7 +59,6 @@ class TicketAttachmentPicker extends StatelessWidget {
           }
         }
       } catch (e) {
-        debugPrint('Failed to compress image: $e');
       }
     }
     return file;
@@ -223,7 +222,6 @@ class TicketAttachmentPicker extends StatelessWidget {
         }
       }
     } catch (e) {
-      debugPrint('Error picking from gallery: $e');
     }
   }
 
@@ -257,7 +255,6 @@ class TicketAttachmentPicker extends StatelessWidget {
         onFilesChanged(updated);
       }
     } catch (e) {
-      debugPrint('Error capturing photo: $e');
     }
   }
 
@@ -313,7 +310,6 @@ class TicketAttachmentPicker extends StatelessWidget {
         }
       }
     } catch (e) {
-      debugPrint('Error picking files: $e');
     }
   }
 

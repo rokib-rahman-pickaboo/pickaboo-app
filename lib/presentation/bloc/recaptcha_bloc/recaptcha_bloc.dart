@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'recaptcha_event.dart';
@@ -6,7 +5,6 @@ import 'recaptcha_state.dart';
 import '../../../data/services/recaptcha_service.dart';
 
 void _rlog(String msg) {
-  debugPrint('[RECAPTCHA] $msg');
 }
 
 @injectable

@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -24,12 +22,6 @@ class ICartApiService extends CartApiService {
       "This discount code isn't valid. Please check the code and try again.";
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (kDebugMode) {
-      debugPrint(
-        '🌐 SERVER ERROR: ${err.requestOptions.method} ${err.requestOptions.uri} '
-        'Status: ${err.response?.statusCode ?? "no response"} Message: ${err.message}',
-      );
-    }
     return ApiErrorParser.parse(err);
   }
 
@@ -37,10 +29,6 @@ class ICartApiService extends CartApiService {
   Future<Either<ErrorResponse, String>> createCart() async {
     try {
       final response = await _client.post(ApiEndpoints.createCartUrl);
-
-      if (kDebugMode) {
-        print("create_cart -> ${response.data}");
-      }
 
       if (response.data is String) {
         return right(response.data.toString().replaceAll('"', ''));
@@ -50,9 +38,6 @@ class ICartApiService extends CartApiService {
 
       return left(const ErrorResponse(message: 'Invalid cart response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("create_cart_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -62,10 +47,6 @@ class ICartApiService extends CartApiService {
     try {
       final response = await _client.get(ApiEndpoints.getCartUrl);
 
-      if (kDebugMode) {
-        print("get_cart -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final result = CheckoutResponse.fromJson(data);
@@ -74,9 +55,6 @@ class ICartApiService extends CartApiService {
 
       return left(const ErrorResponse(message: 'Invalid cart response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("get_cart_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -89,10 +67,6 @@ class ICartApiService extends CartApiService {
             .createCartUrl,
       );
 
-      if (kDebugMode) {
-        print("get_basic_cart -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final result = CartResponse.fromJson(data);
@@ -101,9 +75,6 @@ class ICartApiService extends CartApiService {
 
       return left(const ErrorResponse(message: 'Invalid cart response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("get_basic_cart_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -112,19 +83,12 @@ class ICartApiService extends CartApiService {
   Future<Either<ErrorResponse, CartItemResponse>> addItem({
     required AddCartItemRequest request,
   }) async {
-    if (kDebugMode) {
-      print("add_cart_request_config -> ${json.encode(request.toJson())}");
-    }
 
     try {
       final response = await _client.post(
         ApiEndpoints.addCartItemUrl,
         data: request.toJson(),
       );
-
-      if (kDebugMode) {
-        print("add_cart_item -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -134,9 +98,6 @@ class ICartApiService extends CartApiService {
 
       return left(const ErrorResponse(message: 'Invalid add item response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("add_cart_item_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -161,10 +122,6 @@ class ICartApiService extends CartApiService {
         data: request.toJson(),
       );
 
-      if (kDebugMode) {
-        print("update_cart_item -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final result = CartItemResponse.fromJson(data);
@@ -173,9 +130,6 @@ class ICartApiService extends CartApiService {
 
       return left(const ErrorResponse(message: 'Invalid update item response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("update_cart_item_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -187,15 +141,8 @@ class ICartApiService extends CartApiService {
         ApiEndpoints.deleteCartItemUrl(itemId: itemId),
       );
 
-      if (kDebugMode) {
-        print("delete_cart_item -> ${response.data}");
-      }
-
       return right(response.data == true || response.statusCode == 200);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("delete_cart_item_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -207,16 +154,8 @@ class ICartApiService extends CartApiService {
   }) async {
     try {
       final url = ApiEndpoints.applyCouponUrl(cartId: cartId, coupon: coupon);
-      if (kDebugMode) {
-        print("🎟️ apply_coupon_url -> $url");
-      }
 
       final response = await _client.put(url);
-
-      if (kDebugMode) {
-        print("🎟️ apply_coupon_response -> ${response.data}");
-        print("🎟️ apply_coupon_status -> ${response.statusCode}");
-      }
 
       final data = response.data;
 
@@ -250,10 +189,6 @@ class ICartApiService extends CartApiService {
         const ErrorResponse(success: false, message: _invalidCouponMessage),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("❌ apply_coupon_error -> $e");
-        print("❌ apply_coupon_error_response -> ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -267,15 +202,8 @@ class ICartApiService extends CartApiService {
         ApiEndpoints.removeCouponUrl(cartId: cartId),
       );
 
-      if (kDebugMode) {
-        print("remove_coupon -> ${response.data}");
-      }
-
       return right(response.data == true || response.statusCode == 200);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("remove_coupon_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -292,10 +220,6 @@ class ICartApiService extends CartApiService {
           pointAmount: pointAmount,
         ),
       );
-
-      if (kDebugMode) {
-        print("apply_reward_points -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -332,10 +256,6 @@ class ICartApiService extends CartApiService {
         ),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("apply_reward_points_error -> $e");
-        print("apply_reward_points_error_response -> ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -352,15 +272,8 @@ class ICartApiService extends CartApiService {
         ApiEndpoints.emptyCartUrl(quoteId: quoteId),
       );
 
-      if (kDebugMode) {
-        print("empty_cart -> ${response.data}");
-      }
-
       return right(response.data == true || response.statusCode == 200);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("empty_cart_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -372,13 +285,6 @@ class ICartApiService extends CartApiService {
     required int itemId,
   }) async {
     try {
-      if (kDebugMode) {
-        print("=== SAVE FOR LATER REQUEST ===");
-        print("Endpoint: ${ApiEndpoints.saveForLaterUrl}");
-        print("customerId: $customerId");
-        print("cart_id: $cartId");
-        print("item_id: $itemId");
-      }
 
       final response = await _client.post(
         ApiEndpoints.saveForLaterUrl,
@@ -389,23 +295,8 @@ class ICartApiService extends CartApiService {
         },
       );
 
-      if (kDebugMode) {
-        print("=== SAVE FOR LATER RESPONSE ===");
-        print("Status Code: ${response.statusCode}");
-        print("Response Data: ${response.data}");
-        print("Response Type: ${response.data.runtimeType}");
-      }
-
       return right(response.data == true || response.statusCode == 200);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("=== SAVE FOR LATER ERROR ===");
-        print("Error Type: ${e.type}");
-        print("Status Code: ${e.response?.statusCode}");
-        print("Error Message: ${e.message}");
-        print("Response Data: ${e.response?.data}");
-        print("Full Error: $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -418,19 +309,12 @@ class ICartApiService extends CartApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("create_guest_cart -> ${response.data}");
-      }
-
       if (response.data is String) {
         return right(response.data.toString().replaceAll('"', ''));
       }
 
       return left(const ErrorResponse(message: 'Invalid guest cart response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("create_guest_cart_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -440,20 +324,11 @@ class ICartApiService extends CartApiService {
     required String cartId,
   }) async {
     try {
-      if (kDebugMode) {
-        print(
-          "get_guest_request -> ${ApiEndpoints.getGuestCartUrl(cartId: cartId)}",
-        );
-      }
 
       final response = await _client.get(
         ApiEndpoints.getGuestCartUrl(cartId: cartId),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print("get_guest_cart -> ${json.encode(response.data)}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -463,9 +338,6 @@ class ICartApiService extends CartApiService {
 
       return left(const ErrorResponse(message: 'Invalid guest cart response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("get_guest_cart_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -482,10 +354,6 @@ class ICartApiService extends CartApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("add_guest_cart_item -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final result = CartItemResponse.fromJson(data);
@@ -496,9 +364,6 @@ class ICartApiService extends CartApiService {
         const ErrorResponse(message: 'Invalid add guest item response'),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("add_guest_cart_item_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -525,10 +390,6 @@ class ICartApiService extends CartApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("update_guest_cart_item -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final result = CartItemResponse.fromJson(data);
@@ -539,9 +400,6 @@ class ICartApiService extends CartApiService {
         const ErrorResponse(message: 'Invalid update guest item response'),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("update_guest_cart_item_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -557,15 +415,8 @@ class ICartApiService extends CartApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("delete_guest_cart_item -> ${response.data}");
-      }
-
       return right(response.data == true || response.statusCode == 200);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("delete_guest_cart_item_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -583,15 +434,8 @@ class ICartApiService extends CartApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print("merge_guest_cart -> ${response.data}");
-      }
-
       return right(response.data == true);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("merge_guest_cart_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }

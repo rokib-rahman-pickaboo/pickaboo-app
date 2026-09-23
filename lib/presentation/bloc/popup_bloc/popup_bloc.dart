@@ -23,15 +23,9 @@ class PopupBloc extends Bloc<PopupEvent, PopupState> {
           final result = await repository.getPopupContent();
           result.fold(
             (l) {
-              if (kDebugMode) {
-                print('❌ [PopupBloc] Error: ${l.message}');
-              }
               emit(state.copyWith(error: l, status: PopupStatus.error));
             },
             (r) async {
-              if (kDebugMode) {
-                print('✅ [PopupBloc] Success: ${r.title}, Active: ${r.active}');
-              }
               final offerTitles = (r.title).split('&&');
               final linkType = offerTitles.isNotEmpty ? offerTitles[0] : '';
               final link = offerTitles.length > 1 ? offerTitles[1] : '';
@@ -42,12 +36,6 @@ class PopupBloc extends Bloc<PopupEvent, PopupState> {
               final match = regex.firstMatch(r.content);
               if (match != null) {
                 imageUrl = match.group(1) ?? '';
-              }
-
-              if (kDebugMode) {
-                print(
-                  '📝 [PopupBloc] Parsed: linkType=$linkType, link=$link, name=$name, imageUrl=$imageUrl',
-                );
               }
 
               emit(

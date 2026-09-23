@@ -36,6 +36,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   static String? get cachedCartId => _cachedCartId;
 
   int _estimateToken = 0;
+  int _shippingMethodToken = 0;
 
   String? _selectedBkashAgreementId;
 
@@ -61,7 +62,10 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<_UpdateShippingAddress>(_onUpdateShippingAddress);
     on<_UpdateBillingAddress>(_onUpdateBillingAddress);
     on<_EstimateShipping>(_onEstimateShipping, transformer: restartable());
-    on<_SelectShippingMethod>(_onSelectShippingMethod);
+    on<_SelectShippingMethod>(
+      _onSelectShippingMethod,
+      transformer: restartable(),
+    );
     on<_SelectPaymentMethod>(_onSelectPaymentMethod);
     on<_PlaceOrder>(_onPlaceOrder, transformer: droppable());
     on<_ProcessPayment>(_onProcessPayment);
@@ -95,16 +99,12 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _LoadCheckout event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) print('🔵 CheckoutBloc: _onLoadCheckout called');
     emit(CheckoutState.loading(lastCheckout: _currentCheckout));
 
     final result = await repository.getCartCheckout();
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ CheckoutBloc: Load checkout error - ${error.message}');
-        }
         emit(CheckoutState.error(error: error));
       },
       (checkout) {
@@ -114,55 +114,42 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         _availableShippingMethods = [];
         _availablePaymentMethods = [];
 
-        if (checkout.cart.shippingAddress != null &&
-            checkout.cart.shippingAddress?.firstname?.isNotEmpty == true) {
-          _selectedShippingAddress = checkout.cart.shippingAddress;
-          if (kDebugMode) {
-            print(
-              "✅ CheckoutBloc: Auto-selected shipping from CART: ${_selectedShippingAddress!.firstname}",
-            );
+        if (_selectedShippingAddress == null) {
+          if (checkout.cart.shippingAddress != null &&
+              checkout.cart.shippingAddress?.firstname?.isNotEmpty == true) {
+            _selectedShippingAddress = checkout.cart.shippingAddress;
+          } else if (checkout.cart.customer?.addresses.isNotEmpty ?? false) {
+            _selectedShippingAddress = checkout.cart.customer!.addresses
+                .firstWhere(
+                  (element) => element.defaultShipping,
+                  orElse: () => checkout.cart.customer!.addresses.first,
+                );
           }
-        } else if (checkout.cart.customer?.addresses.isNotEmpty ?? false) {
-          _selectedShippingAddress = checkout.cart.customer!.addresses
-              .firstWhere(
-                (element) => element.defaultShipping,
-                orElse: () => checkout.cart.customer!.addresses.first,
-              );
         }
 
-        _selectedBillingAddress = null;
+        if (_selectedBillingAddress == null) {
+          if (checkout.cart.customer?.addresses.isNotEmpty ?? false) {
+            try {
+              _selectedBillingAddress = checkout.cart.customer!.addresses
+                  .firstWhere((element) => element.defaultBilling);
+            } catch (_) {}
+          }
 
-        if (checkout.cart.customer?.addresses.isNotEmpty ?? false) {
-          try {
-            _selectedBillingAddress = checkout.cart.customer!.addresses
-                .firstWhere((element) => element.defaultBilling);
-          } catch (_) {}
-        }
+          if (_selectedBillingAddress == null &&
+              checkout.cart.billingAddress?.firstname?.isNotEmpty == true) {
+            _selectedBillingAddress = checkout.cart.billingAddress;
+          }
 
-        if (_selectedBillingAddress == null &&
-            checkout.cart.billingAddress?.firstname?.isNotEmpty == true) {
-          _selectedBillingAddress = checkout.cart.billingAddress;
-        }
-
-        if (_selectedBillingAddress == null &&
-            _selectedShippingAddress != null) {
-          _selectedBillingAddress = _selectedShippingAddress;
+          if (_selectedBillingAddress == null &&
+              _selectedShippingAddress != null) {
+            _selectedBillingAddress = _selectedShippingAddress;
+          }
         }
 
         if (kDebugMode) {
-          print('✅ CheckoutBloc: Checkout loaded successfully');
-          print('  Cart ID: ${checkout.cart.id}');
-          print('  Items count: ${checkout.cart.itemsCount}');
-          print('  Grand Total: ${checkout.cartTotals.grandTotal}');
           if (_selectedShippingAddress != null) {
-            print(
-              '  Auto-selected Shipping: ${_selectedShippingAddress!.firstname} ${_selectedShippingAddress!.lastname}',
-            );
           }
           if (_selectedBillingAddress != null) {
-            print(
-              '  Auto-selected Billing: ${_selectedBillingAddress!.firstname} ${_selectedBillingAddress!.lastname}',
-            );
           }
         }
 
@@ -191,13 +178,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _UpdateShippingAddress event,
     Emitter<CheckoutState> emit,
   ) {
-    if (kDebugMode) {
-      print('📍 CheckoutBloc: Updating shipping address');
-      print('  City: ${event.address.city}');
-    }
 
     _selectedShippingAddress = event.address;
-    _selectedShippingMethodCode = null;
+    _selectedBillingAddress ??= event.address;
     _availableShippingMethods = [];
     _availablePaymentMethods = [];
 
@@ -222,10 +205,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _UpdateBillingAddress event,
     Emitter<CheckoutState> emit,
   ) {
-    if (kDebugMode) {
-      print('📍 CheckoutBloc: Updating billing address');
-      print('  City: ${event.address.city}');
-    }
 
     _selectedBillingAddress = event.address;
 
@@ -270,10 +249,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _EstimateShipping event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🚚 CheckoutBloc: Estimating shipping...');
-      print('  Address: ${event.address.city}, ${event.address.postcode}');
-    }
 
     final token = ++_estimateToken;
 
@@ -284,40 +259,50 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     );
 
     if (token != _estimateToken) {
-      if (kDebugMode) {
-        print('🚚 CheckoutBloc: dropping stale estimate #$token');
-      }
       return;
     }
 
     result.fold(
       (error) {
-        if (kDebugMode) print('Error estimating shipping: ${error.message}');
         _availableShippingMethods = [];
         _selectedShippingMethodCode = null;
         emit(CheckoutState.error(error: error, lastCheckout: _currentCheckout));
         if (_currentCheckout != null) emit(_checkoutLoadedState());
       },
       (methods) {
-        if (kDebugMode) print('Shipping methods estimated: ${methods.length}');
         _availableShippingMethods = methods;
 
         if (methods.isNotEmpty) {
-          final first = methods.first;
-          _selectedShippingMethodCode =
-              "${first.carrierCode}_${first.methodCode}";
-          if (kDebugMode) {
-            print(
-              '✅ CheckoutBloc: Auto-selected shipping method: $_selectedShippingMethodCode',
+          final isCurrentValid = _selectedShippingMethodCode != null &&
+              methods.any(
+                (m) =>
+                    "${m.carrierCode}_${m.methodCode}" ==
+                    _selectedShippingMethodCode,
+              );
+
+          if (isCurrentValid) {
+            // Keep user's selection and ensure it is saved with the current address
+            final parts = _selectedShippingMethodCode!.split('_');
+            if (parts.length >= 2) {
+              add(
+                CheckoutEvent.selectShippingMethod(
+                  carrierCode: parts[0],
+                  methodCode: parts.sublist(1).join('_'),
+                ),
+              );
+            }
+          } else {
+            final first = methods.first;
+            _selectedShippingMethodCode =
+                "${first.carrierCode}_${first.methodCode}";
+
+            add(
+              CheckoutEvent.selectShippingMethod(
+                carrierCode: first.carrierCode,
+                methodCode: first.methodCode,
+              ),
             );
           }
-
-          add(
-            CheckoutEvent.selectShippingMethod(
-              carrierCode: first.carrierCode,
-              methodCode: first.methodCode,
-            ),
-          );
         } else {
           _selectedShippingMethodCode = null;
         }
@@ -353,10 +338,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _SelectShippingMethod event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🚚 CheckoutBloc: Selecting shipping method');
-      print('  Carrier: ${event.carrierCode}, Method: ${event.methodCode}');
-    }
 
     if (_selectedShippingAddress == null) {
       emit(
@@ -376,11 +357,10 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       (m) => m.carrierCode == event.carrierCode && m.methodCode == event.methodCode,
     );
     if (!isKnownMethod) {
-      if (kDebugMode) {
-        print('🚚 CheckoutBloc: ignoring stale method selection $newCode');
-      }
       return;
     }
+
+    final token = ++_shippingMethodToken;
 
     _selectedShippingMethodCode = newCode;
     if (_currentCheckout != null) {
@@ -394,8 +374,13 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       billingAddress: _selectedBillingAddress,
     );
 
+    if (token != _shippingMethodToken) {
+      return;
+    }
+
     await result.fold(
       (error) async {
+        if (token != _shippingMethodToken) return;
         _selectedShippingMethodCode = previousCode;
         if (_currentCheckout != null) {
           emit(_checkoutLoadedState());
@@ -406,6 +391,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         }
       },
       (paymentInfo) async {
+        if (token != _shippingMethodToken) return;
         if (_currentCheckout != null && paymentInfo.totals != null) {
           _currentCheckout = CheckoutEntity(
             cart: _currentCheckout!.cart,
@@ -428,9 +414,11 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           );
           if (cartId.isNotEmpty && cartId != '0' && !hasSubtitles) {
             final richInfoResult = await repository.getPaymentInfo(cartId: cartId);
+            if (token != _shippingMethodToken) return;
             richInfoResult.fold(
               (_) {},
               (richInfo) {
+                if (token != _shippingMethodToken) return;
                 final hasNewSubtitles = richInfo.paymentMethods.any(
                   (m) => m.subtitle.trim().isNotEmpty,
                 );
@@ -464,17 +452,11 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _LoadPaymentInfo event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: _onLoadPaymentInfo cartId=${event.cartId}');
-    }
 
     final result = await repository.getPaymentInfo(cartId: event.cartId);
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ CheckoutBloc: getPaymentInfo error — ${error.message}');
-        }
         emit(CheckoutState.error(error: error, lastCheckout: _currentCheckout));
       },
       (paymentInfo) {
@@ -492,12 +474,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         }
 
         if (kDebugMode) {
-          print(
-            '✅ CheckoutBloc: getPaymentInfo — ${_availablePaymentMethods.length} methods',
-          );
           for (final m in _availablePaymentMethods) {
             if (m.subtitle.isNotEmpty) {
-              print('   👉 Method ${m.code}: subtitle="${m.subtitle}", gateway="${m.paymentGateway}"');
             }
           }
         }
@@ -515,11 +493,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
             ),
           );
         } else {
-          if (kDebugMode) {
-            print(
-              '💳 CheckoutBloc: _onLoadPaymentInfo — emitting paymentMethodsLoaded (no checkout, totals=${paymentInfo.totals?.grandTotal})',
-            );
-          }
           emit(
             CheckoutState.paymentMethodsLoaded(
               availablePaymentMethods: _availablePaymentMethods,
@@ -535,10 +508,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _SelectPaymentMethod event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: Selecting payment method');
-      print('  Method: ${event.paymentMethod}');
-    }
 
     _selectedPaymentMethod = event.paymentMethod;
 
@@ -565,18 +534,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
       result.fold(
         (error) {
-          if (kDebugMode) {
-            print(
-              '❌ CheckoutBloc: Failed to select payment method API: ${error.message}',
-            );
-          }
+          emit(CheckoutState.error(error: error, lastCheckout: _currentCheckout));
         },
         (success) {
-          if (kDebugMode) {
-            print(
-              '✅ CheckoutBloc: Payment method selected on server (cartId=$targetCartId)',
-            );
-          }
           add(CheckoutEvent.loadPaymentInfo(cartId: targetCartId));
         },
       );
@@ -588,7 +548,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     Emitter<CheckoutState> emit,
   ) async {
     if (_currentCheckout == null) {
-      if (kDebugMode) print('❌ CheckoutBloc: Checkout data not loaded');
       emit(
         const CheckoutState.error(
           error: AppErrorEntity(message: 'Checkout data not loaded'),
@@ -606,13 +565,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       return;
     }
 
-    if (kDebugMode) {
-      print('📦 CheckoutBloc: Placing order...');
-      print('  Payment Method: paymentpending');
-      print('  Shipping City: ${_selectedShippingAddress!.city}');
-      print('  Total: ${_currentCheckout!.cartTotals.grandTotal}');
-    }
-
     emit(CheckoutState.placingOrder(checkout: _currentCheckout!));
 
     final selectResult = await repository.selectPaymentMethod(
@@ -622,9 +574,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     await selectResult.fold(
       (error) async {
-        if (kDebugMode) {
-          print('❌ CheckoutBloc: Failed to select paymentpending');
-        }
         emit(CheckoutState.error(error: error, lastCheckout: _currentCheckout));
       },
       (success) async {
@@ -640,11 +589,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           (orderId) {
             final totalAmount = _currentCheckout!.cartTotals.grandTotal;
             final quoteId = _currentCheckout!.cart.id.toString();
-
-            if (kDebugMode) {
-              print('✅ CheckoutBloc: Order placed successfully');
-              print('  Order ID: $orderId');
-            }
 
             _analytics.logPurchase(
               orderId: orderId,
@@ -666,10 +610,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
                 _pendingEmiTenure   != null &&
                 _pendingEmiGateway  != null &&
                 _pendingEmiMode     != null) {
-              if (kDebugMode) {
-                print('💳 CheckoutBloc: EMI pending selection found — continuing payment');
-                print('   Bank: $_pendingEmiBankName, Tenure: $_pendingEmiTenure, Gateway: $_pendingEmiGateway');
-              }
               add(CheckoutEvent.confirmEmiSelection(
                 orderId:        orderId,
                 quoteId:        _pendingEmiQuoteId ?? quoteId,
@@ -708,12 +648,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     final method = event.paymentMethod.toLowerCase();
     final gateway = event.paymentGateway?.toLowerCase() ?? '';
 
-    if (kDebugMode) {
-      print(
-        '💳 CheckoutBloc: Processing digital payment - Method: $method, Gateway: $gateway',
-      );
-    }
-
     emit(
       CheckoutState.paymentProcessing(
         orderId: event.orderId,
@@ -722,6 +656,18 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     );
 
     if (method == 'bkash') {
+      final agreementId =
+          event.paymentData?['agreementId']?.toString() ??
+          event.paymentData?['agreement_id']?.toString() ??
+          _selectedBkashAgreementId;
+      if (agreementId != null && agreementId.isNotEmpty) {
+        await _handleBkashSavedAgreementPayment(
+          orderId: event.orderId,
+          agreementId: agreementId,
+          emit: emit,
+        );
+        return;
+      }
       await _handleBkashPayment(event.orderId, emit);
       return;
     }
@@ -810,7 +756,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     String orderId,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) print('💳 CheckoutBloc: bKash step 1 — getToken');
 
     final tokenResult = await repository.bkashGetInitialToken();
     final String? idToken = tokenResult.fold((_) => null, (t) => t);
@@ -830,13 +775,10 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _bkashAmount =
         _currentCheckout?.cartTotals.grandTotal.toString() ?? '0';
 
-    if (kDebugMode) print('💳 CheckoutBloc: bKash step 2 — createAgreement');
-
     final userId =
         _currentCheckout?.cart.customer?.id.toString() ??
         _externalCustomerId ??
         '';
-    if (kDebugMode) print('💳 CheckoutBloc: bKash userId (raw): $userId');
     final agreementResult = await repository.bkashCreateAgreement(
       idToken: idToken,
       userId: userId,
@@ -881,14 +823,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     required Emitter<CheckoutState> emit,
   }) async {
     if (agreementId == null || agreementId.isEmpty) {
-      if (kDebugMode) {
-        print('💳 CheckoutBloc: No saved agreementId — falling back to full bKash flow');
-      }
       await _handleBkashPayment(orderId, emit);
       return;
     }
-
-    if (kDebugMode) print('💳 CheckoutBloc: bKash saved agreement — getToken');
 
     final tokenResult = await repository.bkashGetInitialToken();
     final String? idToken = tokenResult.fold((_) => null, (t) => t);
@@ -907,8 +844,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _bkashOrderId = orderId;
     _bkashAmount =
         _currentCheckout?.cartTotals.grandTotal.toString() ?? '0';
-
-    if (kDebugMode) print('💳 CheckoutBloc: bKash saved agreement — createPayment');
 
     _bkashAgreementId = agreementId;
     _bkashIsSavedAgreement = true;
@@ -962,9 +897,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     final amount = _bkashAmount;
 
     if (idToken == null || orderId == null) {
-      if (kDebugMode) {
-        print('❌ CheckoutBloc: bKash session lost — cannot execute agreement');
-      }
       emit(
         CheckoutState.paymentFailed(
           orderId: orderId ?? '',
@@ -972,10 +904,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         ),
       );
       return;
-    }
-
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: bKash step 3 — executeAgreement paymentId=${event.paymentId}');
     }
 
     emit(CheckoutState.paymentProcessing(
@@ -990,9 +918,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     final Map<String, dynamic>? agreementData = execResult.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ CheckoutBloc: bKash executeAgreement failed: ${error.message}');
-        }
         return null;
       },
       (data) => data,
@@ -1020,10 +945,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         ),
       );
       return;
-    }
-
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: bKash step 4 — createPayment agreementId=$agreementId');
     }
 
     _bkashAgreementId = agreementId;
@@ -1077,9 +998,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     final orderId = _bkashOrderId;
 
     if (idToken == null || orderId == null) {
-      if (kDebugMode) {
-        print('❌ CheckoutBloc: bKash session lost — cannot execute payment');
-      }
       emit(
         CheckoutState.paymentFailed(
           orderId: orderId ?? '',
@@ -1087,10 +1005,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         ),
       );
       return;
-    }
-
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: bKash step 5 — executePayment paymentId=${event.paymentId}');
     }
 
     emit(CheckoutState.paymentProcessing(
@@ -1150,12 +1064,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     final status =
         (event.callbackParams['status'] ?? '').toLowerCase();
 
-    if (kDebugMode) {
-      print(
-        '🟠 CheckoutBloc: Nagad callback — orderId=$orderId  status=$status  params=${event.callbackParams}',
-      );
-    }
-
     emit(CheckoutState.paymentProcessing(
       orderId: orderId,
       paymentMethod: 'nagad',
@@ -1201,9 +1109,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _OnPaymentWebViewResult event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🌐 CheckoutBloc: WebView Result - Success: ${event.success}, orderId: ${event.orderId}');
-    }
 
     if (!event.success) {
       emit(
@@ -1215,9 +1120,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       return;
     }
 
-    if (kDebugMode) {
-      print('✅ CheckoutBloc: Digital payment SUCCESS — navigating to order placed');
-    }
     emit(
       CheckoutState.paymentSuccess(
         orderId: event.orderId,
@@ -1229,13 +1131,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
   void _onConfirmPayment(_ConfirmPayment event, Emitter<CheckoutState> emit) {
     final totalAmount = _currentCheckout?.cartTotals.grandTotal ?? 0.0;
-
-    if (kDebugMode) {
-      print('✅ CheckoutBloc: Payment confirmed');
-      print('  Order ID: ${event.orderId}');
-      print('  Transaction ID: ${event.transactionId}');
-      print('  Total Amount: $totalAmount');
-    }
 
     emit(
       CheckoutState.paymentSuccess(
@@ -1250,11 +1145,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _SelectSavedBkashAgreement event,
     Emitter<CheckoutState> emit,
   ) {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: saved bKash agreement selected — ${event.agreementId}');
-    }
     _selectedBkashAgreementId = event.agreementId;
-    _selectedPaymentMethod = 'dynamicpaymentgateway';
+    _selectedPaymentMethod = 'bkash';
     if (_currentCheckout != null) {
       emit(CheckoutState.checkoutLoaded(
         checkout: _currentCheckout!,
@@ -1272,23 +1164,13 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _ClearSavedBkashAgreement event,
     Emitter<CheckoutState> emit,
   ) {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: saved bKash agreement cleared');
-    }
     _selectedBkashAgreementId = null;
-    if (_selectedPaymentMethod == 'dynamicpaymentgateway') {
-      _selectedPaymentMethod = null;
-    }
   }
 
   void _onStoreEmiSelection(
     _StoreEmiSelection event,
     Emitter<CheckoutState> emit,
   ) {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: Storing pending EMI selection');
-      print('   Bank: ${event.bankName}, Tenure: ${event.tenure}m, Gateway: ${event.paymentGateway}, Mode: ${event.paymentMode}');
-    }
     _pendingEmiBankName = event.bankName;
     _pendingEmiTenure   = event.tenure;
     _pendingEmiGateway  = event.paymentGateway;
@@ -1312,9 +1194,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _LoadEmiDetails event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: Loading EMI details quoteId=${event.quoteId} orderId=${event.orderId}');
-    }
 
     emit(CheckoutState.loading(lastCheckout: _currentCheckout));
 
@@ -1325,13 +1204,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) print('❌ CheckoutBloc: loadEmiDetails failed — ${error.message}');
         emit(CheckoutState.error(error: error, lastCheckout: _currentCheckout));
       },
       (emiData) {
-        if (kDebugMode) {
-          print('✅ CheckoutBloc: EMI details loaded — ${emiData.bankEmiData.length} banks');
-        }
         emit(CheckoutState.emiDetailsLoaded(emiData: emiData));
       },
     );
@@ -1341,10 +1216,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _ConfirmEmiSelection event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: EMI selection confirmed');
-      print('   Bank: ${event.bankName}, Tenure: ${event.tenure}m, Gateway: ${event.paymentGateway}, Mode: ${event.paymentMode}');
-    }
 
     emit(CheckoutState.paymentProcessing(
       orderId: event.orderId,
@@ -1363,7 +1234,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     final quoteOk = quoteResult.fold((_) => false, (_) => true);
     if (!quoteOk) {
-      if (kDebugMode) print('❌ CheckoutBloc: updateEmiQuote failed');
       emit(CheckoutState.paymentFailed(
         orderId: event.orderId,
         errorMessage: 'Failed to update EMI details. Please try again.',
@@ -1371,14 +1241,10 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       return;
     }
 
-    if (kDebugMode) print('✅ CheckoutBloc: EMI quote updated');
-
     if (isCardOnDelivery) {
-      if (kDebugMode) print('💳 CheckoutBloc: EMI Card On Delivery — confirming order');
       final confirmResult = await repository.confirmOrder(orderId: event.orderId);
       await confirmResult.fold(
         (error) async {
-          if (kDebugMode) print('❌ CheckoutBloc: EMI Card On Delivery confirmOrder failed — ${error.message}');
           emit(CheckoutState.paymentFailed(
             orderId: event.orderId,
             errorMessage: error.message,
@@ -1395,16 +1261,11 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       return;
     }
 
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: Creating EMI digital order (gateway=${event.paymentGateway})...');
-    }
-
     final gateway = event.paymentGateway.toLowerCase().trim();
     if (gateway.contains('ebl')) {
       final eblResult = await repository.createEblOrder(orderId: event.orderId);
       eblResult.fold(
         (error) {
-          if (kDebugMode) print('❌ CheckoutBloc: EMI createEblOrder failed — ${error.message}');
           emit(CheckoutState.paymentFailed(
             orderId: event.orderId,
             errorMessage: error.message,
@@ -1413,7 +1274,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         (eblData) {
           final url = eblData['url']?.toString() ?? '';
           final formFields = (eblData['formFields'] as Map<String, String>?) ?? {};
-          if (kDebugMode) print('✅ CheckoutBloc: EMI EBL form-post ready — $url');
           final emiTitle = event.bankName.isNotEmpty
               ? event.bankName
               : _resolvePaymentMethodTitle('emi', fallback: 'EMI Payment');
@@ -1435,14 +1295,12 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     orderResult.fold(
       (error) {
-        if (kDebugMode) print('❌ CheckoutBloc: createDigitalOrder failed — ${error.message}');
         emit(CheckoutState.paymentFailed(
           orderId: event.orderId,
           errorMessage: error.message,
         ));
       },
       (gatewayUrl) {
-        if (kDebugMode) print('✅ CheckoutBloc: EMI gateway URL — $gatewayUrl');
         final emiTitle = event.bankName.isNotEmpty
             ? event.bankName
             : _resolvePaymentMethodTitle('emi', fallback: 'EMI Payment');
@@ -1488,7 +1346,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   }
 
   void _onResetCheckout(_ResetCheckout event, Emitter<CheckoutState> emit) {
-    if (kDebugMode) print('🔄 CheckoutBloc: Resetting checkout');
 
     _currentCheckout = null;
     _selectedShippingAddress = null;
@@ -1513,13 +1370,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _UpdateOrderPayment event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: Updating order payment...');
-      print('  Order ID: ${event.orderId}');
-      print('  Payment Method: ${event.paymentMethod}');
-      print('  Payment Gateway: ${event.paymentGateway}');
-    }
-
     emit(CheckoutState.loading(lastCheckout: _currentCheckout));
 
     final result = await repository.updateOrderPayment(
@@ -1543,10 +1393,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _SyncOrderPaymentMethod event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('💳 CheckoutBloc: syncing selected method → ${event.paymentMethod}');
-    }
-
     _selectedPaymentMethod = event.paymentMethod;
 
     final result = await repository.updateOrderPayment(
@@ -1557,9 +1403,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ CheckoutBloc: sync failed — ${error.message}');
-        }
         emit(
           CheckoutState.orderPaymentMethodSynced(
             success: false,
@@ -1580,10 +1423,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     _ConfirmOrder event,
     Emitter<CheckoutState> emit,
   ) async {
-    if (kDebugMode) {
-      print('✅ CheckoutBloc: Confirming order...');
-      print('  Order ID: ${event.orderId}');
-    }
 
     emit(CheckoutState.loading(lastCheckout: _currentCheckout));
 

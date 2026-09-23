@@ -75,7 +75,6 @@ class CategoryProductEntity {
   });
 }
 
-
 class CategorySliderEntity {
   final String name;
   final String alias;

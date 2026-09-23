@@ -182,7 +182,6 @@ class _HtmlSubtitle extends StatelessWidget {
                     try {
                       await launchUrl(uri, mode: LaunchMode.externalApplication);
                     } catch (e) {
-                      debugPrint('PaymentOptionItem: could not launch ${parsed.linkUrl}: $e');
                     }
                   }
                 },
@@ -227,7 +226,6 @@ class _HtmlSubtitle extends StatelessWidget {
         linkUrl: linkUrl,
       );
     } catch (e) {
-      debugPrint('PaymentOptionItem: HTML parse error — $e');
       return _ParsedSubtitle(mainText: rawHtml);
     }
   }

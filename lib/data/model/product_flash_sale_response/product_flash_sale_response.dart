@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-
 part 'product_flash_sale_response.freezed.dart';
 part 'product_flash_sale_response.g.dart';
 

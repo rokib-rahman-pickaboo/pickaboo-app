@@ -306,7 +306,7 @@ class PdpNewPriceSection extends StatelessWidget {
                                       vertical: 2.h,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.red,
+                                      color: AppColors.orange,
                                       borderRadius: BorderRadius.circular(AppRadius.badge),
                                     ),
                                     child: Text(

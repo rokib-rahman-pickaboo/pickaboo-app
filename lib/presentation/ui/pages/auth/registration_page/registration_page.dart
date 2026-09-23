@@ -6,7 +6,6 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -119,9 +118,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Future<void> _signInWithGoogle() async {
     _dismissKeyboard();
     try {
-      if (kDebugMode) {
-        print('🔵 [Google Sign-In] Starting Google sign-in process...');
-      }
 
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
@@ -137,9 +133,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
-        if (kDebugMode) {
-          print('⚠️ [Google Sign-In] User canceled the sign-in');
-        }
         return;
       }
 
@@ -162,10 +155,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           SnackBarUtils.showError(context, 'Failed to get Google access token');
         }
       }
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('❌ [Google Sign-In] Exception occurred: $e\n$stackTrace');
-      }
+    } catch (e) {
       if (mounted) {
         SnackBarUtils.showError(
           context,

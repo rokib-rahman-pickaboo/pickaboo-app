@@ -319,7 +319,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         horizontal: 5.w,
                         vertical: 2.h,
                       ),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.pickabooBlue,
                         borderRadius: AppRadius.chipRadius,
                       ),

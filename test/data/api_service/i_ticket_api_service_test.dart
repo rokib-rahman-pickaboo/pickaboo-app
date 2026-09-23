@@ -64,7 +64,8 @@ void main() {
             "order_id": "3408",
             "order_number": "1008290762",
             "created_at": "2026-08-10 07:41:53",
-            "status": "processing_for_delivery"
+            "status": "processing_for_delivery",
+            "grand_total": "3450.00",
           }
         ],
         [
@@ -79,9 +80,10 @@ void main() {
         ]
       ];
 
-      when(() => mockDio.get(any())).thenAnswer((_) async {
+      when(() => mockDio.get('/rest/V1/dcastalia-helpdesk/orderinfo'))
+          .thenAnswer((_) async {
         return Response(
-          requestOptions: RequestOptions(path: ''),
+          requestOptions: RequestOptions(path: '/rest/V1/dcastalia-helpdesk/orderinfo'),
           data: responseData,
           statusCode: 200,
         );
@@ -94,9 +96,125 @@ void main() {
         expect(r.orders.length, 1);
         expect(r.orders.first.orderId, '3408');
         expect(r.orders.first.incrementId, '1008290762');
+        expect(r.orders.first.grandTotal, 3450.0);
         expect(r.issueTypes.length, 2);
         expect(r.issueTypes.first.name, 'Delivery Issue');
         expect(r.issueTypes.last.name, 'Customer Support');
+      });
+
+      // Verify that ONLY orderinfo was called, NEVER /orders/mine
+      verify(() => mockDio.get('/rest/V1/dcastalia-helpdesk/orderinfo')).called(1);
+      verifyNever(() => mockDio.get(
+            '/rest/V1/orders/mine',
+            queryParameters: any(named: 'queryParameters'),
+          ));
+    });
+
+    test('getTicketOrders parses inverted 2D array (departments first, orders second)', () async {
+      final responseData = [
+        [
+          {
+            "department_id": "5",
+            "name": "Payment Issue"
+          }
+        ],
+        [
+          {
+            "entity_id": "5500",
+            "increment_id": "1008299999",
+            "grandtotal": 1500,
+            "status": "complete"
+          }
+        ]
+      ];
+
+      when(() => mockDio.get('/rest/V1/dcastalia-helpdesk/orderinfo'))
+          .thenAnswer((_) async {
+        return Response(
+          requestOptions: RequestOptions(path: '/rest/V1/dcastalia-helpdesk/orderinfo'),
+          data: responseData,
+          statusCode: 200,
+        );
+      });
+
+      final result = await apiService.getTicketOrders();
+
+      expect(result.isRight(), true);
+      result.fold((l) => fail('Should be right'), (r) {
+        expect(r.orders.length, 1);
+        expect(r.orders.first.orderId, '5500');
+        expect(r.orders.first.incrementId, '1008299999');
+        expect(r.orders.first.grandTotal, 1500.0);
+        expect(r.issueTypes.length, 1);
+        expect(r.issueTypes.first.name, 'Payment Issue');
+      });
+    });
+
+    test('getTicketOrders parses Map format with orders and departments', () async {
+      final responseData = {
+        "orders": [
+          {
+            "order_id": "101",
+            "order_number": "ORD-101",
+            "grand_total": 500.50,
+            "status": "pending"
+          }
+        ],
+        "departments": [
+          {
+            "id": "10",
+            "name": "General Support"
+          }
+        ]
+      };
+
+      when(() => mockDio.get('/rest/V1/dcastalia-helpdesk/orderinfo'))
+          .thenAnswer((_) async {
+        return Response(
+          requestOptions: RequestOptions(path: '/rest/V1/dcastalia-helpdesk/orderinfo'),
+          data: responseData,
+          statusCode: 200,
+        );
+      });
+
+      final result = await apiService.getTicketOrders();
+
+      expect(result.isRight(), true);
+      result.fold((l) => fail('Should be right'), (r) {
+        expect(r.orders.length, 1);
+        expect(r.orders.first.orderId, '101');
+        expect(r.orders.first.incrementId, 'ORD-101');
+        expect(r.orders.first.grandTotal, 500.50);
+        expect(r.issueTypes.length, 1);
+        expect(r.issueTypes.first.name, 'General Support');
+      });
+    });
+
+    test('getTicketOrders parses raw JSON string response', () async {
+      const responseData = '[['
+          '{"order_id": "202", "order_number": "ORD-202", "grand_total": 999}'
+          '], ['
+          '{"department_id": "3", "name": "Return Request"}'
+          ']]';
+
+      when(() => mockDio.get('/rest/V1/dcastalia-helpdesk/orderinfo'))
+          .thenAnswer((_) async {
+        return Response(
+          requestOptions: RequestOptions(path: '/rest/V1/dcastalia-helpdesk/orderinfo'),
+          data: responseData,
+          statusCode: 200,
+        );
+      });
+
+      final result = await apiService.getTicketOrders();
+
+      expect(result.isRight(), true);
+      result.fold((l) => fail('Should be right'), (r) {
+        expect(r.orders.length, 1);
+        expect(r.orders.first.orderId, '202');
+        expect(r.orders.first.incrementId, 'ORD-202');
+        expect(r.issueTypes.length, 1);
+        expect(r.issueTypes.first.name, 'Return Request');
       });
     });
   });

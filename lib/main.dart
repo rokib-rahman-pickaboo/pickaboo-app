@@ -13,9 +13,12 @@ import 'package:pickaboo/data/services/push_notification_service.dart';
 import 'package:pickaboo/firebase_options.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/my_app.dart';
-import 'package:pickaboo/data/services/recaptcha_service.dart';
 
 void main() async {
+  if (kReleaseMode) {
+    debugPrint = (String? message, {int? wrapWidth}) {};
+  }
+
   final binding = WidgetsFlutterBinding.ensureInitialized();
 
   FlutterError.onError = CrashReporter.recordFlutterError;
@@ -24,46 +27,47 @@ void main() async {
     return true;
   };
 
-  await FastCacheManager.init();
+  runZonedGuarded(
+    () async {
+      await FastCacheManager.init();
 
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
 
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.white,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+      );
+
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+      await configureDependencies();
+
+      await getIt<AuthCacheManager>().warmUp();
+
+      unawaited(getIt<AnalyticsService>().init());
+      unawaited(getIt<PushNotificationService>().initialize());
+
+      runApp(const MyApp());
+    },
+    (error, stack) {
+      CrashReporter.record(error, stack, fatal: true);
+    },
+    zoneSpecification: ZoneSpecification(
+      print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
+        if (!kReleaseMode) {
+          parent.print(zone, line);
+        }
+      },
     ),
   );
-
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-  await configureDependencies();
-
-  await getIt<AuthCacheManager>().warmUp();
-
-  unawaited(getIt<AnalyticsService>().init());
-  unawaited(getIt<PushNotificationService>().initialize());
-
-  try {
-    await getIt<RecaptchaService>().initialize();
-  } catch (error, stack) {
-    CrashReporter.record(error, stack, fatal: false);
-    if (kDebugMode) {
-      print('⚠️ Non-fatal Recaptcha init bypass: $error');
-    }
-  }
-
-  if (kDebugMode) {
-    print('main: Initialization complete, calling runApp');
-  }
-
-  runApp(const MyApp());
 }

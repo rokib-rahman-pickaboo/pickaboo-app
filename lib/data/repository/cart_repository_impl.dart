@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/data/api_service/cart_api_service.dart';
@@ -275,9 +274,6 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<Either<AppErrorEntity, List<ShippingMethodEntity>>>
   estimateShippingMethods({required AddressEntity address}) async {
-    debugPrint(
-      "🔵 Repo IS calling estimateShippingMethods with address ID: ${address.id}, City: ${address.city}",
-    );
     final result = await checkoutApiService.estimateShippingMethods(
       address: address,
     );
@@ -294,9 +290,6 @@ class CartRepositoryImpl implements CartRepository {
     required String methodCode,
     AddressEntity? billingAddress,
   }) async {
-    debugPrint(
-      "ShippingInformationd: ${address.id}, Billing ID: ${billingAddress?.id}, Method: $carrierCode _ $methodCode",
-    );
     final result = await checkoutApiService.saveShippingInformation(
       address: address,
       carrierCode: carrierCode,

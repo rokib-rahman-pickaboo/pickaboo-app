@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -21,21 +20,9 @@ import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 class ICheckoutApiService extends CheckoutApiService {
   final Dio _client;
 
-  ICheckoutApiService(this._client) {
-    if (kDebugMode) {
-      debugPrint(
-        "🔌 ICheckoutApiService: Initialized with BaseURL: ${_client.options.baseUrl}",
-      );
-    }
-  }
+  ICheckoutApiService(this._client);
 
   ErrorResponse checkErrorResponse(DioException err) {
-    if (kDebugMode) {
-      debugPrint(
-        '❌ ICheckoutApiService: ${err.requestOptions.method} ${err.requestOptions.baseUrl}${err.requestOptions.path} '
-        'Status: ${err.response?.statusCode} Message: ${err.message}',
-      );
-    }
     return ApiErrorParser.parse(err);
   }
 
@@ -103,15 +90,8 @@ class ICheckoutApiService extends CheckoutApiService {
         data: body,
       );
 
-      if (kDebugMode) {
-        print("estimate_shipping -> ${response.data}");
-      }
-
       return right(_parseShippingMethods(response.data));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("estimate_shipping_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -124,15 +104,8 @@ class ICheckoutApiService extends CheckoutApiService {
         data: {"addressId": addressId},
       );
 
-      if (kDebugMode) {
-        print("estimate_shipping_by_address_id($addressId) -> ${response.data}");
-      }
-
       return right(_parseShippingMethods(response.data));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("estimate_shipping_by_address_id_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -186,18 +159,10 @@ class ICheckoutApiService extends CheckoutApiService {
         },
       };
 
-      if (kDebugMode) {
-        print("save_shipping_info_request -> $body");
-      }
-
       final response = await _client.post(
         ApiEndpoints.shippingInformationUrl,
         data: body,
       );
-
-      if (kDebugMode) {
-        print("save_shipping_info -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -207,9 +172,6 @@ class ICheckoutApiService extends CheckoutApiService {
         const ErrorResponse(message: 'Invalid shipping info response'),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("save_shipping_info_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -219,18 +181,9 @@ class ICheckoutApiService extends CheckoutApiService {
     required String cartId,
   }) async {
     try {
-      if (kDebugMode) {
-        print("get_payment_info_request -> cartId: $cartId");
-      }
       final response = await _client.get(
         ApiEndpoints.getPaymentInfoUrl(cartId),
       );
-      if (kDebugMode) {
-        print("========== GET PAYMENT INFO RESPONSE ==========");
-        print("Status: ${response.statusCode}");
-        print("Data: ${json.encode(response.data)}");
-        print("===============================================");
-      }
       final data = response.data;
       if (data is List) {
         final methods = data
@@ -264,9 +217,6 @@ class ICheckoutApiService extends CheckoutApiService {
         const ErrorResponse(message: 'Invalid payment info response'),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("get_payment_info_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -279,24 +229,13 @@ class ICheckoutApiService extends CheckoutApiService {
     try {
       final body = {"cart_id": cartId};
 
-      if (kDebugMode) {
-        print("place_order_request -> $body");
-      }
-
       final response = await _client.post(
         ApiEndpoints.placeOrderUrl,
         data: body,
       );
 
-      if (kDebugMode) {
-        print("place_order_response -> ${response.data}");
-      }
       return right(response.data.toString());
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("place_order_error -> $e");
-        print("place_order_error_data -> ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -312,25 +251,13 @@ class ICheckoutApiService extends CheckoutApiService {
         "paymentMethod": {"method": method},
       };
 
-      if (kDebugMode) {
-        print("select_payment_method_request -> $body");
-      }
-
       final response = await _client.post(
         ApiEndpoints.paymentSelectUrl,
         data: body,
       );
 
-      if (kDebugMode) {
-        print("select_payment_method_response -> ${response.data}");
-      }
-
       return right(response.data == true);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("select_payment_method_error -> $e");
-        print("select_payment_method_error_data -> ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -360,20 +287,10 @@ class ICheckoutApiService extends CheckoutApiService {
           !directMethods.contains(paymentGateway.toLowerCase().trim())) {
         body['paymentGetway'] = paymentGateway;
       }
-      if (kDebugMode) {
-        print('💳 updateOrderPayment ══════════════════');
-        print('   POST ${ApiEndpoints.updateOrderPaymentUrl}');
-        print('   Body   : $body');
-      }
       final response = await _client.post(
         ApiEndpoints.updateOrderPaymentUrl,
         data: body,
       );
-      if (kDebugMode) {
-        print('   Status : ${response.statusCode}');
-        print('   Body   : ${response.data}');
-        print('══════════════════════════════════════════');
-      }
       final data = response.data;
       final isSuccess = response.statusCode == 200 &&
           (data == true ||
@@ -382,11 +299,6 @@ class ICheckoutApiService extends CheckoutApiService {
               (data is Map && data['status'] == true));
       return right(isSuccess);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print(
-          '❌ updateOrderPayment error: ${e.response?.statusCode} — ${e.response?.data}',
-        );
-      }
       return left(_detailedError(e, 'updateOrderPayment'));
     }
   }
@@ -397,21 +309,9 @@ class ICheckoutApiService extends CheckoutApiService {
   }) async {
     try {
       final url = '${ApiEndpoints.dmOrderPlaceUrl}$orderId';
-      if (kDebugMode) {
-        print('📋 confirmOrder ══════════════════════════');
-        print('   POST $url');
-      }
       final response = await _client.post(url);
-      if (kDebugMode) {
-        print('   Status : ${response.statusCode}');
-        print('   Body   : ${response.data}');
-        print('══════════════════════════════════════════');
-      }
       return right(response.statusCode == 200 ? 'Success' : 'Failed');
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('❌ confirmOrder error: ${e.response?.statusCode} — ${e.response?.data}');
-      }
       return left(_detailedError(e, 'confirmOrder'));
     }
   }
@@ -419,21 +319,13 @@ class ICheckoutApiService extends CheckoutApiService {
   @override
   Future<Either<ErrorResponse, String>> bkashGetInitialToken() async {
     try {
-      if (kDebugMode) print("🔵 ICheckoutApiService: Fetching bKash token...");
       final response = await _client.post(ApiEndpoints.bkashGetTokenUrl);
       final data = response.data;
-
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: bKash token response: $data");
-      }
 
       Map<String, dynamic> responseMap;
       if (data is Map<String, dynamic>) {
         responseMap = data;
       } else if (data is List && data.isNotEmpty) {
-        if (kDebugMode) {
-          print("🟡 ICheckoutApiService: Handling bKash List response");
-        }
         final first = data.first;
         if (first is Map<String, dynamic>) {
           responseMap = first;
@@ -448,9 +340,6 @@ class ICheckoutApiService extends CheckoutApiService {
         try {
           responseMap = jsonDecode(data);
         } catch (e) {
-          if (kDebugMode) {
-            print("❌ ICheckoutApiService: bKash JSON decode error: $e");
-          }
           return left(
             ErrorResponse(message: 'Invalid bKash response format: $data'),
           );
@@ -472,15 +361,8 @@ class ICheckoutApiService extends CheckoutApiService {
         ),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: bKash token Dio error: ${e.message}");
-        print("   Response: ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: bKash token unexpected error: $e");
-      }
       return left(ErrorResponse(message: e.toString()));
     }
   }
@@ -492,12 +374,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String returnPath,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: bkashCreateAgreement...");
-        print("   idToken (first 10): ${idToken.substring(0, 10)}...");
-        print("   userId (raw): $userId");
-        print("   returnPath: $returnPath");
-      }
       final response = await _client.post(
         ApiEndpoints.bkashAgreementCreateUrl,
         queryParameters: {
@@ -514,15 +390,11 @@ class ICheckoutApiService extends CheckoutApiService {
         },
       );
       final data = response.data;
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: Agreement response: $data");
-      }
 
       if (data is Map<String, dynamic>) {
         return right(data);
       } else if (data is List && data.isNotEmpty) {
         final first = data.first;
-        if (kDebugMode) print("   Agreement List handling: $first");
         if (first is Map<String, dynamic>) {
           return right(first);
         }
@@ -533,9 +405,6 @@ class ICheckoutApiService extends CheckoutApiService {
         ),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: bkashCreateAgreement failed");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -546,7 +415,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String paymentId,
   }) async {
     try {
-      if (kDebugMode) print("🔵 ICheckoutApiService: bkashExecuteAgreement...");
       final response = await _client.post(
         ApiEndpoints.bkashAgreementExecuteUrl,
         queryParameters: {'token': idToken, 'paymentID': paymentId},
@@ -580,10 +448,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String returnPath,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: bkashCreatePayment...");
-        print("   returnPath: $returnPath");
-      }
       final response = await _client.post(
         ApiEndpoints.bkashPaymentCreateUrl,
         queryParameters: {
@@ -626,7 +490,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String paymentId,
   }) async {
     try {
-      if (kDebugMode) print("🔵 ICheckoutApiService: bkashExecutePayment...");
       final response = await _client.post(
         ApiEndpoints.bkashPaymentExecuteUrl,
         queryParameters: {'token': idToken, 'paymentID': paymentId},
@@ -654,9 +517,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String orderId,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: createEblOrder orderId=$orderId");
-      }
       final response = await _client.post(
         '/rest/default/V1/dcastalia-ebl/payment-process',
         queryParameters: {"order_id": orderId},
@@ -667,20 +527,13 @@ class ICheckoutApiService extends CheckoutApiService {
         ),
       );
       final data = response.data;
-      if (kDebugMode) {
-        print("🎯 ICheckoutApiService: createEblOrder raw response type=${data.runtimeType}");
-        print("🎯 ICheckoutApiService: createEblOrder response=$data");
-      }
 
       Map<String, dynamic>? map;
       if (data is Map<String, dynamic>) {
         map = data;
-        if (kDebugMode) print("📋 EBL: parsed as Map, keys=${map.keys.toList()}");
       } else if (data is List && data.isNotEmpty && data.first is Map) {
         map = Map<String, dynamic>.from(data.first as Map);
-        if (kDebugMode) print("📋 EBL: parsed as List[0], keys=${map.keys.toList()}");
       } else {
-        if (kDebugMode) print("❌ EBL: unexpected data type — ${data.runtimeType}");
       }
 
       if (map != null && map.containsKey('url')) {
@@ -690,17 +543,7 @@ class ICheckoutApiService extends CheckoutApiService {
               .where((e) => e.key != 'url' && e.value != null)
               .map((e) => MapEntry(e.key, e.value.toString())),
         );
-        if (kDebugMode) {
-          print("✅ EBL: url=$url");
-          print("✅ EBL: formFields keys=${formFields.keys.toList()}");
-          print("✅ EBL: formFields count=${formFields.length}");
-          formFields.forEach((k, v) => debugPrint("   EBL field [$k] = $v"));
-        }
         return right({'url': url, 'formFields': formFields});
-      }
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: createEblOrder — 'url' key not found in response");
-        print("   Available keys: ${map?.keys.toList()}");
       }
       return left(const ErrorResponse(message: 'Invalid EBL response'));
     } on DioException catch (e) {
@@ -716,12 +559,6 @@ class ICheckoutApiService extends CheckoutApiService {
     String? returnPath,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: Creating digital order...");
-        print(
-          "   Method: $paymentMethodCode, Gateway: $paymentGateway, Order ID: $orderId",
-        );
-      }
 
       String endpoint = '';
       Map<String, dynamic> params = {"order_id": orderId};
@@ -761,12 +598,6 @@ class ICheckoutApiService extends CheckoutApiService {
         endpoint = ApiEndpoints.cityBankCreateOrderUrl;
       }
 
-      if (kDebugMode) {
-        print("🚀 ICheckoutApiService: Sending Digital Order Request...");
-        print("   URL: ${ApiEndpoints.baseUrl}$endpoint");
-        print("   Params: $params");
-      }
-
       final isEblEndpoint = endpoint.contains('/dcastalia-ebl/');
       final response = await _client.post(
         endpoint,
@@ -784,18 +615,9 @@ class ICheckoutApiService extends CheckoutApiService {
       final data = response.data;
       final int? statusCode = response.statusCode;
 
-      if (kDebugMode) {
-        print("🎯 ICheckoutApiService: Response Code: $statusCode");
-        print("🎯 ICheckoutApiService: Response Headers: ${response.headers}");
-        print("🎯 ICheckoutApiService: Raw Response Data: $data");
-      }
-
       if (statusCode != null && statusCode >= 300 && statusCode < 400) {
         final location = response.headers.value('location');
         if (location != null) {
-          if (kDebugMode) {
-            print("↪️ ICheckoutApiService: Redirecting to: $location");
-          }
           return right(location);
         }
       }
@@ -823,9 +645,6 @@ class ICheckoutApiService extends CheckoutApiService {
       } else if (data is List) {
         if (data.isNotEmpty) {
           final first = data.first;
-          if (kDebugMode) {
-            print("   Handling List response, first element: $first");
-          }
           if (first is Map<String, dynamic>) {
             String? url =
                 first['retuenUrl'] ??
@@ -846,34 +665,16 @@ class ICheckoutApiService extends CheckoutApiService {
             return right(first);
           }
         } else if (isEblEndpoint) {
-          if (kDebugMode) {
-            print(
-              "⚠️ ICheckoutApiService: EBL returned empty list, using fallback URL",
-            );
-          }
           return right(
             "${ApiEndpoints.baseUrl}/rest/default/V1/dcastalia-ebl/payment-process?order_id=$orderId",
           );
         }
       }
 
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: Invalid gateway response data: $data");
-      }
       return left(const ErrorResponse(message: 'Invalid gateway response'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: Digital order failed");
-        print("   DioError type: ${e.type}");
-        print("   DioError message: ${e.message}");
-        print("   Response status code: ${e.response?.statusCode}");
-        print("   Response data: ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: Digital order unexpected error: $e");
-      }
       return left(ErrorResponse(message: e.toString()));
     }
   }
@@ -884,15 +685,11 @@ class ICheckoutApiService extends CheckoutApiService {
     required String orderId,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: getEmiDetails quoteId=$quoteId orderId=$orderId");
-      }
       final response = await _client.post(
         ApiEndpoints.getEmiDetailsUrl,
         queryParameters: {'quoteid': quoteId},
       );
       final data = response.data;
-      if (kDebugMode) print("🟢 ICheckoutApiService: getEmiDetails -> $data");
 
       Map<String, dynamic>? json;
       if (data is List && data.isNotEmpty) {
@@ -920,9 +717,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String paymentMode,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: updateEmiQuote bank=$bankName tenure=$tenureMonths mode=$paymentMode");
-      }
       final response = await _client.post(
         ApiEndpoints.emiQuoteUpdateUrl,
         queryParameters: {
@@ -934,9 +728,6 @@ class ICheckoutApiService extends CheckoutApiService {
           'payment_mode': paymentMode,
         },
       );
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: updateEmiQuote -> ${response.data}");
-      }
       return right(response.statusCode == 200 || response.data == true);
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
@@ -949,15 +740,11 @@ class ICheckoutApiService extends CheckoutApiService {
     required String orderId,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: getCemiDetails quoteId=$quoteId orderId=$orderId");
-      }
       final response = await _client.post(
         ApiEndpoints.getCemiDetailsUrl,
         queryParameters: {'quoteid': quoteId},
       );
       final data = response.data;
-      if (kDebugMode) print("🟢 ICheckoutApiService: getCemiDetails -> $data");
 
       Map<String, dynamic>? json;
       if (data is List && data.isNotEmpty) {
@@ -985,9 +772,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String paymentMode,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: updateCemiQuote bank=$bankName tenure=$tenureMonths mode=$paymentMode");
-      }
       final response = await _client.post(
         ApiEndpoints.cemiQuoteUpdateUrl,
         queryParameters: {
@@ -999,9 +783,6 @@ class ICheckoutApiService extends CheckoutApiService {
           'payment_mode': paymentMode,
         },
       );
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: updateCemiQuote -> ${response.data}");
-      }
       return right(response.statusCode == 200 || response.data == true);
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
@@ -1013,16 +794,10 @@ class ICheckoutApiService extends CheckoutApiService {
     required Map<String, String> callbackParams,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: nagadFinalizePayment params=$callbackParams");
-      }
       final response = await _client.get(
         ApiEndpoints.nagadFinalizeUrl,
         queryParameters: callbackParams,
       );
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: nagadFinalizePayment -> ${response.data}");
-      }
       return right(response.statusCode == 200);
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
@@ -1034,15 +809,11 @@ class ICheckoutApiService extends CheckoutApiService {
     required String orderId,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: verifyCardBin orderId=$orderId");
-      }
 
       final response = await _client.get(
         ApiEndpoints.cardBinVerifyUrl(orderId: orderId),
       );
       final data = response.data;
-      if (kDebugMode) print("🟢 ICheckoutApiService: verifyCardBin -> $data");
 
       return right(CardBinVerifyResponse.fromJson(data));
     } on DioException catch (e) {
@@ -1056,9 +827,6 @@ class ICheckoutApiService extends CheckoutApiService {
     required String cardBin,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: applyCardBin orderId=$orderId bin=$cardBin");
-      }
 
       var headers = {
         'Content-Type': 'application/json',
@@ -1074,9 +842,6 @@ class ICheckoutApiService extends CheckoutApiService {
           "binNumber": int.tryParse(cardBin) ?? 0,
         },
       );
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: applyCardBin -> ${response.data}");
-      }
       return right(CardBinResponse.fromJson(response.data));
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
@@ -1088,16 +853,10 @@ class ICheckoutApiService extends CheckoutApiService {
     required String orderId,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: removeCardBin orderId=$orderId");
-      }
 
       final response = await _client.delete(
         ApiEndpoints.cardBinRemoveUrl(orderId: orderId),
       );
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: removeCardBin -> ${response.data}");
-      }
       return right(CardBinRemoveResponse.fromJson(response.data));
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
@@ -1115,9 +874,6 @@ class ICheckoutApiService extends CheckoutApiService {
     bool isSaved = false,
   }) async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: bkashAgreementSave (isSaved=$isSaved)");
-      }
       final response = await _client.post(
         ApiEndpoints.bkashAgreementSaveUrl,
         queryParameters: {
@@ -1134,14 +890,8 @@ class ICheckoutApiService extends CheckoutApiService {
           validateStatus: (status) => status != null,
         ),
       );
-      if (kDebugMode) {
-        print(
-          "🟢 ICheckoutApiService: bkashAgreementSave response: ${response.data}",
-        );
-      }
       return right(true);
     } on DioException catch (e) {
-      if (kDebugMode) print("❌ ICheckoutApiService: bkashAgreementSave failed");
       return left(checkErrorResponse(e));
     }
   }
@@ -1149,15 +899,9 @@ class ICheckoutApiService extends CheckoutApiService {
   @override
   Future<Either<ErrorResponse, CardBinStatusResponse>> getCardBinStatus() async {
     try {
-      if (kDebugMode) {
-        print("🔵 ICheckoutApiService: getCardBinStatus");
-      }
       final response = await _client.get(
         ApiEndpoints.cardBinStatusUrl,
       );
-      if (kDebugMode) {
-        print("🟢 ICheckoutApiService: getCardBinStatus -> ${response.data}");
-      }
       final data = response.data;
       if (data is Map<String, dynamic>) {
         return right(CardBinStatusResponse.fromJson(data));
@@ -1166,9 +910,6 @@ class ICheckoutApiService extends CheckoutApiService {
         const ErrorResponse(message: 'Invalid card bin status response'),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("❌ ICheckoutApiService: getCardBinStatus failed: $e");
-      }
       return left(checkErrorResponse(e));
     }
   }

@@ -202,10 +202,36 @@ final List<RouteBase> productRoutes = [
         path: 'all-reviews',
         name: 'allProductReviews',
         builder: (context, state) {
-          final product = state.extra as ProductDetailEntity;
+          final id = state.pathParameters['id'] ?? '';
+          ProductDetailEntity? product;
+          ReviewBloc? existingBloc;
+
+          if (state.extra is ProductDetailEntity) {
+            product = state.extra as ProductDetailEntity;
+          } else if (state.extra is Map<String, dynamic>) {
+            final map = state.extra as Map<String, dynamic>;
+            product = map['product'] as ProductDetailEntity?;
+            existingBloc = map['reviewBloc'] as ReviewBloc?;
+          }
+
+          final effectiveProduct = product ??
+              ProductDetailEntity.initial(
+                id: int.tryParse(id) ?? 0,
+                name: state.uri.queryParameters['name'] ?? '',
+                image: state.uri.queryParameters['image'] ?? '',
+                slug: state.uri.queryParameters['slug'] ?? id,
+              );
+
+          if (existingBloc != null) {
+            return BlocProvider.value(
+              value: existingBloc,
+              child: AllProductReviewPage(product: effectiveProduct),
+            );
+          }
+
           return BlocProvider(
             create: (context) => getIt<ReviewBloc>(),
-            child: AllProductReviewPage(product: product),
+            child: AllProductReviewPage(product: effectiveProduct),
           );
         },
       ),

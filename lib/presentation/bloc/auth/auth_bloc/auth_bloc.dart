@@ -32,14 +32,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onAppStarted(_AppStarted event, Emitter<AuthState> emit) async {
-    if (kDebugMode) print('🔵 AuthBloc: App started, checking auth status');
     emit(const AuthState.loading());
 
     try {
       final token = await repository.getStoredToken();
 
       if (token != null && token.isNotEmpty) {
-        if (kDebugMode) print('✅ AuthBloc: Token found, fetching user');
 
         final result = await repository.getCurrentUser();
 
@@ -51,12 +49,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             // with it, customerId stayed null for the rest of the session.
             // Real 401s are handled centrally by AuthInterceptor, which clears
             // the session and routes to login, so nothing is cleared here.
-            if (kDebugMode) {
-              print(
-                '⚠️ AuthBloc: Could not verify user (${error.message}) — '
-                'keeping session, falling back to cached profile',
-              );
-            }
 
             final cached = await _userProfileRepository.getProfile();
             cached.fold(
@@ -69,21 +61,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             );
           },
           (user) async {
-            if (kDebugMode) {
-              print('✅ AuthBloc: User authenticated - ${user.email}');
-            }
             emit(AuthState.authenticated(token: token, user: user));
             _syncWithFirebase(user.id.toString());
           },
         );
       } else {
-        if (kDebugMode) print('❌ AuthBloc: No token found');
         emit(const AuthState.unauthenticated());
       }
     } catch (e) {
       // Same reasoning as above: an unexpected client-side failure must not
       // cost the user their session.
-      if (kDebugMode) print('⚠️ AuthBloc: Error checking auth — keeping session: $e');
       emit(const AuthState.unauthenticated());
     }
   }
@@ -92,7 +79,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _UserLoggedIn event,
     Emitter<AuthState> emit,
   ) async {
-    if (kDebugMode) print('🔵 AuthBloc: User logged in, fetching user data');
     emit(const AuthState.loading());
 
     try {
@@ -101,21 +87,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       result.fold(
         (error) {
-          if (kDebugMode) {
-            print('❌ AuthBloc: Failed to get user - ${error.message}');
-          }
           emit(const AuthState.unauthenticated());
         },
         (user) {
-          if (kDebugMode) {
-            print('✅ AuthBloc: User authenticated - ${user.email}');
-          }
           emit(AuthState.authenticated(token: token ?? '', user: user));
           _syncWithFirebase(user.id.toString());
         },
       );
     } catch (e) {
-      if (kDebugMode) print('❌ AuthBloc: Error fetching user - $e');
       emit(const AuthState.unauthenticated());
     }
   }
@@ -124,7 +103,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _UserLoggedOut event,
     Emitter<AuthState> emit,
   ) async {
-    if (kDebugMode) print('🔵 AuthBloc: User logged out — clearing all caches');
     try {
       final profileResult = await _userProfileRepository.getProfile();
       profileResult.fold(
@@ -140,9 +118,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _TokenRefreshed event,
     Emitter<AuthState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🔵 AuthBloc: Token refresh received — saving & revalidating');
-    }
     emit(const AuthState.loading());
 
     try {
@@ -155,12 +130,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           // The token was just issued — a failed /customers/me here means the
           // backend is unwell, not that the token is bad. Discarding it would
           // sign the user out immediately after a successful login.
-          if (kDebugMode) {
-            print(
-              '⚠️ AuthBloc: Token revalidation failed (${error.message}) — '
-              'keeping token, falling back to cached profile',
-            );
-          }
 
           final cached = await _userProfileRepository.getProfile();
           cached.fold(
@@ -172,15 +141,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
         },
         (user) async {
-          if (kDebugMode) {
-            print('✅ AuthBloc: Token revalidated — ${user.email}');
-          }
           emit(AuthState.authenticated(token: event.newToken, user: user));
           _syncWithFirebase(user.id.toString());
         },
       );
     } catch (e) {
-      if (kDebugMode) print('⚠️ AuthBloc: Token refresh error — keeping token: $e');
       emit(const AuthState.unauthenticated());
     }
   }
@@ -194,16 +159,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         fcmToken = await FirebaseMessaging.instance.getToken();
       }
 
-      debugPrint('╔═══════════════════════════════════════════════════════════════════════════════════════');
-      debugPrint('║ 🔥 [FIREBASE] Device token active and bound directly to user:');
-      debugPrint('║ 👤 User ID: $userId');
-      debugPrint('║ 🔑 Token: $fcmToken');
-      debugPrint('║ 🏷️ Topics: user_$userId, customer_$userId');
-      debugPrint('╚═══════════════════════════════════════════════════════════════════════════════════════');
       // ignore: avoid_print
-      print('FIREBASE_ACTIVE_USER_TOKEN: $fcmToken');
     } catch (e) {
-      debugPrint('⚠️ [FIREBASE] Exception while syncing with Firebase: $e');
     }
   }
 }

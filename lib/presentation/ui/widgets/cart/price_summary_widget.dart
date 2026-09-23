@@ -33,8 +33,8 @@ class PriceSummaryWidget extends StatelessWidget {
     required this.itemsCount,
   });
 
-  String _formatPrice(double value, {bool floor = false}) {
-    final absVal = floor ? value.abs().floor() : value.abs().round();
+  String _formatPrice(num value) {
+    final absVal = value.abs().round();
     final formatted = absVal.toString();
     final result = formatted.replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -48,6 +48,24 @@ class PriceSummaryWidget extends StatelessWidget {
     final effectiveDiscountTitle = discountTitle.isNotEmpty
         ? discountTitle
         : 'Discount';
+
+    final int dispSubtotal = subtotal.round();
+    final int dispShipping = shippingAmount.round();
+    final int dispClubPoints = clubPointDiscount.abs().round();
+    final int dispGrandTotal = grandTotal.round();
+
+    // ── Reconcile Discount with Total ──
+    // In e-commerce, displayed line items must always mathematically balance:
+    // Subtotal - Discount - ClubPoints + Shipping == GrandTotal
+    int dispDiscount = discountAmount.abs().round();
+    if (discountAmount != 0) {
+      final reconciledDiscount =
+          dispSubtotal + dispShipping - dispClubPoints - dispGrandTotal;
+      if (reconciledDiscount >= 0 &&
+          (reconciledDiscount - dispDiscount).abs() <= 2) {
+        dispDiscount = reconciledDiscount;
+      }
+    }
 
     return Container(
       padding: EdgeInsets.all(14.w),
@@ -77,7 +95,7 @@ class PriceSummaryWidget extends StatelessWidget {
           _buildRow(
             Icons.shopping_bag_outlined,
             'Subtotal ($itemsCount ${itemsCount == 1 ? "item" : "items"})',
-            _formatPrice(subtotal),
+            _formatPrice(dispSubtotal),
           ),
 
           if (discountAmount != 0) ...[
@@ -85,7 +103,7 @@ class PriceSummaryWidget extends StatelessWidget {
             _buildRow(
               Icons.local_offer_outlined,
               effectiveDiscountTitle,
-              '-${_formatPrice(discountAmount.abs(), floor: true)}',
+              '-${_formatPrice(dispDiscount)}',
               isDiscount: true,
             ),
           ],
@@ -95,7 +113,7 @@ class PriceSummaryWidget extends StatelessWidget {
             _buildRow(
               Icons.stars_rounded,
               'Club Points Discount',
-              '-${_formatPrice(clubPointDiscount.abs(), floor: true)}',
+              '-${_formatPrice(dispClubPoints)}',
               isDiscount: true,
             ),
           ],
@@ -104,7 +122,7 @@ class PriceSummaryWidget extends StatelessWidget {
           _buildRow(
             Icons.local_shipping_outlined,
             'Shipping',
-            shippingAmount > 0 ? _formatPrice(shippingAmount) : '৳0',
+            dispShipping > 0 ? _formatPrice(dispShipping) : '৳0',
           ),
 
           // ── Modern Dashed Separator (------) ──
@@ -140,7 +158,7 @@ class PriceSummaryWidget extends StatelessWidget {
                 style: AppTypography.titleMedium,
               ),
               Text(
-                _formatPrice(grandTotal),
+                _formatPrice(dispGrandTotal),
                 style: AppTypography.priceLarge.withColor(AppColors.pickabooBlue),
               ),
             ],
@@ -150,7 +168,7 @@ class PriceSummaryWidget extends StatelessWidget {
           if (discountAmount != 0) ...[
             SizedBox(height: 14.h),
             Text(
-              "You will save ${_formatPrice(discountAmount.abs(), floor: true)} on this order, may vary based on payment method.",
+              "You will save ${_formatPrice(dispDiscount)} on this order, may vary based on payment method.",
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.pickabooBlue,
                 fontWeight: FontWeight.w500,
@@ -169,14 +187,12 @@ class PriceSummaryWidget extends StatelessWidget {
     String value, {
     bool isDiscount = false,
   }) {
-    final Color valueColor = isDiscount ? AppColors.orange : AppColors.navy;
-
     return Row(
       children: [
         Icon(
           icon,
           size: 15.sp,
-          color: isDiscount ? AppColors.orange : AppColors.mutedLight,
+          color: AppColors.mutedLight,
         ),
         SizedBox(width: 8.w),
         Expanded(
@@ -190,12 +206,7 @@ class PriceSummaryWidget extends StatelessWidget {
         SizedBox(width: 8.w),
         Text(
           value,
-          style: isDiscount
-              ? AppTypography.bodySmall.copyWith(
-                  color: valueColor,
-                  fontWeight: FontWeight.w600,
-                )
-              : AppTypography.priceStandard.withColor(valueColor),
+          style: AppTypography.priceStandard.withColor(AppColors.navy),
         ),
       ],
     );

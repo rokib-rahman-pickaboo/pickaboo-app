@@ -5,11 +5,13 @@ import 'package:pickaboo/presentation/ui/widgets/common/unified_checkout_bottom_
 class CartCheckoutButton extends StatelessWidget {
   final double grandTotal;
   final VoidCallback onCheckout;
+  final bool isLoading;
 
   const CartCheckoutButton({
     super.key,
     required this.grandTotal,
     required this.onCheckout,
+    this.isLoading = false,
   });
 
   @override
@@ -20,7 +22,8 @@ class CartCheckoutButton extends StatelessWidget {
       priceLabel: 'Total Payable',
       totalPrice: grandTotal,
       buttonText: 'Checkout',
-      onPressed: onCheckout,
+      isLoading: isLoading,
+      onPressed: isLoading ? null : onCheckout,
     );
   }
 }

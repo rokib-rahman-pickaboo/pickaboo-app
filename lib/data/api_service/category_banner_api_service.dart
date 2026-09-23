@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -27,10 +26,6 @@ class ICategoryBannerApiService extends CategoryBannerApiService {
         ApiEndpoints.categoryBannersUrl(categoryId: categoryId),
       );
 
-      if (kDebugMode) {
-        debugPrint("category_banners($categoryId) -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is List) {
         final result = data
@@ -47,9 +42,6 @@ class ICategoryBannerApiService extends CategoryBannerApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("category_banners_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }

@@ -109,12 +109,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     _analytics.logSearch(searchString: _currentQuery);
 
-    debugPrint('🔎 [SEARCH_BLOC] Search submitted');
-    debugPrint('🔎 [SEARCH_BLOC] Query: $_currentQuery');
-    debugPrint('🔎 [SEARCH_BLOC] Category: $_currentCategoryId');
-    debugPrint('🔎 [SEARCH_BLOC] Filters: $_currentFilters');
-    debugPrint('🔎 [SEARCH_BLOC] Sort: $_sortBy $_sortOrder');
-
     emit(
       SearchState(
         pagingState: PagingState(),
@@ -128,7 +122,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       state.copyWith(pagingState: state.pagingState.copyWith(isLoading: true)),
     );
 
-    debugPrint('🔎 [SEARCH_BLOC] Calling repository.search...');
     final result = await repository.search(
       query: _currentQuery,
       categoryId: _currentCategoryId,
@@ -151,10 +144,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       (response) {
         final newItems = response.products;
         final bool isLastPage = newItems.length < _pageSize;
-
-        debugPrint(
-          '🔎 [SEARCH_BLOC] Search response received: ${newItems.length} items',
-        );
 
         emit(
           state.copyWith(
@@ -225,14 +214,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     _SearchFilterApplied event,
     Emitter<SearchState> emit,
   ) async {
-    debugPrint('🔎 [SEARCH_BLOC] Filter applied event received');
-    debugPrint('🔎 [SEARCH_BLOC] New filters: ${event.filters}');
-    debugPrint('🔎 [SEARCH_BLOC] Current query: $_currentQuery');
-    debugPrint('🔎 [SEARCH_BLOC] Current category: $_currentCategoryId');
 
     _currentFilters = event.filters;
 
-    debugPrint('🔎 [SEARCH_BLOC] Triggering new search with filters...');
     add(
       SearchEvent.searchSubmitted(
         query: _currentQuery,

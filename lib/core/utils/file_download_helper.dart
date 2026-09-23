@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
@@ -119,9 +118,6 @@ class FileDownloadHelper {
         throw Exception("File was not saved successfully.");
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Download error: $e");
-      }
       if (context.mounted) {
         SnackBarUtils.showError(context, "Failed to download $fileName.");
       }

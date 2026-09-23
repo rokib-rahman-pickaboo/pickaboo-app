@@ -194,7 +194,7 @@ class _OrderListPageState extends State<OrderListPage> {
                             onPay: () {
                               context.goToOrderPayment(
                                 orderId: order.orderId.toString(),
-                                selectedMethod: order.paymentMethod,
+                                selectedMethod: order.paymentMethod,//PassingPreviousPaymentMethod
                                 grandTotal: order.grandtotal,
                                 subtotal: order.subtotal,
                                 shippingAmount: order.shipping,

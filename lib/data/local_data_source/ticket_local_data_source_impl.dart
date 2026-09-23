@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/constants/db_constants.dart';
@@ -20,9 +19,6 @@ class TicketLocalDataSourceImpl implements TicketLocalDataSource {
     final box = await _cacheBox();
 
     if (box.isEmpty) {
-      if (kDebugMode) {
-        print('📦 Ticket Cache: Empty');
-      }
       return null;
     }
 
@@ -32,18 +28,19 @@ class TicketLocalDataSourceImpl implements TicketLocalDataSource {
     }
 
     if (wrapper.isExpired) {
-      if (kDebugMode) {
-        print('⏰ Ticket Cache: Expired (cached ${wrapper.cachedAt})');
-      }
       await box.clear();
       return null;
     }
 
-    if (kDebugMode) {
-      print('✅ Ticket Cache: Valid');
-    }
-
     return wrapper.tickets;
+  }
+
+  @override
+  Future<List<TicketResponse>?> getCachedTickets() async {
+    final box = await _cacheBox();
+    if (box.isEmpty) return null;
+    final wrapper = box.getAt(0);
+    return wrapper?.tickets;
   }
 
   @override
@@ -58,17 +55,11 @@ class TicketLocalDataSourceImpl implements TicketLocalDataSource {
 
     await box.add(wrapper);
 
-    if (kDebugMode) {
-      print('📦 Ticket Cache: Saved tickets at ${wrapper.cachedAt}');
-    }
   }
 
   @override
   Future<void> clearTickets() async {
     final box = await _cacheBox();
     await box.clear();
-    if (kDebugMode) {
-      print('📦 Ticket Cache: Cleared');
-    }
   }
 }

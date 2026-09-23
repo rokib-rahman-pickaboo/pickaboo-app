@@ -67,7 +67,7 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
           AppSpacing.sameGroupItemSpacing.w,
           0,
           AppSpacing.sameGroupItemSpacing.w,
-          20.h,
+          footnote != null ? 8.h : 20.h,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -187,7 +187,7 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
 
             // ── 3. Bottom T&C / Footnote (Outside of Card in the bottom 20.00 area) ──
             if (footnote != null) ...[
-              SizedBox(height: 5.h),
+              SizedBox(height: 6.h),
               Center(child: footnote!),
             ],
           ],

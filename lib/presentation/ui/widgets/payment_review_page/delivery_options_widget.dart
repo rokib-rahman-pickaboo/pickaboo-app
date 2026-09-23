@@ -53,6 +53,7 @@ class DeliveryOptionsWidget extends StatelessWidget {
                 for (var i = 0; i < methods.length; i++) ...[
                   if (i > 0) SizedBox(height: 8.h),
                   _DeliveryOptionCard(
+                    key: ValueKey("${methods[i].carrierCode}_${methods[i].methodCode}"),
                     method: methods[i],
                     onTap: () => onSameMethodSelected(methods[i]),
                   ),
@@ -69,7 +70,11 @@ class _DeliveryOptionCard extends StatelessWidget {
   final DeliveryMethod method;
   final VoidCallback onTap;
 
-  const _DeliveryOptionCard({required this.method, required this.onTap});
+  const _DeliveryOptionCard({
+    super.key,
+    required this.method,
+    required this.onTap,
+  });
 
   String get _amount => method.amount > 0
       ? '৳ ${method.amount.toStringAsFixed(0)}'
@@ -80,7 +85,7 @@ class _DeliveryOptionCard extends StatelessWidget {
     final selected = method.isSelected;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: selected ? null : onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),

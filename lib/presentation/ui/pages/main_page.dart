@@ -21,6 +21,7 @@ import 'package:pickaboo/presentation/bloc/nav_drawer/nav_drawer_bloc.dart';
 import 'package:pickaboo/presentation/navigation/deep_link_handler.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/nav_drawer/nav_drawer.dart';
+import 'package:upgrader/upgrader.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key, required this.navigationShell});
@@ -75,10 +76,15 @@ class _MainPageState extends State<MainPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   StreamSubscription? _deepLinkSubscription;
   late NavDrawerBloc _navDrawerBloc;
+  late final Upgrader _upgrader;
 
   @override
   void initState() {
     super.initState();
+    _upgrader = Upgrader(
+      durationUntilAlertAgain: const Duration(days: 1),
+      debugLogging: kDebugMode,
+    );
 
     MainPage.tabHistory.clear();
     MainPage.tabHistory.add(widget.navigationShell.currentIndex);
@@ -92,9 +98,6 @@ class _MainPageState extends State<MainPage> {
 
     _deepLinkSubscription = getIt<PushNotificationService>().deepLinkStream
         .listen((link) {
-          if (kDebugMode) {
-            print('🔔 [MainPage] DeepLink Received: $link');
-          }
           if (mounted) {
             getIt<DeepLinkHandler>().handleDeepLink(link, GoRouter.of(context));
           }
@@ -137,26 +140,31 @@ class _MainPageState extends State<MainPage> {
       child: ValueListenableBuilder<bool>(
         valueListenable: MainPage.hideBottomNav,
         builder: (context, hideNav, _) {
-          return Scaffold(
-            key: _scaffoldKey,
-            extendBody: true,
-            drawer: const NavDrawer(),
-            onDrawerChanged: (isOpened) {
-              context.read<NavDrawerBloc>().add(
-                NavDrawerEvent.drawerChanged(isOpen: isOpened),
-              );
-            },
-            body: useRail
-                ? Row(
-                    children: [
-                      _buildNavigationRail(context),
-                      const VerticalDivider(width: 1, thickness: 1),
-                      Expanded(child: widget.navigationShell),
-                    ],
-                  )
-                : widget.navigationShell,
-            bottomNavigationBar:
-                (useRail || hideNav) ? null : _buildBottomNavBar(context),
+          return UpgradeAlert(
+            upgrader: _upgrader,
+            showIgnore: false,
+            showLater: true,
+            child: Scaffold(
+              key: _scaffoldKey,
+              extendBody: true,
+              drawer: const NavDrawer(),
+              onDrawerChanged: (isOpened) {
+                context.read<NavDrawerBloc>().add(
+                  NavDrawerEvent.drawerChanged(isOpen: isOpened),
+                );
+              },
+              body: useRail
+                  ? Row(
+                      children: [
+                        _buildNavigationRail(context),
+                        const VerticalDivider(width: 1, thickness: 1),
+                        Expanded(child: widget.navigationShell),
+                      ],
+                    )
+                  : widget.navigationShell,
+              bottomNavigationBar:
+                  (useRail || hideNav) ? null : _buildBottomNavBar(context),
+            ),
           );
         },
       ),
@@ -333,7 +341,7 @@ class _MainPageState extends State<MainPage> {
           couponApplied: (cart, _) => cart.itemsCount,
           rewardPointsApplied: (cart, _) => cart.itemsCount,
           operationInProgress: (cart, _) => cart.itemsCount,
-          orElse: () => 0,
+          orElse: () => context.read<CartBloc>().currentCartCount,
         );
 
         return Column(

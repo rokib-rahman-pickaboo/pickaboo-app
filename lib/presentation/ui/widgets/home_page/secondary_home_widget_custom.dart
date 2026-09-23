@@ -239,7 +239,6 @@ class _SecondaryHomeWidgetCustomState extends State<SecondaryHomeWidgetCustom> {
         }
       }
     } catch (e) {
-      debugPrint('Local category pre-population note: $e');
     }
 
     // If zero local data was available anywhere, display loader

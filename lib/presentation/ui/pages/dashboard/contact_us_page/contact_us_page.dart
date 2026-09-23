@@ -56,28 +56,7 @@ class ContactUsPage extends StatelessWidget {
     }
   }
 
-  Future<void> _launchWhatsApp(BuildContext context, String phone) async {
-    final cleaned = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    final nativeUri = Uri.parse('whatsapp://send?phone=$cleaned');
-    final webUri = Uri.parse('https://wa.me/$cleaned');
-    try {
-      if (await canLaunchUrl(nativeUri)) {
-        await launchUrl(nativeUri, mode: LaunchMode.externalApplication);
-      } else if (await canLaunchUrl(webUri)) {
-        await launchUrl(webUri, mode: LaunchMode.externalApplication);
-      } else {
-        await launchUrl(webUri, mode: LaunchMode.externalApplication);
-      }
-    } catch (_) {
-      try {
-        await launchUrl(webUri, mode: LaunchMode.externalApplication);
-      } catch (_) {
-        if (context.mounted) {
-          SnackBarUtils.showError(context, 'Could not open WhatsApp');
-        }
-      }
-    }
-  }
+
 
   /*
   Future<void> _launchEmail(BuildContext context, String email) async {

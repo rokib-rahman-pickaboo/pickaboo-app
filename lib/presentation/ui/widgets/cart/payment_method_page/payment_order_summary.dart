@@ -39,8 +39,8 @@ class PaymentOrderSummary extends StatelessWidget {
   ) =>
       tenure?.convenienceFeeOn(totals.grandTotal) ?? 0;
 
-  String _formatPrice(double value, {bool floor = false}) {
-    final absVal = floor ? value.abs().floor() : value.abs().round();
+  String _formatPrice(num value) {
+    final absVal = value.abs().round();
     final formatted = absVal.toString();
     final result = formatted.replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -73,6 +73,28 @@ class PaymentOrderSummary extends StatelessWidget {
         .where((s) => s.code == 'rewards-spend-amount')
         .fold<double>(0, (_, s) => s.value.abs());
 
+    final int dispSubtotal = totals.subtotal.round();
+    final int dispShipping = totals.shippingAmount.round();
+    final int dispConvenienceFee = convenienceFee.round();
+    final int dispClubPoints = clubPointDiscount.round();
+    final int dispGrandTotal = displayGrandTotal.round();
+
+    // ── Reconcile Discount with Total ──
+    // In e-commerce, displayed line items must always mathematically balance:
+    // Subtotal - Discount - ClubPoints + Shipping + ConvenienceFee == GrandTotal
+    int dispDiscount = totalDiscount.abs().round();
+    if (totalDiscount.abs() > 0) {
+      final reconciledDiscount = dispSubtotal +
+          dispShipping +
+          dispConvenienceFee -
+          dispClubPoints -
+          dispGrandTotal;
+      if (reconciledDiscount >= 0 &&
+          (reconciledDiscount - dispDiscount).abs() <= 2) {
+        dispDiscount = reconciledDiscount;
+      }
+    }
+
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
@@ -93,7 +115,7 @@ class PaymentOrderSummary extends StatelessWidget {
           _buildRow(
             Icons.shopping_bag_outlined,
             "Subtotal ($itemsCount ${itemsCount == 1 ? 'item' : 'items'})",
-            _formatPrice(totals.subtotal),
+            _formatPrice(dispSubtotal),
           ),
 
           if (totalDiscount.abs() > 0) ...[
@@ -101,7 +123,7 @@ class PaymentOrderSummary extends StatelessWidget {
             _buildRow(
               Icons.local_offer_outlined,
               discountLabel,
-              "-${_formatPrice(totalDiscount.abs(), floor: true)}",
+              "-${_formatPrice(dispDiscount)}",
               isDiscount: true,
             ),
           ],
@@ -111,7 +133,7 @@ class PaymentOrderSummary extends StatelessWidget {
             _buildRow(
               Icons.credit_card_outlined,
               "Convenience Fee",
-              _formatPrice(convenienceFee),
+              _formatPrice(dispConvenienceFee),
             ),
           ],
 
@@ -119,7 +141,7 @@ class PaymentOrderSummary extends StatelessWidget {
           _buildRow(
             Icons.local_shipping_outlined,
             "Shipping and Handeling",
-            totals.shippingAmount > 0 ? _formatPrice(totals.shippingAmount) : "৳0",
+            dispShipping > 0 ? _formatPrice(dispShipping) : "৳0",
           ),
 
           if (clubPointDiscount > 0) ...[
@@ -127,7 +149,7 @@ class PaymentOrderSummary extends StatelessWidget {
             _buildRow(
               Icons.stars_rounded,
               "Club Point Discount",
-              "-${_formatPrice(clubPointDiscount, floor: true)}",
+              "-${_formatPrice(dispClubPoints)}",
               isDiscount: true,
             ),
           ],
@@ -165,7 +187,7 @@ class PaymentOrderSummary extends StatelessWidget {
                 style: AppTypography.titleMedium,
               ),
               Text(
-                _formatPrice(displayGrandTotal),
+                _formatPrice(dispGrandTotal),
                 style: AppTypography.priceLarge.withColor(AppColors.pickabooBlue),
               ),
             ],
@@ -194,7 +216,7 @@ class PaymentOrderSummary extends StatelessWidget {
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
-                      "You're saving ${_formatPrice(totalDiscount.abs(), floor: true)} on this order!",
+                      "You're saving ${_formatPrice(dispDiscount)} on this order!",
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.amber,
                         fontWeight: FontWeight.w700,
@@ -216,14 +238,12 @@ class PaymentOrderSummary extends StatelessWidget {
     String amount, {
     bool isDiscount = false,
   }) {
-    final Color valueColor = isDiscount ? AppColors.green : AppColors.navy;
-
     return Row(
       children: [
         Icon(
           icon,
           size: 15.sp,
-          color: isDiscount ? AppColors.green : AppColors.mutedLight,
+          color: AppColors.mutedLight,
         ),
         SizedBox(width: 8.w),
         Expanded(
@@ -237,7 +257,7 @@ class PaymentOrderSummary extends StatelessWidget {
         SizedBox(width: 8.w),
         Text(
           amount,
-          style: isDiscount ? AppTypography.savingsText.withColor(valueColor) : AppTypography.priceStandard.withColor(valueColor),
+          style: AppTypography.priceStandard.withColor(AppColors.navy),
         ),
       ],
     );

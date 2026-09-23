@@ -227,7 +227,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                     context,
                     "Review submitted successfully!",
                   );
-                  context.pop();
+                  context.pop(true);
                 },
                 error: (err) {
                   SnackBarUtils.showError(context, err.message);

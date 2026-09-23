@@ -213,19 +213,10 @@ class _MyAppState extends State<MyApp> {
                         listeners: [
                           BlocListener<InternetBloc, InternetState>(
                             listener: (context, state) {
-                              debugPrint(
-                                '🌐 [MyApp] BlocListener received state: $state',
-                              );
                               state.whenOrNull(
                                 disconnected: (message) {
-                                  debugPrint(
-                                    '🌐 [MyApp] Offline: "$message"',
-                                  );
                                 },
                                 connected: (message) {
-                                  debugPrint(
-                                    '🌐 [MyApp] ✅ Connected: "$message"',
-                                  );
                                 },
                               );
                             },

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -17,16 +16,7 @@ class IWishlistApiService implements WishlistApiService {
   @override
   Future<Either<ErrorResponse, List<WishlistResponse>>> getWishlist() async {
     try {
-      if (kDebugMode) {
-        print(
-          '📡 Sending Get Wishlist Request to ${ApiEndpoints.getWishlistUrl}',
-        );
-      }
       final response = await _dio.get(ApiEndpoints.getWishlistUrl);
-
-      if (kDebugMode) {
-        print('📥 Get Wishlist Response: ${jsonEncode(response.data)}');
-      }
 
       if (response.data is List) {
         final list = (response.data as List)
@@ -37,16 +27,11 @@ class IWishlistApiService implements WishlistApiService {
       return const Right([]);
     } on DioException catch (e) {
       if (kDebugMode) {
-        print('❌ Get Wishlist Error: $e');
         if (e.response != null) {
-          print('❌ Error Response: ${jsonEncode(e.response?.data)}');
         }
       }
       return Left(ErrorResponse.fromJson(e.response?.data ?? {}));
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Unexpected Get Wishlist Error: $e');
-      }
       return Left(ErrorResponse(message: e.toString()));
     }
   }
@@ -55,21 +40,12 @@ class IWishlistApiService implements WishlistApiService {
   Future<Either<ErrorResponse, bool>> addToWishlist(String productId) async {
     try {
       final endpoint = ApiEndpoints.addToWishlistUrl(productId: productId);
-      if (kDebugMode) {
-        print('📡 Sending Add to Wishlist Request: $endpoint');
-      }
       final response = await _dio.post(endpoint);
-
-      if (kDebugMode) {
-        print('📥 Add to Wishlist Response: ${jsonEncode(response.data)}');
-      }
 
       return Right(response.statusCode == 200 || response.data == true);
     } on DioException catch (e) {
       if (kDebugMode) {
-        print('❌ Add to Wishlist Error: $e');
         if (e.response != null) {
-          print('❌ Error Response: ${jsonEncode(e.response?.data)}');
         }
       }
       return Left(ErrorResponse.fromJson(e.response?.data ?? {}));
@@ -83,26 +59,15 @@ class IWishlistApiService implements WishlistApiService {
     String productId,
   ) async {
     try {
-      if (kDebugMode) {
-        print(
-          '📡 Sending Remove from Wishlist Request: ${ApiEndpoints.removeFromWishlistUrl}?productId=$productId',
-        );
-      }
       final response = await _dio.delete(
         ApiEndpoints.removeFromWishlistUrl,
         queryParameters: {'productId': productId},
       );
 
-      if (kDebugMode) {
-        print('📥 Remove from Wishlist Response: ${jsonEncode(response.data)}');
-      }
-
       return Right(response.statusCode == 200 || response.data == true);
     } on DioException catch (e) {
       if (kDebugMode) {
-        print('❌ Remove from Wishlist Error: $e');
         if (e.response != null) {
-          print('❌ Error Response: ${jsonEncode(e.response?.data)}');
         }
       }
       return Left(ErrorResponse.fromJson(e.response?.data ?? {}));

@@ -23,15 +23,9 @@ class PromotionSliderBloc extends Bloc<PromotionSliderEvent, PromotionSliderStat
           final result = await repository.getPromotionSlider();
           result.fold(
             (l) {
-              if (kDebugMode) {
-                print('❌ [PromotionSliderBloc] Error: ${l.message}');
-              }
               emit(state.copyWith(error: l, status: PromotionSliderStatus.error));
             },
             (r) {
-              if (kDebugMode) {
-                print('✅ [PromotionSliderBloc] Success: ${r.length} slides');
-              }
               emit(
                 state.copyWith(
                   status: PromotionSliderStatus.success,

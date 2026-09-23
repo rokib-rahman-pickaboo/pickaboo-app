@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/core/monitoring/crash_reporter.dart';
@@ -31,12 +30,6 @@ class AuthInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer $token';
     }
 
-    if (kDebugMode) {
-      print('🌐 Request: ${options.method} ${options.baseUrl}${options.path}');
-      print(
-        'auth -> ${skipAuth ? 'SKIPPED (noAuth)' : (token != null ? 'Bearer attached' : 'no token')}',
-      );
-    }
     return handler.next(options);
   }
 
@@ -46,10 +39,6 @@ class AuthInterceptor extends Interceptor {
   Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     CrashReporter.record(err, err.stackTrace);
 
-    if (kDebugMode) {
-      print('🔴 Error: ${err.response?.statusCode} → ${err.response?.requestOptions.path}');
-    }
-
     final hadToken =
         err.requestOptions.headers['Authorization'] != null &&
         err.requestOptions.extra['noAuth'] != true;
@@ -57,9 +46,6 @@ class AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == 401 && hadToken && !_handlingUnauthorized) {
       _handlingUnauthorized = true;
       try {
-        if (kDebugMode) {
-          print('🔐 401 detected — clearing session and redirecting to login');
-        }
 
         await Future.wait([
           _authCacheManager.signOut(),

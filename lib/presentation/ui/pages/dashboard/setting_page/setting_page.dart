@@ -81,7 +81,6 @@ class _SettingsPageState extends State<SettingsPage>
         });
       }
     } catch (e) {
-      debugPrint('Error syncing notification settings: $e');
     }
   }
 
@@ -111,7 +110,6 @@ class _SettingsPageState extends State<SettingsPage>
           );
         }
       } catch (e) {
-        debugPrint('Error enabling notifications: $e');
         if (mounted) {
           SnackBarUtils.showError(
             context,
@@ -128,7 +126,6 @@ class _SettingsPageState extends State<SettingsPage>
       try {
         await notificationService.disableNotifications();
       } catch (e) {
-        debugPrint('Error disabling notifications: $e');
       }
 
       if (mounted) {

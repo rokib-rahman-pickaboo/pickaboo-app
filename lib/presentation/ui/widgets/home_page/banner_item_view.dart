@@ -69,7 +69,6 @@ class BannerItemView extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        debugPrint('TESTING: BannerItemView Tapped!');
         onTap?.call(banner);
       },
       child: Container(

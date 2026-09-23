@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -24,10 +23,6 @@ class IHomepageOffersApiService extends HomepageOffersApiService {
     try {
       final response = await _client.get(ApiEndpoints.homepageOffersUrl);
 
-      if (kDebugMode) {
-        debugPrint("homepage_offers -> ${response.data}");
-      }
-
       final data = response.data;
 
       if (data is Map<String, dynamic>) {
@@ -41,9 +36,6 @@ class IHomepageOffersApiService extends HomepageOffersApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("homepage_offers_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }

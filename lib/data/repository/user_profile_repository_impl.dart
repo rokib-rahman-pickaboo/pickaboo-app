@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/constants/app_recaptcha_actions.dart';
@@ -43,7 +43,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
   @override
   Future<Either<AppErrorEntity, UserEntity>> getProfile({
-    bool forceRefresh = false,
+    bool forceRefresh = true,
   }) async {
     final token = await _authCacheManager.getToken();
     if (token == null) {
@@ -57,14 +57,21 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
           return Right(cachedProfile.toEntity());
         }
       } catch (e) {
-        debugPrint('Cache error: $e');
       }
     }
 
     final result = await _apiService.getUserProfile();
     return result.fold(
-      (error) async =>
-          Left(error.toEntity()),
+      (error) async {
+        try {
+          final cachedProfile = await _localDataSource.getUserProfileIfValid();
+          if (cachedProfile != null) {
+            return Right(cachedProfile.toEntity());
+          }
+        } catch (e) {
+        }
+        return Left(error.toEntity());
+      },
       (response) async {
         await _localDataSource.insertUserProfile(response);
         if (response.id != null) {
@@ -194,10 +201,13 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
     final String recaptchaToken;
     try {
+      debugPrint('[RECAPTCHA_FLOW] 1/3: sendPhoneUpdateOtp requesting token for action=${AppRecaptchaActions.profilePhoneSendOtp}');
       recaptchaToken = await _recaptcha.executeAction(
         AppRecaptchaActions.profilePhoneSendOtp,
       );
+      debugPrint('[RECAPTCHA_FLOW] 2/3: sendPhoneUpdateOtp acquired token (len=${recaptchaToken.length}). Forwarding to apiService.sendPhoneUpdateOtp...');
     } catch (e) {
+      debugPrint('[RECAPTCHA_FLOW] ❌ sendPhoneUpdateOtp reCAPTCHA failed: $e');
       return const Left(
         AppErrorEntity(
           message:
@@ -213,9 +223,11 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
     return result.fold(
       (error) {
+        debugPrint('[RECAPTCHA_FLOW] ❌ sendPhoneUpdateOtp API error: ${error.message}');
         return Left(error.toEntity());
       },
       (response) {
+        debugPrint('[RECAPTCHA_FLOW] 3/3: sendPhoneUpdateOtp SUCCESS | message="${response.message}"');
         return Right(response);
       },
     );
@@ -291,6 +303,11 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  OrderListEntity? _cachedFirstPageOrders;
+
+  @override
+  OrderListEntity? getCachedFirstPageOrders() => _cachedFirstPageOrders;
+
   @override
   Future<Either<AppErrorEntity, OrderListEntity>> getOrders({
     int limit = 10,
@@ -306,9 +323,14 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       currentPage: currentPage,
     );
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
-      (response) => Right(response.toDomain()),
+      (error) => Left(error.toEntity()),
+      (response) {
+        final domain = response.toDomain();
+        if (currentPage == 1) {
+          _cachedFirstPageOrders = domain;
+        }
+        return Right(domain);
+      },
     );
   }
 
@@ -518,11 +540,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   Future<Either<AppErrorEntity, String>> _fallbackAddAddress(
     Map<String, dynamic> rawAddress,
   ) async {
-    if (kDebugMode) {
-      print(
-        '[UserProfileRepository] ⚠️ New endpoint 404 (route not found). Falling back to legacy updateCustomerUrl...',
-      );
-    }
     try {
       final profileResult = await _apiService.getUserProfile();
       return await profileResult.fold(
@@ -582,11 +599,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   Future<Either<AppErrorEntity, String>> _fallbackUpdateAddress(
     Map<String, dynamic> rawAddress,
   ) async {
-    if (kDebugMode) {
-      print(
-        '[UserProfileRepository] ⚠️ New endpoint 404 (route not found). Falling back to legacy updateCustomerUrl...',
-      );
-    }
     try {
       final profileResult = await _apiService.getUserProfile();
       return await profileResult.fold(
@@ -653,11 +665,6 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   Future<Either<AppErrorEntity, String>> _fallbackDeleteAddress(
     int addressId,
   ) async {
-    if (kDebugMode) {
-      print(
-        '[UserProfileRepository] ⚠️ New endpoint 404 (route not found). Falling back to legacy updateCustomerUrl...',
-      );
-    }
     try {
       final profileResult = await _apiService.getUserProfile();
       return await profileResult.fold(

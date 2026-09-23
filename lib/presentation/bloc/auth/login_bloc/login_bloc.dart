@@ -25,18 +25,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     _CheckUserExists event,
     Emitter<LoginState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🔵 LoginBloc: Checking if user exists - ${event.username}');
-    }
     emit(const LoginState.checkingUser());
 
     final result = await repository.checkUserExists(event.username);
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ LoginBloc: Check user error - ${error.message}');
-        }
         emit(
           LoginState.userNotFound(
             status: 'failure',
@@ -46,12 +40,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         );
       },
       (response) {
-        if (kDebugMode) {
-          print('✅ LoginBloc: User check result - ${response.message}');
-          print(
-            '   Status: ${response.status}, HTTP Code: ${response.httpCode}',
-          );
-        }
 
         if (response.status == 'success') {
           emit(
@@ -78,9 +66,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     _LoginWithPassword event,
     Emitter<LoginState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🔵 LoginBloc: Logging in with password - ${event.username}');
-    }
     emit(const LoginState.loginLoading());
 
     final loginResult = await repository.login(
@@ -90,11 +75,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     loginResult.fold(
       (error) {
-        if (kDebugMode) print('❌ LoginBloc: Login failed - ${error.message}');
         emit(LoginState.loginFailure(error.message));
       },
       (token) {
-        if (kDebugMode) print('✅ LoginBloc: Login successful - token saved');
         _analytics.logEvent(name: 'login', parameters: {'method': 'password'});
         emit(const LoginState.loginSuccess(status: 'success', isLogin: true));
       },
@@ -105,7 +88,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     _LoginWithSocial event,
     Emitter<LoginState> emit,
   ) async {
-    if (kDebugMode) print('🔵 LoginBloc: Logging in with ${event.provider}');
     emit(const LoginState.loginLoading());
 
     final loginResult = await repository.socialLogin(
@@ -117,15 +99,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     loginResult.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ LoginBloc: Social login failed - ${error.message}');
-        }
         emit(LoginState.loginFailure(error.message));
       },
       (token) {
-        if (kDebugMode) {
-          print('✅ LoginBloc: Social login successful - token saved');
-        }
         _analytics.logEvent(
           name: 'login',
           parameters: {'method': event.provider},

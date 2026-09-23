@@ -46,6 +46,7 @@
                 <data
                     android:scheme="pickaboo"
                     android:host="www.pickaboo.com" />
+                <data android:scheme="pickaboo" />
             </intent-filter>
 
             <!-- App Links: verified http/https links to www.pickaboo.com open

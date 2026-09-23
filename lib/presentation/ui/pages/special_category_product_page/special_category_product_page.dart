@@ -37,6 +37,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_filter_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/catalog_grid_skeleton.dart';
 import 'package:pickaboo/presentation/ui/pages/special_category_product_page/bottom_sheet/category_filter_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_product_results.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_filter_chips.dart';
@@ -149,7 +150,7 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                         !hasProducts &&
                         (state.pagingState.isLoading ||
                             state.pagingState.pages == null)) {
-                      return const AppLoader.fullPage();
+                      return const CatalogGridSkeleton();
                     }
 
                     if (state.pagingState.error != null &&

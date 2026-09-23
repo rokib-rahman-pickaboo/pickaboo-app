@@ -181,7 +181,7 @@ class Item with _$Item {
     @JsonKey(name: "sku") String? sku,
     @JsonKey(name: "qty") int? qty,
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "price") int? price,
+    @JsonKey(name: "price") num? price,
     @JsonKey(name: "product_type") String? productType,
     @JsonKey(name: "quote_id") String? quoteId,
     @JsonKey(name: "extension_attributes")
@@ -203,11 +203,11 @@ class ItemExtensionAttributes with _$ItemExtensionAttributes {
     @JsonKey(name: "brand") String? brand,
     @JsonKey(name: "image_url") String? imageUrl,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "spacial_price") int? spacialPrice,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "spacial_price") num? spacialPrice,
     @JsonKey(name: "discount") String? discount,
     @JsonKey(name: "custom_options") List<CustomOption>? customOptions,
-    @JsonKey(name: "item_subtotal") int? itemSubtotal,
+    @JsonKey(name: "item_subtotal") num? itemSubtotal,
     @JsonKey(name: "config_options") List<ConfigOption>? configOptions,
     @JsonKey(name: "reward_points") CartItemRewardPoints? rewardPoints,
   }) = _ItemExtensionAttributes;

@@ -4,11 +4,11 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
+import 'package:pickaboo/core/cache/fast_cache_manager.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/cart/checkout_entity.dart';
 import 'package:pickaboo/domain/repository/cart_repository.dart';
-import 'package:pickaboo/core/utils/error_filters.dart';
 import 'package:pickaboo/data/services/analytics_service.dart';
 
 part 'cart_event.dart';
@@ -21,7 +21,19 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   final AuthCacheManager _cacheManager;
   final AnalyticsService _analytics;
 
-  CartEntity? _currentCart;
+  static const String _cachedCartCountKey = 'CACHED_CART_COUNT';
+
+  CartEntity? __currentCart;
+  set _currentCart(CartEntity? cart) {
+    __currentCart = cart;
+    FastCacheManager.setInt(_cachedCartCountKey, cart?.itemsCount ?? 0);
+  }
+  CartEntity? get _currentCart => __currentCart;
+
+  /// Synchronously returns current cart count, falling back to persisted cache on cold start
+  int get currentCartCount =>
+      __currentCart?.itemsCount ?? FastCacheManager.getInt(_cachedCartCountKey) ?? 0;
+
   String? _guestCartId;
   bool _isMerging = false;
   bool _isPendingAddition = false;
@@ -61,25 +73,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   Future<void> _onGetCart(_GetCart event, Emitter<CartState> emit) async {
-    if (kDebugMode) print('🔵 CartBloc: _onGetCart called');
 
     final token = await _cacheManager.getToken();
     final isGuest = token == null || token.isEmpty;
-
-    if (kDebugMode) {
-      print('🔍 CartBloc: User is ${isGuest ? "GUEST" : "AUTHENTICATED"}');
-    }
 
     if (isGuest) {
       final guestCartId = await _cacheManager.getGuestCartId() ?? _guestCartId;
 
       if (guestCartId != null && guestCartId.isNotEmpty) {
-        if (kDebugMode) {
-          print('📋 CartBloc: Loading existing guest cart: $guestCartId');
-        }
         add(CartEvent.loadGuestCart(guestCartId: guestCartId));
       } else {
-        if (kDebugMode) print('➕ CartBloc: No guest cart found, creating new one');
         _forgetCart();
         add(const CartEvent.createGuestCart());
       }
@@ -88,18 +91,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     // Authenticated user flow:
     if (_isMerging) {
-      if (kDebugMode) {
-        print('⏳ CartBloc: Merge in progress, waiting for merge to complete');
-      }
       emit(const CartState.loading());
       return;
     }
 
     final guestCartId = await _cacheManager.getGuestCartId();
     if (guestCartId != null && guestCartId.isNotEmpty) {
-      if (kDebugMode) {
-        print('🔄 CartBloc: Found unmerged guest cart ($guestCartId), merging first');
-      }
       _forgetCart();
       emit(const CartState.loading());
       add(CartEvent.mergeGuestCart(guestCartId: guestCartId));
@@ -121,51 +118,32 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     await result.fold(
       (error) async {
         _isPendingAddition = false;
-        if (kDebugMode) print('❌ CartBloc: Load cart error - ${error.message}');
-
-        if (kDebugMode) print('➕ CartBloc: Cart not found, creating new one');
 
         final createResult = await repository.createCart();
         await createResult.fold(
           (createError) async {
             _isPendingAddition = false;
-            if (kDebugMode) print('❌ CartBloc: Cart creation failed - ${createError.message}');
             emit(const CartState.empty());
           },
           (quoteId) async {
             _isPendingAddition = false;
-            if (kDebugMode) print('✅ CartBloc: New cart created: $quoteId');
             await _cacheManager.setAuthQuoteId(quoteId: quoteId);
             emit(const CartState.empty());
           },
         );
       },
       (cart) async {
-        if (kDebugMode) {
-          print('✅ CartBloc: Cart loaded successfully');
-          print('  Cart ID: ${cart.id}');
-          print('  Items count: ${cart.itemsCount}');
-          print('  Items length: ${cart.items.length}');
-        }
         await _cacheManager.setAuthQuoteId(quoteId: cart.id);
 
         if (cart.items.isEmpty) {
           if (_isPendingAddition) return;
           _isPendingAddition = false;
-          if (kDebugMode) {
-            print('📭 CartBloc: Emitting empty state');
-          }
           emit(const CartState.empty());
           _forgetCart();
         } else {
           final enrichedCart = await _withCheckoutTotals(cart);
           _currentCart = enrichedCart;
           _isPendingAddition = false;
-          if (kDebugMode) {
-            print(
-              '📦 CartBloc: Emitting loaded state with ${enrichedCart.items.length} items',
-            );
-          }
           emit(CartState.loaded(enrichedCart));
         }
       },
@@ -192,9 +170,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     _ClearCartSession event,
     Emitter<CartState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🧹 CartBloc: Clearing cart session on logout');
-    }
     _forgetCart();
     _guestCartId = null;
     await _cacheManager.clearGuestCartId();
@@ -208,33 +183,19 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     required String reason,
   }) async {
     if (cartId.isEmpty) {
-      if (kDebugMode) {
-        print('🎁 CartBloc: skip point release ($reason) — no cart id');
-      }
       return;
     }
 
     final token = await _cacheManager.getToken();
     if (token == null || token.isEmpty) {
-      if (kDebugMode) {
-        print('🎁 CartBloc: skip point release ($reason) — guest');
-      }
       return;
     }
 
-    final result = await repository.applyRewardPoints(
+    await repository.applyRewardPoints(
       cartId: cartId,
       pointAmount: 0,
     );
 
-    if (kDebugMode) {
-      result.fold(
-        (error) => debugPrint(
-          '🎁 CartBloc: point release FAILED ($reason) — ${error.message}',
-        ),
-        (_) => debugPrint('🎁 CartBloc: points released ($reason) on cart $cartId'),
-      );
-    }
   }
 
   Future<void> _releaseRewardPointsBeforeDrain(String reason) async {
@@ -279,14 +240,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     await result.fold(
       (error) async {
-        if (kDebugMode) print('❌ CartBloc: Refresh cart error - ${error.message}');
 
         final createResult = await repository.createCart();
         await createResult.fold(
           (createError) async {
-            if (kDebugMode) {
-              print('❌ CartBloc: Cart creation failed - ${createError.message}');
-            }
             emit(const CartState.empty());
           },
           (quoteId) async {
@@ -321,9 +278,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     Emitter<CartState> emit,
   ) async {
     if (_isMerging) {
-      if (kDebugMode) {
-        print('⏳ CartBloc: Merge already in progress, skipping duplicate call');
-      }
       return;
     }
     _isMerging = true;
@@ -334,9 +288,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(const CartState.loading());
 
     try {
-      if (kDebugMode) {
-        print('🔄 CartBloc: Merging guest cart ${event.guestCartId}');
-      }
 
       int customerId = 0;
 
@@ -358,11 +309,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       }
 
       if (customerId == 0) {
-        if (kDebugMode) {
-          print(
-            '⚠️ CartBloc: Could not resolve customerId for merge, fetching cart normally',
-          );
-        }
         await _cacheManager.clearGuestCartId();
         _guestCartId = null;
         await _fetchAndEmitAuthCart(emit);
@@ -377,19 +323,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
       await result.fold(
         (error) async {
-          if (kDebugMode) {
-            print(
-              '⚠️ CartBloc: Merge guest cart failed (${error.message}) - fetching cart normally',
-            );
-          }
           await _cacheManager.clearGuestCartId();
           _guestCartId = null;
           await _fetchAndEmitAuthCart(emit);
         },
         (success) async {
-          if (kDebugMode) {
-            print('✅ CartBloc: Guest cart successfully merged!');
-          }
           await _cacheManager.clearGuestCartId();
           _guestCartId = null;
           await _fetchAndEmitAuthCart(emit);
@@ -483,9 +421,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     _UpdateItemQuantity event,
     Emitter<CartState> emit,
   ) async {
-    // 1. Directly apply the updated quantity (1-10) to the cart state immediately
-    if (_currentCart != null) {
-      final updatedItems = _currentCart!.items.map((cartItem) {
+    final previousCart = _currentCart;
+
+    // 1. Calculate interim cart state with updated quantity and estimated row total
+    CartEntity? interimCart = previousCart;
+    if (previousCart != null) {
+      final updatedItems = previousCart.items.map((cartItem) {
         if (cartItem.itemId == event.itemId) {
           final unitPrice = cartItem.specialPrice > 0
               ? cartItem.specialPrice
@@ -504,56 +445,89 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         (sum, item) => sum + item.rowTotal,
       );
       final newGrandTotal = newSubtotal -
-          _currentCart!.discountAmount -
-          _currentCart!.rewardPointsDiscount +
-          _currentCart!.shippingAmount +
-          _currentCart!.taxAmount;
+          previousCart.discountAmount -
+          previousCart.rewardPointsDiscount +
+          previousCart.shippingAmount +
+          previousCart.taxAmount;
 
-      final updatedCart = _currentCart!.copyWith(
+      interimCart = previousCart.copyWith(
         items: updatedItems,
         subtotal: newSubtotal,
         grandTotal: newGrandTotal > 0 ? newGrandTotal : 0.0,
       );
 
-      _currentCart = updatedCart;
-      emit(CartState.loaded(updatedCart));
+      _currentCart = interimCart;
+      // Immediately emit operationInProgress so the UI displays the loader
+      emit(CartState.operationInProgress(
+        cart: interimCart,
+        operation: 'updating_quantity',
+      ));
     }
 
     final token = await _cacheManager.getToken();
     final isGuest = token == null || token.isEmpty;
 
-    if (kDebugMode) {
-      print(
-        '🔄 Updating item quantity: itemId=${event.itemId}, qty=${event.qty} (Guest: $isGuest)',
-      );
-    }
-
     String? guestCartId = _guestCartId;
     if (isGuest && guestCartId == null) {
       guestCartId = await _cacheManager.getGuestCartId();
     }
+    final effectiveQuoteId = event.quoteId.isNotEmpty
+        ? event.quoteId
+        : (_currentCart?.id ?? '');
 
-    // 2. Silently sync to backend in background, ignoring availability checks
+    // 2. Synchronize with backend and recheck authoritative price & totals
     try {
-      if (isGuest) {
-        if (guestCartId != null && guestCartId.isNotEmpty) {
-          await repository.updateGuestItem(
-            cartId: guestCartId,
-            itemId: event.itemId,
-            qty: event.qty,
-            quoteId: guestCartId,
-          );
-        }
-      } else {
-        await repository.updateItem(
-          itemId: event.itemId,
-          qty: event.qty,
-          quoteId: event.quoteId,
+      final updateResult = isGuest
+          ? (guestCartId != null && guestCartId.isNotEmpty
+              ? await repository.updateGuestItem(
+                  cartId: guestCartId,
+                  itemId: event.itemId,
+                  qty: event.qty,
+                  quoteId: guestCartId,
+                )
+              : null)
+          : await repository.updateItem(
+              itemId: event.itemId,
+              qty: event.qty,
+              quoteId: effectiveQuoteId,
+            );
+
+      if (updateResult != null) {
+        await updateResult.fold(
+          (error) async {
+            if (previousCart != null) {
+              _currentCart = previousCart;
+            }
+            emit(CartState.error(error: error, lastCart: previousCart));
+          },
+          (_) async {
+            // Backend update succeeded: fetch fresh cart to recalculate prices & checkout totals
+            final cartResult = isGuest
+                ? await repository.getGuestCart(cartId: guestCartId!)
+                : await repository.getBasicCart();
+
+            await cartResult.fold(
+              (error) async {
+                emit(CartState.loaded(_currentCart ?? interimCart ?? previousCart!));
+              },
+              (freshCart) async {
+                final enrichedCart = isGuest
+                    ? freshCart
+                    : await _withCheckoutTotals(freshCart);
+                _currentCart = enrichedCart;
+                emit(CartState.loaded(enrichedCart));
+              },
+            );
+          },
         );
+      } else {
+        if (interimCart != null) {
+          emit(CartState.loaded(interimCart));
+        }
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ CartBloc: updateItemQuantity background sync ignored: $e');
+      if (interimCart != null) {
+        emit(CartState.loaded(interimCart));
       }
     }
   }
@@ -571,19 +545,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final token = await _cacheManager.getToken();
     final isGuest = token == null || token.isEmpty;
 
-    if (kDebugMode) {
-      print('🗑️ Removing item - Guest: $isGuest, ItemID: ${event.itemId}');
-    }
-
     String? guestCartId = _guestCartId;
     if (isGuest && guestCartId == null) {
       guestCartId = await _cacheManager.getGuestCartId();
     }
 
     if (isGuest && (guestCartId == null || guestCartId.isEmpty)) {
-      if (kDebugMode) {
-        print('⚠️ CartBloc: Stale cart items detected with no guest cart session. Resetting cart.');
-      }
       _forgetCart();
       emit(const CartState.empty());
       add(const CartEvent.createGuestCart());
@@ -656,9 +623,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     _ApplyCoupon event,
     Emitter<CartState> emit,
   ) async {
-    if (kDebugMode) {
-      print('🎟️ CartBloc: Applying coupon "${event.coupon}" to cart "${event.cartId}"');
-    }
 
     if (_currentCart != null) {
       emit(
@@ -676,16 +640,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     await result.fold(
       (error) async {
-        if (kDebugMode) {
-          print('❌ CartBloc: Apply coupon FAILED - ${error.message}');
-        }
         emit(CartState.error(error: error, lastCart: _currentCart));
       },
       (success) async {
-        if (kDebugMode) {
-          print('✅ CartBloc: Apply coupon API returned success=$success');
-          print('🔄 CartBloc: Reloading cart via checkout API to get totals...');
-        }
         if (!success) {
           emit(
             CartState.error(
@@ -702,20 +659,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         final checkoutResult = await repository.getCartCheckout();
         checkoutResult.fold(
           (error) {
-            if (kDebugMode) {
-              print('❌ CartBloc: Reload checkout after coupon FAILED - ${error.message}');
-            }
             emit(CartState.error(error: error, lastCart: _currentCart));
           },
           (checkout) {
             final cart = _checkoutToCartEntity(checkout);
-            if (kDebugMode) {
-              print('✅ CartBloc: Cart reloaded after coupon apply');
-              print('  couponCode: "${cart.couponCode}"');
-              print('  discountAmount: ${cart.discountAmount}');
-              print('  grandTotal: ${cart.grandTotal}');
-              print('  subtotal: ${cart.subtotal}');
-            }
             _currentCart = cart;
             emit(CartState.couponApplied(cart: cart, couponCode: cart.couponCode.isNotEmpty ? cart.couponCode : event.coupon));
             emit(CartState.loaded(cart));
@@ -980,11 +927,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     _LoadGuestCart event,
     Emitter<CartState> emit,
   ) async {
-    if (kDebugMode) {
-      print(
-        '🔵 CartBloc: _onLoadGuestCart called with ID: ${event.guestCartId}',
-      );
-    }
     if (_currentCart != null &&
         _currentCart!.items.isNotEmpty &&
         _guestCartId == event.guestCartId) {
@@ -998,15 +940,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     await result.fold(
       (error) async {
         _isPendingAddition = false;
-        if (kDebugMode) {
-          print('❌ CartBloc: Load guest cart error - ${error.message}');
-        }
 
         if (error.message.contains('No such entity') ||
             error.message.contains('404')) {
-          if (kDebugMode) {
-            print('➕ CartBloc: Guest cart not found, creating new one');
-          }
 
           final createResult = await repository.createGuestCart();
           await createResult.fold(
@@ -1024,26 +960,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       (cart) {
         _currentCart = cart;
         _guestCartId = event.guestCartId;
-        if (kDebugMode) {
-          print('✅ CartBloc: Guest cart loaded successfully');
-          print('  Cart ID: ${cart.id}');
-          print('  Items count: ${cart.itemsCount}');
-          print('  Items length: ${cart.items.length}');
-        }
         if (cart.items.isEmpty) {
           if (_isPendingAddition) return;
           _isPendingAddition = false;
-          if (kDebugMode) {
-            print('📭 CartBloc: Emitting empty state');
-          }
           emit(const CartState.empty());
         } else {
           _isPendingAddition = false;
-          if (kDebugMode) {
-            print(
-              '📦 CartBloc: Emitting loaded state with ${cart.items.length} items',
-            );
-          }
           emit(CartState.loaded(cart));
         }
       },
@@ -1300,8 +1222,17 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     int appliedPoints = 0;
     String discountTitle = '';
     double? segmentDiscount;
+    double? segmentGrandTotal;
+    double? segmentSubtotal;
+    double? segmentShipping;
     for (final segment in totals.totalSegments) {
       switch (segment.code) {
+        case 'grand_total':
+          segmentGrandTotal = segment.value;
+        case 'subtotal':
+          segmentSubtotal = segment.value;
+        case 'shipping':
+          segmentShipping = segment.value;
         case 'rewards-spend':
         case 'rewards_spend':
           appliedPoints = segment.value.abs().round();
@@ -1329,10 +1260,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       id: checkout.cart.id.toString(),
       itemsCount: checkout.cart.itemsCount,
       items: checkout.cart.items,
-      subtotal: totals.subtotal,
-      grandTotal: totals.grandTotal,
+      subtotal: segmentSubtotal ?? totals.subtotal,
+      grandTotal: segmentGrandTotal ?? totals.grandTotal,
       discountAmount: segmentDiscount ?? totals.discountAmount,
-      shippingAmount: totals.shippingAmount,
+      shippingAmount: segmentShipping ?? totals.shippingAmount,
       taxAmount: totals.taxAmount,
       couponCode: totals.couponCode,
       rewardPointsDiscount: rewardPointsDiscount,

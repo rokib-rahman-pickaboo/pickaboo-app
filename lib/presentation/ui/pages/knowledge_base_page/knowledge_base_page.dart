@@ -23,6 +23,7 @@ import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/knowledge_base_page/faq_design.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/knowledge_base_page/knowledge_base_skeleton.dart';
 
 /// HELP & KNOWLEDGE BASE SUPPORT PAGE
 class KnowledgeBasePage extends StatefulWidget {
@@ -216,14 +217,14 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
                 backgroundColor: AppColors.pageBg,
                 appBar: PickabooAppBar(
                   title: AppStrings.helpAndKnowledgeBase,
-                  showBackButton: true,
+                  showBackButton: widget.showBackButton,
                   onBackTap: () {
                     MainPage.hideBottomNav.value = false;
                     context.go(Routes.home);
                   },
                 ),
                 body: const SafeArea(
-                  child: AppLoader.fullPage(),
+                  child: KnowledgeBaseSkeleton(),
                 ),
               ),
             );

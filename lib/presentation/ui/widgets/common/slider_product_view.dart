@@ -79,13 +79,11 @@ class SliderProductView extends StatelessWidget {
     final double deliveryPaddingV = 5.5.h;
 
     final double brandHeight = 24.0.h;
-    final double titleHeight = (38.0.h * textScale).clamp(34.0, 44.0);
+    final double titleHeight = (34.0.h * textScale).clamp(32.0, 44.0);
     final double ratingHeight = 16.0.h;
     final double priceHeight = (24.0.h * textScale).clamp(20.0, 28.0);
     final double dividerHeight = 1.0.h;
     final double deliveryHeight = 14.0.h;
-
-    final double bordersAndShadow = (2 * 1.w) + 6.0;
 
     return (imageHeight +
             cardPadTop +
@@ -100,9 +98,7 @@ class SliderProductView extends StatelessWidget {
             dividerHeight +
             (deliveryPaddingV * 2) +
             deliveryHeight +
-            cardPadBottom +
-            bordersAndShadow)
-        .ceilToDouble();
+            cardPadBottom);
   }
 
   @override
@@ -130,7 +126,7 @@ class SliderProductView extends StatelessWidget {
     final double deliveryPaddingV = 5.5.h;
 
     final double brandHeight = 24.0.h;
-    final double titleTwoLineHeight = (38.0.h * textScale).clamp(34.0, 44.0);
+    final double titleTwoLineHeight = (34.0.h * textScale).clamp(32.0, 44.0);
     final double titleSingleLineHeight = titleTwoLineHeight / 2;
     final double ratingHeight = 16.0.h;
     final double priceHeight = (24.0.h * textScale).clamp(20.0, 28.0);
@@ -154,19 +150,19 @@ class SliderProductView extends StatelessWidget {
             borderRadius: AppRadius.cardRadius,
             border: Border.all(
               color: AppColors.border,
-              width: 1.w,
+              width: 1.2.w,
             ),
             boxShadow: [
               BoxShadow(
                 color: AppColors.navy.withValues(alpha: 0.03),
-                blurRadius: 4.r,
+                blurRadius: 6.r,
                 offset: Offset(0, 2.h),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // ── 1. Top 1:1 Image ──
               ClipRRect(
@@ -319,12 +315,12 @@ class SliderProductView extends StatelessWidget {
                                             vertical: 2.h,
                                           ),
                                           decoration: const BoxDecoration(
-                                            color: AppColors.redBg,
+                                            color: AppColors.orangeBg,
                                             borderRadius: AppRadius.badgeRadius,
                                           ),
                                           child: Text(
                                             AppStrings.discountTag(discount),
-                                            style: AppTypography.bodyMedium.extraBold().red,
+                                            style: AppTypography.bodyMedium.extraBold().orange,
                                           ),
                                         ),
                                       ],

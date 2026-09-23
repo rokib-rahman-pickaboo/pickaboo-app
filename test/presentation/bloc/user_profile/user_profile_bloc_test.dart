@@ -21,6 +21,8 @@ void main() {
 
   setUp(() {
     mockUserProfileRepository = MockUserProfileRepository();
+    when(() => mockUserProfileRepository.getProfileImage())
+        .thenAnswer((_) async => const Right(''));
     userProfileBloc = UserProfileBloc(mockUserProfileRepository);
   });
 

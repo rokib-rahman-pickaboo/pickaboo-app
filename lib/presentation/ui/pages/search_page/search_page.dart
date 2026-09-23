@@ -369,7 +369,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
                   couponApplied: (cart, _) => cart.itemsCount,
                   rewardPointsApplied: (cart, _) => cart.itemsCount,
                   operationInProgress: (cart, _) => cart.itemsCount,
-                  orElse: () => 0,
+                  orElse: () => context.read<CartBloc>().currentCartCount,
                 );
 
                 return IconButton(

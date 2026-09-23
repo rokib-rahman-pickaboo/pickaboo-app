@@ -24,7 +24,7 @@ import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_section
 /// 2. Image counter badge (1/1) matching loaded gallery.
 /// 3. Fixed Trust Ribbon strip ("100% Authentic | Easy Return") — no fake pills.
 /// 4. Value card matching [PdpNewPriceSection]: dark navy price, strike-through,
-///    red discount badge, express badge, savings, and rating.
+///    orange discount badge, express badge, savings, and rating.
 /// 5. Clean, centered loader below price card.
 class PdpSkeletonWidget extends StatefulWidget {
   final String? productId;
@@ -223,6 +223,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                     )
                   : Skeletonizer(
                       enabled: true,
+                      effect: AppDecorations.shimmerEffect,
                       child: Container(
                         margin: EdgeInsets.all(16.w),
                         decoration: const BoxDecoration(
@@ -473,6 +474,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
         ] else if (!hasProductName) ...[
           Skeletonizer(
             enabled: true,
+            effect: AppDecorations.shimmerEffect,
             child: Container(
               width: 60.w,
               height: 14.h,
@@ -527,6 +529,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
         else
           Skeletonizer(
             enabled: true,
+            effect: AppDecorations.shimmerEffect,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -587,6 +590,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                           else
                             Skeletonizer(
                               enabled: true,
+                              effect: AppDecorations.shimmerEffect,
                               child: Container(
                                 width: 90.w,
                                 height: 22.h,
@@ -609,7 +613,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                                 vertical: 2.h,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.red,
+                                color: AppColors.orange,
                                 borderRadius: BorderRadius.circular(AppRadius.badge),
                               ),
                               child: Text(

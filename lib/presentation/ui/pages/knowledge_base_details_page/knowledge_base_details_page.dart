@@ -233,8 +233,6 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                 AppHtml(
                   data: article.content,
                   onLinkTap: (url, attributes, element) async {
-                    debugPrint('Link clicked: $url');
-                    debugPrint('Attributes: $attributes');
 
                     if (url != null) {
                       final trimmedUrl = url.trim();
@@ -262,7 +260,6 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                             mode: LaunchMode.externalApplication,
                           );
                         } catch (e) {
-                          debugPrint('Could not launch $url: $e');
                         }
                       }
                     }
@@ -317,7 +314,6 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                                     mode: LaunchMode.externalApplication,
                                   );
                                 } catch (e) {
-                                  debugPrint('Could not launch $url: $e');
                                 }
                               }
                             },

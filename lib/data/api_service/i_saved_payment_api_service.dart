@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -18,12 +17,6 @@ class ISavedPaymentApiService extends SavedPaymentApiService {
   Future<Either<ErrorResponse, List<SavedPaymentModel>>> getSavedPayments(
     String customerId,
   ) async {
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] 💳 GET SAVED PAYMENTS');
-      print('[API] CustomerID: $customerId');
-      print('[API] Endpoint: ${ApiEndpoints.getAgreementsUrl}');
-    }
 
     try {
       final response = await _client.get(
@@ -31,35 +24,18 @@ class ISavedPaymentApiService extends SavedPaymentApiService {
         queryParameters: {'customer_id': customerId},
       );
 
-      if (kDebugMode) {
-        print('[API] Response data: ${response.data}');
-      }
-
       if (response.data is List) {
         final payments = (response.data as List)
             .map((e) => SavedPaymentModel.fromJson(e as Map<String, dynamic>))
             .toList();
-
-        if (kDebugMode) {
-          print('[API] ✅ Loaded ${payments.length} saved payments');
-          print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        }
 
         return Right(payments);
       }
 
       return const Right([]);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException: ${e.message}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: e.toString()));
     }
   }
@@ -69,13 +45,6 @@ class ISavedPaymentApiService extends SavedPaymentApiService {
     String customerId,
     String phoneNumber,
   ) async {
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] 🗑️ DELETE SAVED PAYMENT');
-      print('[API] CustomerID: $customerId');
-      print('[API] Phone: $phoneNumber');
-      print('[API] Endpoint: ${ApiEndpoints.deleteAgreementUrl}');
-    }
 
     try {
       final response = await _client.post(
@@ -85,23 +54,10 @@ class ISavedPaymentApiService extends SavedPaymentApiService {
 
       final success = response.statusCode == 200 || response.data == true;
 
-      if (kDebugMode) {
-        print('[API] ✅ Delete result: $success');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
-
       return Right(success);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException: ${e.message}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: e.toString()));
     }
   }

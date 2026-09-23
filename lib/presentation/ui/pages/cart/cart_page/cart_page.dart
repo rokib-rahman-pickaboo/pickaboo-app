@@ -36,6 +36,7 @@ import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/cart_page_skeleton.dart';
 
 // ============================================================================
 // 🛒 CART PAGE — GOLDEN UX RULE (DO NOT VIOLATE!)
@@ -187,10 +188,6 @@ class _CartPageState extends State<CartPage> {
               if (!_isBackendVerified) {
                 setState(() => _isBackendVerified = true);
               }
-              SnackBarUtils.showSuccess(
-                context,
-                message.isNotEmpty ? message : AppStrings.itemAddedToCart,
-              );
             },
             couponApplied: (cart, couponCode) {
               SnackBarUtils.showSuccess(
@@ -262,30 +259,30 @@ class _CartPageState extends State<CartPage> {
           final isPending = context.read<CartBloc>().isPendingAddition;
           return state.when(
             initial: () {
-              if (isPending) return const AppLoader.fullPage();
+              if (isPending) return const CartPageSkeleton();
               final existingCart = context.read<CartBloc>().currentCart;
               if (existingCart != null && existingCart.items.isNotEmpty) {
                 return _buildCartContent(context, existingCart, false);
               }
-              return const AppLoader.fullPage();
+              return const CartPageSkeleton();
             },
             loading: () {
-              if (isPending) return const AppLoader.fullPage();
+              if (isPending) return const CartPageSkeleton();
               final existingCart = context.read<CartBloc>().currentCart;
               if (existingCart != null && existingCart.items.isNotEmpty) {
                 return _buildCartContent(context, existingCart, true);
               }
-              return const AppLoader.fullPage();
+              return const CartPageSkeleton();
             },
             empty: () {
               if (!_isBackendVerified || isPending) {
-                return const AppLoader.fullPage();
+                return const CartPageSkeleton();
               }
               return const EmptyCartView();
             },
             loaded: (cart) {
               if (isPending || (cart.items.isEmpty && !_isBackendVerified)) {
-                return const AppLoader.fullPage();
+                return const CartPageSkeleton();
               }
               if (cart.items.isEmpty) {
                 return const EmptyCartView();
@@ -294,7 +291,7 @@ class _CartPageState extends State<CartPage> {
             },
             operationInProgress: (cart, operation) {
               if (cart.items.isEmpty || isPending) {
-                return const AppLoader.fullPage();
+                return const CartPageSkeleton();
               }
               return _buildCartContent(context, cart, true);
             },
@@ -307,7 +304,7 @@ class _CartPageState extends State<CartPage> {
                 _buildCartContent(context, cart, false),
             error: (error, lastCart) {
               if (isPending || !_isBackendVerified) {
-                return const AppLoader.fullPage();
+                return const CartPageSkeleton();
               }
               if (lastCart != null && lastCart.items.isNotEmpty) {
                 return _buildCartContent(context, lastCart, false);
@@ -340,9 +337,17 @@ class _CartPageState extends State<CartPage> {
               return const SizedBox.shrink();
             }
 
+            final isUpdating = state.maybeWhen(
+              operationInProgress: (_, __) => true,
+              loading: () => true,
+              orElse: () => false,
+            );
+
             return CartCheckoutButton(
               grandTotal: cart.grandTotal,
+              isLoading: isUpdating,
               onCheckout: () {
+                if (isUpdating) return;
                 if (ConnectivityUtils.isOffline(context)) {
                   SnackBarUtils.showError(
                     context,
@@ -444,7 +449,8 @@ class _CartPageState extends State<CartPage> {
                             final item = cart.items[i];
                             return CartItemCard(
                               item: item,
-                              isQuantityModifiable: true,
+                              isQuantityModifiable: !isLoading,
+                              isLoading: isLoading,
                               showOuterCard: false,
                               showDivider: i < cart.items.length - 1,
                               onQuantityChanged: (qty) {

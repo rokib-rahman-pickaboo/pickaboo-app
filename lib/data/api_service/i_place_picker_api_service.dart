@@ -30,12 +30,8 @@ class IPlacePickerApiService extends PlacePickerApiService {
       );
 
       if (kDebugMode) {
-        print('🔍 [PlacePicker] autocomplete($query) → ${response.statusCode}');
         final rawPlaces = (response.data as Map<String, dynamic>?)?['places'];
         if (rawPlaces is List && rawPlaces.isNotEmpty) {
-          print('🔍 [PlacePicker] autocomplete raw first place JSON:');
-          print('   ${rawPlaces.first}');
-          print('   → all keys in first place: ${(rawPlaces.first as Map).keys.toList()}');
         }
       }
 
@@ -45,12 +41,10 @@ class IPlacePickerApiService extends PlacePickerApiService {
       }
       return left(ErrorResponse.unknown());
     } on DioException catch (e) {
-      if (kDebugMode) print('❌ [PlacePicker] autocomplete error: ${e.message}');
       return left(
         ErrorResponse(message: (e.response?.data is Map ? e.response?.data['message'] : null) ?? e.message),
       );
     } catch (e) {
-      if (kDebugMode) print('❌ [PlacePicker] autocomplete unexpected: $e');
       return left(ErrorResponse(message: e.toString()));
     }
   }
@@ -65,12 +59,6 @@ class IPlacePickerApiService extends PlacePickerApiService {
 
     while (attempt < maxRetries) {
       try {
-        if (kDebugMode) {
-          print(
-            '📍 [PlacePicker] reverseGeocode (attempt ${attempt + 1}) '
-            '→ $latitude, $longitude',
-          );
-        }
 
         final response = await _client.get(
           ApiEndpoints.barikoiReverseGeocodeUrl,
@@ -94,20 +82,13 @@ class IPlacePickerApiService extends PlacePickerApiService {
         );
 
         if (kDebugMode) {
-          print('📍 [PlacePicker] reverseGeocode → ${response.statusCode}');
           final raw = response.data;
           if (raw is Map<String, dynamic>) {
             final topPlace = raw['place'];
             if (topPlace is Map) {
-              print('📍 [PlacePicker] reverseGeocode raw place JSON:');
-              print('   $topPlace');
-              print('   → all keys: ${topPlace.keys.toList()}');
             }
             final addr = raw['address'];
             if (addr is Map && addr['place'] is Map) {
-              print('📍 [PlacePicker] reverseGeocode raw address.place JSON:');
-              print('   ${addr['place']}');
-              print('   → all keys: ${(addr['place'] as Map).keys.toList()}');
             }
           }
         }
@@ -130,16 +111,10 @@ class IPlacePickerApiService extends PlacePickerApiService {
           continue;
         }
 
-        if (kDebugMode) {
-          print('❌ [PlacePicker] reverseGeocode error: ${e.message}');
-        }
         return left(
           ErrorResponse(message: (e.response?.data is Map ? e.response?.data['message'] : null) ?? e.message),
         );
       } catch (e) {
-        if (kDebugMode) {
-          print('❌ [PlacePicker] reverseGeocode unexpected: $e');
-        }
         return left(ErrorResponse(message: e.toString()));
       }
     }

@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -24,10 +23,6 @@ class IHomeBannerApiService extends HomeBannerApiService {
     try {
       final response = await _client.get(ApiEndpoints.homeBannersUrl);
 
-      if (kDebugMode) {
-        debugPrint("home_banners -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is List) {
         final result = data
@@ -42,9 +37,6 @@ class IHomeBannerApiService extends HomeBannerApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("home_banners_error -> $e");
-      }
       return left(checkErrorResponse(e));
     }
   }

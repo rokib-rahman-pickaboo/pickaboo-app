@@ -48,13 +48,9 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     add(const UserProfileEvent.loadUserProfile());
   }
 
+  void refreshProfile() => _reloadProfile();
+
   Future<void> _onLoadUserProfile(Emitter<UserProfileState> emit) async {
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[UserProfileBloc] 🚀 LOADING USER PROFILE');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[UserProfileBloc] Current state: ${state.runtimeType}');
-    }
 
     final userData = state.mapOrNull(
       loaded: (s) =>
@@ -75,12 +71,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
           (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
     );
 
-    if (kDebugMode) {
-      print(
-        '[UserProfileBloc] 📦 Preserved user data: ${userData != null ? "YES" : "NO"}',
-      );
-    }
-
     emit(
       UserProfileState.loading(
         currentUser: userData?.user,
@@ -88,11 +78,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         mobileNumber: userData?.mobile,
       ),
     );
-
-    if (kDebugMode) {
-      print('[UserProfileBloc] 📡 Emitted loading state');
-      print('[UserProfileBloc] 🌐 Calling repository.getProfile()...');
-    }
 
     final forceRefresh = _forceProfileRefresh;
     _forceProfileRefresh = false;
@@ -103,25 +88,9 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     await profileResult.fold(
       (error) async {
-        if (kDebugMode) {
-          print('[UserProfileBloc] ❌ ERROR loading profile');
-          print('[UserProfileBloc] Error message: ${error.message}');
-          print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        }
         emit(UserProfileState.error(error.message));
       },
       (user) async {
-        if (kDebugMode) {
-          print('[UserProfileBloc] ✅ SUCCESS loading profile');
-          print('[UserProfileBloc] User ID: ${user.id}');
-          print('[UserProfileBloc] User Email: ${user.email}');
-          print(
-            '[UserProfileBloc] User Name: ${user.firstname} ${user.lastname}',
-          );
-          print(
-            '[UserProfileBloc] Custom Attributes Count: ${user.customAttributes?.length ?? 0}',
-          );
-        }
 
         var profileImageUrl =
             user.customAttributes
@@ -130,10 +99,20 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
                     ?.value
                 as String?;
 
+        if (profileImageUrl == null || profileImageUrl.isEmpty) {
+          final imgResult = await _repository.getProfileImage();
+          imgResult.fold((_) {}, (url) {
+            if (url.startsWith('http')) {
+              profileImageUrl = url;
+            }
+          });
+        }
+
+        final resolvedImageUrl = profileImageUrl;
         if (_bustImageCacheOnNextLoad &&
-            profileImageUrl != null &&
-            profileImageUrl.isNotEmpty) {
-          profileImageUrl = _appendCacheBust(profileImageUrl);
+            resolvedImageUrl != null &&
+            resolvedImageUrl.isNotEmpty) {
+          profileImageUrl = _appendCacheBust(resolvedImageUrl);
         }
         _bustImageCacheOnNextLoad = false;
 
@@ -145,24 +124,10 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
                 as String?;
 
         if (kDebugMode) {
-          print(
-            '[UserProfileBloc] 📸 Profile Image URL: ${profileImageUrl ?? "NOT FOUND"}',
-          );
-          print(
-            '[UserProfileBloc] 📱 Mobile Number: ${mobileNumber ?? "NOT FOUND"}',
-          );
-          print(
-            '[UserProfileBloc] 🏠 Addresses Count: ${user.addresses?.length ?? 0}',
-          );
 
           if (user.addresses != null && user.addresses!.isNotEmpty) {
-            print(
-              '[UserProfileBloc] 📍 First Address: ${user.addresses![0].city}',
-            );
           }
 
-          print('[UserProfileBloc] 📤 Emitting loaded state');
-          print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         }
 
         emit(
@@ -231,9 +196,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     String mobileNumber,
     Emitter<UserProfileState> emit,
   ) async {
-    debugPrint(
-      'UserProfileBloc: _onSendPhoneUpdateOtp: Sending OTP to $mobileNumber',
-    );
     var userData = _extractUserData();
 
     if (userData == null) {
@@ -245,7 +207,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     }
 
     if (userData == null) {
-      debugPrint('UserProfileBloc: _onSendPhoneUpdateOtp: User data is null');
       emit(
         const UserProfileState.error(
           'User information not found. Please log in again.',
@@ -274,9 +235,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     await result.fold(
       (error) async {
-        debugPrint(
-          'UserProfileBloc: _onSendPhoneUpdateOtp: Failed: ${error.message}',
-        );
         emit(UserProfileState.error(error.message));
         emit(
           UserProfileState.loaded(
@@ -287,7 +245,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         );
       },
       (response) async {
-        debugPrint('UserProfileBloc: _onSendPhoneUpdateOtp: Success');
         emit(
           UserProfileState.phoneUpdateOtpSent(
             mobileNumber: mobileNumber,
@@ -304,9 +261,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     String otp,
     Emitter<UserProfileState> emit,
   ) async {
-    debugPrint(
-      'UserProfileBloc: _onUpdateMobile: Updating mobile to $newMobile with OTP $otp',
-    );
     var userData = _extractUserData();
 
     if (userData == null) {
@@ -318,7 +272,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     }
 
     if (userData == null) {
-      debugPrint('UserProfileBloc: _onUpdateMobile: User data is null');
       emit(
         const UserProfileState.error(
           'User information not found. Please log in again.',
@@ -342,9 +295,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     await result.fold(
       (error) async {
-        debugPrint(
-          'UserProfileBloc: _onUpdateMobile: Failed: ${error.message}',
-        );
         emit(UserProfileState.error(error.message));
         // Restore to phoneUpdateOtpSent so the bottom sheet stays in OTP verification step
         emit(
@@ -356,7 +306,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         );
       },
       (newUser) async {
-        debugPrint('UserProfileBloc: _onUpdateMobile: Success');
         final parsedMobile = newUser.customAttributes
             ?.where((item) => item.attributeCode == 'customer_mobile')
             .firstOrNull
@@ -418,13 +367,16 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         emit(UserProfileState.error(error.message));
         _reloadProfile();
       },
-      (_) async {
+      (uploadedUrl) async {
         _bustImageCacheOnNextLoad = true;
+        final newImageUrl = (uploadedUrl.startsWith('http'))
+            ? _appendCacheBust(uploadedUrl)
+            : userData.imageUrl;
         emit(
           UserProfileState.imageUploadSuccess(
             message: 'Image uploaded successfully',
             user: userData.user,
-            imageUrl: userData.imageUrl,
+            imageUrl: newImageUrl,
             mobileNumber: userData.mobile,
           ),
         );
@@ -461,9 +413,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     String email,
     Emitter<UserProfileState> emit,
   ) async {
-    debugPrint(
-      'UserProfileBloc: _onSendEmailUpdateOtp: Requesting OTP for $email',
-    );
     var userData = _extractUserData();
 
     if (userData == null) {
@@ -475,7 +424,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     }
 
     if (userData == null) {
-      debugPrint('UserProfileBloc: _onSendEmailUpdateOtp: User data is null');
       emit(
         const UserProfileState.error(
           'User information not found. Please log in again.',
@@ -498,9 +446,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     await result.fold(
       (error) async {
-        debugPrint(
-          'UserProfileBloc: _onSendEmailUpdateOtp: Failed: ${error.message}',
-        );
         emit(UserProfileState.error(error.message));
         emit(
           UserProfileState.loaded(
@@ -511,7 +456,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         );
       },
       (response) async {
-        debugPrint('UserProfileBloc: _onSendEmailUpdateOtp: Success');
         emit(
           UserProfileState.emailUpdateOtpSent(
             email: email,
@@ -540,7 +484,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     }
 
     if (userData == null) {
-      debugPrint('UserProfileBloc: _onUpdateEmail: User data is null');
       emit(
         const UserProfileState.error(
           'User information not found. Please log in again.',
@@ -548,8 +491,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       );
       return;
     }
-
-    debugPrint('UserProfileBloc: Updating email to $newEmail with OTP $otp');
 
     emit(
       UserProfileState.updating(
@@ -566,7 +507,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     await result.fold(
       (error) async {
-        debugPrint('UserProfileBloc: Update email failed: ${error.message}');
         emit(UserProfileState.error(error.message));
         emit(
           UserProfileState.emailUpdateOtpSent(
@@ -578,7 +518,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         );
       },
       (newUser) async {
-        debugPrint('UserProfileBloc: Update email success');
         emit(
           UserProfileState.emailUpdateSuccess(
             message: 'Email address updated successfully',
@@ -614,7 +553,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     }
 
     if (userData == null) {
-      debugPrint('UserProfileBloc: _onChangePassword: User data is null');
       emit(
         const UserProfileState.error(
           'User information not found. Please log in again.',
@@ -622,10 +560,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       );
       return;
     }
-
-    debugPrint(
-      'UserProfileBloc: Changing password. CustomerId: ${userData.user.id}',
-    );
 
     emit(
       UserProfileState.updating(
@@ -643,7 +577,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     await result.fold(
       (error) async {
-        debugPrint('UserProfileBloc: Change password failed: ${error.message}');
         emit(UserProfileState.error(error.message));
         emit(
           UserProfileState.loaded(
@@ -655,14 +588,12 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
       },
       (success) async {
         if (success) {
-          debugPrint('UserProfileBloc: Change password success');
           emit(
             const UserProfileState.updateRequiresLogout(
               'Password changed successfully. Please login again.',
             ),
           );
         } else {
-          debugPrint('UserProfileBloc: Change password returned success=false');
           emit(const UserProfileState.error('Failed to change password'));
           emit(
             UserProfileState.loaded(
@@ -680,9 +611,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     Map<String, dynamic> address,
     Emitter<UserProfileState> emit,
   ) async {
-    if (kDebugMode) {
-      print('[UserProfileBloc] Adding address');
-    }
 
     final userData = state.mapOrNull(
       loaded: (s) =>
@@ -696,10 +624,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     );
 
     if (userData == null) {
-      if (kDebugMode) {
-        print('[UserProfileBloc] _onAddAddress: blocked — '
-            'state is ${state.runtimeType}, need loaded/success');
-      }
       emit(const UserProfileState.error('User not loaded'));
       return;
     }
@@ -716,16 +640,10 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     result.fold(
       (l) {
-        if (kDebugMode) {
-          print('[UserProfileBloc] Error adding address: ${l.message}');
-        }
         emit(UserProfileState.error(l.message));
         _reloadProfile();
       },
       (message) {
-        if (kDebugMode) {
-          print('[UserProfileBloc] Address added successfully: $message');
-        }
         emit(
           UserProfileState.basicInfoUpdateSuccess(
             message: message.isNotEmpty
@@ -745,9 +663,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     Map<String, dynamic> address,
     Emitter<UserProfileState> emit,
   ) async {
-    if (kDebugMode) {
-      print('[UserProfileBloc] Updating address');
-    }
 
     final userData = state.mapOrNull(
       loaded: (s) =>
@@ -771,16 +686,10 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     result.fold(
       (l) {
-        if (kDebugMode) {
-          print('[UserProfileBloc] Error updating address: ${l.message}');
-        }
         emit(UserProfileState.error(l.message));
         _reloadProfile();
       },
       (message) {
-        if (kDebugMode) {
-          print('[UserProfileBloc] Address updated successfully: $message');
-        }
         emit(
           UserProfileState.basicInfoUpdateSuccess(
             message: message.isNotEmpty
@@ -800,9 +709,6 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     int addressId,
     Emitter<UserProfileState> emit,
   ) async {
-    if (kDebugMode) {
-      print('[UserProfileBloc] Deleting address: $addressId');
-    }
 
     final userData = state.mapOrNull(
       loaded: (s) =>
@@ -826,16 +732,10 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     result.fold(
       (l) {
-        if (kDebugMode) {
-          print('[UserProfileBloc] Error deleting address: ${l.message}');
-        }
         emit(UserProfileState.error(l.message));
         _reloadProfile();
       },
       (message) {
-        if (kDebugMode) {
-          print('[UserProfileBloc] Address deleted successfully: $message');
-        }
         emit(
           UserProfileState.basicInfoUpdateSuccess(
             message: message.isNotEmpty

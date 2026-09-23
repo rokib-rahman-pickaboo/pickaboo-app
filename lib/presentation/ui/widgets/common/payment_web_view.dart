@@ -71,7 +71,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
             }
           },
           onPageStarted: (String url) {
-            debugPrint('🌐 WebView: Page started loading: $url');
             if (mounted) {
               setState(() {
                 _isLoading = true;
@@ -82,17 +81,12 @@ class _PaymentWebViewState extends State<PaymentWebView> {
             _checkUrl(url);
           },
           onPageFinished: (String url) {
-            debugPrint('🌐 WebView: Page finished loading: $url');
             if (mounted) {
               setState(() => _isLoading = false);
             }
             _checkUrl(url);
           },
           onWebResourceError: (WebResourceError error) {
-            debugPrint('❌ WebView: Resource Error');
-            debugPrint('   Description: ${error.description}');
-            debugPrint('   Type: ${error.errorType}');
-            debugPrint('   Code: ${error.errorCode}');
             if (error.isForMainFrame ?? true) {
               if (mounted) {
                 setState(() {
@@ -109,7 +103,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
             final url = request.url;
             final uri = Uri.tryParse(url);
             if (uri != null && uri.scheme != 'http' && uri.scheme != 'https') {
-              debugPrint('ℹ️ WebView: Non-HTTP scheme: ${uri.scheme}');
               if (url.startsWith('intent://') || url.startsWith('market://')) {
                 return NavigationDecision.prevent;
               }
@@ -150,7 +143,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   void _loadFormPost() {
     final fields = widget.formFields;
     if (fields == null || fields.isEmpty) {
-      debugPrint('⚠️ EBL FormPost: formFields is null/empty — falling back to GET');
       final uri = Uri.tryParse(widget.url.trim());
       if (uri != null && uri.hasScheme) {
         _controller.loadRequest(uri);
@@ -158,11 +150,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       return;
     }
 
-    debugPrint('📤 EBL FormPost ══════════════════════════════');
-    debugPrint('   Action URL : ${widget.url}');
-    debugPrint('   Field count: ${fields.length}');
     fields.forEach((k, v) {
-      debugPrint('   [$k] = $v');
     });
 
     final String body = fields.entries
@@ -266,13 +254,11 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   }
 
   bool _checkUrl(String url) {
-    debugPrint('🔎 WebView URL Scan: $url');
 
     if (url.contains(ApiEndpoints.nagadCallbackPath)) {
       if (_resultSent) return true;
       final uri = Uri.tryParse(url);
       final params = uri?.queryParameters.cast<String, String>() ?? {};
-      debugPrint('🟠 WebView: Nagad callback detected — params=$params');
 
       if (widget.onNagadCallback != null) {
         _resultSent = true;
@@ -294,11 +280,9 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       final uri = Uri.tryParse(url);
       final status = uri?.queryParameters['status'] ?? '';
       if (status.toLowerCase() == 'success') {
-        debugPrint('🎯 WebView: EBL payment SUCCESS');
         _fireResult(true, 'Payment Successful');
         return true;
       } else if (status.isNotEmpty) {
-        debugPrint('🚫 WebView: EBL payment FAILED (status=$status)');
         _fireResult(false, 'Payment failed');
         return true;
       }
@@ -308,7 +292,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       if (url.contains(ApiEndpoints.bkashAgreementCallbackPath)) {
         if (_resultSent) return true;
         final paymentId = Uri.tryParse(url)?.queryParameters['paymentID'] ?? '';
-        debugPrint('💳 WebView: bKash agreement callback detected — paymentID=$paymentId');
         _resultSent = true;
         widget.onBkashCallback!('agreement', paymentId);
         return true;
@@ -316,7 +299,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       if (url.contains(ApiEndpoints.bkashPaymentCallbackPath)) {
         if (_resultSent) return true;
         final paymentId = Uri.tryParse(url)?.queryParameters['paymentID'] ?? '';
-        debugPrint('💳 WebView: bKash payment callback detected — paymentID=$paymentId');
         _resultSent = true;
         widget.onBkashCallback!('payment', paymentId);
         return true;
@@ -326,10 +308,8 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     if (url.contains('dcastalia-citybank/returnpath')) {
       final status = Uri.tryParse(url)?.queryParameters['STATUS'] ?? '';
       if (status.toUpperCase() == 'APPROVED') {
-        debugPrint('🎯 WebView: City Bank payment SUCCESS');
         _fireResult(true, 'Payment Successful');
       } else {
-        debugPrint('🚫 WebView: City Bank payment FAILED (STATUS=$status)');
         _fireResult(false, 'City Bank payment failed');
       }
       return true;
@@ -338,10 +318,8 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     if (url.contains('payment-status') && url.contains('bracbank')) {
       final status = Uri.tryParse(url)?.queryParameters['status'] ?? '';
       if (status == 'Success') {
-        debugPrint('🎯 WebView: Brac Bank payment SUCCESS');
         _fireResult(true, 'Payment Successful');
       } else {
-        debugPrint('🚫 WebView: Brac Bank payment FAILED (status=$status)');
         _fireResult(false, 'Brac Bank payment failed');
       }
       return true;
@@ -352,10 +330,8 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         url.contains(Uri.parse(ApiEndpoints.baseUrl).host)) {
       final status = Uri.tryParse(url)?.queryParameters['status'] ?? '';
       if (status == 'Success') {
-        debugPrint('🎯 WebView: MTB payment SUCCESS');
         _fireResult(true, 'Payment Successful');
       } else {
-        debugPrint('🚫 WebView: MTB payment FAILED (status=$status)');
         _fireResult(false, 'MTB payment failed');
       }
       return true;
@@ -376,7 +352,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
     for (var marker in successMarkers) {
       if (url.contains(marker)) {
-        debugPrint('🎯 WebView: PAYMENT SUCCESS detected! (Marker: $marker)');
         _fireResult(true, 'Payment Successful');
         return true;
       }
@@ -394,7 +369,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
     for (var marker in failureMarkers) {
       if (url.contains(marker)) {
-        debugPrint('🚫 WebView: PAYMENT FAILURE detected! (Marker: $marker)');
         _fireResult(false, 'Payment failed or cancelled');
         return true;
       }
@@ -406,7 +380,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       if (url.contains(Uri.parse(ApiEndpoints.baseUrl).host) ||
           url.contains('status=fail') ||
           url.contains('status=error')) {
-        debugPrint('🚫 WebView: Aggressive Failure marker detected: $url');
         _fireResult(false, 'Payment failed or cancelled');
         return true;
       }

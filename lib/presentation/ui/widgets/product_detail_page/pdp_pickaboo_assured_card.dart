@@ -81,7 +81,6 @@ class PdpPickabooAssuredCard extends StatelessWidget {
                 ),
               ),
 
-
               // ── 3. Club Points Reward Banner ──
               if (product.clubPoints > 0) ...[
                 SizedBox(height: 12.h),

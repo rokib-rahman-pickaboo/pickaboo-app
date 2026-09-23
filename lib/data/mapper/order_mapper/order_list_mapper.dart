@@ -25,7 +25,7 @@ extension OrderItemModelMapper on OrderItemModel {
       shipping: shipping ?? 0.0,
       grandtotal: grandtotal ?? 0.0,
       currencyCode: currencyCode ?? '',
-      remoteIp: remoteIp ?? '',
+      remoteIp: remoteIp,
       paymentMode: paymentMode ?? '',
       paymentMethod: paymentMethod ?? '',
     );

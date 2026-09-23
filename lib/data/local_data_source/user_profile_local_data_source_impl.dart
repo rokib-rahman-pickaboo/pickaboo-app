@@ -20,9 +20,6 @@ class UserProfileLocalDataSourceImpl implements UserProfileLocalDataSource {
     final box = await _cacheBox();
 
     if (box.isEmpty) {
-      if (kDebugMode) {
-        print('📦 User Profile Cache: Empty');
-      }
       return null;
     }
 
@@ -32,18 +29,12 @@ class UserProfileLocalDataSourceImpl implements UserProfileLocalDataSource {
     }
 
     if (wrapper.isExpired) {
-      if (kDebugMode) {
-        print('⏰ User Profile Cache: Expired (cached ${wrapper.cachedAt})');
-      }
       await box.clear();
       return null;
     }
 
     if (kDebugMode) {
       final remaining = wrapper.timeUntilExpiration;
-      print(
-        '✅ User Profile Cache: Valid (expires in ${remaining.inHours}h ${remaining.inMinutes % 60}m)',
-      );
     }
 
     return wrapper.user;
@@ -61,17 +52,11 @@ class UserProfileLocalDataSourceImpl implements UserProfileLocalDataSource {
 
     await box.add(wrapper);
 
-    if (kDebugMode) {
-      print('📦 User Profile Cache: Saved user profile at ${wrapper.cachedAt}');
-    }
   }
 
   @override
   Future<void> clearUserProfile() async {
     final box = await _cacheBox();
     await box.clear();
-    if (kDebugMode) {
-      print('📦 User Profile Cache: Cleared');
-    }
   }
 }

@@ -157,9 +157,7 @@ class _AppImageState extends State<AppImage> {
         if (widget.errorListener != null) widget.errorListener!(e);
         if (kDebugMode) {
           if (e is SocketException) {
-            debugPrint('AppImage Speed Tip: Check connection for ${e.address}');
           } else {
-            debugPrint('AppImage Exception: $e');
           }
         }
       },

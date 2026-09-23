@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
@@ -57,8 +56,6 @@ class ISearchApiService extends SearchApiService {
         queryParams['sortOrder'] = sortOrder;
       }
 
-      debugPrint('🌐 [API] Search params: $queryParams');
-
       final uri = Uri.https(
         ApiEndpoints.searchaniseBaseUrl
             .replaceAll('https://', '')
@@ -66,8 +63,6 @@ class ISearchApiService extends SearchApiService {
         ApiEndpoints.searchaniseUrl,
         queryParams,
       );
-
-      debugPrint('🌐 [API] Full URL: $uri');
 
       final response = await _client.getUri(
         uri,
@@ -97,36 +92,19 @@ class ISearchApiService extends SearchApiService {
 
           final result = SearchResponse.fromJson(data);
           return right(result);
-        } catch (e, stackTrace) {
-          if (kDebugMode) {
-            print("searchanise_search_parse_error -> $e");
-            print("searchanise_search_parse_stacktrace -> $stackTrace");
-          }
+        } catch (e) {
           return left(
             ErrorResponse(message: 'Failed to parse search response: $e'),
           );
         }
       } else {
-        if (kDebugMode) {
-          print(
-            "searchanise_invalid_type -> Expected Map but got ${jsonData.runtimeType}",
-          );
-        }
         return left(
           const ErrorResponse(message: 'Invalid search response format'),
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("searchanise_search_dio_error -> $e");
-        print("searchanise_search_dio_response -> ${e.response?.data}");
-      }
       return left(checkErrorResponse(e));
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("searchanise_search_unexpected_error -> $e");
-        print("searchanise_search_unexpected_stacktrace -> $stackTrace");
-      }
+    } catch (e) {
       return left(ErrorResponse(message: 'Unexpected error: $e'));
     }
   }

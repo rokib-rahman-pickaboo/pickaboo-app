@@ -22,7 +22,6 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
   }
 
   Future<void> _onSendOtp(_SendOtp event, Emitter<OtpState> emit) async {
-    if (kDebugMode) print('🔵 OtpBloc: Sending OTP - type: ${event.type}');
     emit(const OtpState.sendingOtp());
 
     late final Either<AppErrorEntity, String> result;
@@ -51,18 +50,15 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) print('❌ OtpBloc: OTP send failed - ${error.message}');
         emit(OtpState.otpSendFailed(error.message));
       },
       (message) {
-        if (kDebugMode) print('✅ OtpBloc: OTP sent - $message');
         emit(OtpState.otpSent(message));
       },
     );
   }
 
   Future<void> _onVerifyOtp(_VerifyOtp event, Emitter<OtpState> emit) async {
-    if (kDebugMode) print('🔵 OtpBloc: Verifying OTP - type: ${event.type}');
     emit(const OtpState.verifyingOtp());
 
     late final Either<AppErrorEntity, String> result;
@@ -81,20 +77,15 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) {
-          print('❌ OtpBloc: OTP verification failed - ${error.message}');
-        }
         emit(OtpState.otpVerificationFailed(error.message));
       },
       (message) {
-        if (kDebugMode) print('✅ OtpBloc: OTP verified - $message');
         emit(OtpState.otpVerified(message));
       },
     );
   }
 
   void _onResetState(_ResetState event, Emitter<OtpState> emit) {
-    if (kDebugMode) print('🔵 OtpBloc: Resetting state');
     emit(const OtpState.initial());
   }
 }

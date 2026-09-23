@@ -310,12 +310,12 @@ class ProductView extends StatelessWidget {
                                               vertical: 2.h,
                                             ),
                                             decoration: const BoxDecoration(
-                                              color: AppColors.redBg,
+                                              color: AppColors.orangeBg,
                                               borderRadius: AppRadius.badgeRadius,
                                             ),
                                             child: Text(
                                               AppStrings.discountTag(discount),
-                                              style: AppTypography.bodyMedium.extraBold().red,
+                                              style: AppTypography.bodyMedium.extraBold().orange,
                                             ),
                                           ),
                                         ],

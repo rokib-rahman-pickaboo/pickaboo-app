@@ -12,6 +12,8 @@ import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/common/address_entity.dart';
+import 'package:pickaboo/domain/entity/common/region_entity.dart';
+import 'package:pickaboo/presentation/bloc/checkout_bloc/checkout_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
@@ -29,6 +31,108 @@ class AddressPage extends StatefulWidget {
 }
 
 class _AddressPageState extends State<AddressPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserProfileBloc>().refreshProfile();
+    context.read<CheckoutBloc>().add(const CheckoutEvent.loadCheckout());
+  }
+
+  Future<void> _onRefresh() async {
+    context.read<UserProfileBloc>().refreshProfile();
+    context.read<CheckoutBloc>().add(const CheckoutEvent.loadCheckout());
+  }
+
+  List<AddressEntity> _resolveAllAddresses({
+    required UserProfileState profileState,
+    required CheckoutState checkoutState,
+  }) {
+    final List<AddressEntity> result = [];
+    final Set<int> seenIds = {};
+
+    final profileAddresses = profileState.maybeWhen(
+      loaded: (user, _, __) => user.addresses,
+      basicInfoUpdateSuccess: (_, user, __, ___) => user.addresses,
+      mobileUpdateSuccess: (_, user, __, ___) => user.addresses,
+      imageUploadSuccess: (_, user, __, ___) => user.addresses,
+      updating: (currentUser, _, __) => currentUser.addresses,
+      orElse: () => null,
+    );
+
+    if (profileAddresses != null) {
+      for (final a in profileAddresses) {
+        if (a.id != 0) {
+          seenIds.add(a.id);
+        }
+        result.add(a);
+      }
+    }
+
+    final checkout = checkoutState.maybeWhen(
+      checkoutLoaded: (checkout, _, _, _, _, _, _) => checkout,
+      loading: (lastCheckout) => lastCheckout,
+      orElse: () => null,
+    );
+
+    for (final a in checkout?.cart.customer?.addresses ?? const []) {
+      if (a.id != null && !seenIds.contains(a.id)) {
+        seenIds.add(a.id!);
+        result.add(
+          AddressEntity(
+            id: a.id ?? 0,
+            customerId: a.customerId ?? 0,
+            region: RegionEntity(
+              regionCode: a.region?.regionCode ?? a.regionCode ?? '',
+              region: a.region?.region ?? '',
+              regionId: a.region?.regionId ?? a.regionId ?? 0,
+            ),
+            regionId: a.regionId ?? a.region?.regionId ?? 0,
+            countryId: a.countryId ?? 'BD',
+            street: a.street,
+            telephone: a.telephone ?? '',
+            postcode: a.postcode ?? '',
+            city: a.city ?? '',
+            firstname: a.firstname ?? '',
+            lastname: a.lastname ?? '',
+            defaultShipping: a.defaultShipping,
+            defaultBilling: a.defaultBilling,
+          ),
+        );
+      } else if (a.id == null) {
+        final matchesAny = result.any(
+          (r) =>
+              r.telephone == (a.telephone ?? '') &&
+              r.city.toLowerCase() == (a.city ?? '').toLowerCase() &&
+              r.street.join('') == a.street.join(''),
+        );
+        if (!matchesAny) {
+          result.add(
+            AddressEntity(
+              id: 0,
+              customerId: a.customerId ?? 0,
+              region: RegionEntity(
+                regionCode: a.region?.regionCode ?? a.regionCode ?? '',
+                region: a.region?.region ?? '',
+                regionId: a.region?.regionId ?? a.regionId ?? 0,
+              ),
+              regionId: a.regionId ?? a.region?.regionId ?? 0,
+              countryId: a.countryId ?? 'BD',
+              street: a.street,
+              telephone: a.telephone ?? '',
+              postcode: a.postcode ?? '',
+              city: a.city ?? '',
+              firstname: a.firstname ?? '',
+              lastname: a.lastname ?? '',
+              defaultShipping: a.defaultShipping,
+              defaultBilling: a.defaultBilling,
+            ),
+          );
+        }
+      }
+    }
+
+    return result;
+  }
 
   void _removeAddress(AddressEntity address) {
     showDialog<bool>(
@@ -71,12 +175,20 @@ class _AddressPageState extends State<AddressPage> {
     });
   }
 
-  void _navigateToAddAddress() {
-    context.push(Routes.newAddress);
+  Future<void> _navigateToAddAddress() async {
+    await context.push(Routes.newAddress);
+    if (mounted) {
+      context.read<UserProfileBloc>().refreshProfile();
+      context.read<CheckoutBloc>().add(const CheckoutEvent.loadCheckout());
+    }
   }
 
-  void _navigateToEditAddress(AddressEntity address) {
-    context.push(Routes.newAddress, extra: {'address': address});
+  Future<void> _navigateToEditAddress(AddressEntity address) async {
+    await context.push(Routes.newAddress, extra: {'address': address});
+    if (mounted) {
+      context.read<UserProfileBloc>().refreshProfile();
+      context.read<CheckoutBloc>().add(const CheckoutEvent.loadCheckout());
+    }
   }
 
   @override
@@ -87,6 +199,9 @@ class _AddressPageState extends State<AddressPage> {
         state.whenOrNull(
           basicInfoUpdateSuccess: (message, _, _, _) {
             SnackBarUtils.showSuccess(context, message);
+            context.read<CheckoutBloc>().add(
+              const CheckoutEvent.loadCheckout(),
+            );
           },
           error: (message) {
             SnackBarUtils.showError(context, message);
@@ -118,61 +233,66 @@ class _AddressPageState extends State<AddressPage> {
           ),
         ),
         body: BlocBuilder<UserProfileBloc, UserProfileState>(
-          builder: (context, state) {
-            return state.maybeWhen(
-              loading: (_, _, _) => const AppLoader.fullPage(),
-              loaded: (user, _, _) {
-                final addressList = user.addresses ?? [];
-                if (addressList.isEmpty) {
-                  return RefreshIndicator(
-                    onRefresh: () async => context.read<UserProfileBloc>().add(
-                      const UserProfileEvent.loadUserProfile(),
+          builder: (context, profileState) {
+            final checkoutState = context.watch<CheckoutBloc>().state;
+            final addressList = _resolveAllAddresses(
+              profileState: profileState,
+              checkoutState: checkoutState,
+            );
+
+            final isLoading = profileState.maybeWhen(
+              loading: (_, _, _) => true,
+              orElse: () => false,
+            );
+
+            if (isLoading && addressList.isEmpty) {
+              return const AppLoader.fullPage();
+            }
+
+            if (addressList.isEmpty) {
+              return RefreshIndicator(
+                onRefresh: _onRefresh,
+                color: AppColors.pickabooBlue,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: SizedBox(
+                        height: constraints.maxHeight,
+                        child: _buildEmptyState(),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: _onRefresh,
+              color: AppColors.pickabooBlue,
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sameGroupItemSpacing.w,
+                  vertical: AppSpacing.sameGroupItemSpacing.h,
+                ),
+                itemCount: addressList.length,
+                itemBuilder: (context, index) {
+                  final address = addressList[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: AppSpacing.groupToGroupSpacing.h,
                     ),
-                    color: AppColors.pickabooBlue,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: SizedBox(
-                            height: constraints.maxHeight,
-                            child: _buildEmptyState(),
-                          ),
-                        );
-                      },
+                    child: _AddressCard(
+                      address: address,
+                      onEdit: () => _navigateToEditAddress(address),
+                      onRemove: () => _removeAddress(address),
                     ),
                   );
-                }
-                return RefreshIndicator(
-                  onRefresh: () async => context.read<UserProfileBloc>().add(
-                    const UserProfileEvent.loadUserProfile(),
-                  ),
-                  color: AppColors.pickabooBlue,
-                  child: ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sameGroupItemSpacing.w,
-                      vertical: AppSpacing.sameGroupItemSpacing.h,
-                    ),
-                    itemCount: addressList.length,
-                    itemBuilder: (context, index) {
-                      final address = addressList[index];
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          bottom: AppSpacing.groupToGroupSpacing.h,
-                        ),
-                        child: _AddressCard(
-                          address: address,
-                          onEdit: () => _navigateToEditAddress(address),
-                          onRemove: () => _removeAddress(address),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-              orElse: () => const SizedBox.shrink(),
+                },
+              ),
             );
           },
         ),

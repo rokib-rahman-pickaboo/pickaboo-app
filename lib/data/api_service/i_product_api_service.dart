@@ -48,10 +48,6 @@ class IProductApiService extends ProductApiService {
         '${ApiEndpoints.resolveSlugUrl(type: type)}/$slug',
       );
 
-      if (kDebugMode) {
-        print("resolve_slug -> ${response.data}");
-      }
-
       final data = response.data;
 
       if (data is List && data.isNotEmpty) {
@@ -70,9 +66,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("resolve_slug_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -113,9 +106,6 @@ class IProductApiService extends ProductApiService {
   getAllCategories() async {
     try {
       final response = await _client.get(ApiEndpoints.allCategoryUrl);
-      if (kDebugMode) {
-        print("all_category -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -130,9 +120,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("all_category_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -146,9 +133,6 @@ class IProductApiService extends ProductApiService {
         ApiEndpoints.homeFeedContentUrl,
         queryParameters: {'prod_limit': productLimit},
       );
-      if (kDebugMode) {
-        print("home_feed_content -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -167,9 +151,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("home_feed_content_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -187,9 +168,6 @@ class IProductApiService extends ProductApiService {
           'currentPage': currentPage,
         },
       );
-      if (kDebugMode) {
-        print("just_for_content -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -206,9 +184,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("just_for_content_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -247,9 +222,6 @@ class IProductApiService extends ProductApiService {
           },
         ),
       );
-      if (kDebugMode) {
-        print("category_products -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -268,14 +240,8 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("category_products_error ->$e");
-      }
       return left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print("category_products_parse_error ->$e");
-      }
       return left(
         const ErrorResponse(
           success: false,
@@ -319,9 +285,6 @@ class IProductApiService extends ProductApiService {
           },
         ),
       );
-      if (kDebugMode) {
-        print("special_category_products -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -340,14 +303,8 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("special_category_products_error ->$e");
-      }
       return left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print("special_category_products_parse_error ->$e");
-      }
       return left(
         const ErrorResponse(
           success: false,
@@ -389,9 +346,6 @@ class IProductApiService extends ProductApiService {
           },
         ),
       );
-      if (kDebugMode) {
-        print("brand_products -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -410,14 +364,8 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("brand_products_error ->$e");
-      }
       return left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print("brand_products_parse_error ->$e");
-      }
       return left(
         const ErrorResponse(
           success: false,
@@ -440,23 +388,10 @@ class IProductApiService extends ProductApiService {
         queryParams['customerId'] = customerId;
       }
 
-      if (kDebugMode) {
-        print('─────────────────────────────────────────');
-        print('[ProductApiService] getProductDetail');
-        print('  endpoint    : $endpoint');
-        print('  customerId  : ${customerId ?? "NOT SENT (null)"}');
-        print('  queryParams : $queryParams');
-        print('─────────────────────────────────────────');
-      }
-
       final response = await _client.get(
         endpoint,
         queryParameters: queryParams,
       );
-
-      if (kDebugMode) {
-        print("product_detail -> ${response.data}");
-      }
 
       final data = response.data;
 
@@ -484,14 +419,8 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("product_detail_error ->$e");
-      }
       return left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print("product_detail_parse_error ->$e");
-      }
       return left(
         const ErrorResponse(
           success: false,
@@ -511,10 +440,6 @@ class IProductApiService extends ProductApiService {
         ),
       );
 
-      if (kDebugMode) {
-        print("popup_content -> ${response.data}");
-      }
-
       final data = response.data;
       Map<String, dynamic>? targetData;
 
@@ -533,9 +458,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print("popup_content_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -547,10 +469,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.sellerRecommendedProductsUrl(slug: slug),
       );
-
-      if (kDebugMode) {
-        debugPrint("recommended_products -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -568,9 +486,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("recommended_products_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -581,10 +496,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.relatedProductsUrl(slug: slug),
       );
-
-      if (kDebugMode) {
-        debugPrint("related_products -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -602,9 +513,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("related_products_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -621,10 +529,6 @@ class IProductApiService extends ProductApiService {
         queryParameters: {'page': page, 'pageSize': pageSize},
       );
 
-      if (kDebugMode) {
-        debugPrint("product_reviews -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         return right(ProductReviewsResponse.fromJson(data));
@@ -638,9 +542,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("product_reviews_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -661,10 +562,6 @@ class IProductApiService extends ProductApiService {
         queryParameters: queryParams,
       );
 
-      if (kDebugMode) {
-        debugPrint("product_review_votes -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is List) {
         return right(
@@ -675,9 +572,6 @@ class IProductApiService extends ProductApiService {
       }
       return right(const []);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("product_review_votes_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -690,13 +584,6 @@ class IProductApiService extends ProductApiService {
     required List<String> imagePaths,
   }) async {
     try {
-      if (kDebugMode) {
-        debugPrint("=== submitReview API Called ===");
-        debugPrint("productId: $productId");
-        debugPrint("detail: $detail");
-        debugPrint("ratings: $ratings");
-        debugPrint("imagePaths: $imagePaths");
-      }
 
       final formData = FormData.fromMap({
         'title': '',
@@ -712,11 +599,6 @@ class IProductApiService extends ProductApiService {
         ));
       }
 
-      if (kDebugMode) {
-        debugPrint("FormData fields: ${formData.fields}");
-        debugPrint("FormData files: ${formData.files.map((e) => '${e.key}: ${e.value.filename}').toList()}");
-      }
-
       final response = await _client.post(
         ApiEndpoints.writeReviewUrl,
         data: formData,
@@ -727,23 +609,10 @@ class IProductApiService extends ProductApiService {
         ),
       );
 
-      if (kDebugMode) {
-        debugPrint("submit_review response -> ${response.data}");
-      }
-
       return right(true);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("submit_review_error -> ${e.message}");
-        debugPrint("submit_review_error response -> ${e.response?.data}");
-        debugPrint("submit_review_error type -> ${e.type}");
-        debugPrint("submit_review_error error -> ${e.error}");
-      }
       return left(checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint("submit_review unexpected error -> $e");
-      }
       return left(ErrorResponse(message: e.toString()));
     }
   }
@@ -766,15 +635,8 @@ class IProductApiService extends ProductApiService {
         data: formData,
       );
 
-      if (kDebugMode) {
-        debugPrint("review_vote -> ${response.data}");
-      }
-
       return right(true);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("review_vote_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -789,10 +651,6 @@ class IProductApiService extends ProductApiService {
         queryParameters: {'id': productId},
       );
 
-      if (kDebugMode) {
-        debugPrint("emi_details -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is List) {
         final result = data
@@ -805,9 +663,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("emi_details_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -817,10 +672,6 @@ class IProductApiService extends ProductApiService {
   getProductBanners() async {
     try {
       final response = await _client.get(ApiEndpoints.productBannerUrl);
-
-      if (kDebugMode) {
-        debugPrint("product_banners -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is List) {
@@ -838,9 +689,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("product_banners_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -850,15 +698,8 @@ class IProductApiService extends ProductApiService {
     required String blockUrl,
   }) async {
     try {
-      if (kDebugMode) {
-        debugPrint("cms_block_url -> $blockUrl");
-      }
 
       final response = await _client.get(blockUrl);
-
-      if (kDebugMode) {
-        debugPrint("cms_block -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -874,9 +715,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("cms_block_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -898,10 +736,6 @@ class IProductApiService extends ProductApiService {
         options: Options(extra: const {'noAuth': true}),
       );
 
-      if (kDebugMode) {
-        debugPrint("seller_products -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final result = SellerProductsResponse.fromJson(data);
@@ -918,9 +752,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("seller_products_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -931,10 +762,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.activeBannersUrl,
       );
-
-      if (kDebugMode) {
-        debugPrint("banner_content -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is List) {
@@ -950,9 +777,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("banner_content_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -963,10 +787,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.homeFlashSaleUrl,
       );
-
-      if (kDebugMode) {
-        debugPrint("home_flash_sale -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is List && data.isNotEmpty) {
@@ -983,9 +803,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("home_flash_sale_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -996,10 +813,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.productFlashSaleUrl(slug: slug),
       );
-
-      if (kDebugMode) {
-        debugPrint("product_flash_sale -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -1017,9 +830,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("product_flash_sale_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -1030,10 +840,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.userReviewsUrl,
       );
-
-      if (kDebugMode) {
-        debugPrint("user_reviews -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is List) {
@@ -1047,9 +853,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("user_reviews_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -1063,10 +866,6 @@ class IProductApiService extends ProductApiService {
         ApiEndpoints.deliveryChargeUrl,
         queryParameters: {'productId': productId},
       );
-
-      if (kDebugMode) {
-        debugPrint("delivery_charge -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -1084,9 +883,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("delivery_charge_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -1103,10 +899,6 @@ class IProductApiService extends ProductApiService {
         ),
       );
 
-      if (kDebugMode) {
-        debugPrint("promo_code -> ${response.data}");
-      }
-
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final result = PromoResponse.fromJson(data);
@@ -1121,9 +913,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("promo_code_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -1134,10 +923,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.promotionSliderUrl,
       );
-
-      if (kDebugMode) {
-        debugPrint("promotion_slider -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is List) {
@@ -1153,9 +938,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("promotion_slider_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }
@@ -1166,10 +948,6 @@ class IProductApiService extends ProductApiService {
       final response = await _client.get(
         ApiEndpoints.discoverCategoryUrl,
       );
-
-      if (kDebugMode) {
-        debugPrint("discover_category -> ${response.data}");
-      }
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
@@ -1187,9 +965,6 @@ class IProductApiService extends ProductApiService {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        debugPrint("discover_category_error ->$e");
-      }
       return left(checkErrorResponse(e));
     }
   }

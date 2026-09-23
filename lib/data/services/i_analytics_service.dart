@@ -16,7 +16,6 @@ class IAnalyticsService implements AnalyticsService {
     double? valueToSum,
     Map<String, dynamic>? parameters,
   }) async {
-    debugPrint('🎯 [Meta/FB Event] $name => $parameters${valueToSum != null ? ' (value: $valueToSum)' : ''}');
     try {
       if (parameters != null) {
         await _facebook.logEvent(
@@ -29,7 +28,6 @@ class IAnalyticsService implements AnalyticsService {
       }
       await _facebook.flush();
     } catch (e) {
-      debugPrint('⚠️ [Meta/FB Event Error] $name => $e');
     }
   }
 
@@ -47,9 +45,7 @@ class IAnalyticsService implements AnalyticsService {
 
       await _facebook.setAutoLogAppEventsEnabled(true);
       await _facebook.setAdvertiserTracking(enabled: tracking);
-      debugPrint('🚀 [AnalyticsService] Initialized (FB App ID: 799101504642406, Tracking: $tracking)');
     } catch (e) {
-      debugPrint('⚠️ [AnalyticsService Init Error] $e');
     }
   }
 
@@ -64,9 +60,6 @@ class IAnalyticsService implements AnalyticsService {
     String? brandId,
   }) async {
     final cat = categoryId ?? category;
-    debugPrint(
-      '🔥 [Google/Firebase Event] view_item => {id: $id, name: $name, price: $price, category: $cat, brand: $brand}',
-    );
     try {
       await _firebase.logViewItem(
         currency: 'BDT',
@@ -82,7 +75,6 @@ class IAnalyticsService implements AnalyticsService {
         ],
       );
     } catch (e) {
-      debugPrint('⚠️ [Google/Firebase Event Error] view_item => $e');
     }
 
     await _logFB(
@@ -112,9 +104,6 @@ class IAnalyticsService implements AnalyticsService {
     String? brandId,
   }) async {
     try {
-      debugPrint(
-        '🔥 [Google/Firebase Event] add_to_cart => {id: $id, name: $name, price: ${price * quantity}, brand: $brand, categoryId: $categoryId}',
-      );
       await _firebase.logAddToCart(
         currency: 'BDT',
         value: price * quantity,
@@ -165,7 +154,6 @@ class IAnalyticsService implements AnalyticsService {
         await _facebook.flush();
       } catch (_) {}
     } catch (e) {
-      debugPrint('⚠️ [Meta/FB Event Error] AddToCart => $e');
     }
   }
 
@@ -221,7 +209,6 @@ class IAnalyticsService implements AnalyticsService {
         'content_name': categoryName,
         'currency': 'BDT',
       });
-      debugPrint('🔥 [Google/Firebase Event] ViewCategory => $params');
       await _firebase.logEvent(name: 'ViewCategory', parameters: params);
       await _logFB(name: 'ViewCategory', parameters: params);
     } catch (_) {}
@@ -230,7 +217,6 @@ class IAnalyticsService implements AnalyticsService {
   @override
   Future<void> logSearch({required String searchString}) async {
     try {
-      debugPrint('🔥 [Google/Firebase Event] search / Search => search_string: $searchString');
       await _firebase.logSearch(searchTerm: searchString);
       await _firebase.logEvent(
         name: 'Search',
@@ -250,7 +236,6 @@ class IAnalyticsService implements AnalyticsService {
     required List<Map<String, dynamic>> items,
   }) async {
     try {
-      debugPrint('🔥 [Google/Firebase Event] begin_checkout => value: $value, items: ${items.length}');
       await _firebase.logBeginCheckout(
         value: value,
         currency: 'BDT',
@@ -281,7 +266,6 @@ class IAnalyticsService implements AnalyticsService {
     required List<Map<String, dynamic>> items,
   }) async {
     try {
-      debugPrint('🔥 [Google/Firebase Event] add_shipping_info => value: $value, items: ${items.length}');
       await _firebase.logAddShippingInfo(
         value: value,
         currency: 'BDT',
@@ -313,7 +297,6 @@ class IAnalyticsService implements AnalyticsService {
     required List<Map<String, dynamic>> items,
   }) async {
     try {
-      debugPrint('🔥 [Google/Firebase Event] add_payment_info => value: $value, items: ${items.length}');
       await _firebase.logAddPaymentInfo(
         value: value,
         currency: 'BDT',
@@ -343,9 +326,6 @@ class IAnalyticsService implements AnalyticsService {
     required double total,
     required List<Map<String, dynamic>> items,
   }) async {
-    debugPrint(
-      '🔥 [Google/Firebase Event] purchase => orderId: $orderId, total: $total, items: ${items.length}',
-    );
     await _firebase.logPurchase(
       transactionId: orderId,
       value: total,
@@ -364,7 +344,6 @@ class IAnalyticsService implements AnalyticsService {
           .toList(),
     );
 
-    debugPrint('🎯 [Meta/FB Event] Purchase => orderId: $orderId, amount: $total, items: ${items.length}');
     await _facebook.logPurchase(
       amount: total,
       currency: 'BDT',
@@ -395,7 +374,6 @@ class IAnalyticsService implements AnalyticsService {
         'content_name': jsonEncode(items.map((e) => e['name']).toList()),
         'transaction_id': transactionId,
       });
-      debugPrint('🔥 [Google/Firebase Event] Success => $params');
       await _firebase.logEvent(name: 'Success', parameters: params);
       await _logFB(name: 'Success', valueToSum: value, parameters: params);
     } catch (_) {}

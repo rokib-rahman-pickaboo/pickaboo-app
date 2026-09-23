@@ -209,10 +209,8 @@ class _FilterSortBarState extends State<FilterSortBar> {
           // ── Filter Button ──
           Expanded(
             child: AppButton.outline(
-              backgroundColor: hasFilters
-                  ? AppColors.pickabooBlue.withValues(alpha: 0.06)
-                  : AppColors.white,
-              borderColor: hasFilters ? AppColors.pickabooBlue : AppColors.border,
+              backgroundColor: AppColors.white,
+              borderColor: AppColors.border,
               borderRadius: AppRadius.cardRadius,
               height: 42.h,
               onPressed: widget.onFilterTap,
@@ -228,21 +226,39 @@ class _FilterSortBarState extends State<FilterSortBar> {
                   SizedBox(width: 8.w),
                   Text(
                     AppStrings.filter,
-                    style: AppTypography.brandAction,
+                    style: AppTypography.button.copyWith(
+                      color: hasFilters ? AppColors.pickabooBlue : AppColors.navy,
+                    ),
                   ),
                   if (hasFilters) ...[
-                    SizedBox(width: 5.w),
+                    SizedBox(width: 6.w),
                     Container(
-                      constraints: BoxConstraints(minWidth: 16.w),
-                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-                      decoration: const BoxDecoration(
+                      width: widget.activeFilterCount < 10 ? 20.r : null,
+                      height: 20.r,
+                      constraints: widget.activeFilterCount < 10
+                          ? null
+                          : BoxConstraints(minWidth: 20.r),
+                      padding: widget.activeFilterCount < 10
+                          ? EdgeInsets.zero
+                          : EdgeInsets.symmetric(horizontal: 5.w),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
                         color: AppColors.pickabooBlue,
-                        borderRadius: AppRadius.chipRadius,
+                        shape: widget.activeFilterCount < 10
+                            ? BoxShape.circle
+                            : BoxShape.rectangle,
+                        borderRadius: widget.activeFilterCount < 10
+                            ? null
+                            : AppRadius.pillRadius,
                       ),
                       child: Text(
                         '${widget.activeFilterCount}',
                         textAlign: TextAlign.center,
-                        style: AppTypography.button,
+                        style: AppTypography.bodyTiny.bold().copyWith(
+                          color: AppColors.white,
+                          fontSize: 10.5.sp,
+                          height: 1.1,
+                        ),
                       ),
                     ),
                   ],

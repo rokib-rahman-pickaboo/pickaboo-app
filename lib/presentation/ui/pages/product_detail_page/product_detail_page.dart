@@ -48,6 +48,7 @@ import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/emi_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/product_options_sheet.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/bottom_sheet/review_image_viewer_sheet.dart';
+import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/device_insurance_dialog.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/product_media_dialog.dart';
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
@@ -66,6 +67,7 @@ import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_tab_sec
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_top_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_trust_ribbon_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_variant_selector_section.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -91,6 +93,8 @@ class ProductDetailsPage extends StatefulWidget {
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
 }
+
+enum _PendingCartAction { addToCart, buyNow }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   /// Toggle to control the visibility of the compare feature on the PDP page.
@@ -119,6 +123,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _pendingBatchAddCount = 0;
   int _totalBatchAddCount = 0;
   Timer? _batchAddTimeoutTimer;
+
+  _PendingCartAction? _pendingCartAction;
+  Timer? _pendingCartActionTimeoutTimer;
+  bool _isBuyNowAction = false;
 
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isScrolledPastHeroNotifier = ValueNotifier<bool>(false);
@@ -158,6 +166,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   @override
   void dispose() {
     _batchAddTimeoutTimer?.cancel();
+    _pendingCartActionTimeoutTimer?.cancel();
     _scrollController.removeListener(_onScrollChanged);
     _scrollController.dispose();
     _isScrolledPastHeroNotifier.dispose();
@@ -440,6 +449,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       return;
     }
 
+    if (mainProduct.isPartial) {
+      _bufferPendingAction(_PendingCartAction.addToCart);
+      return;
+    }
+
     if (!_validateSelection(mainProduct)) {
       _openOptionsSheet(mainProduct, isBuyNow: false);
       return;
@@ -460,7 +474,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     _executeAddToCart(mainProduct);
     _addBuyTogetherToCart(selectedAccessories);
   }
-
 
   void _autoSelectSingleVariants(ProductDetailEntity product) {
     if (!product.hasVariants) return;
@@ -499,28 +512,43 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   bool _validateSelection(ProductDetailEntity product) {
+    // If the product is still synchronizing, it is NOT ready
+    if (product.isPartial) {
+      return false;
+    }
+
     final variantGroups = product.variantGroups;
     final extraOptions = product.extraOptions;
 
+    // Only validate variants when there are variant groups to select from
     final selectedVariantOptionIds = _selectedVariantsStatus
         .map((s) => s.optionId)
         .toSet();
-    final bool allVariantsSelected = variantGroups.every(
-      (g) => selectedVariantOptionIds.contains(g.optionId),
-    );
+    final bool allVariantsSelected = variantGroups.isEmpty ||
+        variantGroups.every(
+          (g) => selectedVariantOptionIds.contains(g.optionId),
+        );
 
-    final requiredOptions = extraOptions.where((o) => o.isRequire).toList();
+    // Exclude insurance from required addon validation — insurance is handled
+    // separately via DeviceInsuranceDialog after the options sheet completes.
+    final requiredOptions = extraOptions
+        .where((o) => o.isRequire && !o.title.toLowerCase().contains('insurance'))
+        .toList();
     final selectedOptionIds = _selectedAddonOptions
         .where((s) => s.isCustomOption)
         .map((s) => s.optionId)
         .toSet();
-    final bool allAddonsSelected = requiredOptions.every(
-      (o) => selectedOptionIds.contains(o.optionId.toString()),
-    );
+    final bool allAddonsSelected = requiredOptions.isEmpty ||
+        requiredOptions.every(
+          (o) => selectedOptionIds.contains(o.optionId.toString()),
+        );
 
-    setState(() {
-      _showVariantError = !allVariantsSelected;
-    });
+    // Only display inline error banner if full product is loaded and user skipped options
+    if (!product.isPartial && product.hasVariants) {
+      setState(() {
+        _showVariantError = !allVariantsSelected;
+      });
+    }
 
     return allVariantsSelected && allAddonsSelected;
   }
@@ -568,11 +596,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         _selectedAddonOptions = result.addons;
       });
       if (!isSelectionOnly) {
-        if (isBuyNow) {
-          _executeBuyNow(product);
-        } else {
-          _executeAddToCart(product);
-        }
+        // The sheet already validated selections, so skip re-validation
+        // and proceed directly through the insurance check flow.
+        _proceedWithInsuranceCheck(product, isBuyNow: isBuyNow);
       }
     }
   }
@@ -597,8 +623,93 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  void _executeAddToCart(ProductDetailEntity product) {
-    if (!_validateSelection(product)) {
+  void _bufferPendingAction(_PendingCartAction action) {
+    _pendingCartActionTimeoutTimer?.cancel();
+    setState(() {
+      _pendingCartAction = action;
+    });
+
+    // 10s safety timeout to ensure button never remains spinning if network drops
+    _pendingCartActionTimeoutTimer = Timer(const Duration(seconds: 10), () {
+      if (mounted && _pendingCartAction != null) {
+        setState(() => _pendingCartAction = null);
+        SnackBarUtils.showWarning(context, 'Taking longer than usual. Please check your connection.');
+      }
+    });
+  }
+
+  /// Checks if the product has insurance options and shows the
+  /// [DeviceInsuranceDialog]. This is called after the options sheet
+  /// confirms the user's selections (i.e. validation is already done).
+  ///
+  /// When the insurance option has `isRequire == true`, the dialog hides
+  /// "No thanks" and auto-includes insurance even if dismissed, so that
+  /// Magento's required-option validation passes.
+  Future<void> _proceedWithInsuranceCheck(
+    ProductDetailEntity product, {
+    bool isBuyNow = false,
+  }) async {
+    final insuranceOptions = product.extraOptions
+        .where((o) => o.title.toLowerCase().contains('insurance'))
+        .toList();
+
+    if (insuranceOptions.isNotEmpty && mounted) {
+      final option = insuranceOptions.first;
+      final firstValue = option.values.isNotEmpty ? option.values.first : null;
+
+      if (firstValue != null) {
+        final result = await DeviceInsuranceDialog.show(
+          context,
+          insuranceOption: option,
+          isRequired: option.isRequire,
+        );
+
+        if (result != null && result.accepted && mounted) {
+          // User tapped "Add Protection Plan"
+          setState(() {
+            _selectedAddonOptions = [
+              ..._selectedAddonOptions,
+              ConfigurableItemOptionEntity(
+                optionId: result.optionId.toString(),
+                optionValue: result.optionTypeId.toString(),
+                isCustomOption: true,
+              ),
+            ];
+          });
+        } else if (option.isRequire && mounted) {
+          // Required insurance: auto-include even if user closed the dialog
+          setState(() {
+            _selectedAddonOptions = [
+              ..._selectedAddonOptions,
+              ConfigurableItemOptionEntity(
+                optionId: option.optionId.toString(),
+                optionValue: firstValue.optionTypeId.toString(),
+                isCustomOption: true,
+              ),
+            ];
+          });
+        }
+        // If optional and user tapped "No thanks" → proceed without insurance
+      }
+    }
+
+    if (!mounted) return;
+
+    if (isBuyNow) {
+      _executeBuyNow(product, skipValidation: true);
+    } else {
+      _executeAddToCart(product, skipValidation: true);
+    }
+  }
+
+  void _executeAddToCart(ProductDetailEntity product, {bool skipValidation = false}) {
+    _isBuyNowAction = false;
+    if (product.isPartial) {
+      _bufferPendingAction(_PendingCartAction.addToCart);
+      return;
+    }
+
+    if (!skipValidation && !_validateSelection(product)) {
       _openOptionsSheet(product, isBuyNow: false);
       return;
     }
@@ -614,20 +725,33 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ProductImageResolver.cacheImage(product.id, product.images.first);
     }
 
+    // If the product is marked configurable in Magento but has no variants,
+    // fall back to 'simple' to avoid CartBloc rejecting it.
+    final bool isConfigurable = product.typeId == 'configurable' && product.hasVariants;
+    final String effectiveType = isConfigurable
+        ? 'configurable'
+        : (product.typeId.isNotEmpty ? product.typeId : 'simple');
+
     final cartBloc = context.read<CartBloc>();
     cartBloc.markAdditionPending();
     cartBloc.add(
       CartEvent.addItemSmart(
         sku: product.sku,
         qty: _quantity,
-        productType: product.typeId.isNotEmpty ? product.typeId : 'simple',
+        productType: effectiveType,
         configurableOptions: combinedOptions,
       ),
     );
   }
 
-  void _executeBuyNow(ProductDetailEntity product) {
-    if (!_validateSelection(product)) {
+  void _executeBuyNow(ProductDetailEntity product, {bool skipValidation = false}) {
+    _isBuyNowAction = true;
+    if (product.isPartial) {
+      _bufferPendingAction(_PendingCartAction.buyNow);
+      return;
+    }
+
+    if (!skipValidation && !_validateSelection(product)) {
       _openOptionsSheet(product, isBuyNow: true);
       return;
     }
@@ -643,13 +767,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ProductImageResolver.cacheImage(product.id, product.images.first);
     }
 
+    // If the product is marked configurable in Magento but has no variants,
+    // fall back to 'simple' to avoid CartBloc rejecting it.
+    final bool isConfigurable = product.typeId == 'configurable' && product.hasVariants;
+    final String effectiveType = isConfigurable
+        ? 'configurable'
+        : (product.typeId.isNotEmpty ? product.typeId : 'simple');
+
     final cartBloc = context.read<CartBloc>();
     cartBloc.markAdditionPending();
     cartBloc.add(
       CartEvent.addItemSmart(
         sku: product.sku,
         qty: _quantity,
-        productType: product.typeId.isNotEmpty ? product.typeId : 'simple',
+        productType: effectiveType,
         configurableOptions: combinedOptions,
       ),
     );
@@ -769,6 +900,36 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                 // Stagger secondary requests once hero product is visible
                 _loadSecondarySections(product);
+
+                // ── Smart Buffering Fulfillment ──
+                if (!product.isPartial && _pendingCartAction != null) {
+                  final action = _pendingCartAction!;
+                  _pendingCartActionTimeoutTimer?.cancel();
+                  _pendingCartActionTimeoutTimer = null;
+                  setState(() {
+                    _pendingCartAction = null;
+                  });
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    if (action == _PendingCartAction.buyNow) {
+                      _executeBuyNow(product);
+                    } else {
+                      _executeAddToCart(product);
+                    }
+                  });
+                }
+              },
+              error: (error) {
+                if (_pendingCartAction != null) {
+                  _pendingCartActionTimeoutTimer?.cancel();
+                  _pendingCartActionTimeoutTimer = null;
+                  setState(() => _pendingCartAction = null);
+                  SnackBarUtils.showError(
+                    context,
+                    'Unable to load product options. Please check your connection and try again.',
+                  );
+                }
               },
               orElse: () {},
             );
@@ -808,6 +969,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           listener: (context, state) {
             state.maybeWhen(
               itemAdded: (cart, message) {
+                if (_isBuyNowAction) {
+                  _isBuyNowAction = false;
+                  _pendingBatchAddCount = 0;
+                  _totalBatchAddCount = 0;
+                  _batchAddTimeoutTimer?.cancel();
+                  return;
+                }
+
                 if (_pendingBatchAddCount > 1) {
                   _pendingBatchAddCount--;
                   return;
@@ -829,6 +998,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 );
               },
               error: (error, lastCart) {
+                _isBuyNowAction = false;
                 _pendingBatchAddCount = 0;
                 _totalBatchAddCount = 0;
                 _batchAddTimeoutTimer?.cancel();
@@ -978,7 +1148,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           operationInProgress: (_, __) => true,
                           loading: () => true,
                           orElse: () => false,
-                        );
+                        ) || _pendingCartAction != null;
 
                         final int basePrice = _calculateBasePrice(product);
                         final int regularPrice = _calculateRegularPrice(product);
@@ -1076,89 +1246,93 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   /// Skeleton bottom action bar matching PdpBottomActionBar button structure.
   Widget _buildSkeletonBottomBar() {
-    return Container(
-      key: const ValueKey('pdp_bottom_bar_skeleton'),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.06),
-            offset: const Offset(0, -3),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.sameGroupItemSpacing.w,
-        vertical: 8.h,
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            // Chat button (functional)
-            GestureDetector(
-              onTap: () => context.push(Routes.contactUs),
-              child: Container(
-                width: 44.w,
-                height: 44.h,
-                decoration: BoxDecoration(
-                  color: AppColors.pageBg,
-                  borderRadius: AppRadius.buttonRadius,
-                  border: Border.all(color: AppColors.border, width: 1.w),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 20.sp,
-                    color: AppColors.navy,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 10.w),
-            // ADD TO CART outline placeholder
-            Expanded(
-              child: Container(
-                height: 44.h,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: AppRadius.buttonRadius,
-                  border: Border.all(
-                    color: AppColors.pickabooBlue.withValues(alpha: 0.4),
-                    width: 1.2.w,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'ADD TO CART',
-                    style: AppTypography.button.copyWith(
-                      color: AppColors.pickabooBlue.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 10.w),
-            // BUY NOW filled placeholder
-            Expanded(
-              child: Container(
-                height: 44.h,
-                decoration: BoxDecoration(
-                  color: AppColors.pickabooBlue.withValues(alpha: 0.5),
-                  borderRadius: AppRadius.buttonRadius,
-                ),
-                child: Center(
-                  child: Text(
-                    'BUY NOW',
-                    style: AppTypography.button.copyWith(
-                      color: AppColors.white,
-                    ),
-                  ),
-                ),
-              ),
+    return Skeletonizer(
+      enabled: true,
+      effect: AppDecorations.shimmerEffect,
+      child: Container(
+        key: const ValueKey('pdp_bottom_bar_skeleton'),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.black.withValues(alpha: 0.06),
+              offset: const Offset(0, -3),
+              blurRadius: 8,
             ),
           ],
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.sameGroupItemSpacing.w,
+          vertical: 8.h,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              // Chat button (functional)
+              GestureDetector(
+                onTap: () => context.push(Routes.contactUs),
+                child: Container(
+                  width: 44.w,
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.pageBg,
+                    borderRadius: AppRadius.buttonRadius,
+                    border: Border.all(color: AppColors.border, width: 1.w),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.chat_bubble_outline_rounded,
+                      size: 20.sp,
+                      color: AppColors.navy,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              // ADD TO CART outline placeholder
+              Expanded(
+                child: Container(
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadius.buttonRadius,
+                    border: Border.all(
+                      color: AppColors.skeletonBase,
+                      width: 1.2.w,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'ADD TO CART',
+                      style: AppTypography.button.copyWith(
+                        color: AppColors.skeletonBase,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              // BUY NOW filled placeholder
+              Expanded(
+                child: Container(
+                  height: 44.h,
+                  decoration: const BoxDecoration(
+                    color: AppColors.skeletonBase,
+                    borderRadius: AppRadius.buttonRadius,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'BUY NOW',
+                      style: AppTypography.button.copyWith(
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1403,10 +1577,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       child: PdpTabSectionWidget(
                         key: _reviewsTabKey,
                         product: product,
-                        onWriteReviewTap: () {
+                        onWriteReviewTap: () async {
                           if (isLoggedIn) {
                             if (product.isEligibleForReview) {
-                              context.pushNamed(
+                              final reviewBloc = context.read<ReviewBloc>();
+                              final submitted = await context.pushNamed<bool>(
                                 'writeReview',
                                 pathParameters: {'id': product.id.toString()},
                                 extra: {
@@ -1416,6 +1591,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                       : '',
                                 },
                               );
+                              if (submitted == true && mounted) {
+                                reviewBloc.add(
+                                  ReviewEvent.refresh(
+                                    productId: product.id.toString(),
+                                  ),
+                                );
+                              }
                             } else {
                               SnackBarUtils.showWarning(
                                 context,
@@ -1430,7 +1612,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           context.pushNamed(
                             'allProductReviews',
                             pathParameters: {'id': product.id.toString()},
-                            extra: product,
+                            extra: {
+                              'product': product,
+                              'reviewBloc': context.read<ReviewBloc>(),
+                            },
                           );
                         },
                         onReviewPhotoTap: (idx) {

@@ -67,9 +67,6 @@ class AuthService extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) {
-        print('Login error: $e');
-      }
       rethrow;
     }
   }
@@ -96,9 +93,6 @@ class AuthService extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) {
-        print('Logout error: $e');
-      }
       rethrow;
     }
   }

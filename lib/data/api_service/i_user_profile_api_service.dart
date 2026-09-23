@@ -47,7 +47,13 @@ class IUserProfileApiService implements UserProfileApiService {
   Future<Either<ErrorResponse, String>> getUserImage() async {
     try {
       final response = await _dio.get(ApiEndpoints.customerImageMine);
-      return Right(response.data.toString());
+      dynamic data = response.data;
+      if (data is List && data.isNotEmpty) data = data.first;
+      if (data is Map) {
+        data = data['url'] ?? data['image'] ?? data['profile_image'] ?? data['image_url'];
+      }
+      final cleanUrl = data?.toString().replaceAll('"', '').trim() ?? '';
+      return Right(cleanUrl);
     } on DioException catch (e) {
       return Left(_checkErrorResponse(e));
     } catch (e) {
@@ -64,21 +70,33 @@ class IUserProfileApiService implements UserProfileApiService {
     required String dob,
   }) async {
     try {
-      final Map<String, dynamic> body = {
-        'customer': {
-          ...userMap,
-          'firstname': firstName,
-          'lastname': lastName,
-          'gender': int.tryParse(gender) ?? gender,
-          'dob': dob,
-        },
+      final Map<String, dynamic> customerData = {
+        'firstname': firstName.trim(),
+        'lastname': lastName.trim(),
       };
 
-      final customerId = userMap['id'];
+      if (userMap['email'] != null) {
+        customerData['email'] = userMap['email'];
+      }
+      if (userMap['website_id'] != null) {
+        customerData['website_id'] = userMap['website_id'];
+      }
+
+      final parsedGender = int.tryParse(gender);
+      if (parsedGender != null && parsedGender > 0) {
+        customerData['gender'] = parsedGender;
+      }
+
+      if (dob.trim().isNotEmpty) {
+        customerData['dob'] = dob.trim();
+      }
+
+      final Map<String, dynamic> body = {
+        'customer': customerData,
+      };
 
       final response = await _dio.put(
         ApiEndpoints.updateCustomerUrl,
-        queryParameters: {'customer_id': customerId},
         data: json.encode(body),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
@@ -102,10 +120,6 @@ class IUserProfileApiService implements UserProfileApiService {
         },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print('sendEmailVerificationCode -> ${response.data}');
-      }
 
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
@@ -150,10 +164,6 @@ class IUserProfileApiService implements UserProfileApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print('updateCustomerEmail -> ${response.data}');
-      }
-
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
         resData = resData.first;
@@ -191,11 +201,6 @@ class IUserProfileApiService implements UserProfileApiService {
     try {
       final platform = Platform.isAndroid ? 'android' : 'ios';
 
-      if (kDebugMode) {
-        print('[RECAPTCHA] sendPhoneUpdateOtp | resend=$resend rtokenPresent=${recaptchaToken != null} '
-            'rtokenLen=${recaptchaToken?.length ?? 0} platform=$platform');
-      }
-
       final payload = {
         'mobile': mobile,
         'resend': resend ? 1 : 0,
@@ -210,6 +215,10 @@ class IUserProfileApiService implements UserProfileApiService {
         },
       };
 
+      debugPrint('[RECAPTCHA_API] 🌐 sendPhoneUpdateOtp POST -> ${ApiEndpoints.sendPhoneUpdateOtpUrl}');
+      debugPrint('[RECAPTCHA_API]    platform=$platform, mobile=$mobile, resend=$resend');
+      debugPrint('[RECAPTCHA_API]    rtokenLen=${recaptchaToken?.length ?? 0}, rtokenPreview=${recaptchaToken != null && recaptchaToken.length > 20 ? recaptchaToken.substring(0, 20) : recaptchaToken}...');
+
       Response response;
       try {
         response = await _dio.post(
@@ -219,22 +228,19 @@ class IUserProfileApiService implements UserProfileApiService {
         );
       } on DioException catch (e) {
         if (e.response?.statusCode == 404) {
-          if (kDebugMode) {
-            print('[API] Primary endpoint 404, trying fallback ${ApiEndpoints.sendPhoneUpdateOtpFallbackUrl}');
-          }
+          debugPrint('[RECAPTCHA_API] ⚠️ sendPhoneUpdateOtp got 404, attempting fallback -> ${ApiEndpoints.sendPhoneUpdateOtpFallbackUrl}');
           response = await _dio.post(
             ApiEndpoints.sendPhoneUpdateOtpFallbackUrl,
             data: payload,
             options: Options(headers: {'Content-Type': 'application/json'}),
           );
         } else {
+          debugPrint('[RECAPTCHA_API] ❌ sendPhoneUpdateOtp DioException [${e.response?.statusCode}]: ${e.response?.data ?? e.message}');
           rethrow;
         }
       }
 
-      if (kDebugMode) {
-        print('[API] sendPhoneUpdateOtp response: ${response.statusCode} -> ${response.data}');
-      }
+      debugPrint('[RECAPTCHA_API] 📥 sendPhoneUpdateOtp response [${response.statusCode}]: ${response.data}');
 
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
@@ -264,9 +270,7 @@ class IUserProfileApiService implements UserProfileApiService {
 
       return const Right(OtpResponse(status: 200, message: 'OTP has been sent to your mobile number'));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] sendPhoneUpdateOtp DioException: ${e.response?.statusCode} -> ${e.response?.data}');
-      }
+      debugPrint('[RECAPTCHA_API] ❌ sendPhoneUpdateOtp DioException [${e.response?.statusCode}]: ${e.response?.data ?? e.message}');
       final statusCode = e.response?.statusCode;
       if (statusCode == 302 || statusCode == 409) {
         final data = e.response?.data;
@@ -280,9 +284,7 @@ class IUserProfileApiService implements UserProfileApiService {
       }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] sendPhoneUpdateOtp error: $e');
-      }
+      debugPrint('[RECAPTCHA_API] ❌ sendPhoneUpdateOtp unexpected error: $e');
       return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
@@ -303,10 +305,6 @@ class IUserProfileApiService implements UserProfileApiService {
         },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print('validateOtp -> ${response.data}');
-      }
 
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
@@ -347,10 +345,6 @@ class IUserProfileApiService implements UserProfileApiService {
         },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print('updateCustomerMobile -> ${response.data}');
-      }
 
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
@@ -419,18 +413,36 @@ class IUserProfileApiService implements UserProfileApiService {
     required File image,
   }) async {
     try {
-      String filePath = image.path;
-      String fileName = filePath.split('/').last;
+      final filePath = image.path;
+      final fileName = filePath.split('/').last;
 
-      FormData formData = FormData.fromMap({
-        "image": await MultipartFile.fromFile(filePath, filename: fileName),
+      final fileBytes = await image.readAsBytes();
+
+      // Send under both 'file' (Postman collection contract) and 'image' (legacy)
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
+        'image': MultipartFile.fromBytes(fileBytes, filename: fileName),
       });
 
       final response = await _dio.post(
         ApiEndpoints.uploadProfileImageUrl,
         data: formData,
       );
-      return Right(response.data.toString());
+
+      dynamic resData = response.data;
+      if (resData is List && resData.isNotEmpty) {
+        resData = resData.first;
+      }
+      if (resData is Map) {
+        resData = resData['url'] ??
+            resData['image'] ??
+            resData['profile_image'] ??
+            resData['image_url'] ??
+            resData['data'];
+      }
+
+      final cleanResult = resData?.toString().replaceAll('"', '').trim() ?? '';
+      return Right(cleanResult);
     } on DioException catch (e) {
       return Left(_checkErrorResponse(e));
     } catch (e) {
@@ -444,28 +456,14 @@ class IUserProfileApiService implements UserProfileApiService {
     int currentPage = 1,
   }) async {
     try {
-      if (kDebugMode) {
-        print('📦 [ORDER API] Getting Order List');
-        print('  URL: V1/orders/mine');
-        print('  Params: limit=$limit, current_page=$currentPage');
-      }
 
       final response = await _dio.get(
         ApiEndpoints.getOrderListUrl,
         queryParameters: {'limit': limit, 'current_page': currentPage},
       );
 
-      if (kDebugMode) {
-        print('📦 [ORDER API] Response received');
-        print('  Status Code: ${response.statusCode}');
-        print('  Response Type: ${response.data.runtimeType}');
-      }
-
       if (response.data is String) {
         final stringData = response.data as String;
-        if (kDebugMode) {
-          print('⚠️ [ORDER API] Received String response instead of JSON');
-        }
 
         if (stringData.trim().startsWith('{') ||
             stringData.trim().startsWith('[')) {
@@ -492,15 +490,8 @@ class IUserProfileApiService implements UserProfileApiService {
         OrderListResponse.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('❌ [ORDER API] DioException: ${e.message}');
-        print('  Response: ${e.response?.data}');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ [ORDER API] Unexpected error: $e');
-      }
       return Left(ErrorResponse(message: e.toString()));
     }
   }
@@ -510,10 +501,6 @@ class IUserProfileApiService implements UserProfileApiService {
     required String orderId,
   }) async {
     try {
-      if (kDebugMode) {
-        print('📦 [ORDER API] Getting Order Details');
-        print('  Order ID: $orderId');
-      }
 
       if (orderId.isEmpty) {
         throw Exception('Invalid order ID: $orderId');
@@ -545,17 +532,10 @@ class IUserProfileApiService implements UserProfileApiService {
         'note': note,
         'reason': reason,
       };
-      if (kDebugMode) {
-        print('✅ [cancel order] request: $requestPayload');
-      }
       final response = await _dio.post(
         ApiEndpoints.cancelOrderUrl,
         data: requestPayload,
       );
-
-      if (kDebugMode) {
-        print('✅ [cancel order] Response: ${response.data}');
-      }
 
       final dynamic data = response.data;
       Map<String, dynamic>? payload;
@@ -593,9 +573,6 @@ class IUserProfileApiService implements UserProfileApiService {
 
       return Right(OrderCancelResponse.fromJson(payload));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print(' [cancel order error ] Response: ${e.response}');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
       return Left(ErrorResponse(message: e.toString()));
@@ -633,15 +610,8 @@ class IUserProfileApiService implements UserProfileApiService {
         queryParameters: {'currentPage': page, 'clubPointsHistoryLimit': limit},
       );
 
-      if (kDebugMode) {
-        print('✅ [CLUB POINTS API] Response Status: ${response.statusCode}');
-      }
-
       return Right(ClubPointResponse.fromJson(response.data));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('❌ [CLUB POINTS API] DioException: ${e.message}');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
       return Left(ErrorResponse(message: e.toString()));
@@ -659,15 +629,8 @@ class IUserProfileApiService implements UserProfileApiService {
         queryParameters: {'page': page, 'limit': limit},
       );
 
-      if (kDebugMode) {
-        print('get_referral_history -> ${response.data}');
-      }
-
       return right(ReferralResponse.fromJson(response.data));
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('get_referral_history_error -> $e');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
       return Left(ErrorResponse(message: e.toString()));
@@ -681,15 +644,8 @@ class IUserProfileApiService implements UserProfileApiService {
     try {
       await _dio.post(ApiEndpoints.referralInvite, data: body);
 
-      if (kDebugMode) {
-        print('invite_friend -> Success');
-      }
-
       return right(true);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('invite_friend_error -> $e');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
       return Left(ErrorResponse(message: e.toString()));
@@ -701,19 +657,9 @@ class IUserProfileApiService implements UserProfileApiService {
     Map<String, dynamic> body,
   ) async {
     if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] 💾 UPDATE ADDRESS LIST');
-      print('[API] Endpoint: ${ApiEndpoints.updateCustomerUrl}');
-      print(
-        '[API] Addresses count: ${(body['customer']?['addresses'] as List?)?.length ?? 0}',
-      );
-      print('[API] Body keys: ${body.keys.toList()}');
       if (body['customer']?['addresses'] != null) {
         final addresses = body['customer']['addresses'] as List;
         for (var i = 0; i < addresses.length; i++) {
-          print(
-            '[API] Address $i: ${addresses[i]['city']} (default_shipping: ${addresses[i]['default_shipping']}, default_billing: ${addresses[i]['default_billing']})',
-          );
         }
       }
     }
@@ -725,56 +671,25 @@ class IUserProfileApiService implements UserProfileApiService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (kDebugMode) {
-        print('[API] Response status: ${response.statusCode}');
-        print('[API] ✅ Address list updated successfully');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
-
       return Right(response.statusCode == 200);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException on updateAddressList (${ApiEndpoints.updateCustomerUrl}): ${e.response?.statusCode}');
-      }
 
       // If custom dcastalia-address endpoint fails (e.g. 400 DI TypeError or 404),
       // attempt fallback to standard Magento PUT /rest/default/V1/customers/me
       try {
-        if (kDebugMode) {
-          print('[API] 🔄 Trying fallback to standard Magento: PUT ${ApiEndpoints.customerMe}');
-        }
         final fallbackResponse = await _dio.put(
           ApiEndpoints.customerMe,
           data: json.encode(body),
           options: Options(headers: {'Content-Type': 'application/json'}),
         );
-        if (kDebugMode) {
-          print('[API] Fallback response status: ${fallbackResponse.statusCode}');
-        }
         if (fallbackResponse.statusCode == 200) {
-          if (kDebugMode) {
-            print('[API] ✅ Address list updated via standard customer endpoint successfully');
-            print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          }
           return const Right(true);
         }
       } catch (fallbackError) {
-        if (kDebugMode) {
-          print('[API] ❌ Fallback to standard customer endpoint also failed: $fallbackError');
-        }
       }
 
-      if (kDebugMode) {
-        print('[API] Status: ${e.response?.statusCode}');
-        print('[API] Error data: ${e.response?.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: e.toString()));
     }
   }
@@ -783,12 +698,6 @@ class IUserProfileApiService implements UserProfileApiService {
   Future<Either<ErrorResponse, String>> addAddress(
     Map<String, dynamic> body,
   ) async {
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] 🏠 ADD NEW ADDRESS');
-      print('[API] Endpoint: POST ${ApiEndpoints.customerAddressUrl}');
-      print('[API] Body: ${json.encode(body)}');
-    }
 
     try {
       final response = await _dio.post(
@@ -796,12 +705,6 @@ class IUserProfileApiService implements UserProfileApiService {
         data: json.encode(body),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print('[API] Response status: ${response.statusCode}');
-        print('[API] Response data: ${response.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
 
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
@@ -828,17 +731,8 @@ class IUserProfileApiService implements UserProfileApiService {
 
       return const Right('Address saved successfully.');
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException on addAddress: ${e.response?.statusCode}');
-        print('[API] Error data: ${e.response?.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception on addAddress: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
@@ -847,12 +741,6 @@ class IUserProfileApiService implements UserProfileApiService {
   Future<Either<ErrorResponse, String>> updateAddress(
     Map<String, dynamic> body,
   ) async {
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] ✏️ UPDATE ADDRESS');
-      print('[API] Endpoint: PUT ${ApiEndpoints.customerAddressUrl}');
-      print('[API] Body: ${json.encode(body)}');
-    }
 
     try {
       final response = await _dio.put(
@@ -860,12 +748,6 @@ class IUserProfileApiService implements UserProfileApiService {
         data: json.encode(body),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print('[API] Response status: ${response.statusCode}');
-        print('[API] Response data: ${response.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
 
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
@@ -892,17 +774,8 @@ class IUserProfileApiService implements UserProfileApiService {
 
       return const Right('Address updated successfully.');
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException on updateAddress: ${e.response?.statusCode}');
-        print('[API] Error data: ${e.response?.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception on updateAddress: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
@@ -912,24 +785,12 @@ class IUserProfileApiService implements UserProfileApiService {
     int addressId,
   ) async {
     final endpoint = ApiEndpoints.deleteCustomerAddressUrl(addressId);
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] 🗑️ DELETE ADDRESS');
-      print('[API] Endpoint: DELETE $endpoint');
-      print('[API] Address ID: $addressId');
-    }
 
     try {
       final response = await _dio.delete(
         endpoint,
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
-      if (kDebugMode) {
-        print('[API] Response status: ${response.statusCode}');
-        print('[API] Response data: ${response.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
 
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
@@ -956,17 +817,8 @@ class IUserProfileApiService implements UserProfileApiService {
 
       return const Right('Address deleted successfully.');
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException on deleteAddress: ${e.response?.statusCode}');
-        print('[API] Error data: ${e.response?.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception on deleteAddress: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: ApiErrorParser.extractErrorMessage(e)));
     }
   }
@@ -975,13 +827,6 @@ class IUserProfileApiService implements UserProfileApiService {
   Future<Either<ErrorResponse, List<CityResponse>>> getCities(
     String division,
   ) async {
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] 🏙️ GET CITIES');
-      print('[API] Division: $division');
-      print('[API] Endpoint: ${ApiEndpoints.getCityUrl}');
-      print('[API] Query: {param: $division}');
-    }
 
     try {
       Response response;
@@ -990,14 +835,9 @@ class IUserProfileApiService implements UserProfileApiService {
           ApiEndpoints.getCityUrl,
           queryParameters: {'param': division},
         );
-      } on DioException catch (dioErr) {
+      } on DioException {
         // If staging has a backend DI failure, automatically fallback to production
         if (_dio.options.baseUrl != ApiConfig.productionURL) {
-          if (kDebugMode) {
-            print(
-              '[API] ⚠️ Staging getCity failed (${dioErr.response?.statusCode}), trying production fallback...',
-            );
-          }
           response = await _dio.get(
             '${ApiConfig.productionURL}${ApiEndpoints.getCityUrl}',
             queryParameters: {'param': division},
@@ -1007,45 +847,23 @@ class IUserProfileApiService implements UserProfileApiService {
         }
       }
 
-      if (kDebugMode) {
-        print('[API] Response type: ${response.data.runtimeType}');
-        print('[API] Response data: ${response.data}');
-      }
-
       if (response.data is List) {
         final cities = (response.data as List)
             .map((e) => CityResponse.fromJson(e as Map<String, dynamic>))
             .toList();
 
         if (kDebugMode) {
-          print('[API] ✅ Loaded ${cities.length} cities');
           if (cities.isNotEmpty) {
-            print('[API] First city: ${cities.first.citiesName}');
           }
-          print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         }
 
         return Right(cities);
       }
 
-      if (kDebugMode) {
-        print('[API] ⚠️ Response is not a List, returning empty');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return const Right([]);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException');
-        print('[API] Status: ${e.response?.statusCode}');
-        print('[API] Error data: ${e.response?.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: e.toString()));
     }
   }
@@ -1054,13 +872,6 @@ class IUserProfileApiService implements UserProfileApiService {
   Future<Either<ErrorResponse, List<AreaResponse>>> getAreas(
     String city,
   ) async {
-    if (kDebugMode) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('[API] 📍 GET AREAS');
-      print('[API] City: $city');
-      print('[API] Endpoint: ${ApiEndpoints.getAreaUrl}');
-      print('[API] Query: {param: $city}');
-    }
 
     try {
       Response response;
@@ -1069,14 +880,9 @@ class IUserProfileApiService implements UserProfileApiService {
           ApiEndpoints.getAreaUrl,
           queryParameters: {'param': city},
         );
-      } on DioException catch (dioErr) {
+      } on DioException {
         // If staging has a backend DI failure, automatically fallback to production
         if (_dio.options.baseUrl != ApiConfig.productionURL) {
-          if (kDebugMode) {
-            print(
-              '[API] ⚠️ Staging getArea failed (${dioErr.response?.statusCode}), trying production fallback...',
-            );
-          }
           response = await _dio.get(
             '${ApiConfig.productionURL}${ApiEndpoints.getAreaUrl}',
             queryParameters: {'param': city},
@@ -1086,45 +892,23 @@ class IUserProfileApiService implements UserProfileApiService {
         }
       }
 
-      if (kDebugMode) {
-        print('[API] Response type: ${response.data.runtimeType}');
-        print('[API] Response data: ${response.data}');
-      }
-
       if (response.data is List) {
         final areas = (response.data as List)
             .map((e) => AreaResponse.fromJson(e as Map<String, dynamic>))
             .toList();
 
         if (kDebugMode) {
-          print('[API] ✅ Loaded ${areas.length} areas');
           if (areas.isNotEmpty) {
-            print('[API] First area: ${areas.first.citiesName}');
           }
-          print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         }
 
         return Right(areas);
       }
 
-      if (kDebugMode) {
-        print('[API] ⚠️ Response is not a List, returning empty');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return const Right([]);
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ DioException');
-        print('[API] Status: ${e.response?.statusCode}');
-        print('[API] Error data: ${e.response?.data}');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(_checkErrorResponse(e));
     } catch (e) {
-      if (kDebugMode) {
-        print('[API] ❌ Exception: $e');
-        print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      }
       return Left(ErrorResponse(message: e.toString()));
     }
   }

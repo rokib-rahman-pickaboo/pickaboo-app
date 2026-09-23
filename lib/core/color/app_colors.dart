@@ -39,6 +39,12 @@ abstract class AppColors {
   //static const Color border       = Color(0xFFE2E8F0);
   static const Color border       = Color(0xFFF0F4F8);
 
+  /// Skeleton Shimmer Base (Clear contrast on white cards)
+  static const Color skeletonBase = Color(0xFFE2E8F0);
+
+  /// Skeleton Shimmer Highlight (Radiant white gleam)
+  static const Color skeletonHighlight = Color(0xFFFFFFFF);
+
   // 4. Typography & Text Roles
   /// Primary Dark Body Text & Review Comments
   static const Color text         = Color(0xFF1A1F27);
@@ -56,10 +62,16 @@ abstract class AppColors {
   /// Soft Green Badge Surface (In Stock, Pickaboo Assured)
   static const Color greenBg      = Color(0xFFDCFCE7);
 
-  /// Destructive & Sale (Discount % Tags, Delete Actions, Stock-Out, Form Errors)
+  /// Destructive & Sale (Delete Actions, Stock-Out, Form Errors)
   static const Color red          = Color(0xFFF1483A);
 
-  /// Soft Red Badge Surface (Discount Tags, Cancellation, Stock-Out)
+  /// Destructive & Sale (Discount % Tags)
+  static const Color orange          = Color(0xFFFF6B00);
+
+  /// Soft Orange Badge Surface (Discount Tags)
+  static const Color orangeBg        = Color(0xFFFFF0E6);
+
+  /// Soft Red Badge Surface (Cancellation, Stock-Out)
   static const Color redBg        = Color(0xFFFFECEB);
 
   /// Warning & Highlights (Rating Stars, EMI Highlights, Pending Status)
@@ -83,7 +95,7 @@ abstract class AppColors {
   static const Color pink         = Color(0xFFE91E63);
 
   /// Nagad Digital Payment Badge & Flash Deal Flame Accent
-  static const Color orange       = Color(0xFFFF7043);
+  //static const Color orange       = Color(0xFFFF7043);
 
   /// Visa / MasterCard 0% EMI Financing Badge
   static const Color visaBlue     = Color(0xFF1A237E);

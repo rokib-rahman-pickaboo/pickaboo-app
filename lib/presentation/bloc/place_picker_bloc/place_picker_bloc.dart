@@ -48,11 +48,9 @@ class PlacePickerBloc extends Bloc<PlacePickerEvent, PlacePickerState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) print('❌ [PlacePickerBloc] search error: ${error.message}');
         emit(state.copyWith(status: PlacePickerStatus.error, error: error));
       },
       (suggestions) {
-        if (kDebugMode) print('✅ [PlacePickerBloc] search: ${suggestions.length} results');
         emit(state.copyWith(
           status: PlacePickerStatus.success,
           suggestions: suggestions,
@@ -74,11 +72,9 @@ class PlacePickerBloc extends Bloc<PlacePickerEvent, PlacePickerState> {
 
     result.fold(
       (error) {
-        if (kDebugMode) print('❌ [PlacePickerBloc] reverseGeocode error: ${error.message}');
         emit(state.copyWith(status: PlacePickerStatus.error, error: error));
       },
       (place) {
-        if (kDebugMode) print('✅ [PlacePickerBloc] reverseGeocode: ${place.address}');
         emit(state.copyWith(
           status: PlacePickerStatus.success,
           selectedPlace: place,

@@ -4007,7 +4007,7 @@ mixin _$ShippingAssignmentItem {
   @JsonKey(name: "name")
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: "price")
-  int? get price => throw _privateConstructorUsedError;
+  num? get price => throw _privateConstructorUsedError;
   @JsonKey(name: "product_type")
   String? get productType => throw _privateConstructorUsedError;
   @JsonKey(name: "quote_id")
@@ -4038,7 +4038,7 @@ abstract class $ShippingAssignmentItemCopyWith<$Res> {
     @JsonKey(name: "sku") String? sku,
     @JsonKey(name: "qty") int? qty,
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "price") int? price,
+    @JsonKey(name: "price") num? price,
     @JsonKey(name: "product_type") String? productType,
     @JsonKey(name: "quote_id") String? quoteId,
     @JsonKey(name: "extension_attributes")
@@ -4101,7 +4101,7 @@ class _$ShippingAssignmentItemCopyWithImpl<
                 freezed == price
                     ? _value.price
                     : price // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             productType:
                 freezed == productType
                     ? _value.productType
@@ -4154,7 +4154,7 @@ abstract class _$$ShippingAssignmentItemImplCopyWith<$Res>
     @JsonKey(name: "sku") String? sku,
     @JsonKey(name: "qty") int? qty,
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "price") int? price,
+    @JsonKey(name: "price") num? price,
     @JsonKey(name: "product_type") String? productType,
     @JsonKey(name: "quote_id") String? quoteId,
     @JsonKey(name: "extension_attributes")
@@ -4215,7 +4215,7 @@ class __$$ShippingAssignmentItemImplCopyWithImpl<$Res>
             freezed == price
                 ? _value.price
                 : price // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         productType:
             freezed == productType
                 ? _value.productType
@@ -4267,7 +4267,7 @@ class _$ShippingAssignmentItemImpl implements _ShippingAssignmentItem {
   final String? name;
   @override
   @JsonKey(name: "price")
-  final int? price;
+  final num? price;
   @override
   @JsonKey(name: "product_type")
   final String? productType;
@@ -4338,7 +4338,7 @@ abstract class _ShippingAssignmentItem implements ShippingAssignmentItem {
     @JsonKey(name: "sku") final String? sku,
     @JsonKey(name: "qty") final int? qty,
     @JsonKey(name: "name") final String? name,
-    @JsonKey(name: "price") final int? price,
+    @JsonKey(name: "price") final num? price,
     @JsonKey(name: "product_type") final String? productType,
     @JsonKey(name: "quote_id") final String? quoteId,
     @JsonKey(name: "extension_attributes")
@@ -4362,7 +4362,7 @@ abstract class _ShippingAssignmentItem implements ShippingAssignmentItem {
   String? get name;
   @override
   @JsonKey(name: "price")
-  int? get price;
+  num? get price;
   @override
   @JsonKey(name: "product_type")
   String? get productType;
@@ -4408,13 +4408,13 @@ mixin _$CheckoutItemExtensionAttributes {
   @JsonKey(name: "sold_by")
   String? get soldBy => throw _privateConstructorUsedError;
   @JsonKey(name: "regular_price")
-  int? get regularPrice => throw _privateConstructorUsedError;
+  num? get regularPrice => throw _privateConstructorUsedError;
   @JsonKey(name: "spacial_price")
-  int? get spacialPrice => throw _privateConstructorUsedError;
+  num? get spacialPrice => throw _privateConstructorUsedError;
   @JsonKey(name: "discount")
   String? get discount => throw _privateConstructorUsedError;
   @JsonKey(name: "item_subtotal")
-  int? get itemSubtotal => throw _privateConstructorUsedError;
+  num? get itemSubtotal => throw _privateConstructorUsedError;
   @JsonKey(name: "custom_options")
   List<CustomOption>? get customOptions => throw _privateConstructorUsedError;
   @JsonKey(name: "config_options")
@@ -4453,10 +4453,10 @@ abstract class $CheckoutItemExtensionAttributesCopyWith<$Res> {
     @JsonKey(name: "brand") String? brand,
     @JsonKey(name: "image_url") String? imageUrl,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "spacial_price") int? spacialPrice,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "spacial_price") num? spacialPrice,
     @JsonKey(name: "discount") String? discount,
-    @JsonKey(name: "item_subtotal") int? itemSubtotal,
+    @JsonKey(name: "item_subtotal") num? itemSubtotal,
     @JsonKey(name: "custom_options") List<CustomOption>? customOptions,
     @JsonKey(name: "config_options") List<ConfigOption>? configOptions,
     @JsonKey(name: "reward_points") ItemRewardPoints? rewardPoints,
@@ -4551,12 +4551,12 @@ class _$CheckoutItemExtensionAttributesCopyWithImpl<
                 freezed == regularPrice
                     ? _value.regularPrice
                     : regularPrice // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             spacialPrice:
                 freezed == spacialPrice
                     ? _value.spacialPrice
                     : spacialPrice // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             discount:
                 freezed == discount
                     ? _value.discount
@@ -4566,7 +4566,7 @@ class _$CheckoutItemExtensionAttributesCopyWithImpl<
                 freezed == itemSubtotal
                     ? _value.itemSubtotal
                     : itemSubtotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             customOptions:
                 freezed == customOptions
                     ? _value.customOptions
@@ -4621,10 +4621,10 @@ abstract class _$$CheckoutItemExtensionAttributesImplCopyWith<$Res>
     @JsonKey(name: "brand") String? brand,
     @JsonKey(name: "image_url") String? imageUrl,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "spacial_price") int? spacialPrice,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "spacial_price") num? spacialPrice,
     @JsonKey(name: "discount") String? discount,
-    @JsonKey(name: "item_subtotal") int? itemSubtotal,
+    @JsonKey(name: "item_subtotal") num? itemSubtotal,
     @JsonKey(name: "custom_options") List<CustomOption>? customOptions,
     @JsonKey(name: "config_options") List<ConfigOption>? configOptions,
     @JsonKey(name: "reward_points") ItemRewardPoints? rewardPoints,
@@ -4720,12 +4720,12 @@ class __$$CheckoutItemExtensionAttributesImplCopyWithImpl<$Res>
             freezed == regularPrice
                 ? _value.regularPrice
                 : regularPrice // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         spacialPrice:
             freezed == spacialPrice
                 ? _value.spacialPrice
                 : spacialPrice // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         discount:
             freezed == discount
                 ? _value.discount
@@ -4735,7 +4735,7 @@ class __$$CheckoutItemExtensionAttributesImplCopyWithImpl<$Res>
             freezed == itemSubtotal
                 ? _value.itemSubtotal
                 : itemSubtotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         customOptions:
             freezed == customOptions
                 ? _value._customOptions
@@ -4831,16 +4831,16 @@ class _$CheckoutItemExtensionAttributesImpl
   final String? soldBy;
   @override
   @JsonKey(name: "regular_price")
-  final int? regularPrice;
+  final num? regularPrice;
   @override
   @JsonKey(name: "spacial_price")
-  final int? spacialPrice;
+  final num? spacialPrice;
   @override
   @JsonKey(name: "discount")
   final String? discount;
   @override
   @JsonKey(name: "item_subtotal")
-  final int? itemSubtotal;
+  final num? itemSubtotal;
   final List<CustomOption>? _customOptions;
   @override
   @JsonKey(name: "custom_options")
@@ -4968,10 +4968,10 @@ abstract class _CheckoutItemExtensionAttributes
     @JsonKey(name: "brand") final String? brand,
     @JsonKey(name: "image_url") final String? imageUrl,
     @JsonKey(name: "sold_by") final String? soldBy,
-    @JsonKey(name: "regular_price") final int? regularPrice,
-    @JsonKey(name: "spacial_price") final int? spacialPrice,
+    @JsonKey(name: "regular_price") final num? regularPrice,
+    @JsonKey(name: "spacial_price") final num? spacialPrice,
     @JsonKey(name: "discount") final String? discount,
-    @JsonKey(name: "item_subtotal") final int? itemSubtotal,
+    @JsonKey(name: "item_subtotal") final num? itemSubtotal,
     @JsonKey(name: "custom_options") final List<CustomOption>? customOptions,
     @JsonKey(name: "config_options") final List<ConfigOption>? configOptions,
     @JsonKey(name: "reward_points") final ItemRewardPoints? rewardPoints,
@@ -5009,16 +5009,16 @@ abstract class _CheckoutItemExtensionAttributes
   String? get soldBy;
   @override
   @JsonKey(name: "regular_price")
-  int? get regularPrice;
+  num? get regularPrice;
   @override
   @JsonKey(name: "spacial_price")
-  int? get spacialPrice;
+  num? get spacialPrice;
   @override
   @JsonKey(name: "discount")
   String? get discount;
   @override
   @JsonKey(name: "item_subtotal")
-  int? get itemSubtotal;
+  num? get itemSubtotal;
   @override
   @JsonKey(name: "custom_options")
   List<CustomOption>? get customOptions;
@@ -5821,45 +5821,45 @@ CartTotals _$CartTotalsFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$CartTotals {
   @JsonKey(name: "grand_total")
-  int? get grandTotal => throw _privateConstructorUsedError;
+  num? get grandTotal => throw _privateConstructorUsedError;
   @JsonKey(name: "base_grand_total")
-  int? get baseGrandTotal => throw _privateConstructorUsedError;
+  num? get baseGrandTotal => throw _privateConstructorUsedError;
   @JsonKey(name: "subtotal")
-  int? get subtotal => throw _privateConstructorUsedError;
+  num? get subtotal => throw _privateConstructorUsedError;
   @JsonKey(name: "base_subtotal")
-  int? get baseSubtotal => throw _privateConstructorUsedError;
+  num? get baseSubtotal => throw _privateConstructorUsedError;
   @JsonKey(name: "discount_amount")
-  int? get discountAmount => throw _privateConstructorUsedError;
+  num? get discountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_discount_amount")
-  int? get baseDiscountAmount => throw _privateConstructorUsedError;
+  num? get baseDiscountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "subtotal_with_discount")
-  int? get subtotalWithDiscount => throw _privateConstructorUsedError;
+  num? get subtotalWithDiscount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_subtotal_with_discount")
-  int? get baseSubtotalWithDiscount => throw _privateConstructorUsedError;
+  num? get baseSubtotalWithDiscount => throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_amount")
-  int? get shippingAmount => throw _privateConstructorUsedError;
+  num? get shippingAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_shipping_amount")
-  int? get baseShippingAmount => throw _privateConstructorUsedError;
+  num? get baseShippingAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_discount_amount")
-  int? get shippingDiscountAmount => throw _privateConstructorUsedError;
+  num? get shippingDiscountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_shipping_discount_amount")
-  int? get baseShippingDiscountAmount => throw _privateConstructorUsedError;
+  num? get baseShippingDiscountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "tax_amount")
-  int? get taxAmount => throw _privateConstructorUsedError;
+  num? get taxAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_tax_amount")
-  int? get baseTaxAmount => throw _privateConstructorUsedError;
+  num? get baseTaxAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "weee_tax_applied_amount")
   dynamic get weeeTaxAppliedAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_tax_amount")
-  int? get shippingTaxAmount => throw _privateConstructorUsedError;
+  num? get shippingTaxAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_shipping_tax_amount")
-  int? get baseShippingTaxAmount => throw _privateConstructorUsedError;
+  num? get baseShippingTaxAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "subtotal_incl_tax")
-  int? get subtotalInclTax => throw _privateConstructorUsedError;
+  num? get subtotalInclTax => throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_incl_tax")
-  int? get shippingInclTax => throw _privateConstructorUsedError;
+  num? get shippingInclTax => throw _privateConstructorUsedError;
   @JsonKey(name: "base_shipping_incl_tax")
-  int? get baseShippingInclTax => throw _privateConstructorUsedError;
+  num? get baseShippingInclTax => throw _privateConstructorUsedError;
   @JsonKey(name: "base_currency_code")
   String? get baseCurrencyCode => throw _privateConstructorUsedError;
   @JsonKey(name: "quote_currency_code")
@@ -5891,27 +5891,27 @@ abstract class $CartTotalsCopyWith<$Res> {
   ) = _$CartTotalsCopyWithImpl<$Res, CartTotals>;
   @useResult
   $Res call({
-    @JsonKey(name: "grand_total") int? grandTotal,
-    @JsonKey(name: "base_grand_total") int? baseGrandTotal,
-    @JsonKey(name: "subtotal") int? subtotal,
-    @JsonKey(name: "base_subtotal") int? baseSubtotal,
-    @JsonKey(name: "discount_amount") int? discountAmount,
-    @JsonKey(name: "base_discount_amount") int? baseDiscountAmount,
-    @JsonKey(name: "subtotal_with_discount") int? subtotalWithDiscount,
-    @JsonKey(name: "base_subtotal_with_discount") int? baseSubtotalWithDiscount,
-    @JsonKey(name: "shipping_amount") int? shippingAmount,
-    @JsonKey(name: "base_shipping_amount") int? baseShippingAmount,
-    @JsonKey(name: "shipping_discount_amount") int? shippingDiscountAmount,
+    @JsonKey(name: "grand_total") num? grandTotal,
+    @JsonKey(name: "base_grand_total") num? baseGrandTotal,
+    @JsonKey(name: "subtotal") num? subtotal,
+    @JsonKey(name: "base_subtotal") num? baseSubtotal,
+    @JsonKey(name: "discount_amount") num? discountAmount,
+    @JsonKey(name: "base_discount_amount") num? baseDiscountAmount,
+    @JsonKey(name: "subtotal_with_discount") num? subtotalWithDiscount,
+    @JsonKey(name: "base_subtotal_with_discount") num? baseSubtotalWithDiscount,
+    @JsonKey(name: "shipping_amount") num? shippingAmount,
+    @JsonKey(name: "base_shipping_amount") num? baseShippingAmount,
+    @JsonKey(name: "shipping_discount_amount") num? shippingDiscountAmount,
     @JsonKey(name: "base_shipping_discount_amount")
-    int? baseShippingDiscountAmount,
-    @JsonKey(name: "tax_amount") int? taxAmount,
-    @JsonKey(name: "base_tax_amount") int? baseTaxAmount,
+    num? baseShippingDiscountAmount,
+    @JsonKey(name: "tax_amount") num? taxAmount,
+    @JsonKey(name: "base_tax_amount") num? baseTaxAmount,
     @JsonKey(name: "weee_tax_applied_amount") dynamic weeeTaxAppliedAmount,
-    @JsonKey(name: "shipping_tax_amount") int? shippingTaxAmount,
-    @JsonKey(name: "base_shipping_tax_amount") int? baseShippingTaxAmount,
-    @JsonKey(name: "subtotal_incl_tax") int? subtotalInclTax,
-    @JsonKey(name: "shipping_incl_tax") int? shippingInclTax,
-    @JsonKey(name: "base_shipping_incl_tax") int? baseShippingInclTax,
+    @JsonKey(name: "shipping_tax_amount") num? shippingTaxAmount,
+    @JsonKey(name: "base_shipping_tax_amount") num? baseShippingTaxAmount,
+    @JsonKey(name: "subtotal_incl_tax") num? subtotalInclTax,
+    @JsonKey(name: "shipping_incl_tax") num? shippingInclTax,
+    @JsonKey(name: "base_shipping_incl_tax") num? baseShippingInclTax,
     @JsonKey(name: "base_currency_code") String? baseCurrencyCode,
     @JsonKey(name: "quote_currency_code") String? quoteCurrencyCode,
     @JsonKey(name: "coupon_code") String? couponCode,
@@ -5969,72 +5969,72 @@ class _$CartTotalsCopyWithImpl<$Res, $Val extends CartTotals>
                 freezed == grandTotal
                     ? _value.grandTotal
                     : grandTotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseGrandTotal:
                 freezed == baseGrandTotal
                     ? _value.baseGrandTotal
                     : baseGrandTotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             subtotal:
                 freezed == subtotal
                     ? _value.subtotal
                     : subtotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseSubtotal:
                 freezed == baseSubtotal
                     ? _value.baseSubtotal
                     : baseSubtotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             discountAmount:
                 freezed == discountAmount
                     ? _value.discountAmount
                     : discountAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseDiscountAmount:
                 freezed == baseDiscountAmount
                     ? _value.baseDiscountAmount
                     : baseDiscountAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             subtotalWithDiscount:
                 freezed == subtotalWithDiscount
                     ? _value.subtotalWithDiscount
                     : subtotalWithDiscount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseSubtotalWithDiscount:
                 freezed == baseSubtotalWithDiscount
                     ? _value.baseSubtotalWithDiscount
                     : baseSubtotalWithDiscount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             shippingAmount:
                 freezed == shippingAmount
                     ? _value.shippingAmount
                     : shippingAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseShippingAmount:
                 freezed == baseShippingAmount
                     ? _value.baseShippingAmount
                     : baseShippingAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             shippingDiscountAmount:
                 freezed == shippingDiscountAmount
                     ? _value.shippingDiscountAmount
                     : shippingDiscountAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseShippingDiscountAmount:
                 freezed == baseShippingDiscountAmount
                     ? _value.baseShippingDiscountAmount
                     : baseShippingDiscountAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             taxAmount:
                 freezed == taxAmount
                     ? _value.taxAmount
                     : taxAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseTaxAmount:
                 freezed == baseTaxAmount
                     ? _value.baseTaxAmount
                     : baseTaxAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             weeeTaxAppliedAmount:
                 freezed == weeeTaxAppliedAmount
                     ? _value.weeeTaxAppliedAmount
@@ -6044,27 +6044,27 @@ class _$CartTotalsCopyWithImpl<$Res, $Val extends CartTotals>
                 freezed == shippingTaxAmount
                     ? _value.shippingTaxAmount
                     : shippingTaxAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseShippingTaxAmount:
                 freezed == baseShippingTaxAmount
                     ? _value.baseShippingTaxAmount
                     : baseShippingTaxAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             subtotalInclTax:
                 freezed == subtotalInclTax
                     ? _value.subtotalInclTax
                     : subtotalInclTax // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             shippingInclTax:
                 freezed == shippingInclTax
                     ? _value.shippingInclTax
                     : shippingInclTax // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseShippingInclTax:
                 freezed == baseShippingInclTax
                     ? _value.baseShippingInclTax
                     : baseShippingInclTax // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseCurrencyCode:
                 freezed == baseCurrencyCode
                     ? _value.baseCurrencyCode
@@ -6111,27 +6111,27 @@ abstract class _$$CartTotalsImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "grand_total") int? grandTotal,
-    @JsonKey(name: "base_grand_total") int? baseGrandTotal,
-    @JsonKey(name: "subtotal") int? subtotal,
-    @JsonKey(name: "base_subtotal") int? baseSubtotal,
-    @JsonKey(name: "discount_amount") int? discountAmount,
-    @JsonKey(name: "base_discount_amount") int? baseDiscountAmount,
-    @JsonKey(name: "subtotal_with_discount") int? subtotalWithDiscount,
-    @JsonKey(name: "base_subtotal_with_discount") int? baseSubtotalWithDiscount,
-    @JsonKey(name: "shipping_amount") int? shippingAmount,
-    @JsonKey(name: "base_shipping_amount") int? baseShippingAmount,
-    @JsonKey(name: "shipping_discount_amount") int? shippingDiscountAmount,
+    @JsonKey(name: "grand_total") num? grandTotal,
+    @JsonKey(name: "base_grand_total") num? baseGrandTotal,
+    @JsonKey(name: "subtotal") num? subtotal,
+    @JsonKey(name: "base_subtotal") num? baseSubtotal,
+    @JsonKey(name: "discount_amount") num? discountAmount,
+    @JsonKey(name: "base_discount_amount") num? baseDiscountAmount,
+    @JsonKey(name: "subtotal_with_discount") num? subtotalWithDiscount,
+    @JsonKey(name: "base_subtotal_with_discount") num? baseSubtotalWithDiscount,
+    @JsonKey(name: "shipping_amount") num? shippingAmount,
+    @JsonKey(name: "base_shipping_amount") num? baseShippingAmount,
+    @JsonKey(name: "shipping_discount_amount") num? shippingDiscountAmount,
     @JsonKey(name: "base_shipping_discount_amount")
-    int? baseShippingDiscountAmount,
-    @JsonKey(name: "tax_amount") int? taxAmount,
-    @JsonKey(name: "base_tax_amount") int? baseTaxAmount,
+    num? baseShippingDiscountAmount,
+    @JsonKey(name: "tax_amount") num? taxAmount,
+    @JsonKey(name: "base_tax_amount") num? baseTaxAmount,
     @JsonKey(name: "weee_tax_applied_amount") dynamic weeeTaxAppliedAmount,
-    @JsonKey(name: "shipping_tax_amount") int? shippingTaxAmount,
-    @JsonKey(name: "base_shipping_tax_amount") int? baseShippingTaxAmount,
-    @JsonKey(name: "subtotal_incl_tax") int? subtotalInclTax,
-    @JsonKey(name: "shipping_incl_tax") int? shippingInclTax,
-    @JsonKey(name: "base_shipping_incl_tax") int? baseShippingInclTax,
+    @JsonKey(name: "shipping_tax_amount") num? shippingTaxAmount,
+    @JsonKey(name: "base_shipping_tax_amount") num? baseShippingTaxAmount,
+    @JsonKey(name: "subtotal_incl_tax") num? subtotalInclTax,
+    @JsonKey(name: "shipping_incl_tax") num? shippingInclTax,
+    @JsonKey(name: "base_shipping_incl_tax") num? baseShippingInclTax,
     @JsonKey(name: "base_currency_code") String? baseCurrencyCode,
     @JsonKey(name: "quote_currency_code") String? quoteCurrencyCode,
     @JsonKey(name: "coupon_code") String? couponCode,
@@ -6188,72 +6188,72 @@ class __$$CartTotalsImplCopyWithImpl<$Res>
             freezed == grandTotal
                 ? _value.grandTotal
                 : grandTotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseGrandTotal:
             freezed == baseGrandTotal
                 ? _value.baseGrandTotal
                 : baseGrandTotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         subtotal:
             freezed == subtotal
                 ? _value.subtotal
                 : subtotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseSubtotal:
             freezed == baseSubtotal
                 ? _value.baseSubtotal
                 : baseSubtotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         discountAmount:
             freezed == discountAmount
                 ? _value.discountAmount
                 : discountAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseDiscountAmount:
             freezed == baseDiscountAmount
                 ? _value.baseDiscountAmount
                 : baseDiscountAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         subtotalWithDiscount:
             freezed == subtotalWithDiscount
                 ? _value.subtotalWithDiscount
                 : subtotalWithDiscount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseSubtotalWithDiscount:
             freezed == baseSubtotalWithDiscount
                 ? _value.baseSubtotalWithDiscount
                 : baseSubtotalWithDiscount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         shippingAmount:
             freezed == shippingAmount
                 ? _value.shippingAmount
                 : shippingAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseShippingAmount:
             freezed == baseShippingAmount
                 ? _value.baseShippingAmount
                 : baseShippingAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         shippingDiscountAmount:
             freezed == shippingDiscountAmount
                 ? _value.shippingDiscountAmount
                 : shippingDiscountAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseShippingDiscountAmount:
             freezed == baseShippingDiscountAmount
                 ? _value.baseShippingDiscountAmount
                 : baseShippingDiscountAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         taxAmount:
             freezed == taxAmount
                 ? _value.taxAmount
                 : taxAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseTaxAmount:
             freezed == baseTaxAmount
                 ? _value.baseTaxAmount
                 : baseTaxAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         weeeTaxAppliedAmount:
             freezed == weeeTaxAppliedAmount
                 ? _value.weeeTaxAppliedAmount
@@ -6263,27 +6263,27 @@ class __$$CartTotalsImplCopyWithImpl<$Res>
             freezed == shippingTaxAmount
                 ? _value.shippingTaxAmount
                 : shippingTaxAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseShippingTaxAmount:
             freezed == baseShippingTaxAmount
                 ? _value.baseShippingTaxAmount
                 : baseShippingTaxAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         subtotalInclTax:
             freezed == subtotalInclTax
                 ? _value.subtotalInclTax
                 : subtotalInclTax // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         shippingInclTax:
             freezed == shippingInclTax
                 ? _value.shippingInclTax
                 : shippingInclTax // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseShippingInclTax:
             freezed == baseShippingInclTax
                 ? _value.baseShippingInclTax
                 : baseShippingInclTax // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseCurrencyCode:
             freezed == baseCurrencyCode
                 ? _value.baseCurrencyCode
@@ -6358,64 +6358,64 @@ class _$CartTotalsImpl implements _CartTotals {
 
   @override
   @JsonKey(name: "grand_total")
-  final int? grandTotal;
+  final num? grandTotal;
   @override
   @JsonKey(name: "base_grand_total")
-  final int? baseGrandTotal;
+  final num? baseGrandTotal;
   @override
   @JsonKey(name: "subtotal")
-  final int? subtotal;
+  final num? subtotal;
   @override
   @JsonKey(name: "base_subtotal")
-  final int? baseSubtotal;
+  final num? baseSubtotal;
   @override
   @JsonKey(name: "discount_amount")
-  final int? discountAmount;
+  final num? discountAmount;
   @override
   @JsonKey(name: "base_discount_amount")
-  final int? baseDiscountAmount;
+  final num? baseDiscountAmount;
   @override
   @JsonKey(name: "subtotal_with_discount")
-  final int? subtotalWithDiscount;
+  final num? subtotalWithDiscount;
   @override
   @JsonKey(name: "base_subtotal_with_discount")
-  final int? baseSubtotalWithDiscount;
+  final num? baseSubtotalWithDiscount;
   @override
   @JsonKey(name: "shipping_amount")
-  final int? shippingAmount;
+  final num? shippingAmount;
   @override
   @JsonKey(name: "base_shipping_amount")
-  final int? baseShippingAmount;
+  final num? baseShippingAmount;
   @override
   @JsonKey(name: "shipping_discount_amount")
-  final int? shippingDiscountAmount;
+  final num? shippingDiscountAmount;
   @override
   @JsonKey(name: "base_shipping_discount_amount")
-  final int? baseShippingDiscountAmount;
+  final num? baseShippingDiscountAmount;
   @override
   @JsonKey(name: "tax_amount")
-  final int? taxAmount;
+  final num? taxAmount;
   @override
   @JsonKey(name: "base_tax_amount")
-  final int? baseTaxAmount;
+  final num? baseTaxAmount;
   @override
   @JsonKey(name: "weee_tax_applied_amount")
   final dynamic weeeTaxAppliedAmount;
   @override
   @JsonKey(name: "shipping_tax_amount")
-  final int? shippingTaxAmount;
+  final num? shippingTaxAmount;
   @override
   @JsonKey(name: "base_shipping_tax_amount")
-  final int? baseShippingTaxAmount;
+  final num? baseShippingTaxAmount;
   @override
   @JsonKey(name: "subtotal_incl_tax")
-  final int? subtotalInclTax;
+  final num? subtotalInclTax;
   @override
   @JsonKey(name: "shipping_incl_tax")
-  final int? shippingInclTax;
+  final num? shippingInclTax;
   @override
   @JsonKey(name: "base_shipping_incl_tax")
-  final int? baseShippingInclTax;
+  final num? baseShippingInclTax;
   @override
   @JsonKey(name: "base_currency_code")
   final String? baseCurrencyCode;
@@ -6572,30 +6572,30 @@ class _$CartTotalsImpl implements _CartTotals {
 
 abstract class _CartTotals implements CartTotals {
   const factory _CartTotals({
-    @JsonKey(name: "grand_total") final int? grandTotal,
-    @JsonKey(name: "base_grand_total") final int? baseGrandTotal,
-    @JsonKey(name: "subtotal") final int? subtotal,
-    @JsonKey(name: "base_subtotal") final int? baseSubtotal,
-    @JsonKey(name: "discount_amount") final int? discountAmount,
-    @JsonKey(name: "base_discount_amount") final int? baseDiscountAmount,
-    @JsonKey(name: "subtotal_with_discount") final int? subtotalWithDiscount,
+    @JsonKey(name: "grand_total") final num? grandTotal,
+    @JsonKey(name: "base_grand_total") final num? baseGrandTotal,
+    @JsonKey(name: "subtotal") final num? subtotal,
+    @JsonKey(name: "base_subtotal") final num? baseSubtotal,
+    @JsonKey(name: "discount_amount") final num? discountAmount,
+    @JsonKey(name: "base_discount_amount") final num? baseDiscountAmount,
+    @JsonKey(name: "subtotal_with_discount") final num? subtotalWithDiscount,
     @JsonKey(name: "base_subtotal_with_discount")
-    final int? baseSubtotalWithDiscount,
-    @JsonKey(name: "shipping_amount") final int? shippingAmount,
-    @JsonKey(name: "base_shipping_amount") final int? baseShippingAmount,
+    final num? baseSubtotalWithDiscount,
+    @JsonKey(name: "shipping_amount") final num? shippingAmount,
+    @JsonKey(name: "base_shipping_amount") final num? baseShippingAmount,
     @JsonKey(name: "shipping_discount_amount")
-    final int? shippingDiscountAmount,
+    final num? shippingDiscountAmount,
     @JsonKey(name: "base_shipping_discount_amount")
-    final int? baseShippingDiscountAmount,
-    @JsonKey(name: "tax_amount") final int? taxAmount,
-    @JsonKey(name: "base_tax_amount") final int? baseTaxAmount,
+    final num? baseShippingDiscountAmount,
+    @JsonKey(name: "tax_amount") final num? taxAmount,
+    @JsonKey(name: "base_tax_amount") final num? baseTaxAmount,
     @JsonKey(name: "weee_tax_applied_amount")
     final dynamic weeeTaxAppliedAmount,
-    @JsonKey(name: "shipping_tax_amount") final int? shippingTaxAmount,
-    @JsonKey(name: "base_shipping_tax_amount") final int? baseShippingTaxAmount,
-    @JsonKey(name: "subtotal_incl_tax") final int? subtotalInclTax,
-    @JsonKey(name: "shipping_incl_tax") final int? shippingInclTax,
-    @JsonKey(name: "base_shipping_incl_tax") final int? baseShippingInclTax,
+    @JsonKey(name: "shipping_tax_amount") final num? shippingTaxAmount,
+    @JsonKey(name: "base_shipping_tax_amount") final num? baseShippingTaxAmount,
+    @JsonKey(name: "subtotal_incl_tax") final num? subtotalInclTax,
+    @JsonKey(name: "shipping_incl_tax") final num? shippingInclTax,
+    @JsonKey(name: "base_shipping_incl_tax") final num? baseShippingInclTax,
     @JsonKey(name: "base_currency_code") final String? baseCurrencyCode,
     @JsonKey(name: "quote_currency_code") final String? quoteCurrencyCode,
     @JsonKey(name: "coupon_code") final String? couponCode,
@@ -6609,64 +6609,64 @@ abstract class _CartTotals implements CartTotals {
 
   @override
   @JsonKey(name: "grand_total")
-  int? get grandTotal;
+  num? get grandTotal;
   @override
   @JsonKey(name: "base_grand_total")
-  int? get baseGrandTotal;
+  num? get baseGrandTotal;
   @override
   @JsonKey(name: "subtotal")
-  int? get subtotal;
+  num? get subtotal;
   @override
   @JsonKey(name: "base_subtotal")
-  int? get baseSubtotal;
+  num? get baseSubtotal;
   @override
   @JsonKey(name: "discount_amount")
-  int? get discountAmount;
+  num? get discountAmount;
   @override
   @JsonKey(name: "base_discount_amount")
-  int? get baseDiscountAmount;
+  num? get baseDiscountAmount;
   @override
   @JsonKey(name: "subtotal_with_discount")
-  int? get subtotalWithDiscount;
+  num? get subtotalWithDiscount;
   @override
   @JsonKey(name: "base_subtotal_with_discount")
-  int? get baseSubtotalWithDiscount;
+  num? get baseSubtotalWithDiscount;
   @override
   @JsonKey(name: "shipping_amount")
-  int? get shippingAmount;
+  num? get shippingAmount;
   @override
   @JsonKey(name: "base_shipping_amount")
-  int? get baseShippingAmount;
+  num? get baseShippingAmount;
   @override
   @JsonKey(name: "shipping_discount_amount")
-  int? get shippingDiscountAmount;
+  num? get shippingDiscountAmount;
   @override
   @JsonKey(name: "base_shipping_discount_amount")
-  int? get baseShippingDiscountAmount;
+  num? get baseShippingDiscountAmount;
   @override
   @JsonKey(name: "tax_amount")
-  int? get taxAmount;
+  num? get taxAmount;
   @override
   @JsonKey(name: "base_tax_amount")
-  int? get baseTaxAmount;
+  num? get baseTaxAmount;
   @override
   @JsonKey(name: "weee_tax_applied_amount")
   dynamic get weeeTaxAppliedAmount;
   @override
   @JsonKey(name: "shipping_tax_amount")
-  int? get shippingTaxAmount;
+  num? get shippingTaxAmount;
   @override
   @JsonKey(name: "base_shipping_tax_amount")
-  int? get baseShippingTaxAmount;
+  num? get baseShippingTaxAmount;
   @override
   @JsonKey(name: "subtotal_incl_tax")
-  int? get subtotalInclTax;
+  num? get subtotalInclTax;
   @override
   @JsonKey(name: "shipping_incl_tax")
-  int? get shippingInclTax;
+  num? get shippingInclTax;
   @override
   @JsonKey(name: "base_shipping_incl_tax")
-  int? get baseShippingInclTax;
+  num? get baseShippingInclTax;
   @override
   @JsonKey(name: "base_currency_code")
   String? get baseCurrencyCode;
@@ -6703,37 +6703,37 @@ mixin _$CartTotalsItem {
   @JsonKey(name: "item_id")
   int? get itemId => throw _privateConstructorUsedError;
   @JsonKey(name: "price")
-  int? get price => throw _privateConstructorUsedError;
+  num? get price => throw _privateConstructorUsedError;
   @JsonKey(name: "base_price")
-  int? get basePrice => throw _privateConstructorUsedError;
+  num? get basePrice => throw _privateConstructorUsedError;
   @JsonKey(name: "qty")
   int? get qty => throw _privateConstructorUsedError;
   @JsonKey(name: "row_total")
-  int? get rowTotal => throw _privateConstructorUsedError;
+  num? get rowTotal => throw _privateConstructorUsedError;
   @JsonKey(name: "base_row_total")
-  int? get baseRowTotal => throw _privateConstructorUsedError;
+  num? get baseRowTotal => throw _privateConstructorUsedError;
   @JsonKey(name: "row_total_with_discount")
-  int? get rowTotalWithDiscount => throw _privateConstructorUsedError;
+  num? get rowTotalWithDiscount => throw _privateConstructorUsedError;
   @JsonKey(name: "tax_amount")
-  int? get taxAmount => throw _privateConstructorUsedError;
+  num? get taxAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_tax_amount")
-  int? get baseTaxAmount => throw _privateConstructorUsedError;
+  num? get baseTaxAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "tax_percent")
-  int? get taxPercent => throw _privateConstructorUsedError;
+  num? get taxPercent => throw _privateConstructorUsedError;
   @JsonKey(name: "discount_amount")
-  int? get discountAmount => throw _privateConstructorUsedError;
+  num? get discountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "base_discount_amount")
-  int? get baseDiscountAmount => throw _privateConstructorUsedError;
+  num? get baseDiscountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "discount_percent")
-  int? get discountPercent => throw _privateConstructorUsedError;
+  num? get discountPercent => throw _privateConstructorUsedError;
   @JsonKey(name: "price_incl_tax")
-  int? get priceInclTax => throw _privateConstructorUsedError;
+  num? get priceInclTax => throw _privateConstructorUsedError;
   @JsonKey(name: "base_price_incl_tax")
-  int? get basePriceInclTax => throw _privateConstructorUsedError;
+  num? get basePriceInclTax => throw _privateConstructorUsedError;
   @JsonKey(name: "row_total_incl_tax")
-  int? get rowTotalInclTax => throw _privateConstructorUsedError;
+  num? get rowTotalInclTax => throw _privateConstructorUsedError;
   @JsonKey(name: "base_row_total_incl_tax")
-  int? get baseRowTotalInclTax => throw _privateConstructorUsedError;
+  num? get baseRowTotalInclTax => throw _privateConstructorUsedError;
   @JsonKey(name: "options")
   String? get options => throw _privateConstructorUsedError;
   @JsonKey(name: "weee_tax_applied_amount")
@@ -6765,22 +6765,22 @@ abstract class $CartTotalsItemCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: "item_id") int? itemId,
-    @JsonKey(name: "price") int? price,
-    @JsonKey(name: "base_price") int? basePrice,
+    @JsonKey(name: "price") num? price,
+    @JsonKey(name: "base_price") num? basePrice,
     @JsonKey(name: "qty") int? qty,
-    @JsonKey(name: "row_total") int? rowTotal,
-    @JsonKey(name: "base_row_total") int? baseRowTotal,
-    @JsonKey(name: "row_total_with_discount") int? rowTotalWithDiscount,
-    @JsonKey(name: "tax_amount") int? taxAmount,
-    @JsonKey(name: "base_tax_amount") int? baseTaxAmount,
-    @JsonKey(name: "tax_percent") int? taxPercent,
-    @JsonKey(name: "discount_amount") int? discountAmount,
-    @JsonKey(name: "base_discount_amount") int? baseDiscountAmount,
-    @JsonKey(name: "discount_percent") int? discountPercent,
-    @JsonKey(name: "price_incl_tax") int? priceInclTax,
-    @JsonKey(name: "base_price_incl_tax") int? basePriceInclTax,
-    @JsonKey(name: "row_total_incl_tax") int? rowTotalInclTax,
-    @JsonKey(name: "base_row_total_incl_tax") int? baseRowTotalInclTax,
+    @JsonKey(name: "row_total") num? rowTotal,
+    @JsonKey(name: "base_row_total") num? baseRowTotal,
+    @JsonKey(name: "row_total_with_discount") num? rowTotalWithDiscount,
+    @JsonKey(name: "tax_amount") num? taxAmount,
+    @JsonKey(name: "base_tax_amount") num? baseTaxAmount,
+    @JsonKey(name: "tax_percent") num? taxPercent,
+    @JsonKey(name: "discount_amount") num? discountAmount,
+    @JsonKey(name: "base_discount_amount") num? baseDiscountAmount,
+    @JsonKey(name: "discount_percent") num? discountPercent,
+    @JsonKey(name: "price_incl_tax") num? priceInclTax,
+    @JsonKey(name: "base_price_incl_tax") num? basePriceInclTax,
+    @JsonKey(name: "row_total_incl_tax") num? rowTotalInclTax,
+    @JsonKey(name: "base_row_total_incl_tax") num? baseRowTotalInclTax,
     @JsonKey(name: "options") String? options,
     @JsonKey(name: "weee_tax_applied_amount") dynamic weeeTaxAppliedAmount,
     @JsonKey(name: "weee_tax_applied") dynamic weeeTaxApplied,
@@ -6841,12 +6841,12 @@ class _$CartTotalsItemCopyWithImpl<$Res, $Val extends CartTotalsItem>
                 freezed == price
                     ? _value.price
                     : price // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             basePrice:
                 freezed == basePrice
                     ? _value.basePrice
                     : basePrice // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             qty:
                 freezed == qty
                     ? _value.qty
@@ -6856,67 +6856,67 @@ class _$CartTotalsItemCopyWithImpl<$Res, $Val extends CartTotalsItem>
                 freezed == rowTotal
                     ? _value.rowTotal
                     : rowTotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseRowTotal:
                 freezed == baseRowTotal
                     ? _value.baseRowTotal
                     : baseRowTotal // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             rowTotalWithDiscount:
                 freezed == rowTotalWithDiscount
                     ? _value.rowTotalWithDiscount
                     : rowTotalWithDiscount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             taxAmount:
                 freezed == taxAmount
                     ? _value.taxAmount
                     : taxAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseTaxAmount:
                 freezed == baseTaxAmount
                     ? _value.baseTaxAmount
                     : baseTaxAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             taxPercent:
                 freezed == taxPercent
                     ? _value.taxPercent
                     : taxPercent // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             discountAmount:
                 freezed == discountAmount
                     ? _value.discountAmount
                     : discountAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseDiscountAmount:
                 freezed == baseDiscountAmount
                     ? _value.baseDiscountAmount
                     : baseDiscountAmount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             discountPercent:
                 freezed == discountPercent
                     ? _value.discountPercent
                     : discountPercent // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             priceInclTax:
                 freezed == priceInclTax
                     ? _value.priceInclTax
                     : priceInclTax // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             basePriceInclTax:
                 freezed == basePriceInclTax
                     ? _value.basePriceInclTax
                     : basePriceInclTax // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             rowTotalInclTax:
                 freezed == rowTotalInclTax
                     ? _value.rowTotalInclTax
                     : rowTotalInclTax // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             baseRowTotalInclTax:
                 freezed == baseRowTotalInclTax
                     ? _value.baseRowTotalInclTax
                     : baseRowTotalInclTax // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             options:
                 freezed == options
                     ? _value.options
@@ -6976,22 +6976,22 @@ abstract class _$$CartTotalsItemImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: "item_id") int? itemId,
-    @JsonKey(name: "price") int? price,
-    @JsonKey(name: "base_price") int? basePrice,
+    @JsonKey(name: "price") num? price,
+    @JsonKey(name: "base_price") num? basePrice,
     @JsonKey(name: "qty") int? qty,
-    @JsonKey(name: "row_total") int? rowTotal,
-    @JsonKey(name: "base_row_total") int? baseRowTotal,
-    @JsonKey(name: "row_total_with_discount") int? rowTotalWithDiscount,
-    @JsonKey(name: "tax_amount") int? taxAmount,
-    @JsonKey(name: "base_tax_amount") int? baseTaxAmount,
-    @JsonKey(name: "tax_percent") int? taxPercent,
-    @JsonKey(name: "discount_amount") int? discountAmount,
-    @JsonKey(name: "base_discount_amount") int? baseDiscountAmount,
-    @JsonKey(name: "discount_percent") int? discountPercent,
-    @JsonKey(name: "price_incl_tax") int? priceInclTax,
-    @JsonKey(name: "base_price_incl_tax") int? basePriceInclTax,
-    @JsonKey(name: "row_total_incl_tax") int? rowTotalInclTax,
-    @JsonKey(name: "base_row_total_incl_tax") int? baseRowTotalInclTax,
+    @JsonKey(name: "row_total") num? rowTotal,
+    @JsonKey(name: "base_row_total") num? baseRowTotal,
+    @JsonKey(name: "row_total_with_discount") num? rowTotalWithDiscount,
+    @JsonKey(name: "tax_amount") num? taxAmount,
+    @JsonKey(name: "base_tax_amount") num? baseTaxAmount,
+    @JsonKey(name: "tax_percent") num? taxPercent,
+    @JsonKey(name: "discount_amount") num? discountAmount,
+    @JsonKey(name: "base_discount_amount") num? baseDiscountAmount,
+    @JsonKey(name: "discount_percent") num? discountPercent,
+    @JsonKey(name: "price_incl_tax") num? priceInclTax,
+    @JsonKey(name: "base_price_incl_tax") num? basePriceInclTax,
+    @JsonKey(name: "row_total_incl_tax") num? rowTotalInclTax,
+    @JsonKey(name: "base_row_total_incl_tax") num? baseRowTotalInclTax,
     @JsonKey(name: "options") String? options,
     @JsonKey(name: "weee_tax_applied_amount") dynamic weeeTaxAppliedAmount,
     @JsonKey(name: "weee_tax_applied") dynamic weeeTaxApplied,
@@ -7052,12 +7052,12 @@ class __$$CartTotalsItemImplCopyWithImpl<$Res>
             freezed == price
                 ? _value.price
                 : price // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         basePrice:
             freezed == basePrice
                 ? _value.basePrice
                 : basePrice // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         qty:
             freezed == qty
                 ? _value.qty
@@ -7067,67 +7067,67 @@ class __$$CartTotalsItemImplCopyWithImpl<$Res>
             freezed == rowTotal
                 ? _value.rowTotal
                 : rowTotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseRowTotal:
             freezed == baseRowTotal
                 ? _value.baseRowTotal
                 : baseRowTotal // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         rowTotalWithDiscount:
             freezed == rowTotalWithDiscount
                 ? _value.rowTotalWithDiscount
                 : rowTotalWithDiscount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         taxAmount:
             freezed == taxAmount
                 ? _value.taxAmount
                 : taxAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseTaxAmount:
             freezed == baseTaxAmount
                 ? _value.baseTaxAmount
                 : baseTaxAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         taxPercent:
             freezed == taxPercent
                 ? _value.taxPercent
                 : taxPercent // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         discountAmount:
             freezed == discountAmount
                 ? _value.discountAmount
                 : discountAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseDiscountAmount:
             freezed == baseDiscountAmount
                 ? _value.baseDiscountAmount
                 : baseDiscountAmount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         discountPercent:
             freezed == discountPercent
                 ? _value.discountPercent
                 : discountPercent // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         priceInclTax:
             freezed == priceInclTax
                 ? _value.priceInclTax
                 : priceInclTax // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         basePriceInclTax:
             freezed == basePriceInclTax
                 ? _value.basePriceInclTax
                 : basePriceInclTax // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         rowTotalInclTax:
             freezed == rowTotalInclTax
                 ? _value.rowTotalInclTax
                 : rowTotalInclTax // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         baseRowTotalInclTax:
             freezed == baseRowTotalInclTax
                 ? _value.baseRowTotalInclTax
                 : baseRowTotalInclTax // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         options:
             freezed == options
                 ? _value.options
@@ -7194,52 +7194,52 @@ class _$CartTotalsItemImpl implements _CartTotalsItem {
   final int? itemId;
   @override
   @JsonKey(name: "price")
-  final int? price;
+  final num? price;
   @override
   @JsonKey(name: "base_price")
-  final int? basePrice;
+  final num? basePrice;
   @override
   @JsonKey(name: "qty")
   final int? qty;
   @override
   @JsonKey(name: "row_total")
-  final int? rowTotal;
+  final num? rowTotal;
   @override
   @JsonKey(name: "base_row_total")
-  final int? baseRowTotal;
+  final num? baseRowTotal;
   @override
   @JsonKey(name: "row_total_with_discount")
-  final int? rowTotalWithDiscount;
+  final num? rowTotalWithDiscount;
   @override
   @JsonKey(name: "tax_amount")
-  final int? taxAmount;
+  final num? taxAmount;
   @override
   @JsonKey(name: "base_tax_amount")
-  final int? baseTaxAmount;
+  final num? baseTaxAmount;
   @override
   @JsonKey(name: "tax_percent")
-  final int? taxPercent;
+  final num? taxPercent;
   @override
   @JsonKey(name: "discount_amount")
-  final int? discountAmount;
+  final num? discountAmount;
   @override
   @JsonKey(name: "base_discount_amount")
-  final int? baseDiscountAmount;
+  final num? baseDiscountAmount;
   @override
   @JsonKey(name: "discount_percent")
-  final int? discountPercent;
+  final num? discountPercent;
   @override
   @JsonKey(name: "price_incl_tax")
-  final int? priceInclTax;
+  final num? priceInclTax;
   @override
   @JsonKey(name: "base_price_incl_tax")
-  final int? basePriceInclTax;
+  final num? basePriceInclTax;
   @override
   @JsonKey(name: "row_total_incl_tax")
-  final int? rowTotalInclTax;
+  final num? rowTotalInclTax;
   @override
   @JsonKey(name: "base_row_total_incl_tax")
-  final int? baseRowTotalInclTax;
+  final num? baseRowTotalInclTax;
   @override
   @JsonKey(name: "options")
   final String? options;
@@ -7359,22 +7359,22 @@ class _$CartTotalsItemImpl implements _CartTotalsItem {
 abstract class _CartTotalsItem implements CartTotalsItem {
   const factory _CartTotalsItem({
     @JsonKey(name: "item_id") final int? itemId,
-    @JsonKey(name: "price") final int? price,
-    @JsonKey(name: "base_price") final int? basePrice,
+    @JsonKey(name: "price") final num? price,
+    @JsonKey(name: "base_price") final num? basePrice,
     @JsonKey(name: "qty") final int? qty,
-    @JsonKey(name: "row_total") final int? rowTotal,
-    @JsonKey(name: "base_row_total") final int? baseRowTotal,
-    @JsonKey(name: "row_total_with_discount") final int? rowTotalWithDiscount,
-    @JsonKey(name: "tax_amount") final int? taxAmount,
-    @JsonKey(name: "base_tax_amount") final int? baseTaxAmount,
-    @JsonKey(name: "tax_percent") final int? taxPercent,
-    @JsonKey(name: "discount_amount") final int? discountAmount,
-    @JsonKey(name: "base_discount_amount") final int? baseDiscountAmount,
-    @JsonKey(name: "discount_percent") final int? discountPercent,
-    @JsonKey(name: "price_incl_tax") final int? priceInclTax,
-    @JsonKey(name: "base_price_incl_tax") final int? basePriceInclTax,
-    @JsonKey(name: "row_total_incl_tax") final int? rowTotalInclTax,
-    @JsonKey(name: "base_row_total_incl_tax") final int? baseRowTotalInclTax,
+    @JsonKey(name: "row_total") final num? rowTotal,
+    @JsonKey(name: "base_row_total") final num? baseRowTotal,
+    @JsonKey(name: "row_total_with_discount") final num? rowTotalWithDiscount,
+    @JsonKey(name: "tax_amount") final num? taxAmount,
+    @JsonKey(name: "base_tax_amount") final num? baseTaxAmount,
+    @JsonKey(name: "tax_percent") final num? taxPercent,
+    @JsonKey(name: "discount_amount") final num? discountAmount,
+    @JsonKey(name: "base_discount_amount") final num? baseDiscountAmount,
+    @JsonKey(name: "discount_percent") final num? discountPercent,
+    @JsonKey(name: "price_incl_tax") final num? priceInclTax,
+    @JsonKey(name: "base_price_incl_tax") final num? basePriceInclTax,
+    @JsonKey(name: "row_total_incl_tax") final num? rowTotalInclTax,
+    @JsonKey(name: "base_row_total_incl_tax") final num? baseRowTotalInclTax,
     @JsonKey(name: "options") final String? options,
     @JsonKey(name: "weee_tax_applied_amount")
     final dynamic weeeTaxAppliedAmount,
@@ -7392,52 +7392,52 @@ abstract class _CartTotalsItem implements CartTotalsItem {
   int? get itemId;
   @override
   @JsonKey(name: "price")
-  int? get price;
+  num? get price;
   @override
   @JsonKey(name: "base_price")
-  int? get basePrice;
+  num? get basePrice;
   @override
   @JsonKey(name: "qty")
   int? get qty;
   @override
   @JsonKey(name: "row_total")
-  int? get rowTotal;
+  num? get rowTotal;
   @override
   @JsonKey(name: "base_row_total")
-  int? get baseRowTotal;
+  num? get baseRowTotal;
   @override
   @JsonKey(name: "row_total_with_discount")
-  int? get rowTotalWithDiscount;
+  num? get rowTotalWithDiscount;
   @override
   @JsonKey(name: "tax_amount")
-  int? get taxAmount;
+  num? get taxAmount;
   @override
   @JsonKey(name: "base_tax_amount")
-  int? get baseTaxAmount;
+  num? get baseTaxAmount;
   @override
   @JsonKey(name: "tax_percent")
-  int? get taxPercent;
+  num? get taxPercent;
   @override
   @JsonKey(name: "discount_amount")
-  int? get discountAmount;
+  num? get discountAmount;
   @override
   @JsonKey(name: "base_discount_amount")
-  int? get baseDiscountAmount;
+  num? get baseDiscountAmount;
   @override
   @JsonKey(name: "discount_percent")
-  int? get discountPercent;
+  num? get discountPercent;
   @override
   @JsonKey(name: "price_incl_tax")
-  int? get priceInclTax;
+  num? get priceInclTax;
   @override
   @JsonKey(name: "base_price_incl_tax")
-  int? get basePriceInclTax;
+  num? get basePriceInclTax;
   @override
   @JsonKey(name: "row_total_incl_tax")
-  int? get rowTotalInclTax;
+  num? get rowTotalInclTax;
   @override
   @JsonKey(name: "base_row_total_incl_tax")
-  int? get baseRowTotalInclTax;
+  num? get baseRowTotalInclTax;
   @override
   @JsonKey(name: "options")
   String? get options;

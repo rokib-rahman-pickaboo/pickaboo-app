@@ -211,6 +211,7 @@ extension AppTypographyModifiers on TextStyle {
   TextStyle get muted => copyWith(color: AppColors.muted);
   TextStyle get mutedLight => copyWith(color: AppColors.mutedLight);
   TextStyle get green => copyWith(color: AppColors.green);
+  TextStyle get orange => copyWith(color: AppColors.orange);
   TextStyle get red => copyWith(color: AppColors.red);
   TextStyle get amber => copyWith(color: AppColors.amber);
 

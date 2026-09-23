@@ -16,9 +16,11 @@ import 'package:pickaboo/data/services/analytics_service.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/cart/checkout_entity.dart';
 import 'package:pickaboo/domain/entity/demo/payment_models.dart';
+import 'package:pickaboo/domain/entity/common/region_entity.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/checkout_bloc/checkout_bloc.dart';
+import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/address_added_result.dart';
@@ -55,6 +57,61 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
   void initState() {
     super.initState();
     context.read<CheckoutBloc>().add(const CheckoutEvent.loadCheckout());
+  }
+
+  List<AddressEntity> _resolveAllAvailableAddresses(CheckoutEntity checkout) {
+    final List<AddressEntity> result = [];
+    final Set<int> seenIds = {};
+
+    try {
+      final userProfileState = context.read<UserProfileBloc>().state;
+      final profileAddresses = userProfileState.maybeWhen(
+        loaded: (user, _, __) => user.addresses,
+        basicInfoUpdateSuccess: (_, user, __, ___) => user.addresses,
+        mobileUpdateSuccess: (_, user, __, ___) => user.addresses,
+        imageUploadSuccess: (_, user, __, ___) => user.addresses,
+        orElse: () => null,
+      );
+
+      if (profileAddresses != null) {
+        for (final a in profileAddresses) {
+          seenIds.add(a.id);
+          result.add(
+            AddressEntity(
+              id: a.id,
+              customerId: a.customerId,
+              region: RegionEntity(
+                regionCode: a.region.regionCode,
+                region: a.region.region,
+                regionId: a.region.regionId,
+              ),
+              regionId: a.regionId,
+              regionCode: a.region.regionCode,
+              countryId: a.countryId,
+              street: a.street,
+              telephone: a.telephone,
+              postcode: a.postcode,
+              city: a.city,
+              firstname: a.firstname,
+              lastname: a.lastname,
+              defaultShipping: a.defaultShipping,
+              defaultBilling: a.defaultBilling,
+            ),
+          );
+        }
+      }
+    } catch (_) {}
+
+    for (final a in checkout.cart.customer?.addresses ?? const <AddressEntity>[]) {
+      if (a.id != null && !seenIds.contains(a.id)) {
+        seenIds.add(a.id!);
+        result.add(a);
+      } else if (a.id == null) {
+        result.add(a);
+      }
+    }
+
+    return result;
   }
 
   Set<int> _addressIds(CheckoutEntity? checkout) => {
@@ -231,8 +288,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                           final result = await context.push<Object?>(
                             Routes.changeAddressCart,
                             extra: {
-                              'addresses':
-                                  checkout.cart.customer?.addresses ?? [],
+                              'addresses': _resolveAllAvailableAddresses(checkout),
                               'selectedAddress': shipping,
                               'title': 'Shipping Information',
                             },
@@ -240,6 +296,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                           if (!context.mounted) return;
                           if (result is AddressAddedResult) {
                             _pendingShippingResult = result;
+                            context.read<UserProfileBloc>().refreshProfile();
                             context.read<CheckoutBloc>().add(
                               const CheckoutEvent.loadCheckout(),
                             );
@@ -249,6 +306,13 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                                 address: result,
                               ),
                             );
+                            if (_sameAsShipping) {
+                              context.read<CheckoutBloc>().add(
+                                CheckoutEvent.updateBillingAddress(
+                                  address: result,
+                                ),
+                              );
+                            }
                           }
                         },
                         onAddNew: () async {
@@ -259,6 +323,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                           );
                           if (result is AddressAddedResult && context.mounted) {
                             _pendingShippingResult = result;
+                            context.read<UserProfileBloc>().refreshProfile();
                             context.read<CheckoutBloc>().add(
                               const CheckoutEvent.loadCheckout(),
                             );
@@ -285,6 +350,13 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                               setState(() {
                                 _sameAsShipping = val;
                               });
+                              if (val && shipping != null) {
+                                context.read<CheckoutBloc>().add(
+                                  CheckoutEvent.updateBillingAddress(
+                                    address: shipping,
+                                  ),
+                                );
+                              }
                             },
                           ),
                           if (!_sameAsShipping)
@@ -297,9 +369,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                                   final result = await context.push<Object?>(
                                     Routes.changeAddressCart,
                                     extra: {
-                                      'addresses':
-                                          checkout.cart.customer?.addresses ??
-                                              [],
+                                      'addresses': _resolveAllAvailableAddresses(checkout),
                                       'selectedAddress': billing,
                                       'title': 'Billing Information',
                                     },
@@ -307,6 +377,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                                   if (!context.mounted) return;
                                   if (result is AddressAddedResult) {
                                     _pendingBillingResult = result;
+                                    context.read<UserProfileBloc>().refreshProfile();
                                     context.read<CheckoutBloc>().add(
                                       const CheckoutEvent.loadCheckout(),
                                     );
@@ -327,6 +398,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                                   if (result is AddressAddedResult &&
                                       context.mounted) {
                                     _pendingBillingResult = result;
+                                    context.read<UserProfileBloc>().refreshProfile();
                                     context.read<CheckoutBloc>().add(
                                       const CheckoutEvent.loadCheckout(),
                                     );

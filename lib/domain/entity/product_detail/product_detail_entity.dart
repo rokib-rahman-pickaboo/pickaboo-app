@@ -177,6 +177,67 @@ class ProductDetailEntity {
     );
   }
 
+  /// Lightweight initial placeholder for deep-link / sub-route hydration.
+  factory ProductDetailEntity.initial({
+    required int id,
+    String name = '',
+    String image = '',
+    String slug = '',
+  }) {
+    return ProductDetailEntity(
+      id: id,
+      sku: '',
+      slug: slug,
+      typeId: '',
+      name: name,
+      prodOfferPrice: 0,
+      bestPrice: 0,
+      freeDelivery: 0,
+      categoryIds: const [],
+      metaTitle: name,
+      metaKeywords: '',
+      metaDescription: '',
+      images: image.isNotEmpty ? [image] : const [],
+      youtubeVideos: const [],
+      isWishlisted: false,
+      shareUrl: '',
+      regularPrice: 0,
+      spacialPrice: 0,
+      discount: 0,
+      stockAvailable: true,
+      expressDelivery: 0,
+      comingSoon: false,
+      clubPoints: 0,
+      brandId: '',
+      brand: '',
+      soldByVendorUrlKey: '',
+      soldBy: '',
+      offers: '',
+      warranty: '',
+      emi: 0,
+      varient: const [],
+      variantMatrix: const VariantMatrixEntity(),
+      extraOptions: const [],
+      buysTogather: const [],
+      productDetails: '',
+      moreInformation: const [],
+      ratingSummaryValue: 0,
+      ratingSummary: 0,
+      reviewsCount: 0,
+      detailedRatings: const [],
+      detailedSummary: const [0, 0, 0, 0, 0],
+      allReviewImages: const [],
+      reviewsCollection: const [],
+      similarProducts: const [],
+      youMayAlsoLike: const [],
+      otherBrands: const [],
+      recentlyViewedProducts: const [],
+      cacheTime: DateTime.now(),
+      isEligibleForReview: false,
+      isPartial: true,
+    );
+  }
+
   List<VariantEntity> get variantGroups {
     final rawGroups =
         variantMatrix.isNotEmpty ? variantMatrix.toVariantGroups() : varient;

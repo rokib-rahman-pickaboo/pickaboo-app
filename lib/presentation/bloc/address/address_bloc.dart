@@ -22,24 +22,15 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     String division,
     Emitter<AddressState> emit,
   ) async {
-    if (kDebugMode) {
-      print('[AddressBloc] Loading cities for division: $division');
-    }
 
     emit(state.copyWith(isLoadingCities: true, error: null));
 
     final result = await _repository.getCities(division);
     result.fold(
       (l) {
-        if (kDebugMode) {
-          print('[AddressBloc] Error loading cities: ${l.message}');
-        }
         emit(state.copyWith(isLoadingCities: false, error: l.message));
       },
       (cities) {
-        if (kDebugMode) {
-          print('[AddressBloc] Loaded ${cities.length} cities');
-        }
         emit(
           state.copyWith(
             isLoadingCities: false,
@@ -51,24 +42,15 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
   }
 
   Future<void> _onLoadAreas(String city, Emitter<AddressState> emit) async {
-    if (kDebugMode) {
-      print('[AddressBloc] Loading areas for city: $city');
-    }
 
     emit(state.copyWith(isLoadingAreas: true, error: null));
 
     final result = await _repository.getAreas(city);
     result.fold(
       (l) {
-        if (kDebugMode) {
-          print('[AddressBloc] Error loading areas: ${l.message}');
-        }
         emit(state.copyWith(isLoadingAreas: false, error: l.message));
       },
       (areas) {
-        if (kDebugMode) {
-          print('[AddressBloc] Loaded ${areas.length} areas');
-        }
         emit(
           state.copyWith(
             isLoadingAreas: false,
