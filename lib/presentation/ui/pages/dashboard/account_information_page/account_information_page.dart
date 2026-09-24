@@ -507,6 +507,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
             final imageUrl = userData.imageUrl;
             final mobileNumber = userData.mobile;
             final validImageUrl = _isValidImageUrl(imageUrl) ? imageUrl : null;
+            debugPrint('📸 [UI:AccountInfo] userData.imageUrl="$imageUrl", validImageUrl="$validImageUrl"');
 
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),

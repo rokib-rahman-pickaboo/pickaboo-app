@@ -34,11 +34,19 @@ class IUserProfileApiService implements UserProfileApiService {
   @override
   Future<Either<ErrorResponse, UserResponse>> getUserProfile() async {
     try {
+      debugPrint('👤 [PROFILE_API] GET ${ApiEndpoints.customerMe}');
       final response = await _dio.get(ApiEndpoints.customerMe);
+      debugPrint('👤 [PROFILE_API] customerMe status: ${response.statusCode}');
+      if (response.data is Map) {
+        final custAttrs = response.data['custom_attributes'];
+        debugPrint('👤 [PROFILE_API] customerMe custom_attributes: $custAttrs');
+      }
       return Right(UserResponse.fromJson(response.data));
     } on DioException catch (e) {
+      debugPrint('👤 [PROFILE_API] ❌ DioException on getUserProfile: ${e.response?.statusCode} - ${e.response?.data}');
       return Left(_checkErrorResponse(e));
     } catch (e) {
+      debugPrint('👤 [PROFILE_API] ❌ Exception on getUserProfile: $e');
       return Left(ErrorResponse(message: e.toString()));
     }
   }
@@ -46,17 +54,23 @@ class IUserProfileApiService implements UserProfileApiService {
   @override
   Future<Either<ErrorResponse, String>> getUserImage() async {
     try {
+      debugPrint('📸 [GET_USER_IMAGE] GET ${ApiEndpoints.customerImageMine}');
       final response = await _dio.get(ApiEndpoints.customerImageMine);
+      debugPrint('📸 [GET_USER_IMAGE] status: ${response.statusCode}');
+      debugPrint('📸 [GET_USER_IMAGE] raw data type: ${response.data.runtimeType}, data: ${response.data}');
       dynamic data = response.data;
       if (data is List && data.isNotEmpty) data = data.first;
       if (data is Map) {
         data = data['url'] ?? data['image'] ?? data['profile_image'] ?? data['image_url'];
       }
       final cleanUrl = data?.toString().replaceAll('"', '').trim() ?? '';
+      debugPrint('📸 [GET_USER_IMAGE] parsed cleanUrl: "$cleanUrl"');
       return Right(cleanUrl);
     } on DioException catch (e) {
+      debugPrint('📸 [GET_USER_IMAGE] ❌ DioException: ${e.response?.statusCode} - ${e.response?.data}');
       return Left(_checkErrorResponse(e));
     } catch (e) {
+      debugPrint('📸 [GET_USER_IMAGE] ❌ Exception: $e');
       return Left(ErrorResponse(message: e.toString()));
     }
   }
@@ -418,6 +432,12 @@ class IUserProfileApiService implements UserProfileApiService {
 
       final fileBytes = await image.readAsBytes();
 
+      debugPrint('📸 [UPLOAD_IMAGE_API] ========================================');
+      debugPrint('📸 [UPLOAD_IMAGE_API] Starting upload to: POST ${ApiEndpoints.uploadProfileImageUrl}');
+      debugPrint('📸 [UPLOAD_IMAGE_API] File path: $filePath');
+      debugPrint('📸 [UPLOAD_IMAGE_API] File size: ${fileBytes.length} bytes');
+      debugPrint('📸 [UPLOAD_IMAGE_API] Sending FormData keys: "file" and "image"');
+
       // Send under both 'file' (Postman collection contract) and 'image' (legacy)
       final formData = FormData.fromMap({
         'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
@@ -428,6 +448,10 @@ class IUserProfileApiService implements UserProfileApiService {
         ApiEndpoints.uploadProfileImageUrl,
         data: formData,
       );
+
+      debugPrint('📸 [UPLOAD_IMAGE_API] Response status: ${response.statusCode}');
+      debugPrint('📸 [UPLOAD_IMAGE_API] Raw response type: ${response.data.runtimeType}');
+      debugPrint('📸 [UPLOAD_IMAGE_API] Raw response body: ${response.data}');
 
       dynamic resData = response.data;
       if (resData is List && resData.isNotEmpty) {
@@ -442,10 +466,18 @@ class IUserProfileApiService implements UserProfileApiService {
       }
 
       final cleanResult = resData?.toString().replaceAll('"', '').trim() ?? '';
+      debugPrint('📸 [UPLOAD_IMAGE_API] Parsed cleanResult: "$cleanResult"');
+      debugPrint('📸 [UPLOAD_IMAGE_API] ========================================');
       return Right(cleanResult);
     } on DioException catch (e) {
+      debugPrint('📸 [UPLOAD_IMAGE_API] ❌ DioException: ${e.response?.statusCode}');
+      debugPrint('📸 [UPLOAD_IMAGE_API] ❌ Response data: ${e.response?.data}');
+      debugPrint('📸 [UPLOAD_IMAGE_API] ❌ Message: ${e.message}');
+      debugPrint('📸 [UPLOAD_IMAGE_API] ========================================');
       return Left(_checkErrorResponse(e));
     } catch (e) {
+      debugPrint('📸 [UPLOAD_IMAGE_API] ❌ Exception: $e');
+      debugPrint('📸 [UPLOAD_IMAGE_API] ========================================');
       return Left(ErrorResponse(message: e.toString()));
     }
   }

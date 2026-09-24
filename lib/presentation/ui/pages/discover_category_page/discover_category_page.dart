@@ -21,8 +21,8 @@ import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/discover_category_page/category_sidebar.dart';
+import 'package:pickaboo/presentation/ui/widgets/discover_category_page/discover_category_skeleton_widget.dart';
 import 'package:pickaboo/presentation/ui/widgets/discover_category_page/subcategory_section.dart';
 
 class DiscoverCategoryPage extends StatefulWidget {
@@ -123,13 +123,21 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
                   backgroundColor: AppColors.pageBg,
                   appBar: PickabooAppBar(
                     title: AppStrings.allCategories,
+                    showBackButton: true,
                     onBackTap: () {
                       MainPage.hideBottomNav.value = false;
                       context.go(Routes.home);
                     },
+                    actions: [
+                      IconButton(
+                        icon: Icon(Icons.search_rounded, color: AppColors.navy, size: 22.sp),
+                        onPressed: () => context.push(Routes.search),
+                      ),
+                      SizedBox(width: 4.w),
+                    ],
                   ),
                   body: const SafeArea(
-                    child: AppLoader.fullPage(),
+                    child: DiscoverCategorySkeletonWidget(),
                   ),
                 ),
               );
@@ -247,7 +255,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
     DiscoverCategoryState state,
   ) {
     if (state.status == DiscoverCategoryStatus.loading) {
-      return const AppLoader.fullPage();
+      return const DiscoverCategorySkeletonWidget();
     }
 
     if (state.status == DiscoverCategoryStatus.empty) {
@@ -309,6 +317,6 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
       );
     }
 
-    return const AppLoader.fullPage();
+    return const DiscoverCategorySkeletonWidget();
   }
 }

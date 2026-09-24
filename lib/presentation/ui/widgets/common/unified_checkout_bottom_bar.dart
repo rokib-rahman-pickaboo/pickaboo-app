@@ -29,6 +29,7 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
   final String buttonText;
   final bool showArrow;
   final bool isLoading;
+  final bool isDisabled;
   final VoidCallback? onPressed;
   final Widget? footnote;
   final double? buttonWidth;
@@ -42,6 +43,7 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
     required this.buttonText,
     this.showArrow = false,
     this.isLoading = false,
+    this.isDisabled = false,
     required this.onPressed,
     this.footnote,
     this.buttonWidth,
@@ -175,6 +177,8 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
                     width: buttonWidth ?? 140.w,
                     height: 40.h,
                     isLoading: isLoading,
+                    backgroundColor: isDisabled ? AppColors.border : null,
+                    textColor: isDisabled ? AppColors.muted : null,
                     onPressed: onPressed,
                     text: buttonText,
                     textStyle: AppTypography.button.copyWith(

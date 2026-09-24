@@ -91,28 +91,41 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         emit(UserProfileState.error(error.message));
       },
       (user) async {
+        debugPrint('👤 [BLOC:LoadProfile] ========================================');
+        debugPrint('👤 [BLOC:LoadProfile] User loaded: id=${user.id}, email=${user.email}, name="${user.firstname} ${user.lastname}"');
 
-        var profileImageUrl =
-            user.customAttributes
-                    ?.where((item) => item.attributeCode == 'profile_image')
-                    .firstOrNull
-                    ?.value
-                as String?;
+        final profileAttr = user.customAttributes
+            ?.where((item) => item.attributeCode == 'profile_image')
+            .firstOrNull;
+        debugPrint('👤 [BLOC:LoadProfile] customAttributes "profile_image" = ${profileAttr != null ? "\"${profileAttr.value}\"" : "null (NOT in customAttributes)"}');
+
+        var profileImageUrl = profileAttr?.value as String?;
 
         if (profileImageUrl == null || profileImageUrl.isEmpty) {
+          debugPrint('👤 [BLOC:LoadProfile] profile_image is empty/null, calling _repository.getProfileImage()...');
           final imgResult = await _repository.getProfileImage();
-          imgResult.fold((_) {}, (url) {
-            if (url.startsWith('http')) {
-              profileImageUrl = url;
-            }
-          });
+          imgResult.fold(
+            (err) => debugPrint('👤 [BLOC:LoadProfile] ❌ getProfileImage() error: ${err.message}'),
+            (url) {
+              debugPrint('👤 [BLOC:LoadProfile] ✅ getProfileImage() returned: "$url"');
+              if (url.startsWith('http')) {
+                profileImageUrl = url;
+              } else {
+                debugPrint('👤 [BLOC:LoadProfile] ⚠️ getProfileImage() url did NOT start with http!');
+              }
+            },
+          );
+        } else {
+          debugPrint('👤 [BLOC:LoadProfile] ℹ️ Using customAttributes profile_image: "$profileImageUrl" (did NOT call getProfileImage)');
         }
 
         final resolvedImageUrl = profileImageUrl;
+        debugPrint('👤 [BLOC:LoadProfile] Before cache bust: resolvedImageUrl="$resolvedImageUrl", _bustImageCacheOnNextLoad=$_bustImageCacheOnNextLoad');
         if (_bustImageCacheOnNextLoad &&
             resolvedImageUrl != null &&
             resolvedImageUrl.isNotEmpty) {
           profileImageUrl = _appendCacheBust(resolvedImageUrl);
+          debugPrint('👤 [BLOC:LoadProfile] After cache bust: profileImageUrl="$profileImageUrl"');
         }
         _bustImageCacheOnNextLoad = false;
 
@@ -123,12 +136,8 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
                     ?.value
                 as String?;
 
-        if (kDebugMode) {
-
-          if (user.addresses != null && user.addresses!.isNotEmpty) {
-          }
-
-        }
+        debugPrint('👤 [BLOC:LoadProfile] Emitting UserProfileState.loaded with imageUrl="$profileImageUrl"');
+        debugPrint('👤 [BLOC:LoadProfile] ========================================');
 
         emit(
           UserProfileState.loaded(
@@ -352,6 +361,11 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     if (userData == null) return;
 
+    debugPrint('📸 [BLOC:UploadImage] ========================================');
+    debugPrint('📸 [BLOC:UploadImage] _onUploadProfileImage triggered with image path: ${image.path}');
+    debugPrint('📸 [BLOC:UploadImage] Current state: ${state.runtimeType}');
+    debugPrint('📸 [BLOC:UploadImage] Current userData imageUrl: "${userData.imageUrl}"');
+
     emit(
       UserProfileState.updating(
         currentUser: userData.user,
@@ -364,14 +378,22 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
     await result.fold(
       (error) async {
+        debugPrint('📸 [BLOC:UploadImage] ❌ uploadImage failed: ${error.message}');
+        debugPrint('📸 [BLOC:UploadImage] ========================================');
         emit(UserProfileState.error(error.message));
         _reloadProfile();
       },
       (uploadedUrl) async {
+        debugPrint('📸 [BLOC:UploadImage] ✅ uploadImage succeeded!');
+        debugPrint('📸 [BLOC:UploadImage] uploadedUrl received from repository: "$uploadedUrl"');
+        debugPrint('📸 [BLOC:UploadImage] uploadedUrl.startsWith("http"): ${uploadedUrl.startsWith('http')}');
         _bustImageCacheOnNextLoad = true;
         final newImageUrl = (uploadedUrl.startsWith('http'))
             ? _appendCacheBust(uploadedUrl)
             : userData.imageUrl;
+        debugPrint('📸 [BLOC:UploadImage] newImageUrl determined: "$newImageUrl"');
+        debugPrint('📸 [BLOC:UploadImage] Emitting UserProfileState.imageUploadSuccess and triggering _reloadProfile()...');
+        debugPrint('📸 [BLOC:UploadImage] ========================================');
         emit(
           UserProfileState.imageUploadSuccess(
             message: 'Image uploaded successfully',

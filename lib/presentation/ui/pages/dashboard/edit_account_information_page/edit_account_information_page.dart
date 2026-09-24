@@ -125,6 +125,8 @@ class _EditAccountInformationPageState
 
     if (cropped == null || !mounted) return;
 
+    debugPrint('📸 [UI:EditProfile] Cropped image ready: ${cropped.path}');
+
     setState(() {
       _selectedProfileFile = File(cropped.path);
     });
@@ -291,6 +293,7 @@ class _EditAccountInformationPageState
               }
             },
             imageUploadSuccess: (s) {
+              debugPrint('📸 [UI:EditProfile] Listener: imageUploadSuccess, message="${s.message}", imageUrl="${s.imageUrl}"');
               SnackBarUtils.showSuccess(context, s.message);
             },
             updateRequiresLogout: (s) {
@@ -311,6 +314,7 @@ class _EditAccountInformationPageState
           );
 
           final imageUrl = _isValidImageUrl(rawImageUrl) ? rawImageUrl : null;
+          debugPrint('📸 [UI:EditProfile] Builder: state=${state.runtimeType}, rawImageUrl="$rawImageUrl", validImageUrl="$imageUrl", hasLocalFile=${_selectedProfileFile != null}');
 
           final isLoading = state.maybeMap(
             loading: (_) => true,

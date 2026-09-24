@@ -92,6 +92,7 @@ class DashboardPage extends StatelessWidget {
                 final user = isAuthenticated ? (profileUser ?? authUser) : null;
                 final imageUrl = isAuthenticated ? _imageUrlFrom(profileState) : null;
                 final bool isLoggedIn = isAuthenticated && user != null;
+                debugPrint('📸 [UI:Dashboard] profileState=${profileState.runtimeType}, imageUrl="$imageUrl", isLoggedIn=$isLoggedIn');
 
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),

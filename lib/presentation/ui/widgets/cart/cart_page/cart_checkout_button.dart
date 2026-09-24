@@ -6,12 +6,14 @@ class CartCheckoutButton extends StatelessWidget {
   final double grandTotal;
   final VoidCallback onCheckout;
   final bool isLoading;
+  final bool isDisabled;
 
   const CartCheckoutButton({
     super.key,
     required this.grandTotal,
     required this.onCheckout,
     this.isLoading = false,
+    this.isDisabled = false,
   });
 
   @override
@@ -23,6 +25,7 @@ class CartCheckoutButton extends StatelessWidget {
       totalPrice: grandTotal,
       buttonText: 'Checkout',
       isLoading: isLoading,
+      isDisabled: isDisabled,
       onPressed: isLoading ? null : onCheckout,
     );
   }

@@ -5,8 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pickaboo/core/cache/auth_cache_manager.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/app_typography.dart';
 import 'package:pickaboo/domain/entity/app_error/app_error_entity.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/injection.dart';
@@ -20,6 +18,7 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/cart_page/cart_page.dart';
+import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/cart_page_skeleton.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/empty_cart_view.dart';
 
 class MockCartBloc extends MockBloc<CartEvent, CartState> implements CartBloc {}
@@ -120,7 +119,7 @@ void main() {
 
       await tester.pumpWidget(createWidgetUnderTest());
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CartPageSkeleton), findsOneWidget);
     });
 
     testWidgets('shows EmptyCartView when CartBloc is in empty state', (
@@ -226,7 +225,7 @@ void main() {
         await tester.pump();
 
         // Must show loader, NEVER EmptyCartView
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        expect(find.byType(CartPageSkeleton), findsOneWidget);
         expect(find.byType(EmptyCartView), findsNothing);
       },
     );
@@ -248,7 +247,216 @@ void main() {
 
         // Must NOT show EmptyCartView yet because backend has not responded in this session
         expect(find.byType(EmptyCartView), findsNothing);
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        expect(find.byType(CartPageSkeleton), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'disables checkout button and shows 1 item unavailable snackbar on tap when 1 item is out of stock',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const tOutOfStockItem = CartItemEntity(
+          itemId: 1,
+          sku: 'SKU1',
+          qty: 1,
+          name: 'Product 1',
+          price: 100,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 100,
+          regularPrice: 100,
+          specialPrice: 100,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p1',
+          productId: 101,
+          brand: 'Brand',
+          stockAvailable: false,
+        );
+
+        const tCart = CartEntity(
+          id: '1',
+          itemsCount: 1,
+          items: [tOutOfStockItem],
+          subtotal: 100,
+          grandTotal: 100,
+          discountAmount: 0,
+          shippingAmount: 0,
+          taxAmount: 0,
+          couponCode: '',
+        );
+
+        when(() => mockCartBloc.state).thenReturn(const CartState.loaded(tCart));
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Product 1'), findsOneWidget);
+        expect(find.text('Checkout'), findsOneWidget);
+
+        // Tap checkout button
+        await tester.tap(find.text('Checkout'));
+        await tester.pump();
+
+        // Must show error snackbar
+        expect(
+          find.text('Item of your cart is currently out of stock'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'shows 1 item unavailable snackbar on tap when cart has multiple items but only 1 is out of stock',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const tOutOfStockItem = CartItemEntity(
+          itemId: 1,
+          sku: 'SKU1',
+          qty: 1,
+          name: 'Product 1',
+          price: 100,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 100,
+          regularPrice: 100,
+          specialPrice: 100,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p1',
+          productId: 101,
+          brand: 'Brand',
+          stockAvailable: false,
+        );
+
+        const tInStockItem = CartItemEntity(
+          itemId: 2,
+          sku: 'SKU2',
+          qty: 1,
+          name: 'Product 2',
+          price: 200,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 200,
+          regularPrice: 200,
+          specialPrice: 200,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p2',
+          productId: 102,
+          brand: 'Brand',
+          stockAvailable: true,
+        );
+
+        const tCart = CartEntity(
+          id: '1',
+          itemsCount: 2,
+          items: [tOutOfStockItem, tInStockItem],
+          subtotal: 300,
+          grandTotal: 300,
+          discountAmount: 0,
+          shippingAmount: 0,
+          taxAmount: 0,
+          couponCode: '',
+        );
+
+        when(() => mockCartBloc.state).thenReturn(const CartState.loaded(tCart));
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pumpAndSettle();
+
+        // Tap checkout button
+        await tester.tap(find.text('Checkout'));
+        await tester.pump();
+
+        // Must show error snackbar
+        expect(
+          find.text('1 item of your cart is currently out of stock'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'shows 2 items unavailable snackbar on tap when 2 items are out of stock',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const tOutOfStockItem1 = CartItemEntity(
+          itemId: 1,
+          sku: 'SKU1',
+          qty: 1,
+          name: 'Product 1',
+          price: 100,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 100,
+          regularPrice: 100,
+          specialPrice: 100,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p1',
+          productId: 101,
+          brand: 'Brand',
+          stockAvailable: false,
+        );
+
+        const tOutOfStockItem2 = CartItemEntity(
+          itemId: 2,
+          sku: 'SKU2',
+          qty: 1,
+          name: 'Product 2',
+          price: 200,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 200,
+          regularPrice: 200,
+          specialPrice: 200,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p2',
+          productId: 102,
+          brand: 'Brand',
+          stockAvailable: false,
+        );
+
+        const tCart = CartEntity(
+          id: '1',
+          itemsCount: 2,
+          items: [tOutOfStockItem1, tOutOfStockItem2],
+          subtotal: 300,
+          grandTotal: 300,
+          discountAmount: 0,
+          shippingAmount: 0,
+          taxAmount: 0,
+          couponCode: '',
+        );
+
+        when(() => mockCartBloc.state).thenReturn(const CartState.loaded(tCart));
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pumpAndSettle();
+
+        // Tap checkout button
+        await tester.tap(find.text('Checkout'));
+        await tester.pump();
+
+        // Must show error snackbar
+        expect(
+          find.text('2 items of your cart are currently out of stock'),
+          findsOneWidget,
+        );
       },
     );
   });

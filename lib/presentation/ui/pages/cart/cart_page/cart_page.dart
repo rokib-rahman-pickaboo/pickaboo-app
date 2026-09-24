@@ -343,9 +343,14 @@ class _CartPageState extends State<CartPage> {
               orElse: () => false,
             );
 
+            final outOfStockCount =
+                cart.items.where((item) => !item.stockAvailable).length;
+            final hasOutOfStock = outOfStockCount > 0;
+
             return CartCheckoutButton(
               grandTotal: cart.grandTotal,
               isLoading: isUpdating,
+              isDisabled: hasOutOfStock,
               onCheckout: () {
                 if (isUpdating) return;
                 if (ConnectivityUtils.isOffline(context)) {
@@ -355,6 +360,21 @@ class _CartPageState extends State<CartPage> {
                   );
                   return;
                 }
+
+                if (hasOutOfStock) {
+                  final String message;
+                  if (cart.items.length == 1 && outOfStockCount == 1) {
+                    message = 'Item of your cart is currently out of stock';
+                  } else if (outOfStockCount == 1) {
+                    message = '1 item of your cart is currently out of stock';
+                  } else {
+                    message =
+                        '$outOfStockCount items of your cart are currently out of stock';
+                  }
+                  SnackBarUtils.showError(context, message);
+                  return;
+                }
+
                 getIt<AnalyticsService>().logBeginCheckout(
                   value: cart.grandTotal,
                   coupon: cart.couponCode.isNotEmpty ? cart.couponCode : null,
