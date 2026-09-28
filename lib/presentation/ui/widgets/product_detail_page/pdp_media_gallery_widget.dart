@@ -10,6 +10,7 @@ import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/dialog/product_media_dialog.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/core/utils/product_image_resolver.dart';
 
 import 'package:pickaboo/core/color/app_colors.dart';
 
@@ -19,6 +20,7 @@ enum PdpMediaTab { videos, images, customer }
 class PdpMediaGalleryWidget extends StatefulWidget {
   final ProductDetailEntity product;
   final List<String> activeImages;
+  final String? previewImageUrl;
   final bool isFavorite;
   final bool isCompared;
   final int cartCount;
@@ -38,6 +40,7 @@ class PdpMediaGalleryWidget extends StatefulWidget {
     super.key,
     required this.product,
     required this.activeImages,
+    this.previewImageUrl,
     this.isFavorite = false,
     this.isCompared = false,
     this.cartCount = 0,
@@ -79,6 +82,15 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
     // Default to Videos first if video available, otherwise Product Images
     final hasVideos = widget.product.youtubeVideos.isNotEmpty;
     _selectedTab = hasVideos ? PdpMediaTab.videos : PdpMediaTab.images;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final initialImages = widget.activeImages.isNotEmpty
+            ? widget.activeImages
+            : widget.product.images;
+        _precacheAdjacent(_currentImageIndex, initialImages);
+      }
+    });
   }
 
   @override
@@ -88,6 +100,41 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
       _selectedTab = PdpMediaTab.images;
     } else if (_selectedTab == PdpMediaTab.customer && widget.product.allReviewImages.isEmpty) {
       _selectedTab = PdpMediaTab.images;
+    }
+    if (oldWidget.activeImages != widget.activeImages) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final currentImages = widget.activeImages.isNotEmpty
+              ? widget.activeImages
+              : widget.product.images;
+          _precacheAdjacent(_currentImageIndex, currentImages);
+        }
+      });
+    }
+  }
+
+  void _precacheAdjacent(int currentIndex, List<String> images) {
+    if (!mounted || images.isEmpty) return;
+    final double dpr = MediaQuery.devicePixelRatioOf(context);
+    final int heroCacheWidth =
+        (MediaQuery.sizeOf(context).width * dpr).round().clamp(1080, 1440);
+    if (currentIndex + 1 < images.length) {
+      final next = images[currentIndex + 1].trim();
+      if (next.isNotEmpty) {
+        precacheImage(
+          AppImage.resizedProvider(next, cacheWidth: heroCacheWidth),
+          context,
+        );
+      }
+    }
+    if (currentIndex - 1 >= 0) {
+      final prev = images[currentIndex - 1].trim();
+      if (prev.isNotEmpty) {
+        precacheImage(
+          AppImage.resizedProvider(prev, cacheWidth: heroCacheWidth),
+          context,
+        );
+      }
     }
   }
 
@@ -135,6 +182,12 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
     final int videoCount = widget.product.youtubeVideos.length;
     final int customerPhotoCount = widget.product.allReviewImages.length;
 
+    // Retina-targeted memory cache width aligned with device physical pixels
+    // Prevents decoding oversized raw bitmaps into memory while delivering razor-sharp quality
+    final double dpr = MediaQuery.devicePixelRatioOf(context);
+    final int heroCacheWidth =
+        (MediaQuery.sizeOf(context).width * dpr).round().clamp(1080, 1440);
+
     return Container(
       color: AppColors.white,
       child: Column(
@@ -156,6 +209,8 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                     itemBuilder: (context, index) {
                       final video = widget.product.youtubeVideos[index];
                       final thumbnail = _getVideoThumbnail(video);
+                      final cachedPreview = widget.previewImageUrl ??
+                          ProductImageResolver.getCachedImage(widget.product.id);
                       return GestureDetector(
                         onTap: () => _handleMediaTap(ProductMediaType.videos, index),
                         child: Container(
@@ -169,6 +224,18 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                                   width: double.infinity,
                                   height: double.infinity,
                                   fit: BoxFit.cover,
+                                  filterQuality: FilterQuality.high,
+                                  cacheWidth: heroCacheWidth,
+                                  placeholder: (cachedPreview != null &&
+                                          cachedPreview.trim().isNotEmpty)
+                                      ? AppImage(
+                                          imageUrl: cachedPreview.trim(),
+                                          fit: BoxFit.cover,
+                                          filterQuality: FilterQuality.high,
+                                          cacheWidth: heroCacheWidth,
+                                          fadeInDuration: Duration.zero,
+                                        )
+                                      : null,
                                 )
                               else
                                 Container(color: AppColors.surfaceBlue),
@@ -197,6 +264,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                     itemCount: customerPhotoCount,
                     onPageChanged: (index) {
                       setState(() => _currentCustomerIndex = index);
+                      _precacheAdjacent(index, widget.product.allReviewImages);
                     },
                     itemBuilder: (context, index) {
                       return GestureDetector(
@@ -206,6 +274,8 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                           child: AppImage(
                             imageUrl: widget.product.allReviewImages[index],
                             fit: BoxFit.cover,
+                            filterQuality: FilterQuality.high,
+                            cacheWidth: heroCacheWidth,
                           ),
                         ),
                       );
@@ -218,16 +288,39 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                     itemCount: images.length,
                     onPageChanged: (index) {
                       setState(() => _currentImageIndex = index);
+                      _precacheAdjacent(index, images);
                     },
                     itemBuilder: (context, index) {
+                      final imageUrl = images[index];
+                      final isFirstImage = index == 0;
+                      final cachedPreview = widget.previewImageUrl ??
+                          ProductImageResolver.getCachedImage(widget.product.id);
+                      final effectivePreview = (isFirstImage &&
+                              cachedPreview != null &&
+                              cachedPreview.trim().isNotEmpty &&
+                              cachedPreview.trim() != imageUrl.trim())
+                          ? cachedPreview.trim()
+                          : null;
+
                       return GestureDetector(
                         onTap: () => _handleMediaTap(ProductMediaType.productImages, index),
                         child: Container(
                           color: AppColors.white,
                           padding: EdgeInsets.zero,
                           child: AppImage(
-                            imageUrl: images[index],
+                            imageUrl: imageUrl,
                             fit: BoxFit.cover,
+                            filterQuality: FilterQuality.high,
+                            cacheWidth: heroCacheWidth,
+                            placeholder: effectivePreview != null
+                                ? AppImage(
+                                    imageUrl: effectivePreview,
+                                    fit: BoxFit.cover,
+                                    filterQuality: FilterQuality.high,
+                                    cacheWidth: heroCacheWidth,
+                                    fadeInDuration: Duration.zero,
+                                  )
+                                : null,
                           ),
                         ),
                       );

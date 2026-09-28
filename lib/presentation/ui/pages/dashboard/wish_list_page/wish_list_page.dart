@@ -66,7 +66,7 @@ class _WishListPageState extends State<WishListPage> {
       child: Scaffold(
       backgroundColor: AppColors.pageBg,
       appBar: PickabooAppBar(
-        title: "Wishlist",
+        title: AppStrings.navWishlist,
         actions: [
           BlocBuilder<WishlistBloc, WishlistState>(
             builder: (context, state) {

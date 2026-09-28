@@ -207,6 +207,10 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
     required bool hasPreviewImage,
     required String? imageUrl,
   }) {
+    final double dpr = MediaQuery.devicePixelRatioOf(context);
+    final int heroCacheWidth =
+        (MediaQuery.sizeOf(context).width * dpr).round().clamp(1080, 1440);
+
     return Container(
       color: AppColors.white,
       width: double.infinity,
@@ -220,6 +224,9 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                   ? AppImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
+                      cacheWidth: heroCacheWidth,
+                      fadeInDuration: Duration.zero,
                     )
                   : Skeletonizer(
                       enabled: true,

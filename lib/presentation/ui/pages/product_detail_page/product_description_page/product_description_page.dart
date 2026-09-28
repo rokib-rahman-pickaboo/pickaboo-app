@@ -91,7 +91,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
               unselectedLabelStyle: AppTypography.bodyMedium,
               tabs: const [
                 Tab(text: 'Specification'),
-                Tab(text: 'Description'),
+                Tab(text: AppStrings.pdpDescription),
               ],
             ),
           ),

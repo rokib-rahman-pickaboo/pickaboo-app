@@ -259,7 +259,7 @@ class _ChangePhoneNumberBottomSheetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Change Phone Number',
+                AppStrings.changePhoneNumber,
                 style: AppTypography.titleLarge,
               ),
               IconButton(
@@ -328,7 +328,7 @@ class _ChangePhoneNumberBottomSheetState
 
           // Submit Button
           AppButton.primary(
-            text: 'Send OTP',
+            text: AppStrings.sendOtp,
             isLoading: isUpdating,
             isFullWidth: true,
             height: 48.h,

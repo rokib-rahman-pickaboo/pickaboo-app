@@ -153,7 +153,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       appBar: widget.embedded
           ? null
           : const PickabooAppBar(
-              title: 'Ticket Details',
+              title: AppStrings.ticketDetails,
             ),
       body: SafeArea(
         top: false,

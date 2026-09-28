@@ -406,7 +406,7 @@ class _OrderPlacedPageState extends State<OrderPlacedPage> {
                       child: AppButton.primary(
                         height: 48.h,
                         onPressed: widget.onContinueShopping,
-                        text: "Continue Shopping",
+                        text: AppStrings.continueShopping,
                         icon: Icon(
                           Icons.shopping_bag_outlined,
                           size: 18.sp,

@@ -21,6 +21,7 @@ class OrderItemCard extends StatefulWidget {
   final VoidCallback onBuy;
   final VoidCallback onPay;
   final VoidCallback onReview;
+  final bool isReordering;
 
   const OrderItemCard({
     super.key,
@@ -30,6 +31,7 @@ class OrderItemCard extends StatefulWidget {
     required this.onBuy,
     required this.onPay,
     required this.onReview,
+    this.isReordering = false,
   });
 
   @override
@@ -300,6 +302,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                           "Buy Again",
                           AppColors.pickabooBlue,
                           widget.onBuy,
+                          isLoading: widget.isReordering,
                         ),
                       ),
                       if (_shouldShowCancel(widget.order)) ...[
@@ -349,12 +352,13 @@ class _OrderItemCardState extends State<OrderItemCard> {
     IconData icon,
     String label,
     Color color,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    bool isLoading = false,
+  }) {
     return Material(
       color: AppColors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: isLoading ? null : onTap,
         splashColor: color.withValues(alpha: 0.1),
         highlightColor: color.withValues(alpha: 0.05),
         child: Padding(
@@ -362,10 +366,20 @@ class _OrderItemCardState extends State<OrderItemCard> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16.sp, color: color),
+              if (isLoading)
+                SizedBox(
+                  width: 14.r,
+                  height: 14.r,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.w,
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                  ),
+                )
+              else
+                Icon(icon, size: 16.sp, color: color),
               SizedBox(width: 6.w),
               Text(
-                label,
+                isLoading ? 'Adding...' : label,
                 style: AppTypography.titleSmall.withColor(color),
               ),
             ],

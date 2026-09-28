@@ -144,7 +144,7 @@ class _ClubPointPageState extends State<ClubPointPage> {
                   PointHistoryTimeline(history: data.pointHistory),
 
                   if (hasMore) ...[
-                    AppSpacing.gapV14,
+                    AppSpacing.gapV12,
                     Center(
                       child: AppButton.outline(
                         text: 'Load More',

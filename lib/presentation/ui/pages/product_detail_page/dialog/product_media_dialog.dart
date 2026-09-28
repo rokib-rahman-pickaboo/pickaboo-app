@@ -254,6 +254,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.contain,
+                    filterQuality: FilterQuality.high,
                   ),
                   if (_currentType == ProductMediaType.videos)
                     GestureDetector(
@@ -377,6 +378,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity,
+                  cacheWidth: 150,
                 ),
               ),
             ),

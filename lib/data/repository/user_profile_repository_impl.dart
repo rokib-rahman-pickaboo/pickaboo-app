@@ -27,6 +27,19 @@ import 'package:pickaboo/data/mapper/error_mapper.dart';
 import 'package:collection/collection.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 
+/// Concrete implementation of [UserProfileRepository].
+///
+/// Orchestrates user profile synchronization, demographic updates, multi-tier Hive caching,
+/// order history retrieval, reCAPTCHA-protected security operations (phone/email OTPs),
+/// and resilient address management.
+///
+/// ### Architecture & Resiliency Patterns:
+/// - **Two-Tier Profile Caching:** Uses [UserProfileLocalDataSource] (Hive) for offline retrieval
+///   and instant rendering. Network failures gracefully fall back to cached data before emitting errors.
+/// - **Order Increment ID Fallback:** Resolves Magento entity IDs if an order increment ID is passed.
+/// - **Dual-Strategy Address Engine:** Attempts modern dedicated address endpoints first; if Magento
+///   returns 404 / route-not-found, automatically falls back to full-profile address mutations.
+/// - **Security & Anti-Abuse:** Protects phone update OTP requests with Google reCAPTCHA v3 tokens.
 @LazySingleton(as: UserProfileRepository)
 class UserProfileRepositoryImpl implements UserProfileRepository {
   final UserProfileApiService _apiService;
@@ -41,6 +54,12 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     this._recaptcha,
   );
 
+  /// Fetches customer profile data with two-tier cache recovery.
+  ///
+  /// When [forceRefresh] is false, returns valid cached profile data from Hive immediately.
+  /// When refreshing over network, any connection error or timeout gracefully falls back
+  /// to existing cached data before failing. On success, persists the customer's numeric
+  /// user ID to [_authCacheManager] for quote/cart and order bindings.
   @override
   Future<Either<AppErrorEntity, UserEntity>> getProfile({
     bool forceRefresh = true,
@@ -57,6 +76,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
           return Right(cachedProfile.toEntity());
         }
       } catch (e) {
+        // Cache read failure is non-fatal; proceed with remote network fetch
       }
     }
 
@@ -69,6 +89,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
             return Right(cachedProfile.toEntity());
           }
         } catch (e) {
+          // If offline and cache is invalid/unavailable, propagate backend error
         }
         return Left(error.toEntity());
       },
@@ -82,11 +103,13 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Purges local Hive user profile data on sign-out or account invalidation.
   @override
   Future<void> clearUserProfile() async {
     await _localDataSource.clearUserProfile();
   }
 
+  /// Fetches the user's uploaded avatar image URL.
   @override
   Future<Either<AppErrorEntity, String>> getProfileImage() async {
     final token = await _authCacheManager.getToken();
@@ -96,8 +119,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
     final result = await _apiService.getUserImage();
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
+      (error) => Left(error.toEntity()),
       (response) => Right(response),
     );
   }
@@ -107,6 +129,8 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     await _authCacheManager.setUserId(userId: userId);
   }
 
+  /// Updates customer demographic details (name, gender, date of birth)
+  /// and synchronizes the updated response into the Hive local database.
   @override
   Future<Either<AppErrorEntity, UserEntity>> updateBasicInfo({
     required UserEntity user,
@@ -140,8 +164,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       dob: dob,
     );
     return result.fold(
-      (error) async =>
-          Left(error.toEntity()),
+      (error) async => Left(error.toEntity()),
       (response) async {
         await _localDataSource.insertUserProfile(response);
         return Right(response.toEntity());
@@ -149,6 +172,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Sends a verification OTP to the specified email address for email change requests.
   @override
   Future<Either<AppErrorEntity, OtpResponse>> sendEmailUpdateOtp({
     required String email,
@@ -167,6 +191,8 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Submits the OTP to change the user's email, then performs a full profile refresh
+  /// to ensure local state reflects the verified email address.
   @override
   Future<Either<AppErrorEntity, UserEntity>> updateEmail({
     required String newEmail,
@@ -189,6 +215,10 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Requests a verification OTP for updating phone numbers, protected by Google reCAPTCHA v3.
+  ///
+  /// Obtains an anti-abuse token via [RecaptchaService.executeAction] before dispatching
+  /// the SMS OTP request.
   @override
   Future<Either<AppErrorEntity, OtpResponse>> sendPhoneUpdateOtp({
     required String mobile,
@@ -233,6 +263,8 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Verifies the phone OTP and performs a force-refresh of the customer profile
+  /// to ensure the updated mobile number is stored and propagated across the application.
   @override
   Future<Either<AppErrorEntity, UserEntity>> updateMobile({
     required String newMobile,
@@ -255,6 +287,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Changes the user's account password and invalidates local cached profile.
   @override
   Future<Either<AppErrorEntity, bool>> changePassword({
     required int customerId,
@@ -272,8 +305,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       newPassword: newPassword,
     );
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
+      (error) => Left(error.toEntity()),
       (success) {
         if (success) {
           _localDataSource.clearUserProfile();
@@ -283,6 +315,10 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Uploads a new avatar image multipart file.
+  ///
+  /// Clears local Hive profile cache so the next profile fetch retrieves the newly
+  /// generated image URL once Google Cloud Storage finishes asynchronous processing.
   @override
   Future<Either<AppErrorEntity, String>> uploadImage({
     required File image,
@@ -294,8 +330,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
     final result = await _apiService.uploadProfileImage(image: image);
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
+      (error) => Left(error.toEntity()),
       (response) {
         _localDataSource.clearUserProfile();
         return Right(response);
@@ -305,9 +340,13 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
   OrderListEntity? _cachedFirstPageOrders;
 
+  /// In-memory getter for first-page order list to allow instant tab navigation.
   @override
   OrderListEntity? getCachedFirstPageOrders() => _cachedFirstPageOrders;
 
+  /// Fetches paginated order history for the authenticated customer.
+  ///
+  /// Retains the first page in memory ([_cachedFirstPageOrders]) for instant screen openings.
   @override
   Future<Either<AppErrorEntity, OrderListEntity>> getOrders({
     int limit = 10,
@@ -334,6 +373,14 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Fetches detailed order information by [orderId].
+  ///
+  /// ### Backend Quirk & Resiliency:
+  /// The parameter [orderId] may sometimes be passed as an `increment_id` (e.g. `1609225531`
+  /// printed on invoices/push notifications) rather than the Magento database `entity_id`
+  /// (e.g. `1237650`). If direct retrieval returns 404 or an error, this method scans
+  /// recent orders via [_apiService.getOrderList] to match the increment number, resolves the
+  /// real numeric entity ID, and transparently retries the lookup.
   @override
   Future<Either<AppErrorEntity, OrderDetailEntity>> getOrderDetails(
     String orderId,
@@ -401,6 +448,8 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       (response) => Right(response.toEntity()),
     );
   }
+
+  /// Cancels an order with a mandatory cancellation [reason] and optional customer [note].
   @override
   Future<Either<AppErrorEntity, OrderCancelEntity>> cancelOrder({
     required String orderId,
@@ -418,12 +467,15 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       reason: reason,
     );
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
+      (error) => Left(error.toEntity()),
       (response) => Right(response.toEntity()),
     );
   }
 
+  /// Re-orders all line items from a past order into the active shopping cart.
+  ///
+  /// Guarantees customer ID resolution before dispatching the request: verifies local
+  /// cache first, and falls back to a profile network lookup if the cached ID is blank.
   @override
   Future<Either<AppErrorEntity, bool>> reorder(String orderId) async {
     final token = await _authCacheManager.getToken();
@@ -431,25 +483,46 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       return const Left(AppErrorEntity(message: 'User not authenticated'));
     }
 
-    final profileResult = await _apiService.getUserProfile();
-    return profileResult.fold(
-      (error) => Left(
-        AppErrorEntity(
-          message: error.message ?? 'Failed to get user profile for reorder',
+    String? customerId = await _authCacheManager.getUserId();
+
+    if (customerId == null || customerId.isEmpty) {
+      final cachedProfile = await _localDataSource.getUserProfileIfValid();
+      if (cachedProfile?.id != null) {
+        customerId = cachedProfile!.id.toString();
+        await _authCacheManager.setUserId(userId: customerId);
+      }
+    }
+
+    if (customerId == null || customerId.isEmpty) {
+      final profileResult = await _apiService.getUserProfile();
+      return profileResult.fold(
+        (error) => Left(
+          AppErrorEntity(
+            message: error.message ?? 'Failed to get user profile for reorder',
+          ),
         ),
-      ),
-      (userResp) async {
-        final customerId = userResp.id.toString();
-        final result = await _apiService.reorder(
-          orderId: orderId,
-          customerId: customerId,
-        );
-        return result.fold(
-          (error) =>
-              Left(error.toEntity()),
-          (success) => Right(success),
-        );
-      },
+        (userResp) async {
+          final cid = userResp.id.toString();
+          await _authCacheManager.setUserId(userId: cid);
+          final result = await _apiService.reorder(
+            orderId: orderId,
+            customerId: cid,
+          );
+          return result.fold(
+            (error) => Left(error.toEntity()),
+            (success) => Right(success),
+          );
+        },
+      );
+    }
+
+    final result = await _apiService.reorder(
+      orderId: orderId,
+      customerId: customerId,
+    );
+    return result.fold(
+      (error) => Left(error.toEntity()),
+      (success) => Right(success),
     );
   }
 
@@ -483,6 +556,9 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Direct update of the full customer address array in Magento.
+  ///
+  /// Clears Hive profile cache upon success so fresh addresses are loaded.
   @override
   Future<Either<AppErrorEntity, bool>> updateAddressList({
     required UserEntity user,
@@ -507,8 +583,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
 
     final result = await _apiService.updateAddressList(body);
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
+      (error) => Left(error.toEntity()),
       (success) {
         if (success) {
           _localDataSource.clearUserProfile();
@@ -518,6 +593,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Detects whether an API error is due to a missing/unsupported custom endpoint (404/route not found).
   bool _isRouteNotFound(ErrorResponse error) {
     final msg = (error.message ?? '').toLowerCase();
     return msg.contains('request does not match any route') ||
@@ -525,6 +601,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
         msg.contains('not found');
   }
 
+  /// Formats region data to ensure compatibility with standard Magento 2 customer addresses.
   Map<String, dynamic> _formatAddressForLegacy(Map<String, dynamic> raw) {
     final legacy = Map<String, dynamic>.from(raw);
     if (raw['region'] is String) {
@@ -537,6 +614,8 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     return legacy;
   }
 
+  /// Fallback strategy: Injects a new address directly into the customer's full address list
+  /// via standard Magento `/rest/V1/customers/me` API when custom address routes are absent.
   Future<Either<AppErrorEntity, String>> _fallbackAddAddress(
     Map<String, dynamic> rawAddress,
   ) async {
@@ -596,6 +675,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     }
   }
 
+  /// Fallback strategy: Modifies an existing address in the customer's address array.
   Future<Either<AppErrorEntity, String>> _fallbackUpdateAddress(
     Map<String, dynamic> rawAddress,
   ) async {
@@ -662,6 +742,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     }
   }
 
+  /// Fallback strategy: Filters out an address from the array and persists the trimmed list.
   Future<Either<AppErrorEntity, String>> _fallbackDeleteAddress(
     int addressId,
   ) async {
@@ -702,6 +783,10 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     }
   }
 
+  /// Adds a new delivery/billing address for the customer.
+  ///
+  /// Employs a dual-strategy approach: executes the custom endpoint first, and automatically
+  /// falls back to [_fallbackAddAddress] if the custom route is not available on the server.
   @override
   Future<Either<AppErrorEntity, String>> addAddress(
     Map<String, dynamic> addressData,
@@ -732,6 +817,9 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Modifies an existing delivery/billing address for the customer.
+  ///
+  /// Falls back to [_fallbackUpdateAddress] if the server returns 404 / route-not-found.
   @override
   Future<Either<AppErrorEntity, String>> updateAddress(
     Map<String, dynamic> addressData,
@@ -762,6 +850,9 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Deletes a saved address by [addressId].
+  ///
+  /// Falls back to [_fallbackDeleteAddress] if the dedicated delete endpoint is not found.
   @override
   Future<Either<AppErrorEntity, String>> deleteAddress(
     int addressId,
@@ -786,26 +877,26 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     );
   }
 
+  /// Fetches available cities for the given geographical [division].
   @override
   Future<Either<AppErrorEntity, List<dynamic>>> getCities(
     String division,
   ) async {
     final result = await _apiService.getCities(division);
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
+      (error) => Left(error.toEntity()),
       (cities) => Right(cities.map((city) => city.toJson()).toList()),
     );
   }
 
+  /// Fetches sub-districts and delivery areas for the given [city].
   @override
   Future<Either<AppErrorEntity, List<dynamic>>> getAreas(String city) async {
     final result = await _apiService.getAreas(city);
     return result.fold(
-      (error) =>
-          Left(error.toEntity()),
+      (error) => Left(error.toEntity()),
       (areas) => Right(areas.map((area) => area.toJson()).toList()),
     );
   }
-
 }
+

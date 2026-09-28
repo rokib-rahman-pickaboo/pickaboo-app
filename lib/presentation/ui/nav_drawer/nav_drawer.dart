@@ -22,6 +22,7 @@ import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/user_image_widget.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 
 final Future<PackageInfo> _appPackageInfo = PackageInfo.fromPlatform();
@@ -181,63 +182,50 @@ class NavDrawer extends StatelessWidget {
     String? profileImage,
     String mobileNumber,
   ) {
-    const borderRadius = AppRadius.cardRadius;
+    final displayName = '${user.firstname ?? ''} ${user.lastname ?? ''}'.trim();
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
-      color: AppColors.white,
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: borderRadius,
-            child: SizedBox(
-              width: 50.w,
-              height: 50.w,
-              child: profileImage != null && profileImage.isNotEmpty
-                  ? AppImage(
-                      imageUrl: profileImage,
-                      fit: BoxFit.cover,
-                      errorWidget: Container(
-                        color: AppColors.surfaceBlue,
-                        child: Icon(
-                          Icons.person_rounded,
-                          size: 26.sp,
-                          color: AppColors.pickabooBlue,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      color: AppColors.surfaceBlue,
-                      child: Icon(
-                        Icons.person_rounded,
-                        size: 26.sp,
-                        color: AppColors.pickabooBlue,
-                      ),
+    return InkWell(
+      onTap: () {
+        context.pop();
+        context.go(Routes.dashboard);
+      },
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+        color: AppColors.white,
+        child: Row(
+          children: [
+            UserImageWidget(
+              size: 50.w,
+              imageUrl: profileImage,
+              name: displayName.isNotEmpty ? displayName : null,
+              borderColor: AppColors.pickabooBlue,
+              borderWidth: 1.5.w,
+            ),
+            SizedBox(width: 12.w),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    displayName.isNotEmpty ? displayName : 'Pickaboo User',
+                    style: AppTypography.titleLarge,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (user.id != null && user.id != 0) ...[
+                    SizedBox(height: 3.h),
+                    Text(
+                      'ID # ${user.id}',
+                      style: AppTypography.bodySmall,
                     ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(width: 12.w),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${user.firstname} ${user.lastname}',
-                  style: AppTypography.titleLarge,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  'ID # ${user.id}',
-                  style: AppTypography.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -253,18 +241,10 @@ class NavDrawer extends StatelessWidget {
         color: AppColors.white,
         child: Row(
           children: [
-            Container(
-              width: 50.w,
-              height: 50.w,
-              decoration: const BoxDecoration(
-                color: AppColors.surfaceBlue,
-                borderRadius: AppRadius.cardRadius,
-              ),
-              child: Icon(
-                Icons.person_outline_rounded,
-                size: 26.sp,
-                color: AppColors.pickabooBlue,
-              ),
+            UserImageWidget(
+              size: 50.w,
+              borderColor: AppColors.pickabooBlue,
+              borderWidth: 1.5.w,
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -325,7 +305,7 @@ class NavDrawer extends StatelessWidget {
         );
 
         return _DrawerSection(
-          title: 'Account',
+          title: AppStrings.navAccount,
           children: [
             _DrawerMenuItem(
               icon: Icons.grid_view_rounded,
@@ -343,7 +323,7 @@ class NavDrawer extends StatelessWidget {
             _DrawerMenuItem(
               icon: Icons.local_shipping_outlined,
               iconColor: AppColors.pickabooBlue,
-              title: 'My Orders',
+              title: AppStrings.myOrders,
               onTap: () {
                 context.pop();
                 if (isLoggedIn) {
@@ -356,7 +336,7 @@ class NavDrawer extends StatelessWidget {
             _DrawerMenuItem(
               icon: Icons.favorite_border_rounded,
               iconColor: AppColors.pickabooBlue,
-              title: 'My Wishlist',
+              title: AppStrings.myWishlist,
               onTap: () {
                 context.pop();
                 if (isLoggedIn) {
@@ -396,7 +376,7 @@ class NavDrawer extends StatelessWidget {
         _DrawerMenuItem(
           icon: Icons.headset_mic_outlined,
           iconColor: AppColors.pickabooBlue,
-          title: 'Contact Us',
+          title: AppStrings.contactUs,
           onTap: () {
             context.pop();
             context.push(Routes.contactUs);

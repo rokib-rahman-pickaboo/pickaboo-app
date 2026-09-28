@@ -65,7 +65,7 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Free Delivery',
+            AppStrings.pdpFreeDelivery,
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.text,
               fontWeight: FontWeight.w700,

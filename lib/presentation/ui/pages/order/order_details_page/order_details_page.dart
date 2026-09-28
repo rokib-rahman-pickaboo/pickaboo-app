@@ -13,7 +13,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
-import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/just_for_you_bloc/just_for_you_bloc.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
@@ -50,6 +49,8 @@ class OrderDetailsPage extends StatefulWidget {
 }
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
+  bool _isReordering = false;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +63,10 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   void _handleReorder(BuildContext context, String orderId) {
+    if (_isReordering) return;
+    setState(() {
+      _isReordering = true;
+    });
     context.read<OrderBloc>().add(OrderEvent.reorder(orderId));
   }
 
@@ -139,10 +144,13 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             height: 48.h,
                             borderRadius: AppRadius.cardRadius,
                             text: 'Buy Again',
-                            onPressed: () => _handleReorder(
-                              context,
-                              order.orderId.toString(),
-                            ),
+                            isLoading: _isReordering,
+                            onPressed: _isReordering
+                                ? null
+                                : () => _handleReorder(
+                                      context,
+                                      order.orderId.toString(),
+                                    ),
                           ),
                         ),
                       ],
@@ -151,8 +159,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       height: 48.h,
                       borderRadius: AppRadius.cardRadius,
                       text: 'Buy Again',
-                      onPressed: () =>
-                          _handleReorder(context, order.orderId.toString()),
+                      isLoading: _isReordering,
+                      onPressed: _isReordering
+                          ? null
+                          : () =>
+                              _handleReorder(context, order.orderId.toString()),
                     ),
             ),
           );
@@ -161,16 +172,28 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
           if (state.successMessage != null) {
-            final cartBloc = context.read<CartBloc>();
-            cartBloc.markAdditionPending();
-            cartBloc.add(const CartEvent.getCart());
-            SnackBarUtils.showSuccess(
-              context,
-              state.successMessage ?? AppStrings.operationSuccessful,
-            );
-            context.push(Routes.cart);
+            if (state.successMessage == 'Items added to cart') {
+              setState(() {
+                _isReordering = false;
+              });
+              SnackBarUtils.showSuccess(
+                context,
+                state.successMessage ?? AppStrings.operationSuccessful,
+              );
+              context.push(Routes.cart);
+            } else {
+              SnackBarUtils.showSuccess(
+                context,
+                state.successMessage ?? AppStrings.operationSuccessful,
+              );
+            }
           }
           if (state.errorMessage != null) {
+            if (_isReordering) {
+              setState(() {
+                _isReordering = false;
+              });
+            }
             SnackBarUtils.showError(
               context,
               state.errorMessage ?? AppStrings.somethingWentWrong,

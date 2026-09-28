@@ -41,6 +41,18 @@ class AppImage extends StatefulWidget {
     return CachedNetworkImageProvider(_normalizeUrlStatic(url));
   }
 
+  /// Returns an [ImageProvider] (optionally resized to [cacheWidth]/[cacheHeight])
+  /// with URL normalization applied.
+  /// Use this when precaching or rendering with precise memory cache dimensions.
+  static ImageProvider resizedProvider(
+    String url, {
+    int? cacheWidth,
+    int? cacheHeight,
+  }) {
+    final cachedProvider = provider(url);
+    return ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, cachedProvider);
+  }
+
   static String _normalizeUrlStatic(String url) {
     if (url.isEmpty) return '';
     final trimmed = url.trim();

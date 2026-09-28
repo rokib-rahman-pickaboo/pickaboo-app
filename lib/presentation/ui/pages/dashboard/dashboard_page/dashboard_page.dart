@@ -36,6 +36,8 @@ class DashboardPage extends StatelessWidget {
         mobileUpdateSuccess: (_, user, _, _) => user,
         imageUploadSuccess: (_, user, _, _) => user,
         phoneUpdateOtpSent: (_, user, _) => user,
+        emailUpdateOtpSent: (_, user, _, _) => user,
+        emailUpdateSuccess: (_, user, _, _) => user,
         orElse: () => null,
       );
 
@@ -47,6 +49,8 @@ class DashboardPage extends StatelessWidget {
         mobileUpdateSuccess: (_, _, imageUrl, _) => imageUrl,
         imageUploadSuccess: (_, _, imageUrl, _) => imageUrl,
         phoneUpdateOtpSent: (_, _, imageUrl) => imageUrl,
+        emailUpdateOtpSent: (_, _, imageUrl, _) => imageUrl,
+        emailUpdateSuccess: (_, _, imageUrl, _) => imageUrl,
         orElse: () => null,
       );
 
@@ -90,7 +94,14 @@ class DashboardPage extends StatelessWidget {
               builder: (context, profileState) {
                 final profileUser = _userFrom(profileState);
                 final user = isAuthenticated ? (profileUser ?? authUser) : null;
-                final imageUrl = isAuthenticated ? _imageUrlFrom(profileState) : null;
+                final stateImageUrl = isAuthenticated ? _imageUrlFrom(profileState) : null;
+                final attrImageUrl = user?.customAttributes
+                    ?.where((item) => item.attributeCode == 'profile_image')
+                    .firstOrNull
+                    ?.value as String?;
+                final imageUrl = (stateImageUrl != null && stateImageUrl.isNotEmpty)
+                    ? stateImageUrl
+                    : attrImageUrl;
                 final bool isLoggedIn = isAuthenticated && user != null;
                 debugPrint('📸 [UI:Dashboard] profileState=${profileState.runtimeType}, imageUrl="$imageUrl", isLoggedIn=$isLoggedIn');
 
@@ -129,7 +140,7 @@ class DashboardPage extends StatelessWidget {
                     children: [
                       ProfileGridTile(
                         icon: Icons.local_shipping_outlined,
-                        title: 'My Orders',
+                        title: AppStrings.myOrders,
                         accentColor: AppColors.pickabooBlue,
                         onTap: () => _requireAuth(
                           context,
@@ -139,7 +150,7 @@ class DashboardPage extends StatelessWidget {
                       ),
                       ProfileGridTile(
                         icon: Icons.confirmation_number_outlined,
-                        title: 'Support Tickets',
+                        title: AppStrings.supportTickets,
                         accentColor: AppColors.pink,
                         onTap: () => _requireAuth(
                           context,

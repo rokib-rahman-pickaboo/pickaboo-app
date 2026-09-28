@@ -95,6 +95,7 @@ class UserImageWidget extends StatelessWidget {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
       avatarContent = ClipOval(
         child: AppImage(
+          key: ValueKey(imageUrl),
           imageUrl: imageUrl,
           fit: BoxFit.cover,
           width: size,

@@ -312,7 +312,7 @@ class _ChangeEmailBottomSheetState extends State<ChangeEmailBottomSheet> {
 
           // Submit Button
           AppButton.primary(
-            text: 'Send OTP',
+            text: AppStrings.sendOtp,
             isLoading: isUpdating,
             isFullWidth: true,
             height: 48.h,

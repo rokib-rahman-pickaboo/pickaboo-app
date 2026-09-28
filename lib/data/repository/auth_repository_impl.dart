@@ -20,6 +20,18 @@ import 'package:pickaboo/domain/entity/auth/user_entity.dart';
 import 'package:pickaboo/domain/entity/customer_status/customer_status_entity.dart';
 import 'package:pickaboo/domain/repository/auth_repository.dart';
 
+/// Concrete implementation of [AuthRepository].
+///
+/// Orchestrates customer authentication, token persistence, social logins (Google, Apple, Facebook),
+/// registration with automatic sign-in, and Google reCAPTCHA v3 protected OTP verification.
+///
+/// ### Architecture & Security Flow:
+/// - **Session Persistence:** Tokens are securely stored in [AuthCacheManager] with environment
+///   tagging ([ApiConfig.isProduction]) to avoid cross-environment token leakage.
+/// - **Customer ID Sync:** Automatically resolves and caches numeric customer IDs after authentication
+///   to ensure cart quotes and orders bind accurately.
+/// - **reCAPTCHA v3 Protection:** OTP generation routes (registration, phone update, password reset)
+///   are protected by action-specific reCAPTCHA tokens to prevent SMS pumping abuse.
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   @override
@@ -29,12 +41,16 @@ class AuthRepositoryImpl implements AuthRepository {
 
   AuthRepositoryImpl(this.apiService, this._cacheManager, this._recaptcha);
 
+  /// Synchronizes and caches the numeric customer ID for the active user session.
+  ///
+  /// This ID is required by downstream quote merging, order placement, and profile APIs.
   Future<void> _saveUserId() async {
     try {
       final token = await getStoredToken();
       final result = await apiService.getCurrentUser(token: token);
       await result.fold(
         (l) async {
+          // Non-fatal if offline; downstream repositories will retry profile lookup when needed
         },
         (r) async {
           final entity = r.toEntity();
@@ -42,9 +58,11 @@ class AuthRepositoryImpl implements AuthRepository {
         },
       );
     } catch (e) {
+      // Swallowed safely to prevent login from failing if profile info cannot be reached immediately
     }
   }
 
+  /// Verifies customer registration status and account type by phone number.
   @override
   Future<Either<AppErrorEntity, CustomerStatusEntity>> checkCustomer({
     required String phone,
@@ -54,22 +72,26 @@ class AuthRepositoryImpl implements AuthRepository {
     return result.fold((l) => left(l.toEntity()), (r) => right(r.toEntity()));
   }
 
+  /// Retrieves the persisted session token from secure storage.
   @override
   Future<String?> getStoredToken() async {
     return await _cacheManager.getToken();
   }
 
+  /// Persists authentication token along with the active environment flag.
   @override
   Future<void> saveToken(String token, {bool? isProd}) async {
     await _cacheManager.setToken(token: token);
     await _cacheManager.setProdToken(isProd ?? ApiConfig.isProduction);
   }
 
+  /// Purges session token and clears authenticated cache.
   @override
   Future<void> clearToken() async {
     await _cacheManager.signOut();
   }
 
+  /// Authenticates with mobile and password, caching token and user ID on success.
   @override
   Future<Either<AppErrorEntity, String>> login({
     required String mobile,
@@ -86,6 +108,7 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
+  /// Checks whether a username (email/mobile) is already registered in Magento.
   @override
   Future<Either<AppErrorEntity, CheckUserEntity>> checkUserExists(
     String username,
@@ -94,6 +117,7 @@ class AuthRepositoryImpl implements AuthRepository {
     return result.fold((l) => left(l.toEntity()), (r) => right(r.toEntity()));
   }
 
+  /// Dispatches an SMS OTP verification code protected by Google reCAPTCHA v3.
   @override
   Future<Either<AppErrorEntity, String>> sendOtp({
     required String encryptedMobile,
@@ -146,6 +170,7 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  /// Verifies an SMS OTP against the user's mobile number.
   @override
   Future<Either<AppErrorEntity, String>> verifyOtp({
     required String mobile,
@@ -155,6 +180,11 @@ class AuthRepositoryImpl implements AuthRepository {
     return result.fold((l) => left(l.toEntity()), (r) => right(r));
   }
 
+  /// Registers a new customer account in Magento and automatically triggers login.
+  ///
+  /// Upon successful registration, executes automatic authentication ([login])
+  /// using mobile credentials (falling back to email) so session tokens and user IDs
+  /// are cached seamlessly without prompting the user to manually log in again.
   @override
   Future<Either<AppErrorEntity, UserEntity>> registerUser({
     required String email,
@@ -189,12 +219,14 @@ class AuthRepositoryImpl implements AuthRepository {
             await login(mobile: email, password: password);
           }
         } catch (e) {
+          // Non-fatal if auto-login fails; customer entity is still returned
         }
         return right(r.toEntity());
       },
     );
   }
 
+  /// Sends an email OTP code protected by Google reCAPTCHA v3.
   @override
   Future<Either<AppErrorEntity, String>> sendEmailOtp(
     String email, {
@@ -239,6 +271,7 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  /// Verifies an OTP code delivered via email.
   @override
   Future<Either<AppErrorEntity, String>> verifyEmailOtp({
     required String email,
@@ -248,6 +281,7 @@ class AuthRepositoryImpl implements AuthRepository {
     return result.fold((l) => left(l.toEntity()), (r) => right(r));
   }
 
+  /// Dispatches a password recovery OTP via SMS or email, protected by reCAPTCHA v3.
   @override
   Future<Either<AppErrorEntity, String>> sendForgotPasswordOtp({
     String? email,
@@ -299,6 +333,7 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  /// Resets user password after OTP confirmation, with optional anti-abuse reCAPTCHA token.
   @override
   Future<Either<AppErrorEntity, String>> resetPassword({
     String? mobile,
@@ -316,7 +351,6 @@ class AuthRepositoryImpl implements AuthRepository {
       debugPrint('[RECAPTCHA_FLOW] 2/3: resetPassword acquired token (len=${token.length}). Forwarding to apiService.resetPassword...');
     } catch (e) {
       debugPrint('[RECAPTCHA_FLOW] ⚠️ resetPassword reCAPTCHA token skipped/failed: $e');
-      // Allow proceeding even if token generation fails on some devices
     }
 
     final result = await apiService.resetPassword(
@@ -340,6 +374,7 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  /// Authenticates using a third-party social provider access token (Google, Apple, Facebook).
   @override
   Future<Either<AppErrorEntity, String>> socialLogin({
     required String accessToken,
@@ -363,6 +398,7 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
+  /// Retrieves the current authenticated customer profile and syncs user ID to cache.
   @override
   Future<Either<AppErrorEntity, UserEntity>> getCurrentUser() async {
     try {
@@ -381,9 +417,9 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// Initiates Google Sign-In SDK flow and exchanges credentials with Pickaboo backend.
   @override
   Future<Either<AppErrorEntity, String>> loginWithGoogle() async {
-
     final result = await apiService.loginWithGoogle();
 
     return result.fold(
@@ -398,6 +434,7 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  /// Initiates Facebook Login flow and exchanges auth token.
   @override
   Future<Either<AppErrorEntity, String>> loginWithFacebook() async {
     final result = await apiService.loginWithFacebook();
@@ -408,6 +445,7 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
+  /// Initiates Apple Sign-In flow (iOS) and exchanges identity token.
   @override
   Future<Either<AppErrorEntity, String>> loginWithApple() async {
     final result = await apiService.loginWithApple();
@@ -418,3 +456,4 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 }
+

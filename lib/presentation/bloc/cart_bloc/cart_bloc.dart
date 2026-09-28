@@ -15,6 +15,28 @@ part 'cart_event.dart';
 part 'cart_state.dart';
 part 'cart_bloc.freezed.dart';
 
+/// Central Shopping Cart BLoC.
+///
+/// Manages both guest carts (`guest-carts/{cartId}`) and customer carts (`/carts/mine`),
+/// line-item mutations, promotional coupons, reward point deductions, and checkout calculations.
+///
+/// ### Concurrency Architecture:
+/// - **Mutating Operations (`sequential()`):** Events modifying quote contents ([_AddToCart],
+///   [_AddItemSmart], [_UpdateItemQuantity], [_RemoveItem], [_EmptyCart], [_ApplyCoupon],
+///   [_ApplyRewardPoints], [_MergeGuestCart]) are processed sequentially to prevent backend quote
+///   version conflicts and race conditions.
+/// - **Query Operations (`restartable()`):** Quote fetching ([_GetCart], [_LoadGuestCart])
+///   cancels outdated in-flight network requests when a newer fetch is triggered.
+/// - **Pull-to-Refresh (`droppable()`):** [_RefreshCart] ignores rapid repeated gestures
+///   until the ongoing refresh completes.
+///
+/// ### Performance & UX Optimizations:
+/// - **Zero-Latency Badge Count:** Persists [currentCartCount] to [FastCacheManager] synchronously,
+///   allowing navigation bars and headers to display badge counts instantly on app cold start.
+/// - **Empty-State Flash Prevention:** Uses [_isPendingAddition] and [markAdditionPending]
+///   so [CartPage] knows an addition is in flight and never flashes [EmptyCartView] during route transitions.
+/// - **Point Lock Safety:** [_releaseRewardPointsBeforeDrain] automatically resets applied club points
+///   before draining or emptying the cart to prevent orphan locked points on backend quotes.
 @injectable
 class CartBloc extends Bloc<CartEvent, CartState> {
   final CartRepository repository;
@@ -30,7 +52,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
   CartEntity? get _currentCart => __currentCart;
 
-  /// Synchronously returns current cart count, falling back to persisted cache on cold start
+  /// Synchronously returns current cart count, falling back to persisted cache on cold start.
   int get currentCartCount =>
       __currentCart?.itemsCount ?? FastCacheManager.getInt(_cachedCartCountKey) ?? 0;
 
@@ -38,7 +60,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   bool _isMerging = false;
   bool _isPendingAddition = false;
 
-  /// In-memory cached cart getter for immediate instant-open screen rendering
+  /// In-memory cached cart getter for immediate instant-open screen rendering.
   CartEntity? get currentCart => _currentCart;
 
   /// Whether an item addition (Buy Now / Add to Cart / Reorder) is in flight.
@@ -72,6 +94,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     on<_ClearCartSession>(_onClearCartSession, transformer: sequential());
   }
 
+  /// Fetches cart for either guest or authenticated user.
+  ///
+  /// Dispatches guest cart creation/loading if unauthenticated. If authenticated,
+  /// verifies whether a pending guest cart needs to be merged before fetching the user's cart.
   Future<void> _onGetCart(_GetCart event, Emitter<CartState> emit) async {
 
     final token = await _cacheManager.getToken();
@@ -112,6 +138,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     await _fetchAndEmitAuthCart(emit);
   }
 
+  /// Fetches basic customer cart, recreates quote if expired or missing,
+  /// enriches items with checkout calculations, and emits [CartState.loaded] or [CartState.empty].
   Future<void> _fetchAndEmitAuthCart(Emitter<CartState> emit) async {
     final result = await repository.getBasicCart();
 
@@ -136,7 +164,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         await _cacheManager.setAuthQuoteId(quoteId: cart.id);
 
         if (cart.items.isEmpty) {
-          if (_isPendingAddition) return;
           _isPendingAddition = false;
           emit(const CartState.empty());
           _forgetCart();
@@ -150,6 +177,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Augments basic cart items with backend-calculated checkout totals
+  /// (discounts, taxes, shipping estimations, and grand totals).
   Future<CartEntity> _withCheckoutTotals(CartEntity cart) async {
     final result = await repository.getCartCheckout();
     return result.fold(
@@ -162,10 +191,13 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Clears in-memory cart cache and sets persisted count to 0.
   void _forgetCart() {
     _currentCart = null;
   }
 
+  /// Wipes all cart session state (guest cart ID, auth quote ID, memory caches)
+  /// and prepares a fresh guest quote.
   Future<void> _onClearCartSession(
     _ClearCartSession event,
     Emitter<CartState> emit,
@@ -178,6 +210,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     add(const CartEvent.createGuestCart());
   }
 
+  /// Releases applied reward points on the specified cart.
   Future<void> _releaseRewardPoints(
     String cartId, {
     required String reason,
@@ -195,9 +228,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       cartId: cartId,
       pointAmount: 0,
     );
-
   }
 
+  /// Safeguard: If the cart has only 1 remaining item and it is about to be removed,
+  /// this resets applied club points to 0 to prevent locked points on backend quotes.
   Future<void> _releaseRewardPointsBeforeDrain(String reason) async {
     final cart = _currentCart;
     if (cart == null || cart.items.length != 1) return;
@@ -205,6 +239,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     await _releaseRewardPoints(cart.id, reason: reason);
   }
 
+  /// Refreshes current cart without resetting UI into full-screen loading.
   Future<void> _onRefreshCart(
     _RefreshCart event,
     Emitter<CartState> emit,
@@ -268,11 +303,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Clears stored guest quote ID.
   Future<void> clearGuestCart() async {
     await _cacheManager.clearGuestCartId();
     _guestCartId = null;
   }
 
+  /// Merges guest cart items into authenticated user quote on login.
+  ///
+  /// Resolves customer ID, calls the backend merge endpoint, clears guest quote cache,
+  /// and refetches the authenticated cart with updated items and totals.
   Future<void> _onMergeGuestCart(
     _MergeGuestCart event,
     Emitter<CartState> emit,
@@ -338,6 +378,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
+  /// Adds an item to the authenticated user's cart.
+  ///
+  /// Validates configurable options, marks addition as pending to protect [CartPage]
+  /// from flashing empty state, logs analytics on success, and re-fetches enriched checkout totals.
   Future<void> _onAddToCart(_AddToCart event, Emitter<CartState> emit) async {
     _isPendingAddition = true;
     try {
@@ -417,6 +461,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
+  /// Updates line item quantity for either guest or authenticated user cart.
+  ///
+  /// Performs an optimistic local recalculation of subtotal and grand total so the UI
+  /// updates immediately, then sends the update to the backend and recalculates authoritative checkout totals.
   Future<void> _onUpdateItemQuantity(
     _UpdateItemQuantity event,
     Emitter<CartState> emit,
@@ -532,6 +580,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
+  /// Removes a line item from the cart.
+  ///
+  /// Automatically releases applied reward points if removing the final item, preventing
+  /// orphaned points on backend quotes. Emits empty state if no items remain.
   Future<void> _onRemoveItem(_RemoveItem event, Emitter<CartState> emit) async {
     if (_currentCart != null) {
       emit(
@@ -595,6 +647,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Completely empties the cart and releases any applied club reward points.
   Future<void> _onEmptyCart(_EmptyCart event, Emitter<CartState> emit) async {
     if (_currentCart != null) {
       emit(
@@ -619,6 +672,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Applies a promo or coupon code to the active cart quote and recalculates totals.
   Future<void> _onApplyCoupon(
     _ApplyCoupon event,
     Emitter<CartState> emit,
@@ -672,6 +726,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Removes an applied coupon code and refreshes checkout totals.
   Future<void> _onRemoveCoupon(
     _RemoveCoupon event,
     Emitter<CartState> emit,
@@ -707,6 +762,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Applies customer club reward points as a monetary discount on the active quote.
   Future<void> _onApplyRewardPoints(
     _ApplyRewardPoints event,
     Emitter<CartState> emit,
@@ -750,6 +806,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Removes applied reward points (resets point deduction to 0) and refreshes totals.
   Future<void> _onRemoveRewardPoints(
     _RemoveRewardPoints event,
     Emitter<CartState> emit,
@@ -788,6 +845,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Moves an item from cart to wishlist / saved-for-later.
   Future<void> _onSaveForLater(
     _SaveForLater event,
     Emitter<CartState> emit,
@@ -832,6 +890,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Creates a fresh guest quote on the backend and caches its masked ID.
   Future<void> _onCreateGuestCart(
     _CreateGuestCart event,
     Emitter<CartState> emit,
@@ -850,6 +909,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     });
   }
 
+  /// Adds an item to a guest cart quote.
+  ///
+  /// Persists the guestCartId if not previously saved, emits operation in progress,
+  /// logs analytics upon success, and updates loaded cart state.
   Future<void> _onAddToGuestCart(
     _AddToGuestCart event,
     Emitter<CartState> emit,
@@ -923,6 +986,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Loads guest cart contents from the backend.
+  ///
+  /// Resilient recovery: If the quote has expired or was removed on the backend
+  /// (HTTP 404 / "No such entity"), automatically creates a fresh guest quote.
   Future<void> _onLoadGuestCart(
     _LoadGuestCart event,
     Emitter<CartState> emit,
@@ -961,7 +1028,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         _currentCart = cart;
         _guestCartId = event.guestCartId;
         if (cart.items.isEmpty) {
-          if (_isPendingAddition) return;
           _isPendingAddition = false;
           emit(const CartState.empty());
         } else {
@@ -972,12 +1038,17 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Returns cached guest cart ID from memory or persistent storage.
   Future<String?> get storedGuestCartId async {
     if (_guestCartId != null) return _guestCartId;
     _guestCartId = await _cacheManager.getGuestCartId();
     return _guestCartId;
   }
 
+  /// Unified smart entry point for adding items to cart across auth & guest sessions.
+  ///
+  /// Sets [_isPendingAddition] to true to prevent [CartPage] empty-state flicker,
+  /// inspects auth token, and routes to either customer or guest addition flow.
   Future<void> _onAddItemSmart(
     _AddItemSmart event,
     Emitter<CartState> emit,
@@ -1011,6 +1082,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
+  /// Adds item for authenticated user using active customer cart quote.
   Future<void> _addItemForAuthUser(
     _AddItemSmart event,
     Emitter<CartState> emit,
@@ -1028,6 +1100,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Adds item for guest user, auto-creating a guest cart quote if none exists yet.
   Future<void> _addItemForGuestUser(
     _AddItemSmart event,
     Emitter<CartState> emit,
@@ -1053,6 +1126,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
+  /// Core execution for adding an item with automatic recovery on expired quote IDs.
+  ///
+  /// If the quote has expired on the backend, guest carts are recreated and the addition
+  /// is retried once seamlessly ([isRetry] = true).
   Future<void> _performAddItem(
     _AddItemSmart event,
     Emitter<CartState> emit,
@@ -1156,6 +1233,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
   }
 
+  /// Initializes cart session during cold start or user authentication transitions.
   Future<void> _onInitializeSession(
     _InitializeSession event,
     Emitter<CartState> emit,

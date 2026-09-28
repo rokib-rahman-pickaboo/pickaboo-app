@@ -100,24 +100,10 @@ class ProfileHeaderCard extends StatelessWidget {
       padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing + 4.w),
       child: Row(
         children: [
-          Container(
-            width: 52.w,
-            height: 52.h,
-            decoration: BoxDecoration(
-              color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.pickabooBlue.withValues(alpha: 0.4),
-                width: 1.5.w,
-              ),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.person_outline_rounded,
-                color: AppColors.pickabooBlue,
-                size: 28.sp,
-              ),
-            ),
+          UserImageWidget(
+            size: 52.w,
+            borderColor: AppColors.pickabooBlue,
+            borderWidth: 2.0.w,
           ),
           SizedBox(width: AppSpacing.sameGroupItemSpacing + 4.w),
           Expanded(

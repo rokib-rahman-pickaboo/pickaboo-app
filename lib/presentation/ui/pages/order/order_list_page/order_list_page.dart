@@ -15,7 +15,6 @@ import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/order/order_item_entity.dart';
 import 'package:pickaboo/injection.dart';
-import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/just_for_you_bloc/just_for_you_bloc.dart';
 import 'package:pickaboo/presentation/bloc/order_bloc/order_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
@@ -39,6 +38,7 @@ class OrderListPage extends StatefulWidget {
 class _OrderListPageState extends State<OrderListPage> {
   bool _reviewRequested = false;
   String? _selectedOrderId;
+  String? _reorderingOrderId;
 
   @override
   void initState() {
@@ -47,6 +47,10 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   void _handleReorder(BuildContext context, String orderId) {
+    if (_reorderingOrderId != null) return;
+    setState(() {
+      _reorderingOrderId = orderId;
+    });
     context.read<OrderBloc>().add(OrderEvent.reorder(orderId));
   }
 
@@ -65,7 +69,7 @@ class _OrderListPageState extends State<OrderListPage> {
       child: Scaffold(
       backgroundColor: AppColors.pageBg,
       appBar: const PickabooAppBar(
-        title: 'My Orders',
+        title: AppStrings.myOrders,
       ),
       body: _wrapTwoPane(
         context,
@@ -99,11 +103,21 @@ class _OrderListPageState extends State<OrderListPage> {
               );
             }
 
+            if (state.errorMessage != null && _reorderingOrderId != null) {
+              setState(() {
+                _reorderingOrderId = null;
+              });
+              SnackBarUtils.showError(
+                context,
+                state.errorMessage ?? AppStrings.somethingWentWrong,
+              );
+            }
+
             if (state.successMessage != null) {
               if (state.successMessage == 'Items added to cart') {
-                final cartBloc = context.read<CartBloc>();
-                cartBloc.markAdditionPending();
-                cartBloc.add(const CartEvent.getCart());
+                setState(() {
+                  _reorderingOrderId = null;
+                });
                 context.push(Routes.cart);
               } else {
                 SnackBarUtils.showPositive(
@@ -171,6 +185,8 @@ class _OrderListPageState extends State<OrderListPage> {
                         itemBuilder: (context, order, index) {
                           return OrderItemCard(
                             order: order,
+                            isReordering:
+                                _reorderingOrderId == order.orderId.toString(),
                             onTap: () {
                               if (context.useTwoPane) {
                                 setState(() {

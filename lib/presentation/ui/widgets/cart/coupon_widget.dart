@@ -201,7 +201,7 @@ class _CouponWidgetState extends State<CouponWidget> {
                       ),
                     ),
                   ),
-                  AppSpacing.gapH10,
+                  AppSpacing.gapH8,
                   AppButton.primary(
                     text: 'Apply',
                     isFullWidth: false,

@@ -617,16 +617,22 @@ class IUserProfileApiService implements UserProfileApiService {
     required String customerId,
   }) async {
     try {
-      await _dio.post(
+      debugPrint('🔄 [REORDER_API] POST ${ApiEndpoints.reorderUrl(orderId: orderId)} with customerId: $customerId');
+      final stopwatch = Stopwatch()..start();
+      final response = await _dio.post(
         ApiEndpoints.reorderUrl(orderId: orderId),
         data: json.encode({'customer_id': customerId}),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
+      stopwatch.stop();
+      debugPrint('🔄 [REORDER_API] Completed in ${stopwatch.elapsedMilliseconds}ms. Response: ${response.data}');
 
       return const Right(true);
     } on DioException catch (e) {
+      debugPrint('🔄 [REORDER_API] ❌ DioException: ${e.response?.statusCode} - ${e.response?.data}');
       return Left(_checkErrorResponse(e));
     } catch (e) {
+      debugPrint('🔄 [REORDER_API] ❌ Exception: $e');
       return Left(ErrorResponse(message: e.toString()));
     }
   }

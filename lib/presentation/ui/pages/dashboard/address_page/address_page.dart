@@ -219,7 +219,7 @@ class _AddressPageState extends State<AddressPage> {
           child: SafeArea(
             top: false,
             child: AppButton.primary(
-              text: 'Add New Address',
+              text: AppStrings.addNewAddress,
               icon: Icon(
                 Icons.add_location_alt_outlined,
                 color: AppColors.white,

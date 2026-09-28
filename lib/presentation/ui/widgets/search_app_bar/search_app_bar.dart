@@ -153,21 +153,34 @@ class HomeTopHeader extends StatelessWidget {
                                   mobileUpdateSuccess: (_, u, _, _) => u,
                                   imageUploadSuccess: (_, u, _, _) => u,
                                   updating: (u, _, _) => u,
+                                  loading: (u, _, _) => u,
                                   phoneUpdateOtpSent: (_, u, _) => u,
+                                  emailUpdateOtpSent: (_, u, _, _) => u,
+                                  emailUpdateSuccess: (_, u, _, _) => u,
                                   orElse: () => null,
                                 );
                                 final effectiveUser = profileUser ?? user;
                                 final displayName =
                                     '${effectiveUser.firstname} ${effectiveUser.lastname}'.trim();
-                                final imageUrl = profileState.maybeWhen(
+                                final stateImageUrl = profileState.maybeWhen(
                                   loaded: (_, img, _) => img,
                                   basicInfoUpdateSuccess: (_, _, img, _) => img,
                                   mobileUpdateSuccess: (_, _, img, _) => img,
                                   imageUploadSuccess: (_, _, img, _) => img,
                                   updating: (_, img, _) => img,
+                                  loading: (_, img, _) => img,
                                   phoneUpdateOtpSent: (_, _, img) => img,
+                                  emailUpdateOtpSent: (_, _, img, _) => img,
+                                  emailUpdateSuccess: (_, _, img, _) => img,
                                   orElse: () => null,
                                 );
+                                final attrImageUrl = effectiveUser.customAttributes
+                                    ?.where((item) => item.attributeCode == 'profile_image')
+                                    .firstOrNull
+                                    ?.value as String?;
+                                final imageUrl = (stateImageUrl != null && stateImageUrl.isNotEmpty)
+                                    ? stateImageUrl
+                                    : attrImageUrl;
                                 return UserImageWidget.appBar(
                                   name: displayName.isNotEmpty
                                       ? displayName

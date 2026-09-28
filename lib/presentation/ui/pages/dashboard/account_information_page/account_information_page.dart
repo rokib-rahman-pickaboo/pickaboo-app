@@ -255,7 +255,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                   obscureText: obscureNew,
                                   style: AppTypography.bodyLarge.regular(),
                                   decoration: InputDecoration(
-                                    hintText: 'Enter new password',
+                                    hintText: AppStrings.enterNewPasswordHint,
                                     hintStyle: AppTypography.inputHint,
                                     filled: true,
                                     fillColor: AppColors.pageBg,
@@ -378,7 +378,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
 
                                 // Submit Button
                                 AppButton.primary(
-                                  text: 'Save Password',
+                                  text: AppStrings.savePassword,
                                   isLoading: isUpdating,
                                   isFullWidth: true,
                                   height: 48.h,
@@ -441,7 +441,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
       child: Scaffold(
         backgroundColor: AppColors.pageBg,
         appBar: const PickabooAppBar(
-          title: 'Account Information',
+          title: AppStrings.accountInformation,
         ),
         bottomNavigationBar: Container(
           color: AppColors.pageBg,
@@ -449,7 +449,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
           child: SafeArea(
             top: false,
             child: AppButton.primary(
-              text: 'Edit Account Information',
+              text: AppStrings.editAccountInformation,
               icon: Icon(
                 Icons.edit_outlined,
                 size: 18.sp,
@@ -458,7 +458,14 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
               isFullWidth: true,
               height: 48.h,
               borderRadius: BorderRadius.circular(12.r),
-              onPressed: () => context.push(Routes.editAccountInformation),
+              onPressed: () async {
+                await context.push(Routes.editAccountInformation);
+                if (context.mounted) {
+                  context.read<UserProfileBloc>().add(
+                    const UserProfileEvent.loadUserProfile(),
+                  );
+                }
+              },
             ),
           ),
         ),
@@ -473,6 +480,16 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                 mobile: s.mobileNumber,
               ),
               phoneUpdateOtpSent: (s) => (
+                user: s.user,
+                imageUrl: s.imageUrl,
+                mobile: s.mobileNumber,
+              ),
+              emailUpdateOtpSent: (s) => (
+                user: s.user,
+                imageUrl: s.imageUrl,
+                mobile: s.mobileNumber,
+              ),
+              emailUpdateSuccess: (s) => (
                 user: s.user,
                 imageUrl: s.imageUrl,
                 mobile: s.mobileNumber,
@@ -504,10 +521,17 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
             }
 
             final user = userData.user;
-            final imageUrl = userData.imageUrl;
+            final rawImageUrl = userData.imageUrl;
+            final attrImageUrl = user.customAttributes
+                ?.where((item) => item.attributeCode == 'profile_image')
+                .firstOrNull
+                ?.value as String?;
+            final effectiveImageUrl = (rawImageUrl != null && rawImageUrl.isNotEmpty)
+                ? rawImageUrl
+                : attrImageUrl;
             final mobileNumber = userData.mobile;
-            final validImageUrl = _isValidImageUrl(imageUrl) ? imageUrl : null;
-            debugPrint('📸 [UI:AccountInfo] userData.imageUrl="$imageUrl", validImageUrl="$validImageUrl"');
+            final validImageUrl = _isValidImageUrl(effectiveImageUrl) ? effectiveImageUrl : null;
+            debugPrint('📸 [UI:AccountInfo] effectiveImageUrl="$effectiveImageUrl", validImageUrl="$validImageUrl"');
 
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -554,22 +578,22 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                         Divider(height: 1.h, color: AppColors.border),
                         AppMenuTile(
                           icon: Icons.phone_outlined,
-                          title: 'Change Phone Number',
-                          subtitle: 'Update your registered mobile number',
+                          title: AppStrings.changePhoneNumber,
+                          subtitle: AppStrings.updatePhoneNumberSubtitle,
                           onTap: () => ChangePhoneNumberBottomSheet.show(context),
                           showDivider: true,
                         ),
                         AppMenuTile(
                           icon: Icons.email_outlined,
-                          title: 'Change Email',
-                          subtitle: 'Update your registered email address',
+                          title: AppStrings.changeEmail,
+                          subtitle: AppStrings.updateEmailSubtitle,
                           onTap: () => _openChangeEmailBottomSheet(context),
                           showDivider: true,
                         ),
                         AppMenuTile(
                           icon: Icons.lock_outline_rounded,
-                          title: 'Change Password',
-                          subtitle: 'Update your account login password',
+                          title: AppStrings.changePassword,
+                          subtitle: AppStrings.updatePasswordSubtitle,
                           onTap: () => _openChangePasswordBottomSheet(context),
                           showDivider: false,
                         ),

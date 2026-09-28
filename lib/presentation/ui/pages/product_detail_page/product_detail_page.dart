@@ -69,6 +69,7 @@ import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_trust_r
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_variant_selector_section.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final String productId;
@@ -889,6 +890,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               loaded: (product) {
                 if (product.images.isNotEmpty) {
                   ProductImageResolver.cacheImage(product.id, product.images.first);
+                  final dpr = MediaQuery.devicePixelRatioOf(context);
+                  final heroCacheWidth =
+                      (MediaQuery.sizeOf(context).width * dpr).round().clamp(1080, 1440);
+                  precacheImage(
+                    AppImage.resizedProvider(product.images.first, cacheWidth: heroCacheWidth),
+                    context,
+                  );
                 }
                 _autoSelectSingleVariants(product);
 
@@ -1052,21 +1060,27 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   bottom: false,
                   child: Stack(
                     children: [
-                      // ── Smooth crossfade: skeleton → loaded ──
+                      // ── Smooth crossfade: skeleton → loaded (no vertical jump or white flash) ──
                       AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 400),
-                        switchInCurve: Curves.easeOutCubic,
-                        switchOutCurve: Curves.easeInCubic,
+                        duration: const Duration(milliseconds: 250),
+                        switchInCurve: Curves.easeOut,
+                        switchOutCurve: Curves.easeIn,
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: <Widget>[
+                              ...previousChildren,
+                              if (currentChild != null) currentChild,
+                            ],
+                          );
+                        },
                         transitionBuilder: (child, animation) {
+                          final isOutgoing = animation.status == AnimationStatus.reverse;
                           return FadeTransition(
-                            opacity: animation,
-                            child: SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(0, 0.02),
-                                end: Offset.zero,
-                              ).animate(animation),
-                              child: child,
-                            ),
+                            opacity: isOutgoing
+                                ? const AlwaysStoppedAnimation<double>(1.0)
+                                : animation,
+                            child: child,
                           );
                         },
                         child: state.when(
@@ -1367,6 +1381,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             );
 
             return NotificationListener<ScrollNotification>(
+              key: const ValueKey('pdp_loaded'),
               onNotification: _handleScrollNotification,
               child: SingleChildScrollView(
                 controller: _scrollController,
@@ -1378,6 +1393,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       PdpMediaGalleryWidget(
                         product: product,
                         activeImages: activeImages,
+                        previewImageUrl: widget.previewImageUrl ??
+                            (widget.previewProduct?.productImg.isNotEmpty == true
+                                ? widget.previewProduct!.productImg
+                                : ProductImageResolver.getCachedImage(product.id)),
                         isFavorite: _isFavorite,
                         isCompared: isCompared,
                         cartCount: cartCount,

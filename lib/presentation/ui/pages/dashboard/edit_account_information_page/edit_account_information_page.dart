@@ -23,6 +23,7 @@ import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart'
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/pages/dashboard/account_information_page/widgets/change_phone_number_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/responsive_container.dart';
@@ -56,6 +57,9 @@ class _EditAccountInformationPageState
     super.initState();
     _photoPickerBloc = context.read<PhotoPickerBloc>();
     _populateControllers();
+    context.read<UserProfileBloc>().add(
+      const UserProfileEvent.loadUserProfile(),
+    );
   }
 
   void _populateControllers() {
@@ -116,7 +120,7 @@ class _EditAccountInformationPageState
           initAspectRatio: CropAspectRatioPreset.square,
         ),
         IOSUiSettings(
-          title: 'Crop Photo',
+          title: AppStrings.cropPhoto,
           aspectRatioLockEnabled: true,
           resetAspectRatioEnabled: false,
         ),
@@ -279,6 +283,12 @@ class _EditAccountInformationPageState
       child: BlocConsumer<UserProfileBloc, UserProfileState>(
         listener: (context, state) {
           state.mapOrNull(
+            loaded: (s) {
+              if (_firstNameController.text.isEmpty &&
+                  _lastNameController.text.isEmpty) {
+                _populateControllers();
+              }
+            },
             basicInfoUpdateSuccess: (s) {
               SnackBarUtils.showSuccess(context, s.message);
               context.pop();
@@ -295,6 +305,9 @@ class _EditAccountInformationPageState
             imageUploadSuccess: (s) {
               debugPrint('📸 [UI:EditProfile] Listener: imageUploadSuccess, message="${s.message}", imageUrl="${s.imageUrl}"');
               SnackBarUtils.showSuccess(context, s.message);
+              if (context.mounted && context.canPop()) {
+                context.pop();
+              }
             },
             updateRequiresLogout: (s) {
               SnackBarUtils.showSuccess(context, s.message);
@@ -307,14 +320,38 @@ class _EditAccountInformationPageState
           final rawImageUrl = state.mapOrNull(
             loaded: (s) => s.imageUrl,
             updating: (s) => s.imageUrl,
+            loading: (s) => s.imageUrl,
             basicInfoUpdateSuccess: (s) => s.imageUrl,
             mobileUpdateSuccess: (s) => s.imageUrl,
             imageUploadSuccess: (s) => s.imageUrl,
             phoneUpdateOtpSent: (s) => s.imageUrl,
+            emailUpdateOtpSent: (s) => s.imageUrl,
+            emailUpdateSuccess: (s) => s.imageUrl,
           );
 
-          final imageUrl = _isValidImageUrl(rawImageUrl) ? rawImageUrl : null;
-          debugPrint('📸 [UI:EditProfile] Builder: state=${state.runtimeType}, rawImageUrl="$rawImageUrl", validImageUrl="$imageUrl", hasLocalFile=${_selectedProfileFile != null}');
+          final user = state.mapOrNull(
+            loaded: (s) => s.user,
+            updating: (s) => s.currentUser,
+            loading: (s) => s.currentUser,
+            basicInfoUpdateSuccess: (s) => s.user,
+            mobileUpdateSuccess: (s) => s.user,
+            imageUploadSuccess: (s) => s.user,
+            phoneUpdateOtpSent: (s) => s.user,
+            emailUpdateOtpSent: (s) => s.user,
+            emailUpdateSuccess: (s) => s.user,
+          );
+
+          final attrImageUrl = user?.customAttributes
+              ?.where((item) => item.attributeCode == 'profile_image')
+              .firstOrNull
+              ?.value as String?;
+
+          final effectiveImageUrl = (rawImageUrl != null && rawImageUrl.isNotEmpty)
+              ? rawImageUrl
+              : attrImageUrl;
+
+          final imageUrl = _isValidImageUrl(effectiveImageUrl) ? effectiveImageUrl : null;
+          debugPrint('📸 [UI:EditProfile] Builder: state=${state.runtimeType}, rawImageUrl="$rawImageUrl", attrImageUrl="$attrImageUrl", validImageUrl="$imageUrl", hasLocalFile=${_selectedProfileFile != null}');
 
           final isLoading = state.maybeMap(
             loading: (_) => true,
@@ -325,11 +362,11 @@ class _EditAccountInformationPageState
           return Scaffold(
             backgroundColor: AppColors.pageBg,
             appBar: const PickabooAppBar(
-              title: 'Edit Profile',
+              title: AppStrings.editProfile,
             ),
             bottomNavigationBar: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
+                 horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
                 vertical: 14.h,
               ),
               decoration: BoxDecoration(
@@ -349,7 +386,7 @@ class _EditAccountInformationPageState
                   borderRadius: AppRadius.cardRadius,
                   isLoading: isLoading,
                   onPressed: _saveProfile,
-                  text: 'Save Changes',
+                  text: AppStrings.saveChanges,
                 ),
               ),
             ),
@@ -408,6 +445,7 @@ class _EditAccountInformationPageState
                                           )
                                         : (imageUrl != null && imageUrl.isNotEmpty)
                                             ? AppImage(
+                                                key: ValueKey(imageUrl),
                                                 imageUrl: imageUrl,
                                                 width: 96.w,
                                                 height: 96.h,
@@ -425,6 +463,21 @@ class _EditAccountInformationPageState
                                               ),
                                   ),
                                 ),
+                                if (isLoading)
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppColors.navy.withValues(alpha: 0.35),
+                                      ),
+                                      child: const Center(
+                                        child: AppLoader.inline(
+                                          size: 28,
+                                          color: AppColors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 Positioned(
                                   bottom: 0,
                                   right: 0,

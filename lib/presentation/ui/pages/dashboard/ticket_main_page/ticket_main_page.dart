@@ -81,7 +81,7 @@ class _TicketMainPageState extends State<TicketMainPage> {
       child: Scaffold(
       backgroundColor: AppColors.pageBg,
       appBar: const PickabooAppBar(
-        title: 'Support Tickets',
+        title: AppStrings.supportTickets,
       ),
       body: _wrapTwoPane(
         context,

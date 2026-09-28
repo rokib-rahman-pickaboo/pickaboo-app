@@ -11,7 +11,7 @@ class NotificationListPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.pageBg,
       appBar: const PickabooAppBar(
-        title: 'Notifications',
+        title: AppStrings.notifications,
       ),
       body: AppEmptyView.notifications(),
     );

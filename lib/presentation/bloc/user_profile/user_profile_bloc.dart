@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:bloc/bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -10,6 +11,13 @@ import 'package:pickaboo/domain/repository/user_profile_repository.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
 
+/// Manages user account information, profile updates, and avatar image state.
+///
+/// **Key Architectural Responsibilities:**
+/// 1. **Profile Data Synchronization**: Fetches and caches the user entity, custom attributes (e.g. `customer_mobile`, `profile_image`), and addresses.
+/// 2. **Asynchronous Avatar Handling**: Manages immediate cache eviction and timestamp-based URL cache-busting to bridge the backend Google Cloud Storage async processing window (~10-25s).
+/// 3. **Two-Step Security Updates**: Coordinates OTP generation and verification for mobile number and email address changes.
+/// 4. **Address Book CRUD**: Manages shipping/billing address additions, updates, and deletions.
 @injectable
 class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
   final UserProfileRepository _repository;
@@ -50,31 +58,24 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
   void refreshProfile() => _reloadProfile();
 
+  /// Loads the customer profile from the repository.
+  ///
+  /// **Why fallback logic exists:**
+  /// The backend `/customers/me` endpoint returns custom attributes asynchronously.
+  /// Immediately after an avatar upload, `profile_image` in `customAttributes` may temporarily return `null`.
+  /// To prevent UI avatars across the app from flickering or reverting to placeholders, this method:
+  /// 1. Checks `customAttributes['profile_image']`.
+  /// 2. Falls back to calling `_repository.getProfileImage()`.
+  /// 3. Preserves `previousImageUrl` if backend data is temporarily unpopulated.
   Future<void> _onLoadUserProfile(Emitter<UserProfileState> emit) async {
 
-    final userData = state.mapOrNull(
-      loaded: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      basicInfoUpdateSuccess: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      mobileUpdateSuccess: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      imageUploadSuccess: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      updating: (s) =>
-          (user: s.currentUser, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      phoneUpdateOtpSent: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      emailUpdateOtpSent: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      emailUpdateSuccess: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-    );
+    final userData = _extractUserData();
+    final previousImageUrl = userData?.imageUrl;
 
     emit(
       UserProfileState.loading(
         currentUser: userData?.user,
-        imageUrl: userData?.imageUrl,
+        imageUrl: previousImageUrl,
         mobileNumber: userData?.mobile,
       ),
     );
@@ -110,13 +111,28 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
               debugPrint('👤 [BLOC:LoadProfile] ✅ getProfileImage() returned: "$url"');
               if (url.startsWith('http')) {
                 profileImageUrl = url;
+              } else if (url.startsWith('?')) {
+                profileImageUrl =
+                    'https://storage.googleapis.com/pickaboo-prod/media/mobikulresized/200x200/customerpicture/${user.id}/${user.id}-profile.jpg$url';
+              } else if (url.isNotEmpty && url != '[]') {
+                final cleanPath = url.startsWith('/') ? url : '/$url';
+                profileImageUrl =
+                    'https://storage.googleapis.com/pickaboo-prod/media/mobikulresized/200x200$cleanPath';
               } else {
-                debugPrint('👤 [BLOC:LoadProfile] ⚠️ getProfileImage() url did NOT start with http!');
+                debugPrint('👤 [BLOC:LoadProfile] ⚠️ getProfileImage() url was empty or "[]"');
               }
             },
           );
         } else {
           debugPrint('👤 [BLOC:LoadProfile] ℹ️ Using customAttributes profile_image: "$profileImageUrl" (did NOT call getProfileImage)');
+        }
+
+        // CRITICAL FALLBACK: If backend has not populated profileImageUrl yet, do NOT wipe out previousImageUrl!
+        if ((profileImageUrl == null || profileImageUrl!.isEmpty) &&
+            previousImageUrl != null &&
+            previousImageUrl.isNotEmpty) {
+          debugPrint('👤 [BLOC:LoadProfile] ℹ️ Preserving previousImageUrl "$previousImageUrl" because backend returned null/empty');
+          profileImageUrl = previousImageUrl;
         }
 
         final resolvedImageUrl = profileImageUrl;
@@ -344,20 +360,28 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
 
   String _appendCacheBust(String url) {
     if (url.isEmpty) return url;
-    final sep = url.contains('?') ? '&' : '?';
-    return '$url${sep}v=${DateTime.now().millisecondsSinceEpoch}';
+    final cleanUrl = url.replaceAll(RegExp(r'[?&]v=\d+'), '');
+    final sep = cleanUrl.contains('?') ? '&' : '?';
+    return '$cleanUrl${sep}v=${DateTime.now().millisecondsSinceEpoch}';
   }
 
+  /// Uploads a new avatar photo with instant whole-app cache-busting.
+  ///
+  /// **Why this workaround is needed:**
+  /// The backend `POST /rest/V1/customer/upload/profilepicture/mine` endpoint returns a generic
+  /// `"successfull"` response without returning the new image URL. The backend image resizer and
+  /// Google Cloud Storage sync operate asynchronously in the background.
+  ///
+  /// **To ensure immediate visual update without waiting for the backend queue:**
+  /// 1. Constructs a deterministic GCS URL matching Pickaboo storage conventions with a fresh `?v=$timestamp`.
+  /// 2. Evicts the previous image URL from [CachedNetworkImage] disk cache and clears [PaintingBinding] memory cache.
+  /// 3. Emits [UserProfileState.imageUploadSuccess] with the fresh URL for immediate widget rendering.
+  /// 4. Dispatches a delayed background profile reload to fetch final backend state once propagation completes.
   Future<void> _onUploadProfileImage(
     File image,
     Emitter<UserProfileState> emit,
   ) async {
-    final userData = state.mapOrNull(
-      loaded: (s) =>
-          (user: s.user, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-      updating: (s) =>
-          (user: s.currentUser, imageUrl: s.imageUrl, mobile: s.mobileNumber),
-    );
+    final userData = _extractUserData();
 
     if (userData == null) return;
 
@@ -388,11 +412,29 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
         debugPrint('📸 [BLOC:UploadImage] uploadedUrl received from repository: "$uploadedUrl"');
         debugPrint('📸 [BLOC:UploadImage] uploadedUrl.startsWith("http"): ${uploadedUrl.startsWith('http')}');
         _bustImageCacheOnNextLoad = true;
-        final newImageUrl = (uploadedUrl.startsWith('http'))
-            ? _appendCacheBust(uploadedUrl)
-            : userData.imageUrl;
+
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final String newImageUrl;
+        if (uploadedUrl.startsWith('http')) {
+          newImageUrl = _appendCacheBust(uploadedUrl);
+        } else if (userData.imageUrl != null && userData.imageUrl!.isNotEmpty) {
+          newImageUrl = _appendCacheBust(userData.imageUrl!);
+        } else {
+          newImageUrl =
+              'https://storage.googleapis.com/pickaboo-prod/media/mobikulresized/200x200/customerpicture/${userData.user.id}/${userData.user.id}-profile.jpg?v=$timestamp';
+        }
+
+        // Evict previous cached network image and clear in-memory image caches immediately
+        if (userData.imageUrl != null && userData.imageUrl!.isNotEmpty) {
+          try {
+            await CachedNetworkImage.evictFromCache(userData.imageUrl!);
+          } catch (_) {}
+        }
+        PaintingBinding.instance.imageCache.clear();
+        PaintingBinding.instance.imageCache.clearLiveImages();
+
         debugPrint('📸 [BLOC:UploadImage] newImageUrl determined: "$newImageUrl"');
-        debugPrint('📸 [BLOC:UploadImage] Emitting UserProfileState.imageUploadSuccess and triggering _reloadProfile()...');
+        debugPrint('📸 [BLOC:UploadImage] Emitting UserProfileState.imageUploadSuccess and triggering delayed _reloadProfile()...');
         debugPrint('📸 [BLOC:UploadImage] ========================================');
         emit(
           UserProfileState.imageUploadSuccess(
@@ -402,7 +444,13 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
             mobileNumber: userData.mobile,
           ),
         );
-        _reloadProfile();
+
+        // Delay background reload to allow server storage & DB sync to finalize
+        Future.delayed(const Duration(milliseconds: 2500), () {
+          if (!isClosed) {
+            _reloadProfile();
+          }
+        });
       },
     );
   }

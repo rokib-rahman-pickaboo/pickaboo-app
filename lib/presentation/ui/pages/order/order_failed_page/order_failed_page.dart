@@ -322,7 +322,7 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
                 child: SafeArea(
                   top: false,
                   child: AppButton.primary(
-                    text: "Continue Shopping",
+                    text: AppStrings.continueShopping,
                     height: 48.h,
                     icon: Icon(
                       Icons.shopping_bag_outlined,

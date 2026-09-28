@@ -102,7 +102,7 @@ class CardBinAppliedView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  AppSpacing.gapV14,
+                  AppSpacing.gapV12,
                   AppButton.outline(
                     text: "Remove Discount",
                     textColor: AppColors.red,

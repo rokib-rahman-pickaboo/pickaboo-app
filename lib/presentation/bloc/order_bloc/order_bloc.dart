@@ -11,6 +11,22 @@ part 'order_event.dart';
 part 'order_state.dart';
 part 'order_bloc.freezed.dart';
 
+/// Customer Order Management BLoC.
+///
+/// Coordinates order list pagination, order details retrieval, cancellation workflows,
+/// and instant reordering.
+///
+/// ### Architectural Highlights:
+/// - **SWR (Stale-While-Revalidate) for Page 1:** Automatically serves locally cached
+///   first-page orders synchronously (~2ms) via [UserProfileRepository.getCachedFirstPageOrders],
+///   eliminating skeleton loader flashes when navigating to Order History, while silently
+///   fetching fresh orders in the background.
+/// - **Paging Resilience:** Built on [PagingState] compatible with `infinite_scroll_pagination`.
+///   Network errors on subsequent pages preserve already loaded items without resetting the list.
+/// - **Order Cancellation Metadata Enrichment:** When an order is cancelled, the backend
+///   response omits item visual metadata (product thumbnails, vendor `soldBy`).
+///   [_onCancelOrder] enriches the cancelled entity with image and vendor details
+///   from [state.orderDetails] so cancellation screens display full UI details.
 @injectable
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final UserProfileRepository _repository;
@@ -24,6 +40,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     on<_ClearCancellation>(_onClearCancellation);
   }
 
+  /// Clears cancellation feedback and transient entity state after modal dismissal.
   void _onClearCancellation(
     _ClearCancellation event,
     Emitter<OrderState> emit,
@@ -37,6 +54,10 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     );
   }
 
+  /// Handles paginated order fetching with Page 1 SWR cache support.
+  ///
+  /// Page 1: Emits cached orders immediately if available, then replaces with authoritative remote data.
+  /// Subsequent pages: Appends new orders to existing pages in [PagingState].
   Future<void> _onGetOrders(_GetOrders event, Emitter<OrderState> emit) async {
     final currentState = state.pagingState;
     final int nextPageKey = (currentState.keys?.last ?? 0) + 1;
@@ -134,6 +155,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     );
   }
 
+  /// Resets pagination state and triggers a fresh Page 1 order fetch.
   Future<void> _onRefresh(_Refresh event, Emitter<OrderState> emit) async {
     emit(
       state.copyWith(
@@ -145,6 +167,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     add(const OrderEvent.getOrders());
   }
 
+  /// Loads full details (shipping, payment method, line item pricing) for a single order.
   Future<void> _onLoadOrderDetails(
     _LoadOrderDetails event,
     Emitter<OrderState> emit,
@@ -163,6 +186,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     );
   }
 
+  /// Cancels an order with reason/note, enriching response items with image and vendor metadata.
   Future<void> _onCancelOrder(
     _CancelOrder event,
     Emitter<OrderState> emit,
@@ -233,6 +257,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     );
   }
 
+  /// Adds items from a past order back into active cart.
   Future<void> _onReorder(_Reorder event, Emitter<OrderState> emit) async {
     emit(
       state.copyWith(errorMessage: null, successMessage: null, isLoading: true),
@@ -250,7 +275,6 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
             isLoading: false,
           ),
         );
-        add(const OrderEvent.refresh());
       },
     );
   }

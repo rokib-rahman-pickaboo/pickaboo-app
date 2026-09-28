@@ -1,9 +1,3 @@
-// ============================================================================
-// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
-// All text styles in this file originate from [AppTypography] design tokens.
-// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
-// ============================================================================
-
 import 'dart:async';
 
 import 'package:collection/collection.dart';
@@ -40,7 +34,29 @@ import 'package:pickaboo/presentation/ui/widgets/common/unified_checkout_bottom_
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 
-/// Modernized PaymentMethodPage matching Pickaboo-App-UI design language.
+/// Central Payment Method & Gateway Selection Screen.
+///
+/// Orchestrates payment method selection, bank promotional discounts, EMI installment plans,
+/// and digital payment gateway redirection.
+///
+/// ### Dual Checkout Mode Architecture:
+/// - **Pre-Order Cart Checkout (`widget.orderId == null`):**
+///   Triggered when completing checkout from the active cart. Order summary totals originate from
+///   [CheckoutBloc] (`checkoutLoaded`), and proceeding converts the quote into a new order entity.
+/// - **Post-Order Payment Resolution (`widget.orderId != null`):**
+///   Triggered when paying or retrying payment for an already-placed order. Order summary totals
+///   are strictly bound to [OrderBloc] (`_isTotalsFromOrderApi = true`), ensuring quote totals
+///   never overwrite authoritative order values.
+///
+/// ### Gateway Workflows:
+/// - **bKash Tokenized Checkout:** Integrates with [SavedPaymentBloc] to offer 1-click checkout
+///   using saved wallet agreements, or creates new recurring agreements.
+/// - **Card BIN Promotions:** Coordinates with [CardBinBloc] to apply promotional bank discounts
+///   based on card BIN prefixes, reloading order details to reflect discounted totals.
+/// - **Bank EMI & Consumer EMI (CEMI):** Opens [EmiSelectionBottomSheet], fetches bank tenures,
+///   and updates the backend quote with the chosen installment plan.
+/// - **Race-Condition Defense:** Uses [_isSyncingSelection] and [_selectionSyncTimeout] to prevent
+///   conflicting payment method switches while backend synchronization is in flight.
 class PaymentMethodPage extends StatefulWidget {
   final String? selectedMethod;
   final String? orderId;
@@ -327,11 +343,14 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             }
           },
         ),
+        // Dismiss selection sync loader if an order error occurs
         BlocListener<OrderBloc, OrderState>(
           listenWhen: (prev, curr) =>
               prev.errorMessage != curr.errorMessage && curr.errorMessage != null,
           listener: (context, _) => _endSelectionSync(),
         ),
+        // When a promotional Card BIN discount is applied or removed on an existing order,
+        // re-fetch order details to update payable totals and order summaries.
         BlocListener<CardBinBloc, CardBinState>(
           listenWhen: (prev, curr) => prev.status != curr.status,
           listener: (context, state) {
@@ -342,6 +361,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
             }
           },
         ),
+        // Pre-fetch saved tokenized wallet agreements (e.g. bKash 1-click) once checkout quote loads.
         BlocListener<CheckoutBloc, CheckoutState>(
           listenWhen: (prev, curr) =>
               !prev.maybeMap(checkoutLoaded: (_) => true, orElse: () => false) &&
@@ -581,6 +601,9 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                   _currentSelection.isEmpty) {
                 _currentSelection = loaded.selectedPaymentMethod!;
               }
+              // Order Totals Guard: If this screen was pushed for an existing placed order
+              // (widget.orderId != null), totals must strictly originate from OrderBloc
+              // (_isTotalsFromOrderApi == true) to prevent active quote totals from overwriting order values.
               if (!_isTotalsFromOrderApi) {
                 _lastTotals = loaded.checkout.cartTotals;
                 _lastItemsCount = loaded.checkout.cart.itemsCount;
@@ -629,7 +652,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           final scaffold = Scaffold(
             backgroundColor: AppColors.pageBg,
             appBar: const PickabooAppBar(
-              title: "Payment Method",
+              title: AppStrings.paymentMethod,
             ),
             body: CustomScrollView(
               physics: const BouncingScrollPhysics(),
@@ -780,7 +803,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             child: Text(
-              'Select Payment Method',
+              AppStrings.selectPaymentMethod,
               style: AppTypography.titleMedium,
             ),
           ),

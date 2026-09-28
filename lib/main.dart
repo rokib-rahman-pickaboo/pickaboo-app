@@ -27,47 +27,33 @@ void main() async {
     return true;
   };
 
-  runZonedGuarded(
-    () async {
-      await FastCacheManager.init();
+  await FastCacheManager.init();
 
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
-          systemNavigationBarColor: Colors.white,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
-      );
-
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-      await configureDependencies();
-
-      await getIt<AuthCacheManager>().warmUp();
-
-      unawaited(getIt<AnalyticsService>().init());
-      unawaited(getIt<PushNotificationService>().initialize());
-
-      runApp(const MyApp());
-    },
-    (error, stack) {
-      CrashReporter.record(error, stack, fatal: true);
-    },
-    zoneSpecification: ZoneSpecification(
-      print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
-        if (!kReleaseMode) {
-          parent.print(zone, line);
-        }
-      },
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  await configureDependencies();
+
+  await getIt<AuthCacheManager>().warmUp();
+
+  unawaited(getIt<AnalyticsService>().init());
+  unawaited(getIt<PushNotificationService>().initialize());
+
+  runApp(const MyApp());
 }
