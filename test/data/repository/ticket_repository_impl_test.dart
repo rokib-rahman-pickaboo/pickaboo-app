@@ -46,7 +46,7 @@ void main() {
       final cachedTickets = [
         const TicketResponse(ticketId: '1', subject: 'Issue'),
       ];
-      final entity = TicketEntity(
+      const entity = TicketEntity(
         ticketId: '1',
         ticketCode: 'TC1',
         subject: 'Issue',
@@ -81,7 +81,7 @@ void main() {
       final apiTickets = [
         const TicketResponse(ticketId: '2', subject: 'New Issue'),
       ];
-      final entity = TicketEntity(
+      const entity = TicketEntity(
         ticketId: '2',
         ticketCode: 'TC2',
         subject: 'New Issue',

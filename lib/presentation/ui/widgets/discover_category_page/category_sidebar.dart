@@ -70,7 +70,11 @@ class CategorySidebar extends StatelessWidget {
                     height: 32.w,
                     child: AppImage(
                       imageUrl: category.logoUrl,
+                      width: 32.w,
+                      height: 32.w,
                       fit: BoxFit.contain,
+                      filterQuality: FilterQuality.high,
+                      constrainHeightInMemCache: false,
                       errorWidget: Icon(
                         Icons.category_outlined,
                         size: 24.sp,

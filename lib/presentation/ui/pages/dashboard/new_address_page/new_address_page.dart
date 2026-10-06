@@ -298,7 +298,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         appBar: PickabooAppBar(
           title: widget.existingAddress != null
               ? 'Edit Address'
@@ -312,7 +312,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
           ],
         ),
         bottomNavigationBar: Container(
-          color: AppColors.pageBg,
+          color: AppColors.white,
           padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: SafeArea(
             top: false,
@@ -323,7 +323,7 @@ class _NewAddressPageState extends State<NewAddressPage> {
               isLoading: _isSaving,
               isFullWidth: true,
               height: 48.h,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: AppRadius.k8,
               onPressed: _isSaving ? null : _saveAddress,
             ),
           ),

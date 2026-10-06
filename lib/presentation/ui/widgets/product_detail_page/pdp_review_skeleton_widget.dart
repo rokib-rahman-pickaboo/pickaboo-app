@@ -25,15 +25,13 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
           (index) => Padding(
             padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.sameGroupItemSpacing.w,
-              vertical: (AppSpacing.sameGroupItemSpacing / 2).h,
             ),
             child: Container(
               width: double.infinity,
+              margin: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
               padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
-              decoration: BoxDecoration(
-                color: AppColors.pageBg,
-                borderRadius: BorderRadius.circular(AppRadius.card),
-                border: Border.all(color: AppColors.border),
+              decoration: AppDecorations.cardBoxDecoration(
+                borderRadius: AppRadius.k8,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,8 +43,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                       Container(
                         width: 36.r,
                         height: 36.r,
-                        decoration: const BoxDecoration(
-                          color: AppColors.white,
+                        decoration: BoxDecoration(
+                          color: AppColors.skeletonBase,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -59,8 +57,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                               width: 110.w,
                               height: 14.h,
                               decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                                color: AppColors.skeletonBase,
+                                borderRadius: AppRadius.k8,
                               ),
                             ),
                             SizedBox(height: 4.h),
@@ -68,8 +66,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                               width: 80.w,
                               height: 10.h,
                               decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                                color: AppColors.skeletonBase,
+                                borderRadius: AppRadius.k8,
                               ),
                             ),
                           ],
@@ -79,8 +77,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                         width: 46.w,
                         height: 22.h,
                         decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                          color: AppColors.skeletonBase,
+                          borderRadius: AppRadius.k8,
                         ),
                       ),
                     ],
@@ -92,8 +90,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                     width: 160.w,
                     height: 13.h,
                     decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                      color: AppColors.skeletonBase,
+                      borderRadius: AppRadius.k8,
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -103,8 +101,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                     width: double.infinity,
                     height: 11.h,
                     decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                      color: AppColors.skeletonBase,
+                      borderRadius: AppRadius.k8,
                     ),
                   ),
                   SizedBox(height: 5.h),
@@ -112,8 +110,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                     width: 220.w,
                     height: 11.h,
                     decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                      color: AppColors.skeletonBase,
+                      borderRadius: AppRadius.k8,
                     ),
                   ),
                   SizedBox(height: 12.h),
@@ -125,8 +123,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                         width: 52.w,
                         height: 24.h,
                         decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                          color: AppColors.skeletonBase,
+                          borderRadius: AppRadius.k8,
                         ),
                       ),
                       SizedBox(width: 10.w),
@@ -134,8 +132,8 @@ class PdpReviewSkeletonWidget extends StatelessWidget {
                         width: 52.w,
                         height: 24.h,
                         decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+                          color: AppColors.skeletonBase,
+                          borderRadius: AppRadius.k8,
                         ),
                       ),
                     ],

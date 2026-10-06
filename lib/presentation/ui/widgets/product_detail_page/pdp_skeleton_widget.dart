@@ -233,9 +233,9 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                       effect: AppDecorations.shimmerEffect,
                       child: Container(
                         margin: EdgeInsets.all(16.w),
-                        decoration: const BoxDecoration(
-                          color: AppColors.pageBg,
-                          borderRadius: AppRadius.cardRadius,
+                        decoration: BoxDecoration(
+                          color: AppColors.itemBackground,
+                          borderRadius: AppRadius.k8,
                         ),
                         child: Center(
                           child: Icon(
@@ -256,7 +256,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                 decoration: BoxDecoration(
                   color: AppColors.black.withValues(alpha: 0.54),
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: AppRadius.k8,
                 ),
                 child: Text(
                   '1/1',
@@ -351,7 +351,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceBlue,
-                    borderRadius: BorderRadius.circular(AppRadius.card),
+                    borderRadius: AppRadius.k8,
                     border: Border.all(
                       color: AppColors.pickabooBlue,
                       width: 1.2.w,
@@ -485,9 +485,9 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
             child: Container(
               width: 60.w,
               height: 14.h,
-              decoration: const BoxDecoration(
-                color: AppColors.pageBg,
-                borderRadius: AppRadius.fullRadius,
+              decoration: BoxDecoration(
+                color: AppColors.itemBackground,
+                borderRadius: AppRadius.kFull,
               ),
             ),
           ),
@@ -509,7 +509,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                     padding: AppSpacing.badgePadding,
                     decoration: BoxDecoration(
                       color: inStock ? AppColors.greenBg : AppColors.redBg,
-                      borderRadius: BorderRadius.circular(AppRadius.badge),
+                      borderRadius: AppRadius.k4,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -543,18 +543,18 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                 Container(
                   width: double.infinity,
                   height: 18.h,
-                  decoration: const BoxDecoration(
-                    color: AppColors.pageBg,
-                    borderRadius: AppRadius.smRadius,
+                  decoration: BoxDecoration(
+                    color: AppColors.itemBackground,
+                    borderRadius: AppRadius.k8,
                   ),
                 ),
                 SizedBox(height: 6.h),
                 Container(
                   width: 220.w,
                   height: 18.h,
-                  decoration: const BoxDecoration(
-                    color: AppColors.pageBg,
-                    borderRadius: AppRadius.smRadius,
+                  decoration: BoxDecoration(
+                    color: AppColors.itemBackground,
+                    borderRadius: AppRadius.k8,
                   ),
                 ),
               ],
@@ -565,12 +565,10 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
 
         // Unified Price Card matching PdpNewPriceSection
         Container(
-          decoration: BoxDecoration(
-            color: AppColors.pageBg,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(color: AppColors.border, width: 1.w),
+          decoration: AppDecorations.cardBoxDecoration(
+            borderRadius: AppRadius.k8,
           ),
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+          padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -601,9 +599,9 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                               child: Container(
                                 width: 90.w,
                                 height: 22.h,
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   color: AppColors.white,
-                                  borderRadius: AppRadius.smRadius,
+                                  borderRadius: AppRadius.k8,
                                 ),
                               ),
                             ),
@@ -621,7 +619,7 @@ class _PdpSkeletonWidgetState extends State<PdpSkeletonWidget> {
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.orange,
-                                borderRadius: BorderRadius.circular(AppRadius.badge),
+                                borderRadius: AppRadius.k4,
                               ),
                               child: Text(
                                 '-$discountPct%',
@@ -775,7 +773,7 @@ class _FloatingCircleButton extends StatelessWidget {
               right: -2.w,
               child: Container(
                 padding: EdgeInsets.all(3.w),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.red,
                   shape: BoxShape.circle,
                 ),

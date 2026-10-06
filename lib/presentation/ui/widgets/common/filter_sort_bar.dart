@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FilterSortOption {
@@ -33,6 +32,8 @@ class FilterSortBar extends StatefulWidget {
 
   final String? activeSortLabel;
 
+  final EdgeInsetsGeometry? padding;
+
   const FilterSortBar({
     super.key,
     required this.viewModeKey,
@@ -42,6 +43,7 @@ class FilterSortBar extends StatefulWidget {
     this.onViewModeChanged,
     this.activeFilterCount = 0,
     this.activeSortLabel,
+    this.padding,
   });
 
   static Future<bool> getSavedViewMode(String viewModeKey) async {
@@ -87,7 +89,7 @@ class _FilterSortBarState extends State<FilterSortBar> {
       useSafeArea: true,
       backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: AppRadius.sheetTop,
+        borderRadius: AppRadius.top16,
       ),
       builder: (ctx) {
         return SafeArea(
@@ -178,29 +180,46 @@ class _FilterSortBarState extends State<FilterSortBar> {
     final hasFilters = widget.activeFilterCount > 0;
     final hasSort = widget.activeSortLabel != null;
 
+    const buttonHeight = 31.5;
+
     return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.sameGroupItemSpacing.w,
-        right: AppSpacing.sameGroupItemSpacing.w,
-        top: AppSpacing.sameGroupItemSpacing.h,
-      ),
+      padding: widget.padding ??
+          EdgeInsets.only(
+            left: AppSpacing.sameGroupItemSpacing.w,
+            right: AppSpacing.sameGroupItemSpacing.w,
+            top: 0,
+          ),
       child: Row(
         children: [
           // ── Sort Button ──
           Expanded(
-            child: AppButton.outline(
-              text: hasSort ? widget.activeSortLabel! : 'Sort',
-              icon: Icon(
-                Icons.swap_vert_rounded,
-                size: 16.sp,
-                color: hasSort ? AppColors.pickabooBlue : AppColors.navy,
+            child: InkWell(
+              onTap: _showSortBottomSheet,
+              borderRadius: AppRadius.k8,
+              child: Container(
+                height: buttonHeight.h,
+                decoration: AppDecorations.cardBoxDecoration(
+                  borderRadius: AppRadius.k8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.swap_vert_rounded,
+                      size: 14.sp,
+                      color: hasSort ? AppColors.pickabooBlue : AppColors.navy,
+                    ),
+                    SizedBox(width: 6.w),
+                    Text(
+                      hasSort ? widget.activeSortLabel! : 'Sort',
+                      style: AppTypography.button.copyWith(
+                        fontSize: 11.sp,
+                        color: hasSort ? AppColors.pickabooBlue : AppColors.navy,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              backgroundColor: AppColors.white,
-              borderColor: AppColors.border,
-              textColor: hasSort ? AppColors.pickabooBlue : AppColors.navy,
-              borderRadius: AppRadius.cardRadius,
-              height: 42.h,
-              onPressed: _showSortBottomSheet,
             ),
           ),
 
@@ -208,61 +227,65 @@ class _FilterSortBarState extends State<FilterSortBar> {
 
           // ── Filter Button ──
           Expanded(
-            child: AppButton.outline(
-              backgroundColor: AppColors.white,
-              borderColor: AppColors.border,
-              borderRadius: AppRadius.cardRadius,
-              height: 42.h,
-              onPressed: widget.onFilterTap,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.tune_rounded,
-                    size: 16.sp,
-                    color: hasFilters ? AppColors.pickabooBlue : AppColors.navy,
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    AppStrings.filter,
-                    style: AppTypography.button.copyWith(
+            child: InkWell(
+              onTap: widget.onFilterTap,
+              borderRadius: AppRadius.k8,
+              child: Container(
+                height: buttonHeight.h,
+                decoration: AppDecorations.cardBoxDecoration(
+                  borderRadius: AppRadius.k8,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.tune_rounded,
+                      size: 14.sp,
                       color: hasFilters ? AppColors.pickabooBlue : AppColors.navy,
                     ),
-                  ),
-                  if (hasFilters) ...[
                     SizedBox(width: 6.w),
-                    Container(
-                      width: widget.activeFilterCount < 10 ? 20.r : null,
-                      height: 20.r,
-                      constraints: widget.activeFilterCount < 10
-                          ? null
-                          : BoxConstraints(minWidth: 20.r),
-                      padding: widget.activeFilterCount < 10
-                          ? EdgeInsets.zero
-                          : EdgeInsets.symmetric(horizontal: 5.w),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.pickabooBlue,
-                        shape: widget.activeFilterCount < 10
-                            ? BoxShape.circle
-                            : BoxShape.rectangle,
-                        borderRadius: widget.activeFilterCount < 10
-                            ? null
-                            : AppRadius.pillRadius,
-                      ),
-                      child: Text(
-                        '${widget.activeFilterCount}',
-                        textAlign: TextAlign.center,
-                        style: AppTypography.bodyTiny.bold().copyWith(
-                          color: AppColors.white,
-                          fontSize: 10.5.sp,
-                          height: 1.1,
-                        ),
+                    Text(
+                      AppStrings.filter,
+                      style: AppTypography.button.copyWith(
+                        fontSize: 11.sp,
+                        color: hasFilters ? AppColors.pickabooBlue : AppColors.navy,
                       ),
                     ),
+                    if (hasFilters) ...[
+                      SizedBox(width: 4.w),
+                      Container(
+                        width: widget.activeFilterCount < 10 ? 16.r : null,
+                        height: 16.r,
+                        constraints: widget.activeFilterCount < 10
+                            ? null
+                            : BoxConstraints(minWidth: 16.r),
+                        padding: widget.activeFilterCount < 10
+                            ? EdgeInsets.zero
+                            : EdgeInsets.symmetric(horizontal: 4.w),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColors.pickabooBlue,
+                          shape: widget.activeFilterCount < 10
+                              ? BoxShape.circle
+                              : BoxShape.rectangle,
+                          borderRadius: widget.activeFilterCount < 10
+                              ? null
+                              : AppRadius.kFull,
+                        ),
+                        child: Text(
+                          '${widget.activeFilterCount}',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodyTiny.bold().copyWith(
+                            color: AppColors.white,
+                            fontSize: 9.sp,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -278,25 +301,18 @@ class _FilterSortBarState extends State<FilterSortBar> {
               _saveViewMode(_isGridView);
               widget.onViewModeChanged?.call(_isGridView);
             },
-            borderRadius: AppRadius.cardRadius,
+            borderRadius: AppRadius.k8,
             child: Container(
-              padding: EdgeInsets.all(9.w),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: AppRadius.cardRadius,
-                border: Border.all(color: AppColors.border, width: 1.2.w),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.navy.withValues(alpha: 0.02),
-                    blurRadius: 4.r,
-                    offset: Offset(0, 2.h),
-                  ),
-                ],
+              height: buttonHeight.h,
+              width: buttonHeight.h,
+              alignment: Alignment.center,
+              decoration: AppDecorations.cardBoxDecoration(
+                borderRadius: AppRadius.k8,
               ),
               child: Icon(
                 _isGridView ? Icons.grid_view_rounded : Icons.view_list_rounded,
                 color: AppColors.navy,
-                size: 20.sp,
+                size: 17.sp,
               ),
             ),
           ),

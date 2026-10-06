@@ -540,7 +540,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             context.go(Routes.home);
                           }
                         },
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: AppRadius.k16,
                         child: Padding(
                           padding: EdgeInsets.all(8.r),
                           child: Icon(
@@ -570,10 +570,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.border),
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),

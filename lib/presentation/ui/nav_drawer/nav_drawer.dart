@@ -391,7 +391,7 @@ class NavDrawer extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: AppButton(
         height: 46.h,
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         type: isLoggedIn ? AppButtonType.danger : AppButtonType.primary,
         backgroundColor:
             isLoggedIn ? AppColors.red : AppColors.pickabooBlue,
@@ -512,7 +512,7 @@ class _DrawerMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: AppRadius.buttonRadius,
+      borderRadius: AppRadius.k8,
       splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
       highlightColor: AppColors.pickabooBlue.withValues(alpha: 0.05),
       onTap: () {
@@ -533,7 +533,7 @@ class _DrawerMenuItem extends StatelessWidget {
               height: 36.w,
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.1),
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
               ),
               child: Center(
                 child: Icon(icon, color: iconColor, size: 19.sp),
@@ -654,7 +654,7 @@ class _DrawerCategoryItemState extends State<DrawerCategoryItem> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          borderRadius: AppRadius.buttonRadius,
+          borderRadius: AppRadius.k8,
           splashColor: AppColors.pickabooBlue.withValues(alpha: 0.15),
           highlightColor: AppColors.pickabooBlue.withValues(alpha: 0.05),
           onTap: () {
@@ -676,8 +676,8 @@ class _DrawerCategoryItemState extends State<DrawerCategoryItem> {
                       width: 36.w,
                       height: 36.w,
                       padding: EdgeInsets.all(6.w),
-                      decoration: const BoxDecoration(
-                        borderRadius: AppRadius.buttonRadius,
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadius.k8,
                         color: AppColors.surfaceBlue,
                       ),
                       child: AppImage(
@@ -694,8 +694,8 @@ class _DrawerCategoryItemState extends State<DrawerCategoryItem> {
                     Container(
                       width: 36.w,
                       height: 36.w,
-                      decoration: const BoxDecoration(
-                        borderRadius: AppRadius.buttonRadius,
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadius.k8,
                         color: AppColors.surfaceBlue,
                       ),
                       child: Icon(
@@ -775,7 +775,7 @@ class _DrawerCategoryItemState extends State<DrawerCategoryItem> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       InkWell(
-                        borderRadius: AppRadius.buttonRadius,
+                        borderRadius: AppRadius.k8,
                         splashColor:
                             AppColors.pickabooBlue.withValues(alpha: 0.15),
                         highlightColor:

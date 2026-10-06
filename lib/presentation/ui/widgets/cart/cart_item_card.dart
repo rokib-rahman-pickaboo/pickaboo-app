@@ -134,8 +134,8 @@ class CartItemCard extends StatelessWidget {
                             vertical: 2.h,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.pageBg,
-                            borderRadius: AppRadius.badgeRadius,
+                            color: AppColors.itemBackground,
+                            borderRadius: AppRadius.k4,
                             border: Border.all(
                               color: AppColors.border,
                               width: 0.8.w,
@@ -182,7 +182,7 @@ class CartItemCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceBlue,
-                            borderRadius: AppRadius.badgeRadius,
+                            borderRadius: AppRadius.k4,
                             border: Border.all(
                               color: AppColors.pickabooBlue.withValues(alpha: 0.25),
                               width: 0.8.w,
@@ -226,7 +226,7 @@ class CartItemCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.red.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.badgeRadius,
+                      borderRadius: AppRadius.k4,
                     ),
                     child: Text(
                       'Out of Stock',
@@ -294,7 +294,7 @@ class CartItemCard extends StatelessWidget {
                         offset: Offset(0, 4.h),
                         constraints: BoxConstraints(minWidth: 68.w),
                         shape: RoundedRectangleBorder(
-                          borderRadius: AppRadius.buttonRadius,
+                          borderRadius: AppRadius.k8,
                           side: BorderSide(
                             color: AppColors.border,
                             width: 1.w,
@@ -338,8 +338,8 @@ class CartItemCard extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: AppColors.pageBg,
-                            borderRadius: AppRadius.smRadius,
+                            color: AppColors.itemBackground,
+                            borderRadius: AppRadius.k8,
                             border: Border.all(color: AppColors.border),
                           ),
                           child: Row(
@@ -375,8 +375,8 @@ class CartItemCard extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: AppColors.pageBg,
-                          borderRadius: AppRadius.smRadius,
+                          color: AppColors.itemBackground,
+                          borderRadius: AppRadius.k8,
                           border: Border.all(color: AppColors.border),
                         ),
                         child: Row(
@@ -422,7 +422,7 @@ class CartItemCard extends StatelessWidget {
                       // Save for later
                       InkWell(
                         onTap: onSaveForLater,
-                        borderRadius: AppRadius.badgeRadius,
+                        borderRadius: AppRadius.k4,
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 2.h),
                           child: Row(
@@ -450,7 +450,7 @@ class CartItemCard extends StatelessWidget {
                       // Remove
                       InkWell(
                         onTap: onRemove,
-                        borderRadius: AppRadius.badgeRadius,
+                        borderRadius: AppRadius.k4,
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 2.h),
                           child: Row(
@@ -487,18 +487,7 @@ class CartItemCard extends StatelessWidget {
     if (showOuterCard) {
       return Container(
         margin: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
-          border: Border.all(color: AppColors.border),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.navy.withValues(alpha: 0.03),
-              blurRadius: 8.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
+        decoration: AppDecorations.cardBoxDecoration(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -613,11 +602,11 @@ class _CartItemThumbnailState extends State<CartItemThumbnail> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: AppRadius.buttonRadius,
+      borderRadius: AppRadius.k8,
       child: Container(
         width: widget.size,
         height: widget.size,
-        color: AppColors.pageBg,
+        color: AppColors.itemBackground,
         child: _buildImageContent(),
       ),
     );

@@ -97,18 +97,7 @@ class PaymentOrderSummary extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.02),
-            blurRadius: 6.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -201,7 +190,7 @@ class PaymentOrderSummary extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: AppColors.amberBg,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(
                   color: AppColors.amber.withValues(alpha: 0.25),
                 ),

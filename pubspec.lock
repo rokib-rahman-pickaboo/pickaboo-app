@@ -1646,10 +1646,10 @@ packages:
     dependency: "direct main"
     description:
       name: recaptcha_enterprise_flutter
-      sha256: "0b72f1f2284a61345b28a2b663b1d7a140d324f65cbbd4f6ca2764ee4e743196"
+      sha256: c09a2f8ab3ef4ca6269e98fef0d880e88537e2c520f1000ff6ebd4d3e07e0e73
       url: "https://pub.dev"
     source: hosted
-    version: "18.8.2"
+    version: "18.9.3"
   recase:
     dependency: transitive
     description:

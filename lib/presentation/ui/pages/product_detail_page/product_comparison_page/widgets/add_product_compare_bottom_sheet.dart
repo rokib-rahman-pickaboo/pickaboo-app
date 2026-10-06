@@ -286,10 +286,10 @@ class _AddProductCompareBottomSheetState
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        borderRadius: AppRadius.top16,
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -308,7 +308,7 @@ class _AddProductCompareBottomSheetState
               height: 4.h,
               decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2.r),
+                borderRadius: AppRadius.k4,
               ),
             ),
           ),
@@ -471,7 +471,7 @@ class _AddProductCompareBottomSheetState
       padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
@@ -521,7 +521,7 @@ class _AddProductCompareBottomSheetState
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.orangeBg,
-                            borderRadius: BorderRadius.circular(4.r),
+                            borderRadius: AppRadius.k4,
                           ),
                           child: Text(
                             '$discount% OFF',
@@ -542,8 +542,8 @@ class _AddProductCompareBottomSheetState
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: AppColors.pageBg,
-                borderRadius: BorderRadius.circular(8.r),
+                color: AppColors.itemBackground,
+                borderRadius: AppRadius.k8,
                 border: Border.all(color: AppColors.border),
               ),
               child: Text(

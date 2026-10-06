@@ -22,7 +22,7 @@ void main() {
     test('getClubPoints performance', () async {
       // Arrange
       // Need dummy response that maps correctly
-      final response = const ClubPointResponse(myPoints: 100);
+      const response = ClubPointResponse(myPoints: 100);
 
       when(
         () => mockApiService.getClubPoints(
@@ -31,7 +31,7 @@ void main() {
         ),
       ).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 35));
-        return Right(response);
+        return const Right(response);
       });
 
       // Act & Measure

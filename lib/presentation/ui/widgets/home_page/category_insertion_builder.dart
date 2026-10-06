@@ -121,7 +121,7 @@ class CategoryInsertionBuilder {
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               boxShadow: [
                 BoxShadow(
                   color: AppColors.black.withValues(alpha: 0.08),
@@ -133,7 +133,7 @@ class CategoryInsertionBuilder {
             child: BannerItemView(
               banner: sliderEntity,
               naturalHeight: true,
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               onTap: handleTap,
             ),
           ),

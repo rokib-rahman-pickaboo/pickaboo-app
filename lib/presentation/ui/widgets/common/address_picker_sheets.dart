@@ -23,7 +23,7 @@ class AddressPickerSheets {
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: AppRadius.sheetTop,
+        borderRadius: AppRadius.top16,
       ),
       builder: (context) => SearchablePickerSheet<Map<String, String>>(
         title: 'Select Division',
@@ -47,7 +47,7 @@ class AddressPickerSheets {
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: AppRadius.sheetTop,
+        borderRadius: AppRadius.top16,
       ),
       builder: (context) => BlocProvider.value(
         value: addressBloc,
@@ -126,7 +126,7 @@ class AddressPickerSheets {
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: AppRadius.sheetTop,
+        borderRadius: AppRadius.top16,
       ),
       builder: (context) => BlocProvider.value(
         value: addressBloc,

@@ -9,7 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import 'package:pickaboo/core/color/app_colors.dart';
 
@@ -52,7 +52,7 @@ class HomeCategoryNav extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.pageBg,
+        color: AppColors.white,
         border: Border(
           bottom: BorderSide(
             color: AppColors.border,
@@ -93,7 +93,7 @@ class HomeCategoryNav extends StatelessWidget {
 
     return InkWell(
       onTap: () => onCategorySelected('For You'),
-      borderRadius: AppRadius.chipRadius,
+      borderRadius: AppRadius.k8,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: itemWidth,
@@ -115,11 +115,11 @@ class HomeCategoryNav extends StatelessWidget {
                     height: 40.w,
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: AppRadius.cardRadius,
+                      borderRadius: AppRadius.k8,
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: AppColors.navy.withValues(alpha: 0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 4.r,
                                 offset: Offset(0, 2.h),
                               ),
@@ -170,7 +170,7 @@ class HomeCategoryNav extends StatelessWidget {
                   color: isSelected
                       ? AppColors.pickabooBlue
                       : AppColors.transparent,
-                  borderRadius: AppRadius.badgeRadius,
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ],
@@ -190,7 +190,7 @@ class HomeCategoryNav extends StatelessWidget {
 
     return InkWell(
       onTap: () => onCategorySelected(category.name),
-      borderRadius: AppRadius.chipRadius,
+      borderRadius: AppRadius.k8,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: itemWidth,
@@ -212,11 +212,11 @@ class HomeCategoryNav extends StatelessWidget {
                     height: 40.w,
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: AppRadius.cardRadius,
+                      borderRadius: AppRadius.k8,
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: AppColors.navy.withValues(alpha: 0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 4.r,
                                 offset: Offset(0, 2.h),
                               ),
@@ -226,26 +226,17 @@ class HomeCategoryNav extends StatelessWidget {
                     child: Center(
                       child: category.icon.isNotEmpty
                           ? ClipRRect(
-                              borderRadius: AppRadius.buttonRadius,
+                              borderRadius: AppRadius.k8,
                               child: AppImage(
                                 imageUrl: category.icon,
                                 width: 40.w,
                                 height: 40.w,
                                 fit: BoxFit.contain,
-                                placeholder:
-                                    const AppLoader.inline(size: 16),
-                                errorWidget: Icon(
-                                  Icons.category_outlined,
-                                  color: AppColors.muted,
-                                  size: 22.sp,
-                                ),
+                                placeholder: _buildSkeletonShade(size: 40),
+                                errorWidget: _buildSkeletonShade(size: 40),
                               ),
                             )
-                          : Icon(
-                              Icons.category_outlined,
-                              color: isSelected ? AppColors.pickabooBlue : AppColors.muted,
-                              size: 22.sp,
-                            ),
+                          : _buildSkeletonShade(size: 40),
                     ),
                   ),
                 ),
@@ -285,7 +276,7 @@ class HomeCategoryNav extends StatelessWidget {
                   color: isSelected
                       ? AppColors.pickabooBlue
                       : AppColors.transparent,
-                  borderRadius: AppRadius.badgeRadius,
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ],
@@ -302,7 +293,7 @@ class HomeCategoryNav extends StatelessWidget {
   ) {
     return InkWell(
       onTap: onViewAll,
-      borderRadius: AppRadius.chipRadius,
+      borderRadius: AppRadius.k8,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: itemWidth,
@@ -322,9 +313,9 @@ class HomeCategoryNav extends StatelessWidget {
                   child: Container(
                     width: 40.w,
                     height: 40.w,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: AppRadius.cardRadius,
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Center(
                       child: Icon(
@@ -360,12 +351,35 @@ class HomeCategoryNav extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 height: 2.5.h,
                 width: 0,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.transparent,
-                  borderRadius: AppRadius.badgeRadius,
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonShade({double size = 40}) {
+    return Skeletonizer(
+      enabled: true,
+      effect: AppDecorations.shimmerEffect,
+      child: Container(
+        width: size.w,
+        height: size.w,
+        decoration: BoxDecoration(
+          color: AppColors.itemBackground,
+          borderRadius: AppRadius.k8,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: (size * 0.45).sp,
+            color: AppColors.skeletonBase,
           ),
         ),
       ),

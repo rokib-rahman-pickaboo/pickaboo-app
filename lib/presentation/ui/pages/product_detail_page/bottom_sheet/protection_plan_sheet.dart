@@ -35,9 +35,9 @@ class ProtectionPlanSheet extends StatelessWidget {
         : null;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+        borderRadius: AppRadius.top16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -51,7 +51,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                   padding: EdgeInsets.all(3.w),
                   decoration: BoxDecoration(
                     color: AppColors.green,
-                    borderRadius: BorderRadius.circular(4.r),
+                    borderRadius: AppRadius.k4,
                   ),
                   child: Icon(Icons.check, color: AppColors.white, size: 14.sp),
                 ),
@@ -115,7 +115,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                           padding: EdgeInsets.all(12.w),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceBlue,
-                            borderRadius: AppRadius.cardRadius,
+                            borderRadius: AppRadius.k8,
                             border: Border.all(color: AppColors.border),
                           ),
                           child: AppHtml(data: firstValue.details),
@@ -142,7 +142,7 @@ class ProtectionPlanSheet extends StatelessWidget {
                         children: [
                           AppButton.primary(
                             height: 48.h,
-                            borderRadius: AppRadius.cardRadius,
+                            borderRadius: AppRadius.k8,
                             text: '${firstValue.title} - ${firstValue.price}',
                             onPressed: () {
                               final selection = SelectedExtraOptionEntity(

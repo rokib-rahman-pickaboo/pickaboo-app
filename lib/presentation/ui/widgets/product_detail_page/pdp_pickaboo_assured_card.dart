@@ -31,10 +31,8 @@ class PdpPickabooAssuredCard extends StatelessWidget {
         AppSpacing.sameGroupHeightGap,
         Container(
           padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
-          decoration: BoxDecoration(
-            color: AppColors.pageBg,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(color: AppColors.border, width: 1.w),
+          decoration: AppDecorations.cardBoxDecoration(
+            borderRadius: AppRadius.k8,
           ),
           child: Column(
             children: [
@@ -90,7 +88,7 @@ class PdpPickabooAssuredCard extends StatelessWidget {
                     padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
                     decoration: BoxDecoration(
                       color: AppColors.greenBg,
-                      borderRadius: BorderRadius.circular(AppRadius.button),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Row(
                       children: [

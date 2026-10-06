@@ -12,9 +12,7 @@ import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/checkout_bloc/checkout_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/cart/payment_review_page/payment_review_page.dart';
-import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_themes.dart';
-import 'package:pickaboo/core/theme/app_typography.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/cart_item_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/payment_review_page/address_card.dart';
 
@@ -82,7 +80,7 @@ void main() {
   }
 
   CheckoutEntity createMockCheckout() {
-    final tCartItem = CartItemEntity(
+    const tCartItem = CartItemEntity(
       itemId: 1,
       sku: 'sku',
       qty: 1,
@@ -101,7 +99,7 @@ void main() {
       stockAvailable: true,
     );
 
-    final tCartTotals = CartTotalsEntity(
+    const tCartTotals = CartTotalsEntity(
       grandTotal: 100,
       baseGrandTotal: 100,
       subtotal: 100,
@@ -128,7 +126,7 @@ void main() {
       totalSegments: [],
     );
 
-    final tCartCheckout = CartCheckoutEntity(
+    const tCartCheckout = CartCheckoutEntity(
       id: 1,
       isActive: true,
       isVirtual: false,
@@ -140,7 +138,7 @@ void main() {
       storeId: 1,
     );
 
-    return CheckoutEntity(cart: tCartCheckout, cartTotals: tCartTotals);
+    return const CheckoutEntity(cart: tCartCheckout, cartTotals: tCartTotals);
   }
 
   group('PaymentReviewPage', () {

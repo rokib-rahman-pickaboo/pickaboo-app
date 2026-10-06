@@ -32,6 +32,7 @@ class CouponWidget extends StatefulWidget {
 
 class _CouponWidgetState extends State<CouponWidget> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   bool get _isCouponApplied => widget.appliedCoupon.isNotEmpty;
 
@@ -41,6 +42,9 @@ class _CouponWidgetState extends State<CouponWidget> {
     if (_isCouponApplied) {
       _controller.text = widget.appliedCoupon;
     }
+    _focusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -57,6 +61,7 @@ class _CouponWidgetState extends State<CouponWidget> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -81,21 +86,10 @@ class _CouponWidgetState extends State<CouponWidget> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(
-          color: _isCouponApplied
-              ? AppColors.pickabooBlue.withValues(alpha: 0.3)
-              : AppColors.border,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.02),
-            blurRadius: 6.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+      decoration: AppDecorations.cardBoxDecoration(
+        borderColor: _isCouponApplied
+            ? AppColors.pickabooBlue.withValues(alpha: 0.3)
+            : AppColors.border,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +108,7 @@ class _CouponWidgetState extends State<CouponWidget> {
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
               decoration: BoxDecoration(
                 color: AppColors.surfaceBlue,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(
                   color: AppColors.pickabooBlue.withValues(alpha: 0.2),
                 ),
@@ -162,13 +156,26 @@ class _CouponWidgetState extends State<CouponWidget> {
               ),
             )
           else
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: AppRadius.k8,
+                      border: Border.all(
+                        color: _focusNode.hasFocus
+                            ? AppColors.pickabooBlue
+                            : AppColors.border,
+                        width: _focusNode.hasFocus ? 1.2 : 1.0,
+                      ),
+                    ),
+                    alignment: Alignment.center,
                     child: TextField(
                       controller: _controller,
+                      focusNode: _focusNode,
+                      textAlignVertical: TextAlignVertical.center,
                       style: AppTypography.titleSmall.copyWith(
                         fontSize: 13.sp,
                         color: AppColors.navy,
@@ -176,40 +183,28 @@ class _CouponWidgetState extends State<CouponWidget> {
                       decoration: InputDecoration(
                         hintText: 'Enter Discount Code',
                         hintStyle: AppTypography.inputHint,
-                        filled: true,
-                        fillColor: AppColors.white,
+                        filled: false,
+                        fillColor: AppColors.transparent,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
                         isDense: true,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 14.w,
-                          vertical: 12.5.h,
-                        ),
-                        border: const OutlineInputBorder(
-                          borderRadius: AppRadius.inputRadius,
-                          borderSide: BorderSide(color: AppColors.border),
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderRadius: AppRadius.inputRadius,
-                          borderSide: BorderSide(color: AppColors.border),
-                        ),
-                        focusedBorder: const OutlineInputBorder(
-                          borderRadius: AppRadius.inputRadius,
-                          borderSide: BorderSide(
-                            color: AppColors.pickabooBlue,
-                            width: 1.2,
-                          ),
-                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 14.w),
                       ),
                     ),
                   ),
-                  AppSpacing.gapH8,
-                  AppButton.primary(
-                    text: 'Apply',
-                    isFullWidth: false,
-                    padding: EdgeInsets.symmetric(horizontal: 22.w),
-                    onPressed: _handleApply,
-                  ),
-                ],
-              ),
+                ),
+                AppSpacing.gapH8,
+                AppButton.primary(
+                  text: 'Apply',
+                  height: 40.h,
+                  size: AppButtonSize.sm,
+                  isFullWidth: false,
+                  padding: EdgeInsets.symmetric(horizontal: 22.w),
+                  onPressed: _handleApply,
+                ),
+              ],
             ),
         ],
       ),

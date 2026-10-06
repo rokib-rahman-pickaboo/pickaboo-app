@@ -74,21 +74,7 @@ class ListProductView extends StatelessWidget {
           horizontal: AppSpacing.sameGroupItemSpacing.w,
           vertical: 4.h,
         ),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
-          border: Border.all(
-            color: AppColors.border,
-            width: 1.2.w,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.navy.withValues(alpha: 0.02),
-              blurRadius: 4.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
+        decoration: AppDecorations.cardBoxDecoration(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -99,16 +85,14 @@ class ListProductView extends StatelessWidget {
                 // ── Left Square Image (Full bleed, fit to full card height) ──
                 ClipRRect(
                   borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(AppRadius.card - 1),
-                    bottomLeft: Radius.circular(
-                      hasAttributes ? 0 : (AppRadius.card - 1),
-                    ),
+                    topLeft: AppRadius.rad8,
+                    bottomLeft: hasAttributes ? Radius.zero : AppRadius.rad8,
                   ),
                   child: SizedBox(
                     width: 115.w,
                     height: 115.w,
                     child: Container(
-                      color: AppColors.pageBg,
+                      color: AppColors.itemBackground,
                       child: ProductCardImage(
                         productId: int.tryParse(product.id) ?? 0,
                         imageUrl: product.productImg,
@@ -211,9 +195,9 @@ class ListProductView extends StatelessWidget {
                                       horizontal: 5.w,
                                       vertical: 2.h,
                                     ),
-                                    decoration: const BoxDecoration(
+                                    decoration: BoxDecoration(
                                       color: AppColors.orangeBg,
-                                      borderRadius: AppRadius.badgeRadius,
+                                      borderRadius: AppRadius.k4,
                                     ),
                                     child: Text(
                                       AppStrings.discountTag(discount),
@@ -230,9 +214,9 @@ class ListProductView extends StatelessWidget {
                               horizontal: 5.w,
                               vertical: 1.5.h,
                             ),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: AppColors.redBg,
-                              borderRadius: AppRadius.badgeRadius,
+                              borderRadius: AppRadius.k4,
                             ),
                             child: Text(
                               AppStrings.outOfStock,
@@ -340,7 +324,7 @@ class ListProductView extends StatelessWidget {
           color: AppColors.border.withValues(alpha: 0.8),
           width: 1.w,
         ),
-        borderRadius: AppRadius.badgeRadius,
+        borderRadius: AppRadius.k4,
       ),
       child: Text.rich(
         TextSpan(

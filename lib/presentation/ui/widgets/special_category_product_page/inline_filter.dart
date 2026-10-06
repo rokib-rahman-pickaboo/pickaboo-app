@@ -48,9 +48,9 @@ class InlineFilter extends StatelessWidget {
     return RepaintBoundary(
       child: Container(
         padding: EdgeInsets.all(16.w),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surfaceBlue,
-          borderRadius: AppRadius.buttonRadius,
+          borderRadius: AppRadius.k8,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,12 +132,12 @@ class InlineFilter extends StatelessWidget {
           );
         }
       },
-      borderRadius: AppRadius.smRadius,
+      borderRadius: AppRadius.k8,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
         decoration: BoxDecoration(
           color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-          borderRadius: AppRadius.smRadius,
+          borderRadius: AppRadius.k8,
           border: Border.all(color: AppColors.pickabooBlue, width: 1),
         ),
         child: Center(
@@ -181,12 +181,12 @@ class InlineFilter extends StatelessWidget {
           ),
         );
       },
-      borderRadius: AppRadius.smRadius,
+      borderRadius: AppRadius.k8,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: AppRadius.smRadius,
+          borderRadius: AppRadius.k8,
         ),
         child: Center(
           child: Text(

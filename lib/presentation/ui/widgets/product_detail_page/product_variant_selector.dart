@@ -265,15 +265,12 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                         height: 65.h,
                         decoration: BoxDecoration(
                           color: isSelected ? AppColors.surfaceBlue : AppColors.white,
-                          border: Border.all(
-                            color: isSelected
-                                ? AppColors.pickabooBlue
-                                : groupHasError
-                                    ? AppColors.red
-                                    : AppColors.border,
-                            width: isSelected || groupHasError ? 1.5.w : 1.w,
-                          ),
-                          borderRadius: AppRadius.buttonRadius,
+                          border: isSelected
+                              ? Border.all(color: AppColors.pickabooBlue, width: 1.5.w)
+                              : groupHasError
+                                  ? Border.all(color: AppColors.red, width: 1.5.w)
+                                  : null,
+                          borderRadius: AppRadius.k8,
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
@@ -290,7 +287,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                                         offset: const Offset(0, 2),
                                       ),
                                     ]
-                                  : null,
+                                  : AppDecorations.cardShadow,
                         ),
                         padding: EdgeInsets.all(4.w),
                         child: imageUrl.isNotEmpty
@@ -388,15 +385,12 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                     color: isSelected
                         ? AppColors.surfaceBlue
                         : AppColors.white,
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.pickabooBlue
-                          : groupHasError
-                              ? AppColors.red
-                              : AppColors.border,
-                      width: isSelected || groupHasError ? 1.5.w : 1.w,
-                    ),
-                    borderRadius: AppRadius.buttonRadius,
+                    border: isSelected
+                        ? Border.all(color: AppColors.pickabooBlue, width: 1.5.w)
+                        : groupHasError
+                            ? Border.all(color: AppColors.red, width: 1.5.w)
+                            : null,
+                    borderRadius: AppRadius.k8,
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
@@ -408,12 +402,12 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                         : groupHasError
                             ? [
                                 BoxShadow(
-                                  color: AppColors.red.withValues(alpha: 0.06),
+                                  color: AppColors.red.withValues(alpha: 0.08),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
                               ]
-                            : null,
+                            : AppDecorations.cardShadow,
                   ),
                   child: Text(
                     option.optionText,

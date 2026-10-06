@@ -81,9 +81,9 @@ class _EmiPickerSheetState<T> extends State<_EmiPickerSheet<T>> {
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.7,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.sheetTop,
+        borderRadius: AppRadius.top16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -102,8 +102,8 @@ class _EmiPickerSheetState<T> extends State<_EmiPickerSheet<T>> {
                   onTap: () => Navigator.pop(context),
                   child: Container(
                     padding: EdgeInsets.all(4.w),
-                    decoration: const BoxDecoration(
-                      color: AppColors.pageBg,
+                    decoration: BoxDecoration(
+                      color: AppColors.itemBackground,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(Icons.close, color: AppColors.text, size: 20.sp),
@@ -142,7 +142,7 @@ class _EmiPickerSheetState<T> extends State<_EmiPickerSheet<T>> {
             ),
             child: AppButton.primary(
               height: 48.h,
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               isDisabled: _selected == null,
               onPressed: _selected == null
                   ? null
@@ -172,12 +172,12 @@ class _SelectableRow extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: AppRadius.cardRadius,
+      borderRadius: AppRadius.k8,
       child: Container(
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue.withValues(alpha: 0.05) : AppColors.white,
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: isSelected ? 2 : 1,

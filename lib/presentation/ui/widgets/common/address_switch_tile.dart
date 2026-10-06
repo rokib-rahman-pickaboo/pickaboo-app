@@ -22,7 +22,7 @@ class AddressSwitchTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.border),
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

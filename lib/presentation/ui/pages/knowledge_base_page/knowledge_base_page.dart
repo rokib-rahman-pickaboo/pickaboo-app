@@ -214,7 +214,7 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
                 }
               },
               child: Scaffold(
-                backgroundColor: AppColors.pageBg,
+                backgroundColor: AppColors.white,
                 appBar: PickabooAppBar(
                   title: AppStrings.helpAndKnowledgeBase,
                   showBackButton: widget.showBackButton,
@@ -261,7 +261,7 @@ class _KnowledgeBasePageState extends State<KnowledgeBasePage> {
               }
             },
             child: Scaffold(
-              backgroundColor: AppColors.pageBg,
+              backgroundColor: AppColors.white,
               appBar: PickabooAppBar(
                 title: AppStrings.helpAndKnowledgeBase,
                 showBackButton: widget.showBackButton,

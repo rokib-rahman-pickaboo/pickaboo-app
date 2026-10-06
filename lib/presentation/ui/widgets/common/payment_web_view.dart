@@ -25,6 +25,7 @@ class PaymentWebView extends StatefulWidget {
   final Function(bool success, String? message) onPaymentResult;
   final void Function(String type, String paymentId)? onBkashCallback;
   final void Function(Map<String, String> params)? onNagadCallback;
+  final void Function(Map<String, String> params)? onPathaoCallback;
   final VoidCallback? onUserClosed;
 
   const PaymentWebView({
@@ -35,6 +36,7 @@ class PaymentWebView extends StatefulWidget {
     required this.onPaymentResult,
     this.onBkashCallback,
     this.onNagadCallback,
+    this.onPathaoCallback,
     this.onUserClosed,
   });
 
@@ -202,7 +204,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: const RoundedRectangleBorder(
-          borderRadius: AppRadius.dialogRadius,
+          borderRadius: AppRadius.k16,
         ),
         title: Text(
           'Cancel Payment?',
@@ -219,7 +221,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               Expanded(
                 child: AppButton.outline(
                   size: AppButtonSize.sm,
-                  borderRadius: AppRadius.buttonRadius,
+                  borderRadius: AppRadius.k8,
                   borderColor: AppColors.red,
                   textColor: AppColors.red,
                   padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -239,7 +241,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               Expanded(
                 child: AppButton.primary(
                   size: AppButtonSize.sm,
-                  borderRadius: AppRadius.buttonRadius,
+                  borderRadius: AppRadius.k8,
                   padding: EdgeInsets.symmetric(horizontal: 8.w),
                   text: 'Continue',
                   textStyle: AppTypography.bodySmall.bold().withColor(AppColors.white),
@@ -254,7 +256,6 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   }
 
   bool _checkUrl(String url) {
-
     if (url.contains(ApiEndpoints.nagadCallbackPath)) {
       if (_resultSent) return true;
       final uri = Uri.tryParse(url);
@@ -269,6 +270,32 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           _fireResult(true, 'Payment Successful');
         } else {
           _fireResult(false, params['message'] ?? 'Payment failed');
+        }
+      }
+      return true;
+    }
+
+    final isPathaoCallback = url.contains(ApiEndpoints.pathaoCallbackPath) ||
+        url.contains('/payment-status/pathao') ||
+        url.contains('/payment-status/pataho');
+    if (isPathaoCallback) {
+      if (_resultSent) return true;
+      final uri = Uri.tryParse(url);
+      final params = uri?.queryParameters.cast<String, String>() ?? {};
+
+      if (widget.onPathaoCallback != null) {
+        _resultSent = true;
+        widget.onPathaoCallback!(params);
+      } else {
+        final ppayStatus =
+            (params['ppay_status'] ?? params['status'] ?? '').toUpperCase();
+        if (ppayStatus == 'COMPLETED' || ppayStatus == 'SUCCESS') {
+          _fireResult(true, 'Payment Successful');
+        } else {
+          _fireResult(
+            false,
+            params['message'] ?? 'Payment was not completed',
+          );
         }
       }
       return true;

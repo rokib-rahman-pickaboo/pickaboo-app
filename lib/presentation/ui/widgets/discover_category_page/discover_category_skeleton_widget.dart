@@ -91,9 +91,9 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
                   child: Container(
                     width: 32.w,
                     height: 32.h,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.border,
-                      borderRadius: AppRadius.smRadius,
+                      borderRadius: AppRadius.k8,
                     ),
                   ),
                 ),
@@ -103,9 +103,9 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
                 Container(
                   width: (index % 2 == 0) ? 54.w : 44.w,
                   height: 9.h,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.border,
-                    borderRadius: AppRadius.badgeRadius,
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
               ],
@@ -152,7 +152,7 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 100.h,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -176,16 +176,16 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
                     height: 16.h,
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.15),
-                      borderRadius: AppRadius.smRadius,
+                      borderRadius: AppRadius.k8,
                     ),
                   ),
                   SizedBox(height: 6.h),
                   Container(
                     width: 50.w,
                     height: 10.h,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.border,
-                      borderRadius: AppRadius.badgeRadius,
+                      borderRadius: AppRadius.k4,
                     ),
                   ),
                 ],
@@ -200,9 +200,9 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
               padding: EdgeInsets.all(10.w),
               child: Container(
                 height: 75.h,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.border,
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                 ),
               ),
             ),
@@ -222,24 +222,10 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
       margin: EdgeInsets.only(
         left: 8.w,
         right: 8.w,
-        bottom: 10.h,
+        bottom: 8.h,
       ),
-      padding: EdgeInsets.all(10.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(
-          color: AppColors.border,
-          width: 1.w,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.02),
-            blurRadius: 6.r,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: EdgeInsets.all(8.w),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -248,19 +234,19 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
           Container(
             width: titleWidth,
             height: 13.h,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.border,
-              borderRadius: AppRadius.badgeRadius,
+              borderRadius: AppRadius.k4,
             ),
           ),
 
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
 
           // 3-Column Item Grid
           Column(
             children: [
               for (int i = 0; i < itemCount; i += 3) ...[
-                if (i > 0) SizedBox(height: 10.h),
+                if (i > 0) SizedBox(height: 8.h),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -288,22 +274,37 @@ class DiscoverCategorySkeletonWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
+        // ── 1. Image without card ──
         AspectRatio(
           aspectRatio: 1.0,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.border,
-              borderRadius: AppRadius.buttonRadius,
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.border.withValues(alpha: 0.5),
+                borderRadius: AppRadius.k8,
+              ),
             ),
           ),
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: 4.h),
+
+        // ── 2. Name inside card ──
         Container(
-          width: 48.w,
-          height: 9.h,
-          decoration: const BoxDecoration(
-            color: AppColors.border,
-            borderRadius: AppRadius.badgeRadius,
+          width: double.infinity,
+          height: 28.h,
+          decoration: AppDecorations.cardBoxDecoration(
+            borderRadius: AppRadius.k8,
+            borderWidth: 0.8.w,
+          ),
+          child: Center(
+            child: Container(
+              width: 44.w,
+              height: 9.h,
+              decoration: const BoxDecoration(
+                color: AppColors.border,
+                borderRadius: AppRadius.k4,
+              ),
+            ),
           ),
         ),
       ],

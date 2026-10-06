@@ -222,7 +222,7 @@ class SearchResults extends StatelessWidget {
           padding: EdgeInsets.all(12.h),
           decoration: BoxDecoration(
             color: AppColors.orange.withValues(alpha: 0.1),
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
           ),
           child: Row(
             children: [

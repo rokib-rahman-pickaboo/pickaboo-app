@@ -63,9 +63,9 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
       context: context,
       backgroundColor: AppColors.transparent,
       builder: (c) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+          borderRadius: AppRadius.top16,
         ),
         padding: EdgeInsets.fromLTRB(
           20.w,
@@ -81,7 +81,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
               height: 4.h,
               decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2.r),
+                borderRadius: AppRadius.k4,
               ),
             ),
             SizedBox(height: 16.h),
@@ -164,12 +164,12 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: "Write Review",
       ),
       bottomNavigationBar: Container(
-        color: AppColors.pageBg,
+        color: AppColors.white,
         padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
         child: SafeArea(
           top: false,
@@ -181,7 +181,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
               );
               return AppButton.primary(
                 height: 48.h,
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 isLoading: isSubmitting,
                 text: "Submit Review",
                 onPressed: isSubmitting
@@ -251,18 +251,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                           ),
                           child: Container(
                             padding: EdgeInsets.all(12.w),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: AppRadius.cardRadius,
-                              border: Border.all(color: AppColors.border),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.navy.withValues(alpha: 0.03),
-                                  blurRadius: 8.r,
-                                  offset: Offset(0, 2.h),
-                                ),
-                              ],
-                            ),
+                            decoration: AppDecorations.cardBoxDecoration(),
                             child: Row(
                               children: [
                                 Container(
@@ -270,14 +259,14 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                   height: 60.w,
                                   padding: EdgeInsets.all(4.w),
                                   decoration: BoxDecoration(
-                                    borderRadius: AppRadius.cardRadius,
-                                    color: AppColors.pageBg,
+                                    borderRadius: AppRadius.k8,
+                                    color: AppColors.itemBackground,
                                     border: Border.all(
                                       color: AppColors.border,
                                     ),
                                   ),
                                   child: ClipRRect(
-                                    borderRadius: AppRadius.cardRadius,
+                                    borderRadius: AppRadius.k8,
                                     child: AppImage(
                                       imageUrl: widget.productImage,
                                       fit: BoxFit.contain,
@@ -330,18 +319,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                               horizontal: 16.w,
                               vertical: 12.h,
                             ),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: AppRadius.cardRadius,
-                              border: Border.all(color: AppColors.border),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.navy.withValues(alpha: 0.03),
-                                  blurRadius: 8.r,
-                                  offset: Offset(0, 2.h),
-                                ),
-                              ],
-                            ),
+                            decoration: AppDecorations.cardBoxDecoration(),
                             child: Column(
                               children: [
                                 RatingInputRow(
@@ -424,26 +402,26 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                 hintText: "Enter your message here",
                                 hintStyle: AppTypography.inputHint,
                                 border: const OutlineInputBorder(
-                                  borderRadius: AppRadius.cardRadius,
+                                  borderRadius: AppRadius.k8,
                                   borderSide: BorderSide(
                                     color: AppColors.border,
                                   ),
                                 ),
                                 enabledBorder: const OutlineInputBorder(
-                                  borderRadius: AppRadius.cardRadius,
+                                  borderRadius: AppRadius.k8,
                                   borderSide: BorderSide(
                                     color: AppColors.border,
                                   ),
                                 ),
                                 focusedBorder: const OutlineInputBorder(
-                                  borderRadius: AppRadius.cardRadius,
+                                  borderRadius: AppRadius.k8,
                                   borderSide: BorderSide(
                                     color: AppColors.pickabooBlue,
                                     width: 1.5,
                                   ),
                                 ),
                                 errorBorder: const OutlineInputBorder(
-                                  borderRadius: AppRadius.cardRadius,
+                                  borderRadius: AppRadius.k8,
                                   borderSide: BorderSide(
                                     color: AppColors.red,
                                   ),
@@ -481,7 +459,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                               padding: EdgeInsets.symmetric(vertical: 18.h),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceBlue,
-                                borderRadius: AppRadius.cardRadius,
+                                borderRadius: AppRadius.k8,
                                 border: Border.all(
                                   color: AppColors.pickabooBlue.withValues(
                                     alpha: 0.4,
@@ -537,20 +515,20 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                                           width: 74.w,
                                           height: 74.w,
                                           decoration: BoxDecoration(
-                                            borderRadius: AppRadius.cardRadius,
+                                            borderRadius: AppRadius.k8,
                                             border: Border.all(
                                               color: AppColors.border,
                                             ),
                                           ),
                                           child: ClipRRect(
-                                            borderRadius: AppRadius.cardRadius,
+                                            borderRadius: AppRadius.k8,
                                             child: Image.file(
                                               File(images[index].path),
                                               fit: BoxFit.cover,
                                               errorBuilder:
                                                   (context, error, stackTrace) {
                                                 return Container(
-                                                  color: AppColors.pageBg,
+                                                  color: AppColors.itemBackground,
                                                   child: const Center(
                                                     child: Icon(
                                                       Icons.error_outline,

@@ -1,3 +1,4 @@
+import 'package:pickaboo/core/theme/app_decorations.dart';
 // ============================================================================
 // ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
 // All text styles in this file originate from [AppTypography] design tokens.
@@ -145,7 +146,7 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.k16),
       backgroundColor: AppColors.white,
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
@@ -364,15 +365,15 @@ class _ProductMediaDialogState extends State<ProductMediaDialog> {
               width: 66.w,
               margin: EdgeInsets.only(right: 8.w),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.pageBg : AppColors.white,
-                borderRadius: BorderRadius.circular(8.r),
+                color: isSelected ? AppColors.itemBackground : AppColors.white,
+                borderRadius: AppRadius.k8,
                 border: Border.all(
                   color: isSelected ? AppColors.pickabooBlue : AppColors.border,
                   width: isSelected ? 1.5.w : 0.5.w,
                 ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: AppRadius.k8,
                 child: AppImage(
                   imageUrl: list[index],
                   fit: BoxFit.cover,
@@ -408,7 +409,7 @@ class _CategoryChip extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.surfaceBlue : AppColors.white,
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: AppRadius.k16,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: 1.2.w,
@@ -440,8 +441,8 @@ class _NavButton extends StatelessWidget {
         width: 32.w,
         height: 36.h,
         decoration: BoxDecoration(
-          color: AppColors.pageBg.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(8.r),
+          color: AppColors.itemBackground.withValues(alpha: 0.8),
+          borderRadius: AppRadius.k8,
         ),
         child: Icon(
           icon,

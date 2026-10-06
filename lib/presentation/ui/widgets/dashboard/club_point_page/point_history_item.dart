@@ -79,7 +79,7 @@ class _PointBadge extends StatelessWidget {
               color: isPositive
                   ? AppColors.greenBg
                   : AppColors.redBg,
-              borderRadius: AppRadius.chipRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(
                 color: isPositive
                     ? AppColors.green.withValues(alpha: 0.4)

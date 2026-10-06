@@ -602,6 +602,17 @@ class CartRepositoryImpl implements CartRepository {
     return result.fold((l) => left(l.toEntity()), (r) => right(r));
   }
 
+  /// Captures a Pathao Pay transaction by forwarding the gateway callback params.
+  @override
+  Future<Either<AppErrorEntity, bool>> pathaoPayCapture({
+    required Map<String, String> callbackParams,
+  }) async {
+    final result = await checkoutApiService.pathaoPayCapture(
+      callbackParams: callbackParams,
+    );
+    return result.fold((l) => left(l.toEntity()), (r) => right(r));
+  }
+
   /// Verifies whether the order is eligible for Card BIN bank discounts.
   @override
   Future<Either<AppErrorEntity, CardBinVerifyEntity>> verifyCardBin({

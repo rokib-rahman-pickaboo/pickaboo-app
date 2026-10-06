@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 
@@ -16,16 +17,8 @@ class SettingsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.dialogRadius,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.05),
-            blurRadius: 10.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k16,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

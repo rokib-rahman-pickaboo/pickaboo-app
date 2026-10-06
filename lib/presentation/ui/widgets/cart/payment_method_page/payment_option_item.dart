@@ -44,21 +44,23 @@ class PaymentOptionItem extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           child: Row(
             children: [
-              // ── Payment Icon (36x36) ──
+              // ── Payment Icon (40x40) ──
               Container(
-                width: 36.w,
-                height: 36.w,
-                padding: EdgeInsets.all(4.w),
+                width: 40.w,
+                height: 40.w,
+                padding: EdgeInsets.all(5.w),
                 decoration: BoxDecoration(
                   color: AppColors.white,
-                  borderRadius: AppRadius.buttonRadius,
+                  borderRadius: AppRadius.k8,
                   border: Border.all(
                     color: isSelected
                         ? AppColors.pickabooBlue.withValues(alpha: 0.4)
                         : AppColors.border,
                   ),
                 ),
-                child: SvgPicture.asset(asset, fit: BoxFit.contain),
+                child: asset.toLowerCase().endsWith('.svg')
+                    ? SvgPicture.asset(asset, fit: BoxFit.contain)
+                    : Image.asset(asset, fit: BoxFit.contain),
               ),
               SizedBox(width: 12.w),
 
@@ -128,7 +130,7 @@ class _RadioDot extends StatelessWidget {
               child: Container(
                 width: 10.w,
                 height: 10.w,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.pickabooBlue,
                 ),

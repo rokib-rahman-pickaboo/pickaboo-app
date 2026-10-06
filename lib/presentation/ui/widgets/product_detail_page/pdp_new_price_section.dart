@@ -84,15 +84,22 @@ class PdpNewPriceSection extends StatelessWidget {
               children: [
                 if (product.brand.trim().isNotEmpty)
                   Flexible(
-                    child: GestureDetector(
-                      onTap: onBrandTap,
-                      child: Text(
-                        product.brand.toUpperCase(),
-                        style: AppTypography.brandTag,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                    child: onBrandTap != null
+                        ? GestureDetector(
+                            onTap: onBrandTap,
+                            child: Text(
+                              product.brand.toUpperCase(),
+                              style: AppTypography.brandTag,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
+                        : Text(
+                            product.brand.toUpperCase(),
+                            style: AppTypography.brandTag,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                   )
                 else
                   const SizedBox.shrink(),
@@ -153,7 +160,7 @@ class PdpNewPriceSection extends StatelessWidget {
                     color: product.stockAvailable
                         ? AppColors.greenBg
                         : AppColors.redBg,
-                    borderRadius: BorderRadius.circular(AppRadius.badge),
+                    borderRadius: AppRadius.k4,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -191,6 +198,7 @@ class PdpNewPriceSection extends StatelessWidget {
               Widget? row1RightWidget;
               if (hasExpress) {
                 row1RightWidget = GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: onExpressDeliveryTap,
                   child: SvgPicture.asset(
                     AppAssets.expressPdp,
@@ -265,12 +273,10 @@ class PdpNewPriceSection extends StatelessWidget {
               }
 
               return Container(
-                decoration: BoxDecoration(
-                  color: AppColors.pageBg,
-                  borderRadius: BorderRadius.circular(AppRadius.card),
-                  border: Border.all(color: AppColors.border, width: 1.w),
+                decoration: AppDecorations.cardBoxDecoration(
+                  borderRadius: AppRadius.k8,
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -307,7 +313,7 @@ class PdpNewPriceSection extends StatelessWidget {
                                     ),
                                     decoration: BoxDecoration(
                                       color: AppColors.orange,
-                                      borderRadius: BorderRadius.circular(AppRadius.badge),
+                                      borderRadius: AppRadius.k4,
                                     ),
                                     child: Text(
                                       '-$discountPct%',
@@ -524,7 +530,7 @@ class PdpNewPriceSection extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: AppColors.surfaceBlue,
-        borderRadius: BorderRadius.circular(AppRadius.badge),
+        borderRadius: AppRadius.k4,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

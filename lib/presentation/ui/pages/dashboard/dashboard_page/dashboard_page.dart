@@ -76,9 +76,9 @@ class DashboardPage extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         appBar: PickabooAppBar(
-          title: 'Dashboard',
+          title: AppStrings.dashboard,
           showBackButton: true,
           onBackTap: () => MainPage.popTab(context),
         ),
@@ -136,11 +136,12 @@ class DashboardPage extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     mainAxisSpacing: AppSpacing.sameGroupItemSpacing.h,
                     crossAxisSpacing: AppSpacing.sameGroupItemSpacing.w,
-                    childAspectRatio: 2.5,
+                    childAspectRatio: 2.4,
                     children: [
                       ProfileGridTile(
                         icon: Icons.local_shipping_outlined,
                         title: AppStrings.myOrders,
+                        subtitle: AppStrings.myOrdersSubtitle,
                         accentColor: AppColors.pickabooBlue,
                         onTap: () => _requireAuth(
                           context,
@@ -151,6 +152,7 @@ class DashboardPage extends StatelessWidget {
                       ProfileGridTile(
                         icon: Icons.confirmation_number_outlined,
                         title: AppStrings.supportTickets,
+                        subtitle: AppStrings.supportTicketsSubtitle,
                         accentColor: AppColors.pink,
                         onTap: () => _requireAuth(
                           context,
@@ -161,6 +163,7 @@ class DashboardPage extends StatelessWidget {
                       ProfileGridTile(
                         icon: Icons.stars_outlined,
                         title: AppStrings.clubPointsTitle,
+                        subtitle: AppStrings.clubPointsSubtitle,
                         accentColor: AppColors.amber,
                         onTap: () => _requireAuth(
                           context,
@@ -170,7 +173,8 @@ class DashboardPage extends StatelessWidget {
                       ),
                       ProfileGridTile(
                         icon: Icons.rate_review_outlined,
-                        title: 'Reviews',
+                        title: AppStrings.reviews,
+                        subtitle: AppStrings.reviewsSubtitle,
                         accentColor: AppColors.green,
                         onTap: () => _requireAuth(
                           context,
@@ -188,8 +192,8 @@ class DashboardPage extends StatelessWidget {
                     children: [
                       AppMenuTile(
                         icon: Icons.share_outlined,
-                        title: 'Share & Earn',
-                        subtitle: 'Invite friends & earn reward points',
+                        title: AppStrings.shareAndEarn,
+                        subtitle: AppStrings.shareAndEarnSubtitle,
                         onTap: () => _requireAuth(
                           context,
                           () => context.push(Routes.referral),
@@ -198,20 +202,20 @@ class DashboardPage extends StatelessWidget {
                       ),
                       AppMenuTile(
                         icon: Icons.help_outline_rounded,
-                        title: 'FAQ & Support',
-                        subtitle: 'Help center & frequent questions',
+                        title: AppStrings.faqAndSupport,
+                        subtitle: AppStrings.faqAndSupportSubtitle,
                         onTap: () => context.go(Routes.knowledgeBase),
                       ),
                       AppMenuTile(
                         icon: Icons.description_outlined,
                         title: AppStrings.termsAndConditions,
-                        subtitle: 'Policies, terms & privacy statement',
+                        subtitle: AppStrings.termsAndConditionsSubtitle,
                         onTap: () => context.push(Routes.terms),
                       ),
                       AppMenuTile(
                         icon: Icons.person_outline_rounded,
                         title: AppStrings.accountInformation,
-                        subtitle: 'Personal info & security details',
+                        subtitle: AppStrings.accountInformationSubtitle,
                         onTap: () => _requireAuth(
                           context,
                           () => context.push(Routes.accountInformation),
@@ -220,8 +224,8 @@ class DashboardPage extends StatelessWidget {
                       ),
                       AppMenuTile(
                         icon: Icons.location_on_outlined,
-                        title: 'Manage Address',
-                        subtitle: 'Saved shipping & delivery addresses',
+                        title: AppStrings.manageAddress,
+                        subtitle: AppStrings.manageAddressSubtitle,
                         onTap: () => _requireAuth(
                           context,
                           () => context.push(Routes.address),
@@ -230,8 +234,8 @@ class DashboardPage extends StatelessWidget {
                       ),
                       AppMenuTile(
                         icon: Icons.payment_outlined,
-                        title: 'Saved Payment Method',
-                        subtitle: 'Credit cards & mobile wallets',
+                        title: AppStrings.savedPaymentMethod,
+                        subtitle: AppStrings.savedPaymentMethodSubtitle,
                         onTap: () => _requireAuth(
                           context,
                           () => context.push(Routes.savePayment),
@@ -241,7 +245,7 @@ class DashboardPage extends StatelessWidget {
                       AppMenuTile(
                         icon: Icons.headset_mic_outlined,
                         title: AppStrings.contactUs,
-                        subtitle: 'Reach Pickaboo customer support',
+                        subtitle: AppStrings.contactUsSubtitle,
                         onTap: () => context.push(Routes.contactUs),
                       ),
                     ],
@@ -255,14 +259,14 @@ class DashboardPage extends StatelessWidget {
                       AppMenuTile(
                         icon: Icons.settings_outlined,
                         title: AppStrings.appSettings,
-                        subtitle: 'App preferences, language & notifications',
+                        subtitle: AppStrings.appSettingsSubtitle,
                         onTap: () => context.push(Routes.setting),
                       ),
                       if (isLoggedIn)
                         AppMenuTile(
                           icon: Icons.logout_rounded,
                           title: AppStrings.logout,
-                          subtitle: 'Sign out of your account',
+                          subtitle: AppStrings.logoutSubtitle,
                           isDestructive: true,
                           onTap: () =>
                               _showLogoutConfirmationBottomSheet(context),
@@ -270,9 +274,8 @@ class DashboardPage extends StatelessWidget {
                       else
                         AppMenuTile(
                           icon: Icons.login_rounded,
-                          title: 'Login / Register',
-                          subtitle:
-                              'Sign in to access your full profile & orders',
+                          title: AppStrings.loginOrRegisterTitle,
+                          subtitle: AppStrings.loginOrRegisterSubtitle,
                           isBrand: true,
                           onTap: () =>
                               context.push('${Routes.login}?from=profile'),
@@ -300,8 +303,8 @@ class DashboardPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppRadius.top16,
       ),
       builder: (ctx) {
         return SafeArea(
@@ -314,9 +317,9 @@ class DashboardPage extends StatelessWidget {
                 Container(
                   width: 36.w,
                   height: 4.h,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.border,
-                    borderRadius: BorderRadius.circular(2.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 18.h),
@@ -339,14 +342,14 @@ class DashboardPage extends StatelessWidget {
 
                 // Title
                 Text(
-                  'Confirm Logout',
+                  AppStrings.confirmLogout,
                   style: AppTypography.titleLarge,
                 ),
                 SizedBox(height: 6.h),
 
                 // Body
                 Text(
-                  'Are you sure you want to log out of your Pickaboo account? You can log back in anytime.',
+                  AppStrings.logoutConfirmDetailedMessage,
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall,
                 ),
@@ -357,12 +360,12 @@ class DashboardPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: AppButton.ghost(
-                        text: 'Cancel',
-                        backgroundColor: AppColors.pageBg,
+                        text: AppStrings.cancel,
+                        backgroundColor: AppColors.white,
                         textColor: AppColors.navy,
                         height: 46.h,
                         isFullWidth: true,
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.k8,
                         textStyle: AppTypography.titleSmall,
                         onPressed: () => Navigator.pop(ctx),
                       ),
@@ -370,10 +373,10 @@ class DashboardPage extends StatelessWidget {
                     AppSpacing.gapH12,
                     Expanded(
                       child: AppButton.danger(
-                        text: 'Yes, Logout',
+                        text: AppStrings.yesLogout,
                         height: 46.h,
                         isFullWidth: true,
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: AppRadius.k8,
                         onPressed: () {
                           Navigator.pop(ctx);
                           context
@@ -381,7 +384,7 @@ class DashboardPage extends StatelessWidget {
                               .add(const AuthEvent.userLoggedOut());
                           SnackBarUtils.showSuccess(
                             context,
-                            'Logged out successfully',
+                            AppStrings.loggedOutSuccess,
                           );
                           context.go(Routes.home);
                         },

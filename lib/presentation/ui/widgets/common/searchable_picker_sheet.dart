@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 
@@ -98,21 +99,21 @@ class _SearchablePickerSheetState<T> extends State<SearchablePickerSheet<T>> {
                     : null,
                 isDense: true,
                 filled: true,
-                fillColor: AppColors.pageBg,
+                fillColor: AppColors.itemBackground,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 12.w,
                   vertical: 10.h,
                 ),
                 border: const OutlineInputBorder(
-                  borderRadius: AppRadius.inputRadius,
+                  borderRadius: AppRadius.k8,
                   borderSide: BorderSide.none,
                 ),
                 enabledBorder: const OutlineInputBorder(
-                  borderRadius: AppRadius.inputRadius,
+                  borderRadius: AppRadius.k8,
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: const OutlineInputBorder(
-                  borderRadius: AppRadius.inputRadius,
+                  borderRadius: AppRadius.k8,
                   borderSide: BorderSide(color: AppColors.pickabooBlue),
                 ),
               ),

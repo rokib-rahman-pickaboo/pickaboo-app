@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/order/order_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_info_section.dart';
@@ -23,9 +24,27 @@ class OrderPaymentSection extends StatelessWidget {
     this.paymentInformation = const [],
   });
 
+  String? _paymentAsset(String code) {
+    final clean = code.toLowerCase().trim();
+    if (clean.contains('bkash')) return AppAssets.bkash;
+    if (clean.contains('nagad')) return AppAssets.nagad;
+    if (clean.contains('amex') || clean.contains('american')) return AppAssets.amex;
+    if (clean.contains('visamaster') || (clean.contains('visa') && clean.contains('master'))) return AppAssets.visaMastercard;
+    if (clean.contains('visa')) return AppAssets.visa;
+    if (clean.contains('master')) return AppAssets.mastercard;
+    if (clean.contains('ebl') || clean.contains('pickaboo')) return AppAssets.pickabooMastercard;
+    if (clean.contains('pathao')) return AppAssets.pathaoPay;
+    if (clean.contains('cardondelivery') || (clean.contains('card') && clean.contains('delivery'))) return AppAssets.cardOnDelivery;
+    if (clean.contains('cash')) return AppAssets.cashOnDelivery;
+    if (clean.contains('emi')) return AppAssets.emiPayment;
+    if (clean.contains('card')) return AppAssets.cardPayment;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayItems = _extractCustomerFacingItems();
+    final assetPath = _paymentAsset(paymentMethod);
 
     return OrderInfoSection(
       title: 'Payment Information',
@@ -34,12 +53,29 @@ class OrderPaymentSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.payment_outlined,
-                size: 18.sp,
-                color: AppColors.pickabooBlue,
-              ),
-              SizedBox(width: 8.w),
+              if (assetPath != null) ...[
+                Container(
+                  width: 28.w,
+                  height: 28.w,
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadius.k4,
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: assetPath.toLowerCase().endsWith('.svg')
+                      ? SvgPicture.asset(assetPath, fit: BoxFit.contain)
+                      : Image.asset(assetPath, fit: BoxFit.contain),
+                ),
+                SizedBox(width: 8.w),
+              ] else ...[
+                Icon(
+                  Icons.payment_outlined,
+                  size: 18.sp,
+                  color: AppColors.pickabooBlue,
+                ),
+                SizedBox(width: 8.w),
+              ],
               Expanded(
                 child: Text(
                   formatPaymentMethod(paymentMethod),

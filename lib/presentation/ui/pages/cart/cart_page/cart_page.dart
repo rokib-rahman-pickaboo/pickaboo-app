@@ -156,7 +156,7 @@ class _CartPageState extends State<CartPage> {
           }
         },
         child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         title: 'My Cart',
         actions: [
@@ -449,18 +449,7 @@ class _CartPageState extends State<CartPage> {
               children: [
                 // ── 1. GROUPED CART ITEMS CARD (ALL IN 1 CARD) ──
                 Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: AppRadius.cardRadius,
-                    border: Border.all(color: AppColors.border),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.navy.withValues(alpha: 0.03),
-                        blurRadius: 8.r,
-                        offset: Offset(0, 2.h),
-                      ),
-                    ],
-                  ),
+                  decoration: AppDecorations.cardBoxDecoration(),
                   child: Column(
                     children: [
                       for (int i = 0; i < cart.items.length; i++) ...[

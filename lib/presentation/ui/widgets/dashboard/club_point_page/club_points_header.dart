@@ -5,6 +5,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/domain/entity/club_point/club_point_entity.dart';
@@ -72,7 +73,7 @@ class ClubPointsHeader extends StatelessWidget {
             AppColors.navy,
           ],
         ),
-        borderRadius: AppRadius.dialogRadius,
+        borderRadius: AppRadius.k16,
         boxShadow: [
           BoxShadow(
             color: AppColors.pickabooBlue.withValues(alpha: 0.35),
@@ -105,7 +106,7 @@ class ClubPointsHeader extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 decoration: BoxDecoration(
                   color: AppColors.white.withValues(alpha: 0.2),
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   border: Border.all(
                     color: AppColors.white.withValues(alpha: 0.3),
                   ),
@@ -131,7 +132,7 @@ class ClubPointsHeader extends StatelessWidget {
           if (data.tiers.isNotEmpty) ...[
             SizedBox(height: 16.h),
             ClipRRect(
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               child: LinearProgressIndicator(
                 value: _getProgressPercentage(data),
                 backgroundColor: AppColors.white.withValues(alpha: 0.25),
@@ -163,7 +164,7 @@ class ClubPointsHeader extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
                 color: AppColors.white.withValues(alpha: 0.2),
-                borderRadius: AppRadius.fullRadius,
+                borderRadius: AppRadius.kFull,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

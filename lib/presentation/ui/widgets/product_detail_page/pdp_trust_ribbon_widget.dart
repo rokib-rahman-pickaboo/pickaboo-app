@@ -105,6 +105,7 @@ class _PdpTrustRibbonWidgetState extends State<PdpTrustRibbonWidget> {
     return Container(
       width: double.infinity,
       height: 36.h,
+      margin: EdgeInsets.only(bottom: 8.h),
       color: AppColors.surfaceBlue,
       alignment: Alignment.center,
       child: AnimatedSwitcher(

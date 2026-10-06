@@ -9,9 +9,9 @@ import 'package:url_launcher/url_launcher.dart';
 class FaqTheme {
   const FaqTheme._();
 
-  static double get radiusSmall => AppRadius.sm;
-  static double get radiusMedium => AppRadius.chip;
-  static double get radiusLarge => AppRadius.dialog;
+  static double get radiusSmall => AppRadius.r8;
+  static double get radiusMedium => AppRadius.r8;
+  static double get radiusLarge => AppRadius.r16;
 
   static Color get pageBackground =>
       Color.alphaBlend(AppColors.black.withValues(alpha: 0.02), AppColors.white);
@@ -57,9 +57,7 @@ class FaqHero extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 18.h),
       decoration: BoxDecoration(
         gradient: FaqTheme.heroGradient,
-        borderRadius: roundedTop
-            ? BorderRadius.vertical(top: Radius.circular(FaqTheme.radiusSmall))
-            : null,
+        borderRadius: roundedTop ? AppRadius.top8 : null,
       ),
       child: Column(
         children: [
@@ -136,7 +134,7 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
   Widget build(BuildContext context) {
     final hasText = widget.controller.text.isNotEmpty;
 
-    final radius = BorderRadius.circular(FaqTheme.radiusMedium);
+    final radius = AppRadius.k8;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
@@ -155,7 +153,7 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
             : null,
       ),
       child: Material(
-        color: _focused ? AppColors.white : AppColors.pageBg,
+        color: _focused ? AppColors.white : AppColors.itemBackground,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
           side: BorderSide(
@@ -174,7 +172,6 @@ class _FaqSearchFieldState extends State<FaqSearchField> {
         onChanged: (_) => setState(() {}),
         cursorColor: AppColors.pickabooBlue,
         cursorWidth: 1.5,
-        cursorRadius: const Radius.circular(1),
         style: AppTypography.bodyMedium.copyWith(
           fontSize: 14.sp,
           height: 1.2,
@@ -250,13 +247,13 @@ class FaqCategoryTrigger extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+      borderRadius: AppRadius.k8,
       child: Container(
         height: 48.h,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
           color: FaqTheme.primarySurface,
-          borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+          borderRadius: AppRadius.k8,
           border: Border.all(color: FaqTheme.primaryBorder, width: 1.w),
         ),
         child: Row(
@@ -344,11 +341,9 @@ class FaqCategorySheet extends StatelessWidget {
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.65,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(FaqTheme.radiusLarge),
-        ),
+        borderRadius: AppRadius.top16,
       ),
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
       child: Column(
@@ -361,7 +356,7 @@ class FaqCategorySheet extends StatelessWidget {
               height: 4.h,
               decoration: BoxDecoration(
                 color: AppColors.muted.withValues(alpha: 0.35),
-                borderRadius: AppRadius.badgeRadius,
+                borderRadius: AppRadius.k4,
               ),
             ),
           ),
@@ -433,7 +428,7 @@ class _SheetRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+      borderRadius: AppRadius.k8,
       child: Container(
         margin: EdgeInsets.only(bottom: 1.h),
         padding: EdgeInsets.symmetric(
@@ -442,7 +437,7 @@ class _SheetRow extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: isActive ? FaqTheme.primaryTint : null,
-          borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+          borderRadius: AppRadius.k8,
         ),
         child: Row(
           children: [
@@ -462,7 +457,7 @@ class _SheetRow extends StatelessWidget {
                 width: 32.w,
                 height: 32.w,
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.white : AppColors.pageBg,
+                  color: isActive ? AppColors.white : AppColors.itemBackground,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -560,12 +555,12 @@ class _HelpButton extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+      borderRadius: AppRadius.k8,
       child: Container(
         height: 40.h,
         decoration: BoxDecoration(
           color: filled ? AppColors.pickabooBlue : AppColors.white,
-          borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+          borderRadius: AppRadius.k8,
           border: Border.all(color: AppColors.pickabooBlue, width: 1.w),
         ),
         child: Row(

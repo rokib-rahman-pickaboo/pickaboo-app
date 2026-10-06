@@ -157,20 +157,9 @@ class _OrderItemCardState extends State<OrderItemCard> {
 
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.groupToGroupSpacing.h),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 10.r,
-            spreadRadius: 0,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: ClipRRect(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         child: InkWell(
           onTap: widget.onTap,
           child: Column(
@@ -220,7 +209,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                               decoration: BoxDecoration(
                                 color: statusAttributes.backgroundColor
                                     .withValues(alpha: 0.1),
-                                borderRadius: AppRadius.pillRadius,
+                                borderRadius: AppRadius.kFull,
                                 border: Border.all(
                                   color: statusAttributes.backgroundColor
                                       .withValues(alpha: 0.25),
@@ -263,7 +252,7 @@ class _OrderItemCardState extends State<OrderItemCard> {
                               horizontal: 16.w,
                               vertical: 8.h,
                             ),
-                            borderRadius: AppRadius.buttonRadius,
+                            borderRadius: AppRadius.k8,
                             isDisabled: _payPressed,
                             onPressed: _payPressed
                                 ? null

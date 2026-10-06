@@ -52,7 +52,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         title: widget.product.name,
       ),
@@ -67,7 +67,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
             height: 48.h,
             decoration: BoxDecoration(
               color: AppColors.surfaceBlue,
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             child: TabBar(
@@ -78,7 +78,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
                 color: AppColors.pickabooBlue,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: AppRadius.k8,
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.pickabooBlue.withValues(alpha: 0.2),
@@ -124,11 +124,11 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
@@ -142,12 +142,12 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
             height: 75.w,
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
+              color: AppColors.itemBackground,
               border: Border.all(color: AppColors.border),
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
             ),
             child: ClipRRect(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               child: AppImage(
                 imageUrl: widget.product.images.isNotEmpty
                     ? widget.product.images.first
@@ -197,7 +197,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.orangeBg,
-                          borderRadius: BorderRadius.circular(4.r),
+                          borderRadius: AppRadius.k4,
                         ),
                         child: Text(
                           '$discountPercent% OFF',
@@ -226,7 +226,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
         padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           border: Border.all(color: AppColors.border),
         ),
         child: AppHtml(data: widget.product.productDetails),
@@ -281,7 +281,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                           _selectedSpecGroupIndex = index;
                         });
                       },
-                      borderRadius: BorderRadius.circular(6.r),
+                      borderRadius: AppRadius.k4,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
                         padding: EdgeInsets.symmetric(
@@ -292,7 +292,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                           color: isSelected
                               ? AppColors.pickabooBlue
                               : AppColors.white,
-                          borderRadius: BorderRadius.circular(6.r),
+                          borderRadius: AppRadius.k4,
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.pickabooBlue
@@ -325,22 +325,22 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
           Container(
             decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.navy.withValues(alpha: 0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 8.r,
                   offset: Offset(0, 2.h),
                 ),
               ],
             ),
             foregroundDecoration: BoxDecoration(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             clipBehavior: Clip.antiAlias,
             child: ClipRRect(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -351,7 +351,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                         horizontal: 14.w,
                         vertical: 10.h,
                       ),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.surfaceBlue,
                       ),
                       child: Text(
@@ -372,19 +372,18 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                           final BorderRadius? rowRadius = (hasGroupHeader)
                               ? (isLast
                                   ? const BorderRadius.vertical(
-                                      bottom: Radius.circular(AppRadius.card),
+                                      bottom: AppRadius.rad8,
                                     )
                                   : null)
                               : (isFirst && isLast)
-                                  ? AppRadius.cardRadius
+                                  ? AppRadius.k8
                                   : isFirst
                                       ? const BorderRadius.vertical(
-                                          top: Radius.circular(AppRadius.card),
+                                          top: AppRadius.rad8,
                                         )
                                       : isLast
                                           ? const BorderRadius.vertical(
-                                              bottom: Radius.circular(
-                                                  AppRadius.card),
+                                              bottom: AppRadius.rad8,
                                             )
                                           : null;
 
@@ -396,7 +395,7 @@ class _ProductDescriptionPageState extends State<ProductDescriptionPage>
                             decoration: BoxDecoration(
                               color: i % 2 == 0
                                   ? AppColors.white
-                                  : AppColors.pageBg,
+                                  : AppColors.itemBackground,
                               borderRadius: rowRadius,
                               border: !isLast
                                   ? Border(

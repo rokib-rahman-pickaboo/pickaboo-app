@@ -92,7 +92,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         builder: (context) => Material(
           color: AppColors.white,
           clipBehavior: Clip.antiAlias,
-          borderRadius: AppRadius.sheetTop,
+          borderRadius: AppRadius.top16,
           child: SafeArea(
             top: false,
             child: BlocBuilder<FilterBloc, FilterState>(
@@ -220,7 +220,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   Widget _buildHeader(BuildContext context, int totalSelected) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(
           bottom: BorderSide(color: AppColors.border, width: 1),
@@ -274,7 +274,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           final bool isWhite = (categories.length - 1 - index).isEven;
           final Color backgroundColor = isSelected
               ? AppColors.surfaceBlue
-              : (isWhite ? AppColors.white : AppColors.pageBg);
+              : (isWhite ? AppColors.white : AppColors.itemBackground);
 
           return InkWell(
             onTap: () {
@@ -319,9 +319,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         horizontal: 5.w,
                         vertical: 2.h,
                       ),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.pickabooBlue,
-                        borderRadius: AppRadius.chipRadius,
+                        borderRadius: AppRadius.k8,
                       ),
                       child: Text(
                         '$count',
@@ -348,7 +348,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         thumbVisibility: true,
         trackVisibility: false,
         thickness: 4.w,
-        radius: const Radius.circular(AppRadius.badge),
+        radius: AppRadius.rad4,
         thumbColor: AppColors.pickabooBlue,
         child: ListView.builder(
           controller: _optionsScrollController,
@@ -360,7 +360,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             final bool isWhite =
                 (category.items.length - 1 - index).isEven;
             final Color itemBg =
-                isWhite ? AppColors.white : AppColors.pageBg;
+                isWhite ? AppColors.white : AppColors.itemBackground;
 
             return InkWell(
               onTap: () {
@@ -388,7 +388,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         color: isChecked
                             ? AppColors.pickabooBlue
                             : AppColors.white,
-                        borderRadius: AppRadius.badgeRadius,
+                        borderRadius: AppRadius.k4,
                         border: Border.all(
                           color: isChecked
                               ? AppColors.pickabooBlue
@@ -434,7 +434,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   Widget _buildBottomBar(BuildContext context, int totalSelected) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(
           top: BorderSide(
@@ -445,7 +445,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       ),
       child: AppButton.primary(
         height: 46.h,
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         text: totalSelected > 0
             ? 'Apply Filters ($totalSelected)'
             : 'Apply Filters',

@@ -348,5 +348,33 @@ void main() {
       await tester.tap(find.textContaining('Oraimo Official'));
       expect(sellerTapped, isTrue);
     });
+
+    testWidgets('When onBrandTap is null, brand text is not tappable while seller tap works', (tester) async {
+      bool sellerTapped = false;
+
+      final product = _makeProduct(
+        soldBy: 'Pickaboo Official Store',
+      );
+
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          product: product,
+          onBrandTap: null,
+          onSellerTap: () => sellerTapped = true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Brand text exists and displays correctly
+      expect(find.text('REALME'), findsOneWidget);
+
+      // Tapping brand does nothing and throws no error
+      await tester.tap(find.text('REALME'));
+
+      // Seller tap remains fully functional
+      await tester.tap(find.textContaining('Pickaboo Official Store'));
+      expect(sellerTapped, isTrue);
+    });
   });
 }
+

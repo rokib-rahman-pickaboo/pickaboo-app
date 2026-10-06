@@ -5,6 +5,7 @@
 // ============================================================================
 
 import 'dart:async';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -1290,9 +1291,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   width: 44.w,
                   height: 44.h,
                   decoration: BoxDecoration(
-                    color: AppColors.pageBg,
-                    borderRadius: AppRadius.buttonRadius,
-                    border: Border.all(color: AppColors.border, width: 1.w),
+                    color: AppColors.white,
+                    borderRadius: AppRadius.k8,
+                    boxShadow: AppDecorations.cardShadow,
                   ),
                   child: Center(
                     child: Icon(
@@ -1303,14 +1304,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                 ),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: 8.w),
               // ADD TO CART outline placeholder
               Expanded(
                 child: Container(
                   height: 44.h,
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: AppRadius.buttonRadius,
+                    borderRadius: AppRadius.k8,
                     border: Border.all(
                       color: AppColors.skeletonBase,
                       width: 1.2.w,
@@ -1326,14 +1327,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                 ),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: 8.w),
               // BUY NOW filled placeholder
               Expanded(
                 child: Container(
                   height: 44.h,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.skeletonBase,
-                    borderRadius: AppRadius.buttonRadius,
+                    borderRadius: AppRadius.k8,
                   ),
                   child: Center(
                     child: Text(
@@ -1487,12 +1488,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         originalPrice: originalPrice,
                         saving: saving,
                         showTrustRibbon: _showTrustRibbon,
-                        onBrandTap: () {
-                          context.pushToBrandProduct(
-                            brandKey: product.brand.replaceAll(RegExp(r'\s+'), ''),
-                            brandName: product.brand,
-                          );
-                        },
+                        onBrandTap: AppConstants.enableBrandPageNavigation
+                            ? () {
+                                context.pushToBrandProduct(
+                                  brandKey: product.brand.replaceAll(RegExp(r'\s+'), ''),
+                                  brandName: product.brand,
+                                );
+                              }
+                            : null,
                         onRateTap: () {
                           _reviewsTabKey.currentState?.selectTab(2);
                           final ctx = _reviewsTabKey.currentContext;
@@ -1592,7 +1595,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                     // ── 8. Tabbed Specifications, Overview, Reviews & Q&A ──
                     PdpSectionCard(
-                      customPadding: EdgeInsets.zero,
+                      customPadding: EdgeInsets.only(top: 8.h),
                       child: PdpTabSectionWidget(
                         key: _reviewsTabKey,
                         product: product,

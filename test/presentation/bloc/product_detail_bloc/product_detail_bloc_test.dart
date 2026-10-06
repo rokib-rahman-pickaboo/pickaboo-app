@@ -542,9 +542,9 @@ void main() {
         );
         return bloc;
       },
-      act: (b) => b.add(ProductDetailEvent.load(
+      act: (b) => b.add(const ProductDetailEvent.load(
         productId: _tNumericId,
-        initialProduct: const ProductEntity(
+        initialProduct: ProductEntity(
           id: _tNumericId,
           expressDelivery: false,
           productName: 'Preview Product',

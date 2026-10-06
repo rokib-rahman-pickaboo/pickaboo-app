@@ -271,23 +271,23 @@ class _LoginPageState extends State<LoginPage> {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       border: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.border),
       ),
       enabledBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.border),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
       ),
       errorBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.red),
       ),
       focusedErrorBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.red, width: 1.5),
       ),
     );
@@ -420,7 +420,7 @@ class _LoginPageState extends State<LoginPage> {
                                 if (!_isUser) ...[
                                   InkWell(
                                     onTap: _handleToggleLoginMethod,
-                                    borderRadius: AppRadius.cardRadius,
+                                    borderRadius: AppRadius.k8,
                                     child: Container(
                                       width: double.infinity,
                                       height: 44.h,
@@ -429,7 +429,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: AppColors.white,
-                                        borderRadius: AppRadius.cardRadius,
+                                        borderRadius: AppRadius.k8,
                                         border: Border.all(
                                           color: AppColors.pickabooBlue
                                               .withValues(alpha: 0.25),
@@ -437,11 +437,11 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppColors.navy.withValues(
-                                              alpha: 0.04,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.03,
                                             ),
-                                            blurRadius: 8.r,
-                                            offset: Offset(0, 2.h),
+                                            blurRadius: 4.r,
+                                            offset: Offset(0, 1.5.h),
                                           ),
                                         ],
                                       ),
@@ -451,10 +451,10 @@ class _LoginPageState extends State<LoginPage> {
                                         children: [
                                           Container(
                                             padding: EdgeInsets.all(5.w),
-                                            decoration: const BoxDecoration(
+                                            decoration: BoxDecoration(
                                               color: AppColors.surfaceBlue,
                                               borderRadius:
-                                                  AppRadius.badgeRadius,
+                                                  AppRadius.k4,
                                             ),
                                             child: Icon(
                                               _isEmail
@@ -818,7 +818,7 @@ class _LoginPageState extends State<LoginPage> {
                             context.go(Routes.home);
                           }
                         },
-                        borderRadius: AppRadius.pillRadius,
+                        borderRadius: AppRadius.kFull,
                         child: Padding(
                           padding: EdgeInsets.all(8.r),
                           child: Icon(

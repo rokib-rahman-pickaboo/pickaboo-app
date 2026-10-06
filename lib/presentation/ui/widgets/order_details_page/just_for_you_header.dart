@@ -13,7 +13,7 @@ class JustForYouHeader extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: AppColors.black,
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.amber),
       ),
       alignment: Alignment.center,

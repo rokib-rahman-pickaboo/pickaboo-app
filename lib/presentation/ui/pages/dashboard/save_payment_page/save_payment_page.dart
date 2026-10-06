@@ -21,6 +21,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/save_payment_page/save_payment_skeleton.dart';
 
 class SavePaymentPage extends StatefulWidget {
   final String customerId;
@@ -54,7 +55,7 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: 'Saved Payment Methods',
       ),
@@ -75,7 +76,7 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
         },
         builder: (context, state) {
           if (state.isLoading && state.savedPayments.isEmpty) {
-            return const AppLoader.fullPage();
+            return const SavePaymentSkeleton();
           }
 
           if (state.errorMessage != null && state.savedPayments.isEmpty) {
@@ -118,9 +119,9 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
                 Container(
                   width: 42.w,
                   height: 42.h,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.surfaceBlue,
-                    borderRadius: AppRadius.buttonRadius,
+                    borderRadius: AppRadius.k8,
                   ),
                   child: Icon(
                     Icons.credit_card_outlined,
@@ -210,7 +211,21 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
     return '${'*' * (digits.length - 4)}$last4';
   }
 
+  String _walletAsset(String network) {
+    final clean = network.toLowerCase().trim();
+    if (clean.contains('bkash')) return AppAssets.bkash;
+    if (clean.contains('nagad')) return AppAssets.nagad;
+    if (clean.contains('visa') && clean.contains('master')) return AppAssets.visaMastercard;
+    if (clean.contains('visa')) return AppAssets.visa;
+    if (clean.contains('master')) return AppAssets.mastercard;
+    if (clean.contains('amex') || clean.contains('american')) return AppAssets.amex;
+    if (clean.contains('ebl') || clean.contains('pickaboo')) return AppAssets.pickabooMastercard;
+    if (clean.contains('pathao')) return AppAssets.pathaoPay;
+    return AppAssets.cardPayment;
+  }
+
   Widget _buildWalletRow(SavedPaymentEntity payment) {
+    final assetPath = _walletAsset(payment.network);
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.sameGroupItemSpacing.w,
@@ -223,19 +238,24 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
             height: 42.h,
             padding: EdgeInsets.all(6.w),
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: BorderRadius.circular(10.r),
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
-            child: SvgPicture.asset(
-              AppAssets.bkash,
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => Icon(
-                Icons.account_balance_wallet_rounded,
-                color: AppColors.pickabooBlue,
-                size: 20.sp,
-              ),
-            ),
+            child: assetPath.toLowerCase().endsWith('.svg')
+                ? SvgPicture.asset(
+                    assetPath,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => Icon(
+                      Icons.account_balance_wallet_rounded,
+                      color: AppColors.pickabooBlue,
+                      size: 20.sp,
+                    ),
+                  )
+                : Image.asset(
+                    assetPath,
+                    fit: BoxFit.contain,
+                  ),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -264,7 +284,7 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
             ),
             textColor: AppColors.red,
             borderColor: AppColors.red.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: AppRadius.k8,
             isFullWidth: false,
             size: AppButtonSize.sm,
             height: 32.h,
@@ -284,8 +304,8 @@ class _SavePaymentPageState extends State<SavePaymentPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadius.k16,
         ),
         title: Text(
           'Remove Payment Method?',

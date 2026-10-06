@@ -73,11 +73,7 @@ class CartPageSkeleton extends StatelessWidget {
   Widget _buildCartItemSkeleton(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border, width: 1.w),
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -86,8 +82,8 @@ class CartPageSkeleton extends StatelessWidget {
             width: 68.w,
             height: 68.w,
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.buttonRadius,
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             child: Center(
@@ -111,7 +107,7 @@ class CartPageSkeleton extends StatelessWidget {
                   height: 12.h,
                   decoration: BoxDecoration(
                     color: AppColors.skeletonBase,
-                    borderRadius: BorderRadius.circular(3.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 5.h),
@@ -122,7 +118,7 @@ class CartPageSkeleton extends StatelessWidget {
                   height: 12.h,
                   decoration: BoxDecoration(
                     color: AppColors.skeletonBase,
-                    borderRadius: BorderRadius.circular(3.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 10.h),
@@ -138,7 +134,7 @@ class CartPageSkeleton extends StatelessWidget {
                       height: 16.h,
                       decoration: BoxDecoration(
                         color: AppColors.skeletonBase,
-                        borderRadius: BorderRadius.circular(3.r),
+                        borderRadius: AppRadius.k4,
                       ),
                     ),
 
@@ -147,8 +143,8 @@ class CartPageSkeleton extends StatelessWidget {
                       width: 80.w,
                       height: 28.h,
                       decoration: BoxDecoration(
-                        color: AppColors.pageBg,
-                        borderRadius: AppRadius.pillRadius,
+                        color: AppColors.itemBackground,
+                        borderRadius: AppRadius.kFull,
                         border: Border.all(color: AppColors.border),
                       ),
                     ),
@@ -169,7 +165,7 @@ class CartPageSkeleton extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
@@ -181,7 +177,7 @@ class CartPageSkeleton extends StatelessWidget {
               height: 12.h,
               decoration: BoxDecoration(
                 color: AppColors.skeletonBase,
-                borderRadius: BorderRadius.circular(3.r),
+                borderRadius: AppRadius.k4,
               ),
             ),
           ),
@@ -189,9 +185,9 @@ class CartPageSkeleton extends StatelessWidget {
           Container(
             width: 50.w,
             height: 26.h,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.skeletonBase,
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
             ),
           ),
         ],
@@ -203,11 +199,7 @@ class CartPageSkeleton extends StatelessWidget {
   Widget _buildPriceSummarySkeleton(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -217,7 +209,7 @@ class CartPageSkeleton extends StatelessWidget {
             height: 14.h,
             decoration: BoxDecoration(
               color: AppColors.skeletonBase,
-              borderRadius: BorderRadius.circular(3.r),
+              borderRadius: AppRadius.k4,
             ),
           ),
           SizedBox(height: 12.h),
@@ -251,7 +243,7 @@ class CartPageSkeleton extends StatelessWidget {
                 height: 15.h,
                 decoration: BoxDecoration(
                   color: AppColors.skeletonBase,
-                  borderRadius: BorderRadius.circular(3.r),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
               Container(
@@ -259,7 +251,7 @@ class CartPageSkeleton extends StatelessWidget {
                 height: 18.h,
                 decoration: BoxDecoration(
                   color: AppColors.skeletonBase,
-                  borderRadius: BorderRadius.circular(4.r),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ],
@@ -278,7 +270,7 @@ class CartPageSkeleton extends StatelessWidget {
           height: 11.h,
           decoration: BoxDecoration(
             color: AppColors.skeletonBase,
-            borderRadius: BorderRadius.circular(3.r),
+            borderRadius: AppRadius.k4,
           ),
         ),
         Container(
@@ -286,7 +278,7 @@ class CartPageSkeleton extends StatelessWidget {
           height: 11.h,
           decoration: BoxDecoration(
             color: AppColors.skeletonBase,
-            borderRadius: BorderRadius.circular(3.r),
+            borderRadius: AppRadius.k4,
           ),
         ),
       ],
@@ -308,9 +300,9 @@ class CartPageSkeleton extends StatelessWidget {
         child: Container(
           width: double.infinity,
           height: 48.h,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.skeletonBase,
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
           ),
         ),
       ),

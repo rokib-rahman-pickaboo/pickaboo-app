@@ -383,6 +383,7 @@ extension NavigationExtensions on BuildContext {
     required Function(bool success, String? message) onPaymentResult,
     void Function(String type, String paymentId)? onBkashCallback,
     void Function(Map<String, String> params)? onNagadCallback,
+    void Function(Map<String, String> params)? onPathaoCallback,
     VoidCallback? onUserClosed,
   }) {
     push(
@@ -394,6 +395,7 @@ extension NavigationExtensions on BuildContext {
         'onPaymentResult': onPaymentResult,
         'onBkashCallback': onBkashCallback,
         'onNagadCallback': onNagadCallback,
+        'onPathaoCallback': onPathaoCallback,
         'onUserClosed': onUserClosed,
       },
     );

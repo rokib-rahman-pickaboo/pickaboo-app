@@ -96,8 +96,8 @@ class ContactUsPage extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppRadius.top16,
       ),
       builder: (sheetContext) {
         return SafeArea(
@@ -119,7 +119,7 @@ class ContactUsPage extends StatelessWidget {
                     height: 4.h,
                     decoration: BoxDecoration(
                       color: AppColors.border,
-                      borderRadius: BorderRadius.circular(2.r),
+                      borderRadius: AppRadius.k4,
                     ),
                   ),
                 ),
@@ -135,7 +135,7 @@ class ContactUsPage extends StatelessWidget {
                           padding: EdgeInsets.all(8.w),
                           decoration: BoxDecoration(
                             color: AppColors.amber.withValues(alpha: 0.12),
-                            borderRadius: AppRadius.buttonRadius,
+                            borderRadius: AppRadius.k8,
                           ),
                           child: Icon(
                             Icons.location_on_outlined,
@@ -169,8 +169,8 @@ class ContactUsPage extends StatelessWidget {
                   width: double.infinity,
                   padding: EdgeInsets.all(14.w),
                   decoration: BoxDecoration(
-                    color: AppColors.pageBg,
-                    borderRadius: AppRadius.cardRadius,
+                    color: AppColors.itemBackground,
+                    borderRadius: AppRadius.k8,
                     border: Border.all(color: AppColors.border, width: 1.w),
                   ),
                   child: Column(
@@ -198,7 +198,7 @@ class ContactUsPage extends StatelessWidget {
                 // "Open in Google Maps" button
                 AppButton.primary(
                   height: 46.h,
-                  borderRadius: AppRadius.buttonRadius,
+                  borderRadius: AppRadius.k8,
                   icon: Icon(
                     Icons.map_outlined,
                     size: 18.sp,
@@ -222,7 +222,7 @@ class ContactUsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: AppStrings.contactUs,
       ),
@@ -258,9 +258,9 @@ class ContactUsPage extends StatelessWidget {
                         children: [
                           Container(
                             padding: EdgeInsets.all(8.w),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: AppColors.surfaceBlue,
-                              borderRadius: AppRadius.buttonRadius,
+                              borderRadius: AppRadius.k8,
                             ),
                             child: Icon(
                               Icons.confirmation_num_outlined,
@@ -290,7 +290,7 @@ class ContactUsPage extends StatelessWidget {
                       SizedBox(height: 14.h),
                       AppButton.primary(
                         height: 44.h,
-                        borderRadius: BorderRadius.circular(10.r),
+                        borderRadius: AppRadius.k8,
                         icon: Icon(
                           Icons.add_circle_outline_rounded,
                           size: 18.sp,

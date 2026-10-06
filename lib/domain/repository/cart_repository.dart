@@ -188,6 +188,10 @@ abstract class CartRepository {
     required Map<String, String> callbackParams,
   });
 
+  Future<Either<AppErrorEntity, bool>> pathaoPayCapture({
+    required Map<String, String> callbackParams,
+  });
+
   Future<Either<AppErrorEntity, CardBinVerifyEntity>> verifyCardBin({
     required String orderId,
   });

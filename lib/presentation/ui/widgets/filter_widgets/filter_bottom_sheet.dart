@@ -58,7 +58,7 @@ class FilterBottomSheet extends StatelessWidget {
             return Material(
               color: AppColors.white,
               clipBehavior: Clip.antiAlias,
-              borderRadius: AppRadius.sheetTop,
+              borderRadius: AppRadius.top16,
               child: SafeArea(
                 top: false,
                 child: Column(
@@ -87,7 +87,7 @@ class FilterBottomSheet extends StatelessWidget {
           },
           orElse: () => Material(
             color: AppColors.white,
-            borderRadius: AppRadius.sheetTop,
+            borderRadius: AppRadius.top16,
             child: SizedBox(
               height: 180.h,
               child: const AppLoader.inline(),
@@ -101,7 +101,7 @@ class FilterBottomSheet extends StatelessWidget {
   Widget _buildHeader(BuildContext context, int totalSelected) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(
           bottom: BorderSide(color: AppColors.border, width: 1),
@@ -133,7 +133,7 @@ class FilterBottomSheet extends StatelessWidget {
   Widget _buildBottomBar(BuildContext context, int totalSelected) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(
           top: BorderSide(color: AppColors.border, width: 1),
@@ -141,7 +141,7 @@ class FilterBottomSheet extends StatelessWidget {
       ),
       child: AppButton.primary(
         height: 46.h,
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         text: totalSelected > 0
             ? 'Apply Filters ($totalSelected)'
             : 'Apply Filters',

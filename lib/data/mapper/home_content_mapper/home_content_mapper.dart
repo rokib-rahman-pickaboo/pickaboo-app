@@ -1,3 +1,4 @@
+import 'package:pickaboo/core/utils/category_lookup_helper.dart';
 import 'package:pickaboo/data/model/common/category/category.dart';
 import 'package:pickaboo/data/model/common/slider/slider.dart';
 import 'package:pickaboo/data/model/home_content_response/home_content_response.dart';
@@ -29,7 +30,12 @@ extension CategoryListResponseMapper on Category {
     slug: slug ?? '',
     name: name ?? '',
     isSpecial: _parseBool(isSpecial),
-    icon: icon ?? '',
+    icon: CategoryLookupHelper.canonicalIcon(
+      icon,
+      id: id,
+      slug: slug,
+      name: name,
+    ),
   );
 }
 

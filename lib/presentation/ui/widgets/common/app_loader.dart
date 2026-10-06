@@ -134,7 +134,7 @@ class AppLoader extends StatelessWidget {
           backgroundColor: AppColors.white,
           elevation: 4,
           shape: const RoundedRectangleBorder(
-            borderRadius: AppRadius.dialogRadius,
+            borderRadius: AppRadius.k16,
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
@@ -187,10 +187,10 @@ class AppLoader extends StatelessWidget {
                         EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: AppRadius.cardRadius,
+                      borderRadius: AppRadius.k8,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.navy.withValues(alpha: 0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 10.r,
                         ),
                       ],

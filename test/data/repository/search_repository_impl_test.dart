@@ -22,7 +22,7 @@ void main() {
     test('search performance', () async {
       // Arrange
       const query = "phone";
-      final response = const SearchResponse(items: [], totalItems: 0);
+      const response = SearchResponse(items: [], totalItems: 0);
 
       when(
         () => mockApiService.search(
@@ -36,7 +36,7 @@ void main() {
         ),
       ).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 65));
-        return Right(
+        return const Right(
           response,
         ); // Assuming response maps to entity without error
       });

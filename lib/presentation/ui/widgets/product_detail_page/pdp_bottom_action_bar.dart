@@ -57,9 +57,9 @@ class PdpBottomActionBar extends StatelessWidget {
             // ── Chat / Support Button ──
             Container(
               decoration: BoxDecoration(
-                color: AppColors.pageBg,
-                borderRadius: AppRadius.buttonRadius,
-                border: Border.all(color: AppColors.border),
+                color: AppColors.white,
+                borderRadius: AppRadius.k8,
+                boxShadow: AppDecorations.cardShadow,
               ),
               child: IconButton(
                 icon: Icon(Icons.chat_bubble_outline_rounded, color: AppColors.navy, size: 20.sp),
@@ -72,7 +72,7 @@ class PdpBottomActionBar extends StatelessWidget {
             Expanded(
               child: AppButton.secondary(
                 height: 44.h,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 isDisabled: !isAvailable || isProcessing,
                 isLoading: isProcessing,
                 onPressed: isAvailable && !isProcessing ? onAddToCart : null,
@@ -89,7 +89,7 @@ class PdpBottomActionBar extends StatelessWidget {
             Expanded(
               child: AppButton.primary(
                 height: 44.h,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 backgroundColor: isAvailable ? AppColors.pickabooBlue : AppColors.muted,
                 isDisabled: !isAvailable || isProcessing,
                 onPressed: isAvailable && !isProcessing ? onBuyNow : null,

@@ -25,18 +25,7 @@ class OrderItemCard extends StatelessWidget {
         vertical: 4.h,
       ),
       padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -44,12 +33,12 @@ class OrderItemCard extends StatelessWidget {
             width: 70.w,
             height: 70.w,
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.cardRadius,
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             child: ClipRRect(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               child: AppImage(
                 imageUrl: item.image ?? "",
                 width: 70.w,
@@ -96,9 +85,9 @@ class OrderItemCard extends StatelessWidget {
                         horizontal: 8.w,
                         vertical: 3.h,
                       ),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.surfaceBlue,
-                        borderRadius: AppRadius.badgeRadius,
+                        borderRadius: AppRadius.k4,
                       ),
                       child: Text(
                         'Qty: ${item.qty}',

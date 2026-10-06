@@ -22,12 +22,12 @@ class AddressItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: AppRadius.cardRadius,
+      borderRadius: AppRadius.k8,
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue.withValues(alpha: 0.05) : AppColors.white,
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: isSelected ? 2 : 1,

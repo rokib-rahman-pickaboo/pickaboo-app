@@ -30,6 +30,7 @@ import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_paymen
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_shipping_method_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_summary_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_timeline_section.dart';
+import 'package:pickaboo/presentation/ui/widgets/order_details_page/order_details_skeleton.dart';
 
 import 'package:pickaboo/core/color/app_colors.dart';
 
@@ -83,7 +84,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: widget.embedded
           ? null
           : PickabooAppBar(
@@ -113,7 +114,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               border: const Border(top: BorderSide(color: AppColors.border)),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.navy.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10.r,
                   offset: Offset(0, -2.h),
                 ),
@@ -128,7 +129,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           flex: 1,
                           child: AppButton.outline(
                             height: 48.h,
-                            borderRadius: AppRadius.cardRadius,
+                            borderRadius: AppRadius.k8,
                             borderColor: AppColors.red,
                             textColor: AppColors.red,
                             text: 'Cancel Order',
@@ -142,7 +143,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           flex: 1,
                           child: AppButton.primary(
                             height: 48.h,
-                            borderRadius: AppRadius.cardRadius,
+                            borderRadius: AppRadius.k8,
                             text: 'Buy Again',
                             isLoading: _isReordering,
                             onPressed: _isReordering
@@ -157,7 +158,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     )
                   : AppButton.primary(
                       height: 48.h,
-                      borderRadius: AppRadius.cardRadius,
+                      borderRadius: AppRadius.k8,
                       text: 'Buy Again',
                       isLoading: _isReordering,
                       onPressed: _isReordering
@@ -202,7 +203,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         },
         builder: (context, state) {
           if (state.isLoading && state.orderDetails == null) {
-            return const AppLoader.fullPage();
+            return const OrderDetailsSkeleton();
           }
 
           if (state.orderDetails == null) {

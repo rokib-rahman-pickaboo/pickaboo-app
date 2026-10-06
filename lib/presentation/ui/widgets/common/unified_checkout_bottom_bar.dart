@@ -83,7 +83,7 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
                   painter: _TrustRibbonPainter(
                     fillColor: AppColors.surfaceBlue,
                     borderColor: AppColors.border,
-                    radius: AppRadius.card.r,
+                    radius: AppRadius.r8.r,
                     slant: 12.w,
                   ),
                   child: Padding(
@@ -129,15 +129,15 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: hasTrustTag ? Radius.zero : Radius.circular(AppRadius.card.r),
-                  topRight: Radius.circular(AppRadius.card.r),
-                  bottomLeft: Radius.circular(AppRadius.card.r),
-                  bottomRight: Radius.circular(AppRadius.card.r),
+                  topLeft: hasTrustTag ? Radius.zero : AppRadius.rad8,
+                  topRight: AppRadius.rad8,
+                  bottomLeft: AppRadius.rad8,
+                  bottomRight: AppRadius.rad8,
                 ),
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.navy.withValues(alpha: 0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 10.r,
                     offset: Offset(0, 2.h),
                   ),

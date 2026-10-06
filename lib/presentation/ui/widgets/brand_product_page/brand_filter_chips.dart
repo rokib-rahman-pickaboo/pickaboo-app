@@ -68,12 +68,12 @@ class BrandFilterChips extends StatelessWidget {
           ),
         );
       },
-      borderRadius: AppRadius.pillRadius,
+      borderRadius: AppRadius.kFull,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue : AppColors.white,
-          borderRadius: AppRadius.pillRadius,
+          borderRadius: AppRadius.kFull,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.muted.withValues(alpha: 0.3),
             width: 1.w,

@@ -29,21 +29,7 @@ class PaymentReviewSection extends StatelessWidget {
           EdgeInsets.symmetric(
             horizontal: AppSpacing.sameGroupItemSpacing.w,
           ),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(
-          color: AppColors.border.withValues(alpha: 0.8),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 6.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -51,9 +37,9 @@ class PaymentReviewSection extends StatelessWidget {
           // ── Section Header with Icon ──
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-            decoration: const BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.cardTop,
+            decoration: BoxDecoration(
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.top8,
             ),
             child: Row(
               children: [
@@ -62,7 +48,7 @@ class PaymentReviewSection extends StatelessWidget {
                     padding: EdgeInsets.all(5.w),
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.badgeRadius,
+                      borderRadius: AppRadius.k4,
                     ),
                     child: Icon(
                       icon,

@@ -40,18 +40,7 @@ class CancellationSuccessView extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(20.w),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: AppRadius.cardRadius,
-              border: Border.all(color: AppColors.border),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.navy.withValues(alpha: 0.03),
-                  blurRadius: 8.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
-            ),
+            decoration: AppDecorations.cardBoxDecoration(),
             child: Column(
               children: [
                 Icon(
@@ -83,11 +72,11 @@ class CancellationSuccessView extends StatelessWidget {
               padding: EdgeInsets.all(16.w),
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.navy.withValues(alpha: 0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8.r,
                     offset: Offset(0, 2.h),
                   ),
@@ -172,7 +161,7 @@ class CancellationSuccessView extends StatelessWidget {
             borderColor: AppColors.pickabooBlue,
             isFullWidth: true,
             height: 48.h,
-            borderRadius: AppRadius.cardRadius,
+            borderRadius: AppRadius.k8,
             onPressed: onViewDetails,
           ),
           SizedBox(height: 20.h),
@@ -199,30 +188,19 @@ class CancellationSuccessView extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 6.r,
-            offset: Offset(0, 1.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Row(
         children: [
           Container(
             width: 60.w,
             height: 60.w,
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.cardRadius,
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             child: ClipRRect(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               child: item.image != null
                   ? AppImage(
                       imageUrl: item.image!,

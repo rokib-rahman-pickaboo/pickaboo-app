@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 
 /// ─────────────────────────────────────────────────────────────
@@ -543,14 +544,14 @@ class _PremiumFloatingSnackBarWidgetState
               child: Container(
                 decoration: BoxDecoration(
                   color: widget.surface,
-                  borderRadius: BorderRadius.circular(14.r),
+                  borderRadius: AppRadius.k16,
                   border: Border.all(
                     color: widget.accent.withValues(alpha: 0.3),
                     width: 1.w,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.navy.withValues(alpha: 0.12),
+                      color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 18.r,
                       offset: isTop ? Offset(0, 6.h) : Offset(0, -4.h),
                     ),
@@ -562,7 +563,7 @@ class _PremiumFloatingSnackBarWidgetState
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14.r),
+                  borderRadius: AppRadius.k16,
                   child: IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -586,7 +587,7 @@ class _PremiumFloatingSnackBarWidgetState
                                   height: 38.w,
                                   decoration: BoxDecoration(
                                     color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderRadius: AppRadius.k8,
                                     border: Border.all(
                                       color: widget.accent.withValues(alpha: 0.25),
                                       width: 1.w,
@@ -689,7 +690,7 @@ class _PremiumFloatingSnackBarWidgetState
                                         color: widget.type == SnackBarType.negative
                                             ? AppColors.white
                                             : widget.accent,
-                                        borderRadius: BorderRadius.circular(8.r),
+                                        borderRadius: AppRadius.k8,
                                         border: widget.type == SnackBarType.negative
                                             ? Border.all(
                                                 color: widget.accent.withValues(alpha: 0.35),

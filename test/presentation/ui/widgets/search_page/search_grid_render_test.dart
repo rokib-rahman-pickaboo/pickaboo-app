@@ -57,7 +57,7 @@ void main() {
         isLoading: false,
         hasNextPage: false,
         pages: [products],
-        keys: [0],
+        keys: const [0],
       ),
       facets: const [],
       suggestions: const ['tv'],
@@ -74,7 +74,7 @@ void main() {
           home: Scaffold(
             body: BlocProvider<SearchBloc>.value(
               value: mockBloc,
-              child: CustomScrollView(
+              child: const CustomScrollView(
                 slivers: [
                   SearchResults(isGridView: true),
                 ],

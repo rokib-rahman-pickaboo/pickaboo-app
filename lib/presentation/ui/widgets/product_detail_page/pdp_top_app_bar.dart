@@ -59,13 +59,13 @@ class PdpTopAppBar extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.navy.withValues(alpha: 0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 )
-              : const BoxDecoration(
+              : BoxDecoration(
                   color: AppColors.transparent,
                 ),
           padding: EdgeInsets.symmetric(

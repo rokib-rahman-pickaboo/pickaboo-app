@@ -17,6 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pickaboo/domain/entity/common/category/category_entity.dart';
 import 'package:pickaboo/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:pickaboo/core/utils/category_question_helper.dart';
+import 'package:pickaboo/core/utils/category_lookup_helper.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_section_header.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/product_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/filters/active_filter_chips_bar.dart';
@@ -28,7 +29,7 @@ import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/home_page/secondary_home_skeleton_widget.dart';
 
 class _CategoryCacheData {
   final List<ProductEntity> products;
@@ -566,8 +567,19 @@ class _SecondaryHomeWidgetCustomState extends State<SecondaryHomeWidgetCustom> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _products.isEmpty) {
-      return AppLoader.sliver(
-        fillRemaining: true,
+      final catState = context.watch<CategoryBloc>().state;
+      final rootCategories = catState.categories ?? const <CategoryEntity>[];
+      final matchedCategory = CategoryLookupHelper.findCategory(
+        rootCategories,
+        categoryId: widget.category.id,
+        categorySlug: widget.category.slug,
+        categoryName: widget.category.name,
+      );
+      final hasChildCategories =
+          matchedCategory != null && matchedCategory.children.isNotEmpty;
+
+      return SecondaryHomeSkeletonWidget.sliver(
+        hasChildCategories: hasChildCategories,
       );
     }
 
@@ -616,27 +628,41 @@ class _SecondaryHomeWidgetCustomState extends State<SecondaryHomeWidgetCustom> {
           builder: (context, catState) {
             final rootCategories =
                 catState.categories ?? const <CategoryEntity>[];
-            CategoryEntity? matchedCategory;
-            for (final c in rootCategories) {
-              if ((widget.category.id.isNotEmpty && c.id.isNotEmpty && c.id == widget.category.id) ||
-                  (widget.category.slug.isNotEmpty && c.slug.isNotEmpty && c.slug.toLowerCase() == widget.category.slug.toLowerCase()) ||
-                  (widget.category.name.isNotEmpty && c.name.isNotEmpty &&
-                      c.name.toLowerCase().trim() == widget.category.name.toLowerCase().trim())) {
-                matchedCategory = c;
-                break;
-              }
+            if (rootCategories.isEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.read<CategoryBloc>().add(
+                    const CategoryEvent.getCategories(),
+                  );
+                }
+              });
             }
+            final matchedCategory = CategoryLookupHelper.findCategory(
+              rootCategories,
+              categoryId: widget.category.id,
+              categorySlug: widget.category.slug,
+              categoryName: widget.category.name,
+            );
             final children = matchedCategory?.children ?? const <CategoryEntity>[];
             if (children.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+
+            final resolvedIcon = CategoryLookupHelper.resolveCategoryIcon(
+              rootCategories,
+              matchedCategory,
+            );
+            final parentIcon = resolvedIcon.isNotEmpty
+                ? resolvedIcon
+                : widget.category.icon;
 
             return SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: AppSpacing.groupToGroupSpacing.h / 2,
-                  bottom: AppSpacing.sameGroupItemSpacing.h,
+                  top: 8.h,
+                  bottom: 0,
                 ),
                 child: ChildCategoryChipsWidget(
                   childCategories: children,
+                  parentCategoryIcon: parentIcon,
                   onChildSelected: (child) {
                     context.pushToCategoryProduct(
                       categoryId: child.id,
@@ -824,7 +850,7 @@ class _SecondaryHomeWidgetCustomState extends State<SecondaryHomeWidgetCustom> {
                   text: 'VIEW ALL ${widget.category.name.toUpperCase()}',
                   isFullWidth: true,
                   height: 48.h,
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   onPressed: widget.onViewAll,
                 ),
               ),

@@ -30,7 +30,7 @@ class AddressDropdownField extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
             decoration: BoxDecoration(
               color: enabled ? AppColors.white : AppColors.muted.withValues(alpha: 0.1),
-              borderRadius: AppRadius.inputRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
             child: Row(

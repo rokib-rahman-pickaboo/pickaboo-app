@@ -39,7 +39,7 @@ class AppCard extends StatelessWidget {
     this.margin,
     this.backgroundColor,
     this.borderColor,
-    this.borderWidth = 1.0,
+    this.borderWidth = 0.8,
     this.borderRadius,
     this.onTap,
     this.boxShadow,
@@ -130,18 +130,12 @@ class AppCard extends StatelessWidget {
   List<BoxShadow>? _resolveBoxShadow() {
     if (boxShadow != null) return boxShadow;
     if (!hasShadow || variant != AppCardVariant.elevated) return null;
-    return [
-      BoxShadow(
-        color: AppColors.navy.withValues(alpha: 0.02),
-        blurRadius: 6.0,
-        offset: const Offset(0, 2),
-      ),
-    ];
+    return AppDecorations.cardShadow;
   }
 
   @override
   Widget build(BuildContext context) {
-    final effectiveRadius = borderRadius ?? AppRadius.cardRadius;
+    final effectiveRadius = borderRadius ?? AppRadius.k8;
     final effectiveBg = _resolveBgColor();
     final effectiveBorder = _resolveBorder();
     final effectiveShadow = _resolveBoxShadow();

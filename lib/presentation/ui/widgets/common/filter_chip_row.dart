@@ -5,6 +5,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 
@@ -58,12 +59,12 @@ class FilterChipRow extends StatelessWidget {
 
     return InkWell(
       onTap: chip.onTap,
-      borderRadius: AppRadius.fullRadius,
+      borderRadius: AppRadius.kFull,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue : AppColors.white,
-          borderRadius: AppRadius.fullRadius,
+          borderRadius: AppRadius.kFull,
           border: Border.all(
             color: isSelected
                 ? AppColors.pickabooBlue

@@ -57,16 +57,14 @@ class PdpDeliveryLocationSelector extends StatelessWidget {
           onTap: onTap,
           child: Container(
             padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
-            decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: BorderRadius.circular(AppRadius.card),
-              border: Border.all(color: AppColors.border, width: 1.w),
+            decoration: AppDecorations.cardBoxDecoration(
+              borderRadius: AppRadius.k8,
             ),
             child: Row(
               children: [
                 Container(
                   padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.surfaceBlue,
                     shape: BoxShape.circle,
                   ),

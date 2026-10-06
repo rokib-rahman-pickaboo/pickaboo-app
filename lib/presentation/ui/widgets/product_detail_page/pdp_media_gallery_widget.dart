@@ -188,15 +188,16 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
     final int heroCacheWidth =
         (MediaQuery.sizeOf(context).width * dpr).round().clamp(1080, 1440);
 
-    return Container(
-      color: AppColors.white,
-      child: Column(
-        children: [
-          // ── HERO 1:1 IMAGE/VIDEO CAROUSEL WITH OVERLAY CONTROLS ──
-          AspectRatio(
-            aspectRatio: 1.0,
-            child: Stack(
-              children: [
+    return RepaintBoundary(
+      child: Container(
+        color: AppColors.white,
+        child: Column(
+          children: [
+            // ── HERO 1:1 IMAGE/VIDEO CAROUSEL WITH OVERLAY CONTROLS ──
+            AspectRatio(
+              aspectRatio: 1.0,
+              child: Stack(
+                children: [
                 // ── Swipeable PageView for Active Tab ──
                 if (_selectedTab == PdpMediaTab.videos && videoCount > 0)
                   PageView.builder(
@@ -440,7 +441,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
                     padding: AppSpacing.badgePadding,
                     decoration: BoxDecoration(
                       color: AppColors.navy.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(AppRadius.card),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Text(
                       _getIndicatorText(images.length, videoCount, customerPhotoCount),
@@ -513,6 +514,7 @@ class _PdpMediaGalleryWidgetState extends State<PdpMediaGalleryWidget> {
           ),
         ],
       ),
+      ),
     );
   }
 }
@@ -540,13 +542,7 @@ class _FloatingCircleButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black.withValues(alpha: 0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: AppDecorations.cardShadow,
         ),
         child: Center(
           child: Icon(icon, size: size, color: iconColor),
@@ -576,12 +572,15 @@ class _MediaPill extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.surfaceBlue : AppColors.pageBg,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(
-            color: isSelected ? AppColors.pickabooBlue : AppColors.border,
-            width: isSelected ? 1.2.w : 1.w,
-          ),
+          color: isSelected ? AppColors.surfaceBlue : AppColors.white,
+          borderRadius: AppRadius.k8,
+          boxShadow: isSelected ? null : AppDecorations.cardShadow,
+          border: isSelected
+              ? Border.all(
+                  color: AppColors.pickabooBlue,
+                  width: 1.2.w,
+                )
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

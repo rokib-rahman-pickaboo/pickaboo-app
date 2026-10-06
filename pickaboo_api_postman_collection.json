@@ -3845,7 +3845,7 @@
                 "payment"
               ]
             },
-            "description": "Selects payment method (e.g., cashondelivery, bkash, patahopay, amex, visamaster, paymentpending, emi) for the active cart session.",
+            "description": "Selects payment method (e.g., cashondelivery, bkash, pathaopay, amex, visamaster, paymentpending, emi) for the active cart session.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"cart_id\": \"{{cartId}}\",\n  \"paymentMethod\": {\n    \"method\": \"cashondelivery\"\n  }\n}",
@@ -4020,7 +4020,7 @@
           "response": []
         },
         {
-          "name": "Select Payment Method (Pathao Pay)",
+          "name": "Select Payment Method (Patho Pay)",
           "request": {
             "method": "POST",
             "header": [
@@ -4051,14 +4051,14 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cart_id\": \"{{cartId}}\",\n  \"paymentMethod\": {\n    \"method\": \"patahopay\"\n  }\n}",
+              "raw": "{\n  \"cart_id\": \"{{cartId}}\",\n  \"paymentMethod\": {\n    \"method\": \"pathaopay\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             },
-            "description": "Selects newly added Pathao Pay (code: patahopay) as the checkout payment gateway."
+            "description": "Selects newly added Pathao Pay (code: pathaopay) as the checkout payment gateway."
           },
           "response": []
         }

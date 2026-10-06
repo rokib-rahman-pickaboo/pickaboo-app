@@ -33,6 +33,7 @@ import 'package:pickaboo/presentation/ui/widgets/cart/price_summary_widget.dart'
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/payment_review_page/address_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/payment_review_page/delivery_options_widget.dart';
+import 'package:pickaboo/presentation/ui/widgets/payment_review_page/payment_review_skeleton.dart';
 
 /// Modernized PaymentReviewPage matching Pickaboo-App-UI design language.
 class PaymentReviewPage extends StatefulWidget {
@@ -182,7 +183,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: "Checkout",
       ),
@@ -227,7 +228,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
         },
         builder: (context, state) {
           return state.maybeWhen(
-            loading: (_) => const AppLoader.fullPage(),
+            loading: (_) => const PaymentReviewSkeleton(),
             placingOrder: (_) => const AppLoader.fullPage(),
             orderPlaced: (_, _, _, _, _) => const AppLoader.fullPage(),
             paymentFailed: (_, _) => const AppLoader.fullPage(),
@@ -423,18 +424,7 @@ class _PaymentReviewPageState extends State<PaymentReviewPage> {
                           horizontal: AppSpacing.sameGroupItemSpacing.w,
                         ),
                         child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: AppRadius.cardRadius,
-                            border: Border.all(color: AppColors.border),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.navy.withValues(alpha: 0.03),
-                                blurRadius: 8.r,
-                                offset: Offset(0, 2.h),
-                              ),
-                            ],
-                          ),
+                          decoration: AppDecorations.cardBoxDecoration(),
                           child: Column(
                             children: [
                               for (int i = 0;

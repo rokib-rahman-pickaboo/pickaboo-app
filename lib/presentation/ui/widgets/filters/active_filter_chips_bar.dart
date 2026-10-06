@@ -50,12 +50,12 @@ class ActiveFilterChipsBar extends StatelessWidget {
               padding: EdgeInsets.only(right: 8.w),
               child: InkWell(
                 onTap: onClearAll,
-                borderRadius: AppRadius.smRadius,
+                borderRadius: AppRadius.k8,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                   decoration: BoxDecoration(
                     color: AppColors.redBg,
-                    borderRadius: AppRadius.smRadius,
+                    borderRadius: AppRadius.k8,
                     border: Border.all(
                       color: AppColors.red.withValues(alpha: 0.5),
                       width: 1.w,
@@ -87,7 +87,7 @@ class ActiveFilterChipsBar extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(
                 color: AppColors.surfaceBlue,
-                borderRadius: AppRadius.smRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(
                   color: AppColors.pickabooBlue.withValues(alpha: 0.6),
                   width: 1.w,
@@ -103,7 +103,7 @@ class ActiveFilterChipsBar extends StatelessWidget {
                   SizedBox(width: 6.w),
                   InkWell(
                     onTap: () => onRemoveFilter(filterCode),
-                    borderRadius: AppRadius.chipRadius,
+                    borderRadius: AppRadius.k8,
                     child: Padding(
                       padding: EdgeInsets.all(2.w),
                       child: Icon(

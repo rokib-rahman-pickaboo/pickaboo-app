@@ -110,7 +110,7 @@ class AppErrorView extends StatelessWidget {
               SizedBox(height: 26.h),
               AppButton.primary(
                 height: 48.h,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 icon: Icon(Icons.refresh, size: 18.w, color: AppColors.white),
                 text: retryLabel ?? spec.retryLabel,
                 onPressed: onRetry,
@@ -120,7 +120,7 @@ class AppErrorView extends StatelessWidget {
               SizedBox(height: 10.h),
               AppButton.secondary(
                 height: 48.h,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 text: secondaryLabel ?? AppStrings.goBack,
                 onPressed: onSecondary,
               ),

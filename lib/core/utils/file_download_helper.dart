@@ -192,7 +192,7 @@ class FileDownloadHelper {
                         padding: EdgeInsets.all(6.w),
                         decoration: BoxDecoration(
                           color: Colors.black54,
-                          borderRadius: BorderRadius.circular(20.r),
+                          borderRadius: AppRadius.kFull,
                         ),
                         child: Icon(
                           Icons.close_rounded,
@@ -207,7 +207,7 @@ class FileDownloadHelper {
                         padding: EdgeInsets.all(6.w),
                         decoration: BoxDecoration(
                           color: Colors.black54,
-                          borderRadius: BorderRadius.circular(20.r),
+                          borderRadius: AppRadius.kFull,
                         ),
                         child: Icon(
                           Icons.download_rounded,

@@ -25,21 +25,7 @@ class ProductCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardContent = Container(
       width: width,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(
-          color: AppColors.border,
-          width: 1.2.w,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 6.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,11 +34,9 @@ class ProductCardSkeleton extends StatelessWidget {
           AspectRatio(
             aspectRatio: 1.0,
             child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.pageBg,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(AppRadius.card.r),
-                ),
+              decoration: const BoxDecoration(
+                color: AppColors.itemBackground,
+                borderRadius: AppRadius.top8,
               ),
               child: Center(
                 child: Icon(
@@ -89,7 +73,7 @@ class ProductCardSkeleton extends StatelessWidget {
                             height: 9.h,
                             decoration: BoxDecoration(
                               color: AppColors.skeletonBase,
-                              borderRadius: BorderRadius.circular(2.r),
+                              borderRadius: AppRadius.k4,
                             ),
                           ),
                           Container(
@@ -97,7 +81,7 @@ class ProductCardSkeleton extends StatelessWidget {
                             height: 14.h,
                             decoration: BoxDecoration(
                               color: AppColors.skeletonBase,
-                              borderRadius: BorderRadius.circular(3.r),
+                              borderRadius: AppRadius.k4,
                             ),
                           ),
                         ],
@@ -120,7 +104,7 @@ class ProductCardSkeleton extends StatelessWidget {
                         height: 11.h,
                         decoration: BoxDecoration(
                           color: AppColors.skeletonBase,
-                          borderRadius: BorderRadius.circular(3.r),
+                          borderRadius: AppRadius.k4,
                         ),
                       ),
                       SizedBox(height: 4.h),
@@ -129,7 +113,7 @@ class ProductCardSkeleton extends StatelessWidget {
                         height: 11.h,
                         decoration: BoxDecoration(
                           color: AppColors.skeletonBase,
-                          borderRadius: BorderRadius.circular(3.r),
+                          borderRadius: AppRadius.k4,
                         ),
                       ),
                     ],
@@ -167,7 +151,7 @@ class ProductCardSkeleton extends StatelessWidget {
                           height: 9.h,
                           decoration: BoxDecoration(
                             color: AppColors.skeletonBase,
-                            borderRadius: BorderRadius.circular(2.r),
+                            borderRadius: AppRadius.k4,
                           ),
                         ),
                       ],
@@ -192,7 +176,7 @@ class ProductCardSkeleton extends StatelessWidget {
                           height: 14.h,
                           decoration: BoxDecoration(
                             color: AppColors.skeletonBase,
-                            borderRadius: BorderRadius.circular(3.r),
+                            borderRadius: AppRadius.k4,
                           ),
                         ),
                         SizedBox(width: 6.w),
@@ -201,16 +185,16 @@ class ProductCardSkeleton extends StatelessWidget {
                           height: 11.h,
                           decoration: BoxDecoration(
                             color: AppColors.skeletonBase,
-                            borderRadius: BorderRadius.circular(3.r),
+                            borderRadius: AppRadius.k4,
                           ),
                         ),
                         SizedBox(width: 4.w),
                         Container(
                           width: 32.w,
                           height: 14.h,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: AppColors.skeletonBase,
-                            borderRadius: AppRadius.badgeRadius,
+                            borderRadius: AppRadius.k4,
                           ),
                         ),
                       ],
@@ -249,7 +233,7 @@ class ProductCardSkeleton extends StatelessWidget {
                             height: 9.h,
                             decoration: BoxDecoration(
                               color: AppColors.skeletonBase,
-                              borderRadius: BorderRadius.circular(2.r),
+                              borderRadius: AppRadius.k4,
                             ),
                           ),
                         ],

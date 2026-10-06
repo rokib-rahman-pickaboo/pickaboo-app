@@ -26,7 +26,7 @@ class ChangeAddressCartPage extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         title: pageTitle,
       ),
@@ -125,7 +125,7 @@ class ChangeAddressCartPage extends StatelessWidget {
             icon: Icon(Icons.add, color: AppColors.white, size: 20.sp),
             isFullWidth: true,
             height: 54.h,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: AppRadius.k8,
             onPressed: () async {
               final added = await context.push<Object?>(
                 Routes.newAddressCart,

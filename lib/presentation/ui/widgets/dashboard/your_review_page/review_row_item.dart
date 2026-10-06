@@ -5,6 +5,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -30,13 +31,13 @@ class ReviewRowItem extends StatelessWidget {
           children: [
             // ── Product Thumbnail Container ──
             ClipRRect(
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               child: Container(
                 width: 64.w,
                 height: 64.h,
                 decoration: BoxDecoration(
                   color: AppColors.white,
-                  borderRadius: AppRadius.buttonRadius,
+                  borderRadius: AppRadius.k8,
                   border: Border.all(color: AppColors.border),
                 ),
                 child: review.productImage.isNotEmpty
@@ -111,7 +112,7 @@ class ReviewRowItem extends StatelessWidget {
             padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             child: Text(
@@ -133,7 +134,7 @@ class ReviewRowItem extends StatelessWidget {
                 return Padding(
                   padding: EdgeInsets.only(right: 8.w),
                   child: ClipRRect(
-                    borderRadius: AppRadius.buttonRadius,
+                    borderRadius: AppRadius.k8,
                     child: AppImage(
                       imageUrl: review.images[index],
                       height: 60.h,

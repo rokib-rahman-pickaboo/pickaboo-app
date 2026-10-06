@@ -196,7 +196,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         appBar: PickabooAppBar(
           title: widget.pageTitle,
           actions: [
@@ -208,7 +208,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
           ],
         ),
         bottomNavigationBar: Container(
-          color: AppColors.pageBg,
+          color: AppColors.white,
           padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: SafeArea(
             top: false,
@@ -217,7 +217,7 @@ class _NewAddressCartPageState extends State<NewAddressCartPage> {
               isLoading: _isSaving,
               isFullWidth: true,
               height: 48.h,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: AppRadius.k8,
               onPressed: _isSaving ? null : _saveAddress,
             ),
           ),

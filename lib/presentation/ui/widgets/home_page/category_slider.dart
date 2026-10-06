@@ -24,7 +24,7 @@ class CategorySlider extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.only(bottom: AppSpacing.groupToGroupSpacing.h),
+      margin: EdgeInsets.only(bottom: AppSpacing.xs.h),
       child: CommonProductSectionSlider(
         title: categoryProduct.categoryName,
         products: categoryProduct.products,

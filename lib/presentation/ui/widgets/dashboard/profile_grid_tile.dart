@@ -29,25 +29,14 @@ class ProfileGridTile extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
-          border: Border.all(color: AppColors.border),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.navy.withValues(alpha: 0.02),
-              blurRadius: 6.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
+        decoration: AppDecorations.cardBoxDecoration(),
         child: Row(
           children: [
             Container(
               padding: EdgeInsets.all(7.w),
               decoration: BoxDecoration(
                 color: accentColor.withValues(alpha: 0.1),
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
               ),
               child: Icon(icon, color: accentColor, size: 19.sp),
             ),

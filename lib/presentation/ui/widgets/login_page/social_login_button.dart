@@ -36,7 +36,7 @@ class SocialLoginButton extends StatelessWidget {
       width: double.infinity,
       height: 48.h,
       decoration: BoxDecoration(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.05),
@@ -51,7 +51,7 @@ class SocialLoginButton extends StatelessWidget {
         backgroundColor: backgroundColor,
         textColor: textColor,
         borderColor: borderColor ?? backgroundColor.withValues(alpha: 0.3),
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         height: 48.h,
         isFullWidth: true,
         text: label,

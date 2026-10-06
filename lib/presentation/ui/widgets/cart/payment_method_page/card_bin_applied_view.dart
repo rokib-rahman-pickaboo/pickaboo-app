@@ -29,7 +29,7 @@ class CardBinAppliedView extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(
           color: AppColors.green.withValues(alpha: 0.4),
           width: 1.5,
@@ -64,7 +64,7 @@ class CardBinAppliedView extends StatelessWidget {
               padding: EdgeInsets.all(14.w),
               decoration: BoxDecoration(
                 color: AppColors.green.withValues(alpha: 0.06),
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(
                   color: AppColors.green.withValues(alpha: 0.3),
                 ),
@@ -108,7 +108,7 @@ class CardBinAppliedView extends StatelessWidget {
                     textColor: AppColors.red,
                     borderColor: AppColors.red.withValues(alpha: 0.4),
                     backgroundColor: AppColors.white,
-                    borderRadius: AppRadius.cardRadius,
+                    borderRadius: AppRadius.k8,
                     isFullWidth: true,
                     height: 38.h,
                     isLoading: isRemoving,

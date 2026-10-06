@@ -26,21 +26,10 @@ class TicketCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: AppRadius.cardRadius,
+      borderRadius: AppRadius.k8,
       child: Container(
         padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
-          border: Border.all(color: AppColors.border),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.navy.withValues(alpha: 0.02),
-              blurRadius: 8.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
+        decoration: AppDecorations.cardBoxDecoration(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -127,7 +116,7 @@ class TicketCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: statusBgColor,
-                    borderRadius: AppRadius.buttonRadius,
+                    borderRadius: AppRadius.k8,
                     border: Border.all(color: statusBgColor),
                   ),
                   child: Row(

@@ -18,7 +18,7 @@ import 'package:pickaboo/presentation/bloc/referral/referral_state.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/referral_page/referral_skeleton.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ReferralPage extends StatefulWidget {
@@ -64,15 +64,15 @@ class _ReferralPageState extends State<ReferralPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: 'Share & Earn',
       ),
       body: BlocBuilder<ReferralBloc, ReferralState>(
         builder: (context, state) {
           return state.when(
-            initial: () => const AppLoader.fullPage(),
-            loading: () => const AppLoader.fullPage(),
+            initial: () => const ReferralSkeleton(),
+            loading: () => const ReferralSkeleton(),
             referralHistoryLoaded: (referralData, hasReachedMax) {
               final referralCode = referralData.referralCode ?? 'GUEST';
               final pendingCount = referralData.referralPendingCount ?? 0;
@@ -131,7 +131,7 @@ class _ReferralPageState extends State<ReferralPage> {
               final referralUrl = _buildReferralUrl(referralCode);
 
               return Container(
-                color: AppColors.pageBg,
+                color: AppColors.white,
                 padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
                 child: SafeArea(
                   top: false,
@@ -144,7 +144,7 @@ class _ReferralPageState extends State<ReferralPage> {
                     ),
                     isFullWidth: true,
                     height: 48.h,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: AppRadius.k8,
                     onPressed: () => _shareReferralLink(referralUrl),
                   ),
                 ),
@@ -184,9 +184,9 @@ class _ReferralPageState extends State<ReferralPage> {
                   children: [
                     Container(
                       padding: EdgeInsets.all(7.w),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.surfaceBlue,
-                        borderRadius: AppRadius.buttonRadius,
+                        borderRadius: AppRadius.k8,
                       ),
                       child: Icon(
                         Icons.share_outlined,
@@ -213,7 +213,7 @@ class _ReferralPageState extends State<ReferralPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceBlue,
-                    borderRadius: BorderRadius.circular(10.r),
+                    borderRadius: AppRadius.k8,
                     border: Border.all(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.35),
                       width: 1.w,
@@ -237,7 +237,7 @@ class _ReferralPageState extends State<ReferralPage> {
                         size: AppButtonSize.sm,
                         height: 32.h,
                         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                        borderRadius: BorderRadius.circular(8.r),
+                        borderRadius: AppRadius.k8,
                         onPressed: () => _copyToClipboard(referralUrl),
                       ),
                     ],
@@ -254,7 +254,7 @@ class _ReferralPageState extends State<ReferralPage> {
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
                           color: AppColors.amber.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10.r),
+                          borderRadius: AppRadius.k8,
                           border: Border.all(
                             color: AppColors.amber.withValues(alpha: 0.3),
                           ),
@@ -285,7 +285,7 @@ class _ReferralPageState extends State<ReferralPage> {
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
                           color: AppColors.greenBg,
-                          borderRadius: BorderRadius.circular(10.r),
+                          borderRadius: AppRadius.k8,
                           border: Border.all(
                             color: AppColors.green.withValues(alpha: 0.3),
                           ),
@@ -341,7 +341,7 @@ class _ReferralPageState extends State<ReferralPage> {
                             Container(
                               width: 22.w,
                               height: 22.h,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 color: AppColors.pickabooBlue,
                                 shape: BoxShape.circle,
                               ),

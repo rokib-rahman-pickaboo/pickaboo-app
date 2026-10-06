@@ -13,7 +13,7 @@ import 'package:pickaboo/presentation/bloc/review_bloc/review_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/your_review_page/review_row_item.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/your_review_page/your_review_skeleton.dart';
 
 /// Your Reviews Page matching Pickaboo-App-UI design.
 class YourReviewPage extends StatefulWidget {
@@ -37,7 +37,7 @@ class _YourReviewPageState extends State<YourReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: 'Your Reviews',
       ),
@@ -53,7 +53,7 @@ class _YourReviewPageState extends State<YourReviewPage> {
           }
 
           if (state.isUserReviewsLoading || state.userReviews == null) {
-            return const AppLoader.fullPage();
+            return const YourReviewSkeleton();
           }
 
           final reviews = state.userReviews!;

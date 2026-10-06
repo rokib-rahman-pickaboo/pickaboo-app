@@ -125,23 +125,23 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       border: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.border),
       ),
       enabledBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.border),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
       ),
       errorBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.red),
       ),
       focusedErrorBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.red, width: 1.5),
       ),
     );
@@ -308,7 +308,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                       padding: EdgeInsets.all(12.w),
                                       decoration: BoxDecoration(
                                         color: AppColors.amber.withValues(alpha: 0.1),
-                                        borderRadius: AppRadius.cardRadius,
+                                        borderRadius: AppRadius.k8,
                                         border: Border.all(
                                           color: AppColors.amber.withValues(alpha: 0.4),
                                         ),
@@ -351,7 +351,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   padding: EdgeInsets.all(14.w),
                                   decoration: BoxDecoration(
                                     color: AppColors.surfaceBlue,
-                                    borderRadius: AppRadius.cardRadius,
+                                    borderRadius: AppRadius.k8,
                                     border: Border.all(
                                       color: AppColors.pickabooBlue.withValues(alpha: 0.15),
                                     ),
@@ -419,7 +419,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             context.go(Routes.login);
                           }
                         },
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: AppRadius.k16,
                         child: Padding(
                           padding: EdgeInsets.all(8.r),
                           child: Icon(

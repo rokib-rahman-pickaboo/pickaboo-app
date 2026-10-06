@@ -348,6 +348,11 @@ class ApiEndpoints {
   // NOTE: EBL requires /default/ in path — use this constant everywhere
   static const String eblPaymentProcessUrl =
       '/rest/default/V1/dcastalia-ebl/payment-process';
+  // Pathao Pay — POST body `{orderId}` returns the hosted checkout URL.
+  static const String pathaoPayRequestUrl =
+      '/rest/V1/pathaopay/request-payment';
+  // Pathao Pay — GET with the gateway callback query params to capture.
+  static const String pathaoPayCaptureUrl = '/rest/V1/pathaopay/capture';
   static const String getEmiDetailsUrl =
       '/rest/V1/dcastalia-emi/get-emi-details';
   static const String emiQuoteUpdateUrl =
@@ -383,6 +388,11 @@ class ApiEndpoints {
   static const String nagadCallbackPath = '/payment-status/nagod';
   static String get nagadCallbackUrl =>
       '${ApiConfig.productionURL}$nagadCallbackPath';
+
+  // Pathao Pay WebView callback path.
+  static const String pathaoCallbackPath = '/payment-status/pathaopay';
+  static String get pathaoCallbackUrl =>
+      '${ApiConfig.productionURL}$pathaoCallbackPath';
 
   // Nagad finalize API — called after WebView intercepts the callback.
   // All Nagad callback query params are forwarded as query params to this GET.

@@ -36,6 +36,11 @@ class PdpVariantSelectorSection extends StatelessWidget {
     final variantGroups = product.variantGroups;
     if (variantGroups.isEmpty) return const SizedBox.shrink();
 
+    final activeGroups = variantGroups
+        .where((g) => _visibleOptions(g).isNotEmpty)
+        .toList();
+    if (activeGroups.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -45,7 +50,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 8.h),
             decoration: BoxDecoration(
               color: AppColors.redBg,
-              borderRadius: AppRadius.smRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.red.withValues(alpha: 0.3)),
             ),
             child: Row(
@@ -60,9 +65,9 @@ class PdpVariantSelectorSection extends StatelessWidget {
             ),
           ),
         ],
-        for (int g = 0; g < variantGroups.length; g++) ...[
-          _buildVariantGroup(context, variantGroups[g]),
-          if (g < variantGroups.length - 1) ...[
+        for (int g = 0; g < activeGroups.length; g++) ...[
+          _buildVariantGroup(context, activeGroups[g]),
+          if (g < activeGroups.length - 1) ...[
             SizedBox(height: 10.h),
             const Divider(height: 1, color: AppColors.border),
             SizedBox(height: 10.h),
@@ -171,80 +176,84 @@ class PdpVariantSelectorSection extends StatelessWidget {
                       },
                 child: Opacity(
                   opacity: isOutOfStock ? 0.4 : 1.0,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: EdgeInsets.all(2.w),
-                            decoration: BoxDecoration(
-                              color: isSel ? AppColors.surfaceBlue : AppColors.white,
-                              borderRadius: AppRadius.buttonRadius,
-                              border: Border.all(
-                                color: isSel ? AppColors.pickabooBlue : AppColors.border,
-                                width: isSel ? 1.5.w : 1.w,
+                  child: SizedBox(
+                    width: 58.w,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: EdgeInsets.all(2.w),
+                              decoration: BoxDecoration(
+                                color: isSel ? AppColors.surfaceBlue : AppColors.white,
+                                borderRadius: AppRadius.k8,
+                                border: Border.all(
+                                  color: isSel ? AppColors.pickabooBlue : AppColors.transparent,
+                                  width: 1.5.w,
+                                ),
+                                boxShadow: isSel
+                                    ? null
+                                    : AppDecorations.cardShadow,
                               ),
-                              boxShadow: isSel
-                                  ? [
-                                      BoxShadow(
-                                        color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: ClipRRect(
-                              borderRadius: AppRadius.smRadius,
-                              child: SizedBox(
-                                width: 52.w,
-                                height: 52.w,
-                                child: imageUrl.isNotEmpty
-                                    ? AppImage(imageUrl: imageUrl, fit: BoxFit.contain)
-                                    : Container(
-                                        color: AppColors.pageBg,
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          opt.optionText.isNotEmpty
-                                              ? opt.optionText.substring(0, 1).toUpperCase()
-                                              : 'C',
-                                          style: AppTypography.titleMedium,
+                              child: ClipRRect(
+                                borderRadius: AppRadius.k8,
+                                child: SizedBox(
+                                  width: 52.w,
+                                  height: 52.w,
+                                  child: imageUrl.isNotEmpty
+                                      ? AppImage(imageUrl: imageUrl, fit: BoxFit.contain)
+                                      : Container(
+                                          color: AppColors.itemBackground,
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            opt.optionText.isNotEmpty
+                                                ? opt.optionText.substring(0, 1).toUpperCase()
+                                                : 'C',
+                                            style: AppTypography.titleMedium,
+                                          ),
                                         ),
-                                      ),
+                                ),
                               ),
                             ),
+                            if (isSel)
+                              Positioned(
+                                right: -3.w,
+                                bottom: -3.h,
+                                child: Container(
+                                  padding: EdgeInsets.all(1.5.w),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.pickabooBlue,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppColors.white, width: 1.w),
+                                  ),
+                                  child: Icon(
+                                    Icons.check,
+                                    color: AppColors.white,
+                                    size: 8.sp,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: 5.h),
+                        SizedBox(
+                          width: 58.w,
+                          child: Text(
+                            opt.optionText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: isSel
+                                ? AppTypography.brandAction
+                                : AppTypography.brandAction.withColor(AppColors.navy),
                           ),
-                          if (isSel)
-                            Positioned(
-                              right: -3.w,
-                              bottom: -3.h,
-                              child: Container(
-                                padding: EdgeInsets.all(1.5.w),
-                                decoration: BoxDecoration(
-                                  color: AppColors.pickabooBlue,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.white, width: 1.w),
-                                ),
-                                child: Icon(
-                                  Icons.check,
-                                  color: AppColors.white,
-                                  size: 8.sp,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      SizedBox(height: 5.h),
-                      Text(
-                        opt.optionText,
-                        style: isSel
-                            ? AppTypography.brandAction
-                            : AppTypography.brandAction.withColor(AppColors.navy),
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -278,20 +287,14 @@ class PdpVariantSelectorSection extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                         decoration: BoxDecoration(
                           color: isSel ? AppColors.surfaceBlue : AppColors.white,
-                          borderRadius: AppRadius.buttonRadius,
+                          borderRadius: AppRadius.k8,
                           border: Border.all(
-                            color: isSel ? AppColors.pickabooBlue : AppColors.border,
-                            width: isSel ? 1.5.w : 1.w,
+                            color: isSel ? AppColors.pickabooBlue : AppColors.transparent,
+                            width: 1.5.w,
                           ),
                           boxShadow: isSel
-                              ? [
-                                  BoxShadow(
-                                    color: AppColors.pickabooBlue.withValues(alpha: 0.08),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : null,
+                              ? null
+                              : AppDecorations.cardShadow,
                         ),
                         child: Text(
                           opt.optionText,

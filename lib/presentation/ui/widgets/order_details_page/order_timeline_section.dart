@@ -33,18 +33,7 @@ class OrderTimelineSection extends StatelessWidget {
         vertical: 4.h,
       ),
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: FixedTimeline.tileBuilder(
         theme: TimelineThemeData(
           nodePosition: 0,

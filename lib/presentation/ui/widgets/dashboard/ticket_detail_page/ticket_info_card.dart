@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
@@ -15,16 +16,8 @@ class TicketInfoCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.all(16.w),
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.dialogRadius,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k16,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,9 +59,9 @@ class TicketInfoCard extends StatelessWidget {
 
           Container(
             padding: EdgeInsets.all(12.w),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
             ),
             child: Column(
               children: [
@@ -108,7 +101,7 @@ class TicketInfoCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: _getStatusColor(ticket.status).withAlpha(25),
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(
                 color: _getStatusColor(ticket.status),
                 width: 1.w,
@@ -242,7 +235,7 @@ class _PriorityBadge extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: _getBackgroundColor(context),
-        borderRadius: AppRadius.smRadius,
+        borderRadius: AppRadius.k8,
       ),
       child: Text(
         priority,

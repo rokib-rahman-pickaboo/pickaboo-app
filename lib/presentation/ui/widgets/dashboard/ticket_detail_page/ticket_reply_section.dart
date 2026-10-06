@@ -31,16 +31,8 @@ class TicketReplySection extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.dialogRadius,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k16,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,19 +54,19 @@ class TicketReplySection extends StatelessWidget {
                 color: AppColors.muted,
               ),
               border: OutlineInputBorder(
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 borderSide: BorderSide(
                   color: AppColors.border.withAlpha(128),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 borderSide: BorderSide(
                   color: AppColors.border.withAlpha(128),
                 ),
               ),
               focusedBorder: const OutlineInputBorder(
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
               ),
               contentPadding: EdgeInsets.all(16.w),
@@ -86,14 +78,14 @@ class TicketReplySection extends StatelessWidget {
             files: selectedFiles,
             onFilesChanged: onFilesChanged,
             containerBgColor: AppColors.white,
-            itemBgColor: AppColors.pageBg,
+            itemBgColor: AppColors.itemBackground,
           ),
 
           SizedBox(height: 16.h),
 
           AppButton.primary(
             height: 48.h,
-            borderRadius: AppRadius.cardRadius,
+            borderRadius: AppRadius.k8,
             isLoading: isSubmitting,
             text: 'Submit Reply',
             onPressed: isSubmitting ? null : onPostReply,

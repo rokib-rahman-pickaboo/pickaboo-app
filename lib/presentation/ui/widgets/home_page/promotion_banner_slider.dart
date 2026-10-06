@@ -76,7 +76,7 @@ class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
 
     return RepaintBoundary(
       child: SizedBox(
-        height: 80.h,
+        height: 88.h,
         child: ListView.builder(
           controller: _scrollController,
           scrollDirection: Axis.horizontal,
@@ -86,6 +86,7 @@ class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
           addSemanticIndexes: false,
           padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.sameGroupItemSpacing.w,
+            vertical: 4.h,
           ),
           itemCount: isInfinite ? null : widget.slides.length,
           itemBuilder: (context, index) {
@@ -106,25 +107,21 @@ class _PromotionBannerSliderState extends State<PromotionBannerSlider> {
                 width: _cardWidth,
                 margin: EdgeInsets.only(right: AppSpacing.sameGroupItemSpacing.w),
                 padding: EdgeInsets.all(6.w),
-                decoration: BoxDecoration(
-                  color: AppColors.pageBg,
-                  borderRadius: AppRadius.cardRadius,
-                  border: Border.all(
-                    color: AppColors.border,
-                    width: 1.w,
-                  ),
-                ),
+                decoration: AppDecorations.cardBoxDecoration(),
                 child: Row(
                   children: [
                     // ── Promo Thumbnail (Increased 20% to 65x65) ──
                     if (imageUrl.isNotEmpty) ...[
                       ClipRRect(
-                        borderRadius: AppRadius.smRadius,
-                        child: AppImage(
-                          imageUrl: imageUrl,
-                          width: 65.w,
-                          height: 65.h,
-                          fit: BoxFit.cover,
+                        borderRadius: AppRadius.k8,
+                        child: Container(
+                          color: AppColors.itemBackground,
+                          child: AppImage(
+                            imageUrl: imageUrl,
+                            width: 65.w,
+                            height: 65.h,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                       SizedBox(width: 8.w),

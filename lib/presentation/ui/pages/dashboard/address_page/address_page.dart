@@ -21,7 +21,7 @@ import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/address_page/address_list_skeleton.dart';
 
 class AddressPage extends StatefulWidget {
   const AddressPage({super.key});
@@ -139,7 +139,7 @@ class _AddressPageState extends State<AddressPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(
-          borderRadius: AppRadius.dialogRadius,
+          borderRadius: AppRadius.k16,
         ),
         title: Text(
           AppStrings.removeAddress,
@@ -161,7 +161,7 @@ class _AddressPageState extends State<AddressPage> {
             text: AppStrings.remove,
             isFullWidth: false,
             size: AppButtonSize.sm,
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
             onPressed: () => context.pop(true),
           ),
         ],
@@ -209,12 +209,12 @@ class _AddressPageState extends State<AddressPage> {
         );
       },
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         appBar: const PickabooAppBar(
           title: 'Address Book',
         ),
         bottomNavigationBar: Container(
-          color: AppColors.pageBg,
+          color: AppColors.white,
           padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: SafeArea(
             top: false,
@@ -227,7 +227,7 @@ class _AddressPageState extends State<AddressPage> {
               ),
               isFullWidth: true,
               height: 48.h,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: AppRadius.k8,
               onPressed: _navigateToAddAddress,
             ),
           ),
@@ -246,7 +246,7 @@ class _AddressPageState extends State<AddressPage> {
             );
 
             if (isLoading && addressList.isEmpty) {
-              return const AppLoader.fullPage();
+              return const AddressListSkeleton();
             }
 
             if (addressList.isEmpty) {
@@ -352,7 +352,7 @@ class _AddressCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: AppColors.surfaceBlue,
-        borderRadius: BorderRadius.circular(6.r),
+        borderRadius: AppRadius.k4,
         border: Border.all(
           color: AppColors.pickabooBlue.withValues(alpha: 0.2),
           width: 1.w,
@@ -392,27 +392,21 @@ class _AddressCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: isDefault
-              ? AppColors.pickabooBlue.withValues(alpha: 0.35)
-              : AppColors.border,
-          width: isDefault ? 1.2.w : 1.w,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 10.r,
-            offset: Offset(0, 3.h),
-          ),
-        ],
+        borderRadius: AppRadius.k8,
+        border: isDefault
+            ? Border.all(
+                color: AppColors.pickabooBlue.withValues(alpha: 0.35),
+                width: 1.2.w,
+              )
+            : null,
+        boxShadow: AppDecorations.cardShadow,
       ),
       child: Material(
         color: AppColors.transparent,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: AppRadius.k8,
         child: InkWell(
           onTap: onEdit,
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: AppRadius.k8,
           child: Padding(
             padding: EdgeInsets.all(14.w),
             child: Column(
@@ -452,8 +446,8 @@ class _AddressCard extends StatelessWidget {
                                 vertical: 4.h,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.pageBg,
-                                borderRadius: BorderRadius.circular(6.r),
+                                color: AppColors.itemBackground,
+                                borderRadius: AppRadius.k4,
                                 border: Border.all(color: AppColors.border),
                               ),
                               child: Row(
@@ -487,7 +481,7 @@ class _AddressCard extends StatelessWidget {
                         // Edit Action
                         InkWell(
                           onTap: onEdit,
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: AppRadius.k8,
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 9.w,
@@ -495,7 +489,7 @@ class _AddressCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.surfaceBlue,
-                              borderRadius: BorderRadius.circular(8.r),
+                              borderRadius: AppRadius.k8,
                               border: Border.all(
                                 color: AppColors.pickabooBlue.withValues(alpha: 0.15),
                               ),
@@ -526,12 +520,12 @@ class _AddressCard extends StatelessWidget {
                           // Remove Action
                           InkWell(
                             onTap: onRemove,
-                            borderRadius: BorderRadius.circular(8.r),
+                            borderRadius: AppRadius.k8,
                             child: Container(
                               padding: EdgeInsets.all(5.5.w),
                               decoration: BoxDecoration(
                                 color: AppColors.redBg,
-                                borderRadius: BorderRadius.circular(8.r),
+                                borderRadius: AppRadius.k8,
                                 border: Border.all(
                                   color: AppColors.red.withValues(alpha: 0.15),
                                 ),
@@ -558,7 +552,7 @@ class _AddressCard extends StatelessWidget {
                     Container(
                       width: 28.w,
                       height: 28.h,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.surfaceBlue,
                         shape: BoxShape.circle,
                       ),
@@ -591,8 +585,8 @@ class _AddressCard extends StatelessWidget {
                           vertical: 4.h,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.pageBg,
-                          borderRadius: BorderRadius.circular(6.r),
+                          color: AppColors.itemBackground,
+                          borderRadius: AppRadius.k4,
                           border: Border.all(color: AppColors.border),
                         ),
                         child: Row(
@@ -629,8 +623,8 @@ class _AddressCard extends StatelessWidget {
                     vertical: 9.h,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.pageBg,
-                    borderRadius: BorderRadius.circular(9.r),
+                    color: AppColors.itemBackground,
+                    borderRadius: AppRadius.k8,
                     border: Border.all(
                       color: AppColors.border.withValues(alpha: 0.6),
                     ),

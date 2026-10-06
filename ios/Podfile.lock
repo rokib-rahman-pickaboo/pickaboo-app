@@ -250,13 +250,13 @@ PODS:
   - PromisesObjC (2.4.1)
   - PromisesSwift (2.4.1):
     - PromisesObjC (= 2.4.1)
-  - recaptcha_enterprise_flutter (18.8.2):
+  - recaptcha_enterprise_flutter (18.9.3):
     - Flutter
-    - RecaptchaEnterprise (= 18.8.2)
-  - RecaptchaEnterprise (18.8.2):
-    - RecaptchaEnterpriseSDK (= 18.8.2)
+    - RecaptchaEnterprise (<= 18.9.3, >= 18.9.1)
+  - RecaptchaEnterprise (18.9.1):
+    - RecaptchaEnterpriseSDK (= 18.9.1)
     - RecaptchaInterop (~> 101.0.0)
-  - RecaptchaEnterpriseSDK (18.8.2)
+  - RecaptchaEnterpriseSDK (18.9.1)
   - RecaptchaInterop (101.0.0)
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
@@ -447,9 +447,9 @@ SPEC CHECKSUMS:
   permission_handler_apple: ee2fe0fd04551b304eb002714ff067c371c822ed
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   PromisesSwift: 217dea0fd5d2ad65222a109c48698add13cc1c5b
-  recaptcha_enterprise_flutter: 6f7a40fe5b91b7a11f62627f15877823f1bdd82f
-  RecaptchaEnterprise: 2d06f415c94253c3e92214a4d1472b5875442cdc
-  RecaptchaEnterpriseSDK: 2fd06a12a27f943c24f643f8814404a27cc74288
+  recaptcha_enterprise_flutter: 46ffcd8c0128b06633a5e36ad7fee525dad3d7eb
+  RecaptchaEnterprise: a28429a5366cc0f687ac5e93a44c5caa2c685aa9
+  RecaptchaEnterpriseSDK: 72239ea30c486d9093918c7b31eb85629eff1a50
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f

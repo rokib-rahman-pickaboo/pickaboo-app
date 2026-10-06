@@ -80,6 +80,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<_BkashAgreementCallback>(_onBkashAgreementCallback);
     on<_BkashPaymentCallback>(_onBkashPaymentCallback);
     on<_NagadCallback>(_onNagadCallback);
+    on<_PathaoPayCallback>(_onPathaoPayCallback, transformer: droppable());
     on<_SelectSavedBkashAgreement>(_onSelectSavedBkashAgreement);
     on<_ClearSavedBkashAgreement>(_onClearSavedBkashAgreement);
     on<_LoadPaymentInfo>(_onLoadPaymentInfo);
@@ -731,12 +732,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     );
 
     result.fold(
-      (error) => emit(
-        CheckoutState.paymentFailed(
-          orderId: event.orderId,
-          errorMessage: error.message,
-        ),
-      ),
+      (error) {
+        emit(
+          CheckoutState.paymentFailed(
+            orderId: event.orderId,
+            errorMessage: error.message,
+          ),
+        );
+      },
       (gatewayUrl) {
         final exactTitle = _resolvePaymentMethodTitle(
           event.paymentMethod,
@@ -1101,6 +1104,60 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
                 event.callbackParams['message'] ?? 'Nagad payment failed',
           ));
         }
+      },
+    );
+  }
+
+  Future<void> _onPathaoPayCallback(
+    _PathaoPayCallback event,
+    Emitter<CheckoutState> emit,
+  ) async {
+    final params = event.callbackParams;
+    final orderId = params['order_id'] ?? params['orderId'] ?? '';
+    final ppayStatus =
+        (params['ppay_status'] ?? params['status'] ?? '').toUpperCase();
+    final isCompleted = ppayStatus == 'COMPLETED' || ppayStatus == 'SUCCESS';
+
+    if (!isCompleted) {
+      emit(CheckoutState.paymentFailed(
+        orderId: orderId,
+        errorMessage: params['message'] ?? 'Pathao Pay payment was not completed',
+      ));
+      return;
+    }
+
+    emit(CheckoutState.paymentProcessing(
+      orderId: orderId,
+      paymentMethod: 'pathaopay',
+    ));
+
+    final captureResult = await repository.pathaoPayCapture(
+      callbackParams: params,
+    );
+
+    captureResult.fold(
+      (error) => emit(CheckoutState.paymentFailed(
+        orderId: orderId,
+        errorMessage: error.message.isNotEmpty
+            ? error.message
+            : 'Pathao Pay payment could not be verified',
+      )),
+      (captured) {
+        if (!captured) {
+          emit(CheckoutState.paymentFailed(
+            orderId: orderId,
+            errorMessage: 'Pathao Pay payment could not be verified',
+          ));
+          return;
+        }
+        emit(CheckoutState.paymentSuccess(
+          orderId: orderId,
+          transactionId: params['transaction_id'] ??
+              params['trx_id'] ??
+              params['payment_id'] ??
+              orderId,
+          totalAmount: _currentCheckout?.cartTotals.grandTotal ?? 0.0,
+        ));
       },
     );
   }

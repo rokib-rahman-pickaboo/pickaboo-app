@@ -21,8 +21,8 @@ import 'package:pickaboo/presentation/ui/pages/dashboard/account_information_pag
 import 'package:pickaboo/presentation/ui/widgets/account_information_page/personal_information_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/account_information_page/profile_header_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/account_information_page/account_information_skeleton.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/app_menu_tile.dart';
 
@@ -111,9 +111,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                   return Container(
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20.r),
-                      ),
+                      borderRadius: AppRadius.top16,
                     ),
                     child: SafeArea(
                       top: false,
@@ -140,7 +138,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     height: 4.h,
                                     decoration: BoxDecoration(
                                       color: AppColors.border,
-                                      borderRadius: BorderRadius.circular(2.r),
+                                      borderRadius: AppRadius.k4,
                                     ),
                                   ),
                                 ),
@@ -193,7 +191,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     hintText: AppStrings.enterCurrentPassword,
                                     hintStyle: AppTypography.inputHint,
                                     filled: true,
-                                    fillColor: AppColors.pageBg,
+                                    fillColor: AppColors.itemBackground,
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         obscureCurrent
@@ -211,19 +209,19 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide:
                                           const BorderSide(color: AppColors.border),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide:
                                           const BorderSide(color: AppColors.border),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide: const BorderSide(
                                         color: AppColors.pickabooBlue,
                                         width: 1.5,
@@ -258,7 +256,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     hintText: AppStrings.enterNewPasswordHint,
                                     hintStyle: AppTypography.inputHint,
                                     filled: true,
-                                    fillColor: AppColors.pageBg,
+                                    fillColor: AppColors.itemBackground,
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         obscureNew
@@ -276,19 +274,19 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide:
                                           const BorderSide(color: AppColors.border),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide:
                                           const BorderSide(color: AppColors.border),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide: const BorderSide(
                                         color: AppColors.pickabooBlue,
                                         width: 1.5,
@@ -323,7 +321,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     hintText: AppStrings.enterConfirmPassword,
                                     hintStyle: AppTypography.inputHint,
                                     filled: true,
-                                    fillColor: AppColors.pageBg,
+                                    fillColor: AppColors.itemBackground,
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         obscureConfirm
@@ -341,19 +339,19 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide:
                                           const BorderSide(color: AppColors.border),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide:
                                           const BorderSide(color: AppColors.border),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius:
-                                          BorderRadius.circular(10.r),
+                                          AppRadius.k8,
                                       borderSide: const BorderSide(
                                         color: AppColors.pickabooBlue,
                                         width: 1.5,
@@ -382,7 +380,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                                   isLoading: isUpdating,
                                   isFullWidth: true,
                                   height: 48.h,
-                                  borderRadius: BorderRadius.circular(12.r),
+                                  borderRadius: AppRadius.k8,
                                   onPressed: isUpdating
                                       ? null
                                       : () {
@@ -439,12 +437,12 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
         );
       },
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         appBar: const PickabooAppBar(
           title: AppStrings.accountInformation,
         ),
         bottomNavigationBar: Container(
-          color: AppColors.pageBg,
+          color: AppColors.white,
           padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: SafeArea(
             top: false,
@@ -457,7 +455,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
               ),
               isFullWidth: true,
               height: 48.h,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: AppRadius.k8,
               onPressed: () async {
                 await context.push(Routes.editAccountInformation);
                 if (context.mounted) {
@@ -515,7 +513,7 @@ class _AccountInformationPageState extends State<AccountInformationPage> {
                 orElse: () => false,
               );
               if (isLoading) {
-                return const AppLoader.fullPage();
+                return const AccountInformationSkeleton();
               }
               return const SizedBox.shrink();
             }

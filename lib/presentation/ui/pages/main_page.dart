@@ -6,6 +6,7 @@
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/responsive.dart';
 import 'package:pickaboo/data/services/push_notification_service.dart';
 import 'package:pickaboo/injection.dart';
@@ -35,12 +37,42 @@ class MainPage extends StatefulWidget {
   static final List<int> tabHistory = [0];
   static void Function(int index)? switchTab;
 
+  /// Real-time scroll visibility for bottom navigation bar.
+  static final ValueNotifier<bool> isScrollNavVisible = ValueNotifier<bool>(true);
+  static Timer? _scrollPauseTimer;
+
+  /// Reveals bottom bar immediately and cancels any pending hide/pause timers.
+  static void showBottomNav() {
+    _scrollPauseTimer?.cancel();
+    _scrollPauseTimer = null;
+    if (!isScrollNavVisible.value) {
+      isScrollNavVisible.value = true;
+    }
+  }
+
+  /// Standard settle delay: short enough to feel instant-but-smooth, long enough
+  /// to avoid flicker between consecutive flings.
+  static const Duration settleRevealDelay = Duration(milliseconds: 250);
+
+  /// Schedules revealing the bottom nav bar once scrolling has settled for [delay].
+  static void schedulePauseReveal({
+    Duration delay = settleRevealDelay,
+  }) {
+    _scrollPauseTimer?.cancel();
+    _scrollPauseTimer = Timer(delay, () {
+      if (!isScrollNavVisible.value) {
+        isScrollNavVisible.value = true;
+      }
+    });
+  }
+
   /// Handles popping back:
   /// 1. If screen can pop (nested route pushed on top), pop it.
   /// 2. If user navigated through tabs, pop back to the previous tab.
   /// 3. Otherwise, go to Home (tab 0).
   static void popTab(BuildContext context) {
     MainPage.hideBottomNav.value = false;
+    MainPage.showBottomNav();
     final router = GoRouter.maybeOf(context);
     if (router != null && router.canPop()) {
       router.pop();
@@ -109,6 +141,7 @@ class _MainPageState extends State<MainPage> {
     super.didUpdateWidget(oldWidget);
     final newIndex = widget.navigationShell.currentIndex;
     if (newIndex != oldWidget.navigationShell.currentIndex) {
+      MainPage.showBottomNav();
       if (MainPage.tabHistory.isEmpty || MainPage.tabHistory.last != newIndex) {
         MainPage.tabHistory.add(newIndex);
       }
@@ -117,6 +150,7 @@ class _MainPageState extends State<MainPage> {
 
   void navRoute(int index, {bool recordHistory = true}) {
     MainPage.hideBottomNav.value = false;
+    MainPage.showBottomNav();
     if (recordHistory) {
       if (MainPage.tabHistory.isEmpty || MainPage.tabHistory.last != index) {
         MainPage.tabHistory.add(index);
@@ -161,9 +195,94 @@ class _MainPageState extends State<MainPage> {
                         Expanded(child: widget.navigationShell),
                       ],
                     )
-                  : widget.navigationShell,
-              bottomNavigationBar:
-                  (useRail || hideNav) ? null : _buildBottomNavBar(context),
+                  : NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        // Ignore horizontal scrolls (e.g. carousels, category chips, question options)
+                        if (notification.metrics.axis != Axis.vertical) {
+                          return false;
+                        }
+
+                        // 1. Always reveal and stay visible near the top resting area
+                        if (notification.metrics.pixels <= 50) {
+                          MainPage.showBottomNav();
+                          return false;
+                        }
+
+                        // 2. Overscroll at top (pulling down)
+                        if (notification is OverscrollNotification &&
+                            notification.overscroll < 0) {
+                          MainPage.showBottomNav();
+                          return false;
+                        }
+
+                        // 3. Stopped / Ended scrolling -> reveal after a short settle delay (250ms)
+                        if (notification is ScrollEndNotification) {
+                          if (notification.metrics.pixels <= 50) {
+                            MainPage.showBottomNav();
+                          } else {
+                            MainPage.schedulePauseReveal();
+                          }
+                          return false;
+                        }
+
+                        // 4. User gesture drag direction changes
+                        if (notification is UserScrollNotification) {
+                          if (notification.direction == ScrollDirection.forward) {
+                            // User dragged finger DOWN (scrolling UP towards top) -> Reveal immediately
+                            MainPage.showBottomNav();
+                          } else if (notification.direction == ScrollDirection.idle) {
+                            // User released finger / stopped dragging
+                            if (notification.metrics.pixels <= 50) {
+                              MainPage.showBottomNav();
+                            } else {
+                              MainPage.schedulePauseReveal();
+                            }
+                          } else if (notification.direction == ScrollDirection.reverse &&
+                                     notification.metrics.pixels > 60) {
+                            // User dragged finger UP (scrolling DOWN towards bottom) -> Hide
+                            MainPage._scrollPauseTimer?.cancel();
+                            if (MainPage.isScrollNavVisible.value) {
+                              MainPage.isScrollNavVisible.value = false;
+                            }
+                          }
+                        }
+
+                        // 5. Real-time scroll delta updates
+                        if (notification is ScrollUpdateNotification) {
+                          final delta = notification.scrollDelta ?? 0.0;
+                          if (delta < -4) {
+                            // Scrolling UP -> Reveal immediately
+                            MainPage.showBottomNav();
+                          } else if (delta > 6 && notification.metrics.pixels > 60) {
+                            // Scrolling DOWN -> Hide bar & cancel pending pause reveal timer
+                            MainPage._scrollPauseTimer?.cancel();
+                            if (MainPage.isScrollNavVisible.value) {
+                              MainPage.isScrollNavVisible.value = false;
+                            }
+                          }
+                        }
+
+                        return false;
+                      },
+                      child: widget.navigationShell,
+                    ),
+              bottomNavigationBar: (useRail || hideNav)
+                  ? null
+                  : ValueListenableBuilder<bool>(
+                      valueListenable: MainPage.isScrollNavVisible,
+                      builder: (context, isVisible, child) {
+                        return AnimatedSlide(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          offset: isVisible ? Offset.zero : const Offset(0, 1.5),
+                          child: IgnorePointer(
+                            ignoring: !isVisible,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _buildBottomNavBar(context),
+                    ),
             ),
           );
         },
@@ -217,7 +336,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   // ============================================================================
-  // 🧭 Floating Capsule Bottom Navigation Bar from New UI Application
+  // 🧭 Floating Bottom Navigation Bar (8px Radius & 8px Margins)
   // ============================================================================
   Widget _buildBottomNavBar(BuildContext context) {
     final currentIndex = widget.navigationShell.currentIndex;
@@ -226,98 +345,94 @@ class _MainPageState extends State<MainPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
-          child: SizedBox(
-            height: 64.h,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // ── 1. Floating Capsule Bar Container ──
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(26.r),
-                      border: Border.all(color: AppColors.border, width: 1.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.navy.withValues(alpha: 0.08),
-                          blurRadius: 18.r,
-                          spreadRadius: 0,
-                          offset: Offset(0, 6.h),
-                        ),
-                        BoxShadow(
-                          color: AppColors.navy.withValues(alpha: 0.03),
-                          blurRadius: 4.r,
-                          offset: Offset(0, 2.h),
-                        ),
-                      ],
+        SizedBox(
+          height: 58.h,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // ── 1. Docked Bar Container (Flush Edge-to-Edge) ──
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    border: Border(
+                      top: BorderSide(
+                        color: AppColors.border,
+                        width: 0.8.w,
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Expanded(
-                          child: _buildTabItem(
-                            index: 0,
-                            isSelected: currentIndex == 0,
-                            icon: Icons.home_outlined,
-                            activeIcon: Icons.home_rounded,
-                            label: AppStrings.navHome,
-                            onTap: () => navRoute(0),
-                          ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 6.r,
+                        spreadRadius: 0,
+                        offset: Offset(0, -2.h),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Expanded(
+                        child: _buildTabItem(
+                          index: 0,
+                          isSelected: currentIndex == 0,
+                          icon: Icons.home_outlined,
+                          activeIcon: Icons.home_rounded,
+                          label: AppStrings.navHome,
+                          onTap: () => navRoute(0),
                         ),
-                        Expanded(
-                          child: _buildTabItem(
-                            index: 1,
-                            isSelected: currentIndex == 1,
-                            icon: Icons.grid_view_outlined,
-                            activeIcon: Icons.grid_view_rounded,
-                            label: AppStrings.navDiscover,
-                            onTap: () => navRoute(1),
-                          ),
+                      ),
+                      Expanded(
+                        child: _buildTabItem(
+                          index: 1,
+                          isSelected: currentIndex == 1,
+                          icon: Icons.grid_view_outlined,
+                          activeIcon: Icons.grid_view_rounded,
+                          label: AppStrings.navDiscover,
+                          onTap: () => navRoute(1),
                         ),
-                        SizedBox(width: 56.w), // Spacing for Center Raised Diamond Cart
-                        Expanded(
-                          child: _buildTabItem(
-                            index: 2,
-                            isSelected: currentIndex == 2,
-                            icon: Icons.headset_mic_outlined,
-                            activeIcon: Icons.headset_mic_rounded,
-                            label: AppStrings.navSupport,
-                            onTap: () => navRoute(2),
-                          ),
+                      ),
+                      SizedBox(width: 56.w), // Spacing for Center Raised Diamond Cart
+                      Expanded(
+                        child: _buildTabItem(
+                          index: 2,
+                          isSelected: currentIndex == 2,
+                          icon: Icons.headset_mic_outlined,
+                          activeIcon: Icons.headset_mic_rounded,
+                          label: AppStrings.navSupport,
+                          onTap: () => navRoute(2),
                         ),
-                        Expanded(
-                          child: _buildTabItem(
-                            index: 3,
-                            isSelected: currentIndex == 3,
-                            icon: Icons.person_outline_rounded,
-                            activeIcon: Icons.person_rounded,
-                            label: AppStrings.navProfile,
-                            onTap: () => navRoute(3),
-                          ),
+                      ),
+                      Expanded(
+                        child: _buildTabItem(
+                          index: 3,
+                          isSelected: currentIndex == 3,
+                          icon: Icons.person_outline_rounded,
+                          activeIcon: Icons.person_rounded,
+                          label: AppStrings.navProfile,
+                          onTap: () => navRoute(3),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
 
-                // ── 2. Center Floating Raised Diamond Cart Button ──
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: -14.h,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () => context.push(Routes.cart),
-                      behavior: HitTestBehavior.opaque,
-                      child: _buildDiamondCartButton(),
-                    ),
+              // ── 2. Center Floating Raised Diamond Cart Button ──
+              Positioned(
+                left: 0,
+                right: 0,
+                top: -22.h,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () => context.push(Routes.cart),
+                    behavior: HitTestBehavior.opaque,
+                    child: _buildDiamondCartButton(),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
 
@@ -325,7 +440,7 @@ class _MainPageState extends State<MainPage> {
         if (bottomInset > 0)
           Container(
             height: bottomInset,
-            color: AppColors.pageBg,
+            color: AppColors.white,
           ),
       ],
     );
@@ -352,10 +467,10 @@ class _MainPageState extends State<MainPage> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOutCubic,
-                width: 48.w,
-                height: 48.h,
+                width: 45.6.w,
+                height: 45.6.h,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(13.r),
+                  borderRadius: AppRadius.k8,
                   color: AppColors.white,
                   border: Border.all(
                     color: AppColors.border,
@@ -363,7 +478,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.navy.withValues(alpha: 0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 8.r,
                       offset: Offset(0, 3.h),
                     ),
@@ -378,7 +493,7 @@ class _MainPageState extends State<MainPage> {
                       Icon(
                         Icons.shopping_bag_outlined,
                         color: AppColors.navy,
-                        size: 22.sp,
+                        size: 21.sp,
                       ),
                       // Live Cart Count Badge
                       if (cartCount > 0)
@@ -415,7 +530,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ),
-            SizedBox(height: 5.h),
+            SizedBox(height: 11.h),
             Text(
               'Cart',
               style: AppTypography.bodyTiny.medium(),
@@ -440,9 +555,9 @@ class _MainPageState extends State<MainPage> {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: AppRadius.k4,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.h),
+        padding: EdgeInsets.symmetric(vertical: 4.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -457,7 +572,7 @@ class _MainPageState extends State<MainPage> {
                 color: color,
               ),
             ),
-            SizedBox(height: 3.h),
+            SizedBox(height: 2.h),
             Text(
               label,
               style: isSelected
@@ -472,6 +587,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
+    MainPage._scrollPauseTimer?.cancel();
     MainPage.switchTab = null;
     _deepLinkSubscription?.cancel();
     _navDrawerBloc.unregisterScaffold();

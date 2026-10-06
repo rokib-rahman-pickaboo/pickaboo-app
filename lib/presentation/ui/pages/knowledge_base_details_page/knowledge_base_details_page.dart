@@ -22,7 +22,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/knowledge_base_page/knowledge_base_details_skeleton.dart';
 
 class KnowledgeBaseDetailsPage extends StatefulWidget {
   final String? categoryId;
@@ -124,7 +124,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
         final articles = state.articles ?? [];
 
         return Scaffold(
-          backgroundColor: AppColors.pageBg,
+          backgroundColor: AppColors.white,
           appBar: widget.embedded
               ? null
               : PickabooAppBar(
@@ -184,6 +184,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                         AppSpacing.sameGroupItemSpacing.h + 16.h,
                       ),
                       child: AppCard(
+                        padding: EdgeInsets.zero,
                         child: Column(
                           children: [
                             for (int i = 0; i < articles.length; i++)
@@ -206,7 +207,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
   }
 
   Widget _buildLoadingState() {
-    return const AppLoader.fullPage();
+    return const KnowledgeBaseDetailsSkeleton();
   }
 
   void _retryLoad() => _load();
@@ -216,7 +217,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
       padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       decoration: BoxDecoration(
         color: AppColors.surfaceBlue,
-        borderRadius: BorderRadius.circular(AppRadius.button),
+        borderRadius: AppRadius.k8,
         border: Border.all(
           color: AppColors.border,
           width: 1.w,
@@ -373,7 +374,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
                 AppSpacing.sameGroupHeightGap,
                 InkWell(
                   onTap: () => context.push(Routes.contactUs),
-                  borderRadius: BorderRadius.circular(AppRadius.badge),
+                  borderRadius: AppRadius.k4,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

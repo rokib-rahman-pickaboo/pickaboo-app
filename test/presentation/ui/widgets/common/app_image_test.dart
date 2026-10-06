@@ -53,7 +53,7 @@ void main() {
       const testUrl = 'media/product/123.jpg';
       // Derived from the configured environment rather than hard-coded: the
       // default build is staging (gcpadmin), not production (www).
-      final expectedUrl = '${ApiEndpoints.baseUrl}/media/product/123.jpg';
+      const expectedUrl = '${ApiEndpoints.baseUrl}/media/product/123.jpg';
 
       await _pumpAppImage(tester, const AppImage(imageUrl: testUrl));
 

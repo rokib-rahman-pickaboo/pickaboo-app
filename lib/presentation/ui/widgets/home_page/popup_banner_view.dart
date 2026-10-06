@@ -57,8 +57,8 @@ class PopupBannerView extends StatelessWidget {
           },
           child: Container(
             width: width * 0.9,
-            decoration: const BoxDecoration(
-              borderRadius: AppRadius.cardRadius,
+            decoration: BoxDecoration(
+              borderRadius: AppRadius.k8,
               color: AppColors.transparent,
             ),
             clipBehavior: Clip.antiAlias,

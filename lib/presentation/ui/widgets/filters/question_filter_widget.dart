@@ -118,7 +118,7 @@ class _QuestionFilterWidgetState extends State<QuestionFilterWidget> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: onTap,
-                borderRadius: BorderRadius.circular(14.r),
+                borderRadius: AppRadius.kFull,
                 child: Container(
                   width: 28.r,
                   height: 28.r,
@@ -131,7 +131,7 @@ class _QuestionFilterWidgetState extends State<QuestionFilterWidget> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.navy.withValues(alpha: 0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 4.r,
                         offset: Offset(0, 1.h),
                       ),
@@ -195,13 +195,13 @@ class _QuestionFilterWidgetState extends State<QuestionFilterWidget> {
                   SizedBox(width: AppSpacing.sameGroupItemSpacing.w),
                   InkWell(
                     onTap: () => widget.onOptionSelected(null),
-                    borderRadius: AppRadius.cardRadius,
+                    borderRadius: AppRadius.k8,
                     child: Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                       decoration: BoxDecoration(
                         color: AppColors.redBg,
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         border: Border.all(
                           color: AppColors.red.withValues(alpha: 0.5),
                           width: 0.8.w,
@@ -286,7 +286,7 @@ class _QuestionFilterWidgetState extends State<QuestionFilterWidget> {
                                 widget.onOptionSelected(
                                     isSelected ? null : option);
                               },
-                              borderRadius: AppRadius.cardRadius,
+                              borderRadius: AppRadius.k8,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 180),
                                 padding: EdgeInsets.symmetric(
@@ -295,7 +295,7 @@ class _QuestionFilterWidgetState extends State<QuestionFilterWidget> {
                                   color: isSelected
                                       ? AppColors.pickabooBlue
                                       : AppColors.white,
-                                  borderRadius: AppRadius.cardRadius,
+                                  borderRadius: AppRadius.k8,
                                   border: Border.all(
                                     color: isSelected
                                         ? AppColors.pickabooBlue

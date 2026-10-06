@@ -31,18 +31,7 @@ class OrderSummarySection extends StatelessWidget {
         vertical: 4.h,
       ),
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -62,7 +51,7 @@ class OrderSummarySection extends StatelessWidget {
                     horizontal: 16.w,
                     vertical: 8.h,
                   ),
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   onPressed: onPayNow,
                   text: "Pay Now",
                 ),

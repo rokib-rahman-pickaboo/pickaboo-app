@@ -143,7 +143,7 @@ void main() {
           ).thenAnswer((_) async => 'token');
           when(
             () => mockRepository.getBasicCart(),
-          ).thenAnswer((_) async => Right(tCartWithItems));
+          ).thenAnswer((_) async => const Right(tCartWithItems));
           when(
             () =>
                 mockCacheManager.setAuthQuoteId(quoteId: any(named: 'quoteId')),
@@ -153,7 +153,7 @@ void main() {
         act: (bloc) => bloc.add(const CartEvent.getCart()),
         expect: () => [
           const CartState.loading(),
-          CartState.loaded(tCartWithItems),
+          const CartState.loaded(tCartWithItems),
         ],
       );
     });
@@ -173,7 +173,7 @@ void main() {
           ).thenAnswer((_) async => const Right(tCartItem));
           when(
             () => mockRepository.getBasicCart(),
-          ).thenAnswer((_) async => Right(tCartWithItems));
+          ).thenAnswer((_) async => const Right(tCartWithItems));
           return cartBloc;
         },
         act: (bloc) => bloc.add(
@@ -186,11 +186,11 @@ void main() {
         ),
         expect: () => [
           const CartState.loading(),
-          CartState.itemAdded(
+          const CartState.itemAdded(
             cart: tCartWithItems,
             message: 'Item added to cart',
           ),
-          CartState.loaded(tCartWithItems),
+          const CartState.loaded(tCartWithItems),
         ],
       );
     });
@@ -219,7 +219,7 @@ void main() {
         },
         expect: () => [
           const CartState.loading(),
-          CartState.loaded(tCartWithItems),
+          const CartState.loaded(tCartWithItems),
           CartState.operationInProgress(
             cart: tCartWithItems.copyWith(
               items: [tCartItem.copyWith(qty: 2, rowTotal: 200)],
@@ -228,7 +228,7 @@ void main() {
             ),
             operation: 'updating_quantity',
           ),
-          CartState.loaded(tCartWithItems),
+          const CartState.loaded(tCartWithItems),
         ],
       );
 
@@ -256,7 +256,7 @@ void main() {
         },
         expect: () => [
           const CartState.loading(),
-          CartState.loaded(tCartWithItems),
+          const CartState.loaded(tCartWithItems),
           CartState.operationInProgress(
             cart: tCartWithItems.copyWith(
               items: [tCartItem.copyWith(qty: 7, rowTotal: 700)],
@@ -265,8 +265,8 @@ void main() {
             ),
             operation: 'updating_quantity',
           ),
-          CartState.error(
-            error: const AppErrorEntity(message: 'Not enough items for sale'),
+          const CartState.error(
+            error: AppErrorEntity(message: 'Not enough items for sale'),
             lastCart: tCartWithItems,
           ),
         ],
@@ -284,7 +284,7 @@ void main() {
           when(() => mockRepository.getBasicCart()).thenAnswer((_) async {
             if (callCount == 0) {
               callCount++;
-              return Right(tCartWithItems);
+              return const Right(tCartWithItems);
             }
             return const Right(tCartEntity);
           });
@@ -304,8 +304,8 @@ void main() {
         },
         expect: () => [
           const CartState.loading(),
-          CartState.loaded(tCartWithItems),
-          CartState.operationInProgress(
+          const CartState.loaded(tCartWithItems),
+          const CartState.operationInProgress(
             cart: tCartWithItems,
             operation: 'removing_item',
           ),

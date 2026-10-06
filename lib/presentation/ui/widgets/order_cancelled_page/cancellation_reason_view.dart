@@ -93,18 +93,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: AppRadius.cardRadius,
-              border: Border.all(color: AppColors.border),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.navy.withValues(alpha: 0.03),
-                  blurRadius: 8.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
-            ),
+            decoration: AppDecorations.cardBoxDecoration(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -201,7 +190,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 14.w),
                 decoration: BoxDecoration(
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   border: Border.all(
                     color: (_triedSubmit && _selectedReason == null)
                         ? AppColors.red
@@ -223,11 +212,11 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                 width: 0.92.sw,
                 padding: EdgeInsets.symmetric(vertical: 6.h),
                 decoration: BoxDecoration(
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   color: AppColors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.navy.withValues(alpha: 0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -259,7 +248,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
               hintText: "e.g. Need to change item color or delivery time",
               hintStyle: AppTypography.inputHint,
               border: OutlineInputBorder(
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 borderSide: BorderSide(
                   color: (_triedSubmit && _additionalInfoController.text.trim().isEmpty)
                       ? AppColors.red
@@ -267,7 +256,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 borderSide: BorderSide(
                   color: (_triedSubmit && _additionalInfoController.text.trim().isEmpty)
                       ? AppColors.red
@@ -275,7 +264,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
                 ),
               ),
               focusedBorder: const OutlineInputBorder(
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
               ),
               filled: true,
@@ -296,7 +285,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
             padding: EdgeInsets.all(14.w),
             decoration: BoxDecoration(
               color: AppColors.surfaceBlue,
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(
                 color: AppColors.pickabooBlue.withValues(alpha: 0.2),
               ),
@@ -330,7 +319,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           // ── 6. POLICY ACCEPTANCE CHECKBOX ──
           InkWell(
             onTap: () => setState(() => _policyAccepted = !_policyAccepted),
-            borderRadius: AppRadius.cardRadius,
+            borderRadius: AppRadius.k8,
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 4.h),
               child: Row(
@@ -371,7 +360,7 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
           // ── 7. SUBMIT BUTTON ──
           AppButton.primary(
             height: 48.h,
-            borderRadius: AppRadius.cardRadius,
+            borderRadius: AppRadius.k8,
             text: "Submit",
             onPressed: _submit,
           ),
@@ -385,30 +374,19 @@ class _CancellationReasonViewState extends State<CancellationReasonView> {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 6.r,
-            offset: Offset(0, 1.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Row(
         children: [
           Container(
             width: 52.w,
             height: 52.w,
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.cardRadius,
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             child: ClipRRect(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               child: item.image != null
                   ? AppImage(
                       imageUrl: item.image!,

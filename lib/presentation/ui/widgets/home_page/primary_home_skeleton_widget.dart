@@ -94,7 +94,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.pageBg,
+        color: AppColors.white,
         border: Border(
           bottom: BorderSide(
             color: AppColors.border,
@@ -119,7 +119,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                     height: 44.w,
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: AppRadius.cardRadius,
+                      borderRadius: AppRadius.k8,
                       border: Border.all(color: AppColors.border),
                     ),
                   ),
@@ -129,7 +129,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                     height: 9.h,
                     decoration: BoxDecoration(
                       color: AppColors.border,
-                      borderRadius: BorderRadius.circular(3.r),
+                      borderRadius: AppRadius.k4,
                     ),
                   ),
                 ],
@@ -155,7 +155,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(color: AppColors.border),
               ),
               child: Center(
@@ -177,7 +177,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                 height: 4.h,
                 decoration: BoxDecoration(
                   color: AppColors.pickabooBlue,
-                  borderRadius: BorderRadius.circular(2.r),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
               SizedBox(width: 4.w),
@@ -186,7 +186,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                 height: 4.h,
                 decoration: BoxDecoration(
                   color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2.r),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
               SizedBox(width: 4.w),
@@ -195,7 +195,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                 height: 4.h,
                 decoration: BoxDecoration(
                   color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2.r),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ],
@@ -218,7 +218,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
               height: 76.h,
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(color: AppColors.border),
               ),
             ),
@@ -229,7 +229,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
               height: 76.h,
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(color: AppColors.border),
               ),
             ),
@@ -261,7 +261,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                     height: 16.h,
                     decoration: BoxDecoration(
                       color: AppColors.border,
-                      borderRadius: BorderRadius.circular(4.r),
+                      borderRadius: AppRadius.k4,
                     ),
                   ),
                   SizedBox(width: 8.w),
@@ -270,7 +270,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                     height: 14.h,
                     decoration: BoxDecoration(
                       color: AppColors.border,
-                      borderRadius: BorderRadius.circular(4.r),
+                      borderRadius: AppRadius.k4,
                     ),
                   ),
                 ],
@@ -280,7 +280,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                 height: 14.h,
                 decoration: BoxDecoration(
                   color: AppColors.border,
-                  borderRadius: BorderRadius.circular(4.r),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ],
@@ -320,7 +320,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
         height: 96.h,
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           border: Border.all(color: AppColors.border),
         ),
         child: Center(
@@ -350,7 +350,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
             height: 16.h,
             decoration: BoxDecoration(
               color: AppColors.border,
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: AppRadius.k4,
             ),
           ),
           SizedBox(height: AppSpacing.sameGroupItemSpacing.h),
@@ -382,11 +382,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
   Widget _buildProductCardSkeleton(BuildContext context, {double? width}) {
     final cardContent = Container(
       width: width,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -395,17 +391,15 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
           AspectRatio(
             aspectRatio: 1.0,
             child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.pageBg,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(8.r),
-                ),
+              decoration: const BoxDecoration(
+                color: AppColors.itemBackground,
+                borderRadius: AppRadius.top8,
               ),
               child: Center(
                 child: Icon(
                   Icons.image_outlined,
                   size: 32.sp,
-                  color: AppColors.border,
+                  color: AppColors.skeletonBase,
                 ),
               ),
             ),
@@ -423,7 +417,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                   height: 8.h,
                   decoration: BoxDecoration(
                     color: AppColors.border,
-                    borderRadius: BorderRadius.circular(2.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 5.h),
@@ -433,7 +427,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                   height: 11.h,
                   decoration: BoxDecoration(
                     color: AppColors.border,
-                    borderRadius: BorderRadius.circular(3.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -443,7 +437,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                   height: 11.h,
                   decoration: BoxDecoration(
                     color: AppColors.border,
-                    borderRadius: BorderRadius.circular(3.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -456,7 +450,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                         child: Container(
                           width: 8.w,
                           height: 8.w,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: AppColors.border,
                           ),
@@ -473,7 +467,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                       height: 13.h,
                       decoration: BoxDecoration(
                         color: AppColors.border,
-                        borderRadius: BorderRadius.circular(3.r),
+                        borderRadius: AppRadius.k4,
                       ),
                     ),
                     SizedBox(width: 6.w),
@@ -482,7 +476,7 @@ class PrimaryHomeSkeletonWidget extends StatelessWidget {
                       height: 10.h,
                       decoration: BoxDecoration(
                         color: AppColors.border,
-                        borderRadius: BorderRadius.circular(2.r),
+                        borderRadius: AppRadius.k4,
                       ),
                     ),
                   ],

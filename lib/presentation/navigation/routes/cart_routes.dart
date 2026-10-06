@@ -74,6 +74,8 @@ final List<RouteBase> cartRoutes = [
           extra['onBkashCallback'] as void Function(String, String)?;
       final onNagadCallback =
           extra['onNagadCallback'] as void Function(Map<String, String>)?;
+      final onPathaoCallback =
+          extra['onPathaoCallback'] as void Function(Map<String, String>)?;
       final onUserClosed = extra['onUserClosed'] as VoidCallback?;
 
       return PaymentWebView(
@@ -83,6 +85,7 @@ final List<RouteBase> cartRoutes = [
         onPaymentResult: onPaymentResult,
         onBkashCallback: onBkashCallback,
         onNagadCallback: onNagadCallback,
+        onPathaoCallback: onPathaoCallback,
         onUserClosed: onUserClosed,
       );
     },

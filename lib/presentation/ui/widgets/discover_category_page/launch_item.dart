@@ -36,7 +36,7 @@ class LaunchItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ClipRRect(
-            borderRadius: AppRadius.cardRadius,
+            borderRadius: AppRadius.k8,
             child: Padding(
               padding: EdgeInsets.all(6.w),
               child: AppImage(
@@ -44,6 +44,8 @@ class LaunchItem extends StatelessWidget {
                 width: size,
                 height: size,
                 fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+                constrainHeightInMemCache: false,
                 errorWidget: Center(
                   child: Text(
                     title,

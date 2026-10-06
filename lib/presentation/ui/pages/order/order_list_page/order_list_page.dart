@@ -27,6 +27,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/order_list_page/order_item_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/order_list_page/order_list_skeleton.dart';
 
 class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
@@ -67,7 +68,7 @@ class _OrderListPageState extends State<OrderListPage> {
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: AppStrings.myOrders,
       ),
@@ -175,7 +176,7 @@ class _OrderListPageState extends State<OrderListPage> {
                           ),
                         ),
                         firstPageProgressIndicatorBuilder: (context) =>
-                            const AppLoader.fullPage(),
+                            const OrderListSkeleton(),
                         newPageProgressIndicatorBuilder: (context) =>
                             const AppLoader.pagination(),
                         noItemsFoundIndicatorBuilder: (context) =>

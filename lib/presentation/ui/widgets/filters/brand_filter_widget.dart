@@ -28,7 +28,7 @@ class BrandFilterWidget extends StatelessWidget {
     required this.selectedBrand,
     required this.onBrandSelected,
     this.categoryName,
-    this.height = 26.0,
+    this.height = 24.0,
     this.padding,
   });
 
@@ -47,7 +47,10 @@ class BrandFilterWidget extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         padding: padding ??
-            EdgeInsets.symmetric(horizontal: AppSpacing.sameGroupItemSpacing.w),
+            EdgeInsets.symmetric(
+              horizontal: AppSpacing.sameGroupItemSpacing.w,
+              vertical: 1.5.h,
+            ),
         itemCount: totalCount,
         itemBuilder: (context, index) {
           if (hasSelection && index == 0) {
@@ -57,16 +60,13 @@ class BrandFilterWidget extends StatelessWidget {
                   EdgeInsets.only(right: AppSpacing.sameGroupItemSpacing.w),
               child: InkWell(
                 onTap: () => onBrandSelected(null),
-                borderRadius: AppRadius.smRadius,
+                borderRadius: AppRadius.k8,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: AppColors.redBg,
-                    borderRadius: AppRadius.smRadius,
-                    border: Border.all(
-                      color: AppColors.red.withValues(alpha: 0.5),
-                      width: 1.w,
-                    ),
+                    borderRadius: AppRadius.k8,
+                    boxShadow: AppDecorations.cardShadow,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -74,12 +74,12 @@ class BrandFilterWidget extends StatelessWidget {
                       Text(
                         AppStrings.allBrands.toUpperCase(),
                         style: AppTypography.bodyTiny.extraBold().red.copyWith(
-                          fontSize: 10.sp,
+                          fontSize: 9.5.sp,
                           letterSpacing: 0.2,
                         ),
                       ),
                       SizedBox(width: 3.w),
-                      Icon(Icons.close_rounded, size: 12.sp, color: AppColors.red),
+                      Icon(Icons.close_rounded, size: 11.sp, color: AppColors.red),
                     ],
                   ),
                 ),
@@ -97,23 +97,20 @@ class BrandFilterWidget extends StatelessWidget {
               onTap: () {
                 onBrandSelected(isSelected ? null : brandName);
               },
-              borderRadius: AppRadius.smRadius,
+              borderRadius: AppRadius.k8,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.pickabooBlue : AppColors.white,
-                  borderRadius: AppRadius.smRadius,
-                  border: Border.all(
-                    color: isSelected ? AppColors.pickabooBlue : AppColors.border,
-                    width: 1.w,
-                  ),
+                  borderRadius: AppRadius.k8,
+                  boxShadow: AppDecorations.cardShadow,
                 ),
                 child: Center(
                   child: Text(
                     brandName.toUpperCase(),
                     style: AppTypography.bodySmall.copyWith(
-                      fontSize: 10.5.sp,
+                      fontSize: 10.sp,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                       color: isSelected ? AppColors.white : AppColors.navy,
                       letterSpacing: 0.2,

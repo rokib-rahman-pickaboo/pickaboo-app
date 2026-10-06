@@ -36,42 +36,7 @@ class PdpAvailableOffersWidget extends StatefulWidget {
     this.isLoading = false,
   });
 
-  @override
-  State<PdpAvailableOffersWidget> createState() => _PdpAvailableOffersWidgetState();
-}
-
-class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
-  late final ScrollController _scrollController;
-  Timer? _autoScrollTimer;
-  double _cardStep = 175.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-  }
-
-  void _startAutoScroll(int count) {
-    if (count <= 1) return;
-    _autoScrollTimer?.cancel();
-    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (!mounted || !_scrollController.hasClients) return;
-      _scrollController.animateTo(
-        _scrollController.offset + _cardStep,
-        duration: const Duration(milliseconds: 700),
-        curve: Curves.easeInOut,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _autoScrollTimer?.cancel();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  List<OfferItemData> _parseDynamicOffers(String? rawHtml) {
+  static List<OfferItemData> parseDynamicOffers(String? rawHtml) {
     if (rawHtml == null || rawHtml.trim().isEmpty) return [];
     final trimmed = rawHtml.trim();
     // Guard against numeric IDs (e.g. "117562", "69376") and strings without alphabetical text
@@ -110,6 +75,41 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
     }
   }
 
+  @override
+  State<PdpAvailableOffersWidget> createState() => _PdpAvailableOffersWidgetState();
+}
+
+class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
+  late final ScrollController _scrollController;
+  Timer? _autoScrollTimer;
+  double _cardStep = 175.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  void _startAutoScroll(int count) {
+    if (count <= 1) return;
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!mounted || !_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.offset + _cardStep,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   /// Displays all offers in a clean bottom sheet matching section style
   void _showOffersBottomSheet(BuildContext context, List<OfferItemData> offers) {
     showModalBottomSheet(
@@ -118,9 +118,9 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
       backgroundColor: AppColors.transparent,
       builder: (ctx) => Container(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.75),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.pill)),
+          borderRadius: BorderRadius.vertical(top: AppRadius.radFull),
         ),
         padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
         child: Column(
@@ -132,9 +132,9 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
               child: Container(
                 width: 40.w,
                 height: 4.h,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.border,
-                  borderRadius: AppRadius.badgeRadius,
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ),
@@ -163,20 +163,17 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
             Flexible(
               child: ListView.separated(
                 shrinkWrap: true,
+                padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 2.w),
+                clipBehavior: Clip.none,
                 physics: const BouncingScrollPhysics(),
                 itemCount: offers.length,
-                separatorBuilder: (_, _) => SizedBox(height: 8.h),
+                separatorBuilder: (_, _) => SizedBox(height: 10.h),
                 itemBuilder: (context, index) {
                   final offer = offers[index];
                   return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                    decoration: BoxDecoration(
-                      color: AppColors.pageBg,
-                      borderRadius: AppRadius.chipRadius,
-                      border: Border.all(
-                        color: AppColors.border,
-                        width: 1.w,
-                      ),
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                    decoration: AppDecorations.cardBoxDecoration(
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,7 +209,8 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                                         if (uri != null) {
                                           try {
                                             await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                          } catch (e) {
+                                          } catch (_) {
+                                            // Ignore external URL launch failure
                                           }
                                         }
                                       },
@@ -287,7 +285,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
       return _buildShimmerSkeleton(context);
     }
 
-    final offers = widget.customOffers ?? _parseDynamicOffers(widget.promoOffer);
+    final offers = widget.customOffers ?? PdpAvailableOffersWidget.parseDynamicOffers(widget.promoOffer);
     if (offers.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -322,7 +320,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
               ),
               InkWell(
                 onTap: () => _showOffersBottomSheet(context, allOffers),
-                borderRadius: AppRadius.smRadius,
+                borderRadius: AppRadius.k8,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
                   child: Row(
@@ -353,10 +351,14 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
 
         // ── Horizontal Seamless Circular Looping Offer Cards ──
         SizedBox(
-          height: 56.h,
+          height: 64.h,
           child: ListView.builder(
             controller: _scrollController,
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.sameGroupItemSpacing.w),
+            clipBehavior: Clip.none,
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.sameGroupItemSpacing.w,
+              vertical: 4.h,
+            ),
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             itemCount: isInfinite ? null : allOffers.length,
@@ -379,10 +381,8 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                     horizontal: 10.w,
                     vertical: 8.h,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColors.pageBg,
-                    borderRadius: AppRadius.cardRadius,
-                    border: Border.all(color: AppColors.border, width: 1.w),
+                  decoration: AppDecorations.cardBoxDecoration(
+                    borderRadius: AppRadius.k8,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -435,8 +435,8 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                 width: 48.w,
                 height: 12.h,
                 decoration: BoxDecoration(
-                  color: AppColors.pageBg,
-                  borderRadius: BorderRadius.circular(AppRadius.badge),
+                  color: AppColors.itemBackground,
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ],
@@ -447,9 +447,13 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
 
         // ── Horizontal Shimmer Offer Cards (matching exact 56.h height) ──
         SizedBox(
-          height: 56.h,
+          height: 64.h,
           child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.sameGroupItemSpacing.w),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.sameGroupItemSpacing.w,
+              vertical: 4.h,
+            ),
+            clipBehavior: Clip.none,
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
             children: [
@@ -470,10 +474,8 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
         horizontal: 10.w,
         vertical: 8.h,
       ),
-      decoration: BoxDecoration(
-        color: AppColors.pageBg,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border, width: 1.w),
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k8,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -481,7 +483,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
           Container(
             width: 22.w,
             height: 22.w,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.surfaceBlue,
               shape: BoxShape.circle,
             ),
@@ -502,9 +504,9 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                 Container(
                   width: double.infinity,
                   height: 10.h,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.border,
-                    borderRadius: AppRadius.badgeRadius,
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -513,7 +515,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                   height: 8.h,
                   decoration: BoxDecoration(
                     color: AppColors.border.withValues(alpha: 0.6),
-                    borderRadius: AppRadius.badgeRadius,
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
               ],

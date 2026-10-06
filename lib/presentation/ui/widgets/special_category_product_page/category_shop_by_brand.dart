@@ -50,7 +50,7 @@ class CategoryShopByBrand extends StatelessWidget {
                           height: 64.w,
                           decoration: BoxDecoration(
                             color: AppColors.white,
-                            borderRadius: AppRadius.cardRadius,
+                            borderRadius: AppRadius.k8,
                             border: Border.all(
                               color: AppColors.muted.withValues(alpha: 0.3),
                               width: 1.w,

@@ -37,18 +37,7 @@ class WishlistItemCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.only(bottom: AppSpacing.groupToGroupSpacing.h),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
-          border: Border.all(width: 1.w, color: AppColors.border),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black.withValues(alpha: 0.05),
-              blurRadius: 5.r,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        decoration: AppDecorations.cardBoxDecoration(),
         child: Column(
           children: [
             Padding(
@@ -59,8 +48,8 @@ class WishlistItemCard extends StatelessWidget {
                   Container(
                     width: 80.w,
                     height: 80.w,
-                    decoration: const BoxDecoration(
-                      borderRadius: AppRadius.badgeRadius,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadius.k4,
                     ),
                     child: item.thumbnail.isEmpty
                         ? Icon(
@@ -119,7 +108,7 @@ class WishlistItemCard extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: AppColors.orange.withValues(alpha: 0.1),
-                                    borderRadius: AppRadius.badgeRadius,
+                                    borderRadius: AppRadius.k4,
                                   ),
                                   child: Text(
                                     "-${item.discount}%",
@@ -139,7 +128,7 @@ class WishlistItemCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.red.withValues(alpha: 0.1),
-                              borderRadius: AppRadius.badgeRadius,
+                              borderRadius: AppRadius.k4,
                             ),
                             child: Text(
                               "Out of Stock",
@@ -169,7 +158,7 @@ class WishlistItemCard extends StatelessWidget {
                     child: InkWell(
                       onTap: onRemove,
                       borderRadius: const BorderRadius.only(
-                        bottomRight: Radius.circular(AppRadius.button),
+                        bottomRight: AppRadius.rad8,
                       ),
                       splashColor: AppColors.red.withAlpha(20),
                       highlightColor: AppColors.red.withAlpha(10),
@@ -237,7 +226,7 @@ class WishlistItemCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(AppRadius.button),
+          bottomLeft: AppRadius.rad8,
         ),
         splashColor: AppColors.pickabooBlue.withAlpha(20),
         highlightColor: AppColors.pickabooBlue.withAlpha(10),

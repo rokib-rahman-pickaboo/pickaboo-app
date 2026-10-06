@@ -36,7 +36,7 @@ class CmsContentBottomSheet extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        borderRadius: AppRadius.top16,
       ),
       child: SafeArea(
         top: false,
@@ -52,7 +52,7 @@ class CmsContentBottomSheet extends StatelessWidget {
                 height: 4.h,
                 decoration: BoxDecoration(
                   color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2.r),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
             ),
@@ -78,7 +78,7 @@ class CmsContentBottomSheet extends StatelessWidget {
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
                       padding: EdgeInsets.all(4.w),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.surfaceBlue,
                         shape: BoxShape.circle,
                       ),

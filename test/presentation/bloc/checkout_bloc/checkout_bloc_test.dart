@@ -51,7 +51,7 @@ void main() {
     billingAddress: tAddress,
   );
 
-  final tCartTotals = CartTotalsEntity(
+  const tCartTotals = CartTotalsEntity(
     grandTotal: 100,
     baseGrandTotal: 100,
     subtotal: 100,
@@ -83,7 +83,7 @@ void main() {
     cartTotals: tCartTotals,
   );
 
-  final tShippingMethod = ShippingMethodEntity(
+  const tShippingMethod = ShippingMethodEntity(
     carrierCode: 'flatrate',
     methodCode: 'flatrate',
     carrierTitle: 'Flat Rate',
@@ -96,9 +96,9 @@ void main() {
     priceInclTax: 50,
   );
 
-  final tPaymentMethod = PaymentMethodEntity(code: 'bkash', title: 'bKash', subtitle: '');
+  const tPaymentMethod = PaymentMethodEntity(code: 'bkash', title: 'bKash', subtitle: '');
 
-  final tPaymentMethodsEntity = PaymentMethodsEntity(
+  const tPaymentMethodsEntity = PaymentMethodsEntity(
     paymentMethods: [tPaymentMethod],
     totals: tCartTotals,
   );
@@ -120,7 +120,7 @@ void main() {
       () => mockRepository.getPaymentInfo(
         cartId: any(named: 'cartId'),
       ),
-    ).thenAnswer((_) async => Right(tPaymentMethodsEntity));
+    ).thenAnswer((_) async => const Right(tPaymentMethodsEntity));
 
     checkoutBloc = CheckoutBloc(mockRepository, mockAnalytics);
   });
@@ -145,7 +145,7 @@ void main() {
             () => mockRepository.estimateShippingMethods(
               address: any(named: 'address'),
             ),
-          ).thenAnswer((_) async => Right([tShippingMethod]));
+          ).thenAnswer((_) async => const Right([tShippingMethod]));
           when(
             () => mockRepository.saveShippingInformation(
               address: any(named: 'address'),
@@ -153,7 +153,7 @@ void main() {
               methodCode: any(named: 'methodCode'),
               billingAddress: any(named: 'billingAddress'),
             ),
-          ).thenAnswer((_) async => Right(tPaymentMethodsEntity));
+          ).thenAnswer((_) async => const Right(tPaymentMethodsEntity));
           return checkoutBloc;
         },
         act: (bloc) => bloc.add(const CheckoutEvent.loadCheckout()),
@@ -224,7 +224,7 @@ void main() {
             () => mockRepository.estimateShippingMethods(
               address: any(named: 'address'),
             ),
-          ).thenAnswer((_) async => Right([tShippingMethod]));
+          ).thenAnswer((_) async => const Right([tShippingMethod]));
           when(
             () => mockRepository.saveShippingInformation(
               address: any(named: 'address'),
@@ -232,7 +232,7 @@ void main() {
               methodCode: any(named: 'methodCode'),
               billingAddress: any(named: 'billingAddress'),
             ),
-          ).thenAnswer((_) async => Right(tPaymentMethodsEntity));
+          ).thenAnswer((_) async => const Right(tPaymentMethodsEntity));
 
           when(
             () => mockRepository.selectPaymentMethod(
@@ -356,7 +356,7 @@ void main() {
     });
 
     group('SelectShippingMethod & EstimateShipping preservation', () {
-      final tOfficePick = ShippingMethodEntity(
+      const tOfficePick = ShippingMethodEntity(
         carrierCode: 'officepick',
         methodCode: 'officepick',
         carrierTitle: 'Click & Collect',
@@ -369,7 +369,7 @@ void main() {
         priceInclTax: 0,
       );
 
-      final tFastPick = ShippingMethodEntity(
+      const tFastPick = ShippingMethodEntity(
         carrierCode: 'fastpickshipping',
         methodCode: 'fastpickshipping',
         carrierTitle: 'Express Delivery',
@@ -388,7 +388,7 @@ void main() {
           when(() => mockRepository.getCartCheckout())
               .thenAnswer((_) async => Right(tCheckoutEntity));
           when(() => mockRepository.estimateShippingMethods(address: any(named: 'address')))
-              .thenAnswer((_) async => Right([tFastPick, tOfficePick]));
+              .thenAnswer((_) async => const Right([tFastPick, tOfficePick]));
           when(
             () => mockRepository.saveShippingInformation(
               address: any(named: 'address'),
@@ -396,7 +396,7 @@ void main() {
               methodCode: any(named: 'methodCode'),
               billingAddress: any(named: 'billingAddress'),
             ),
-          ).thenAnswer((_) async => Right(tPaymentMethodsEntity));
+          ).thenAnswer((_) async => const Right(tPaymentMethodsEntity));
         },
         build: () => checkoutBloc,
         act: (bloc) async {

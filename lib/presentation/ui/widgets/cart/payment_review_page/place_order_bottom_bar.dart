@@ -36,7 +36,7 @@ class PlaceOrderBottomBar extends StatelessWidget {
         color: AppColors.transparent,
         child: InkWell(
           onTap: () => context.push(Routes.terms),
-          borderRadius: BorderRadius.circular(AppRadius.button.r),
+          borderRadius: AppRadius.k8,
           child: Container(
             constraints: BoxConstraints(minHeight: 44.h),
             alignment: Alignment.center,

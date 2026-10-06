@@ -27,46 +27,33 @@ class AppTokens {
   static const double full = 999.0; // Circular avatars, rounded pills
 }
 
-/// Centralized Border Radius Tokens
+/// Centralized Border Radius Tokens (Strict 4-tier scale: 4px, 8px, 16px, 999px)
 class AppRadius {
   AppRadius._();
 
-  // ── T-Shirt Scale Radii ──
-  static const double xxs  = AppTokens.xxs;
-  static const double xs   = AppTokens.xs;
-  static const double sm   = AppTokens.sm;
-  static const double md   = AppTokens.md;
-  static const double lg   = AppTokens.lg;
-  static const double xl   = AppTokens.xl;
-  static const double xxl  = AppTokens.xxl;
-  static const double xxxl = AppTokens.xxxl;
-  static const double full = AppTokens.full;
+  // ── 1. Scalar Values (double) ──
+  static const double r4    = 4.0;   // Micro, badges, tags, indicator bars, shimmers
+  static const double r8    = 8.0;   // Buttons, inputs, chips, cards, standard components
+  static const double r16   = 16.0;  // Modal bottom sheets, dialogs, alerts, large cards
+  static const double rFull = 999.0; // Circular avatars, rounded pills, capsule tags
 
-  // ── Semantic Component Aliases ──
-  static const double badge  = AppTokens.xs;   // 4.0
-  static const double button = AppTokens.sm;   // 8.0
-  static const double input  = AppTokens.sm;   // 8.0
-  static const double chip   = AppTokens.sm;   // 8.0 (canonical token, replaces arbitrary 10.0)
-  static const double card   = AppTokens.md;   // 12.0
-  static const double dialog = AppTokens.lg;   // 16.0
-  static const double sheet  = AppTokens.lg;   // 16.0
-  static const double pill   = AppTokens.xl;   // 20.0
+  // ── 2. All-Corner BorderRadius ──
+  static const BorderRadius k4    = BorderRadius.all(Radius.circular(r4));
+  static const BorderRadius k8    = BorderRadius.all(Radius.circular(r8));
+  static const BorderRadius k16   = BorderRadius.all(Radius.circular(r16));
+  static const BorderRadius kFull = BorderRadius.all(Radius.circular(rFull));
 
-  // ── BorderRadius All ──
-  static const BorderRadius badgeRadius  = BorderRadius.all(Radius.circular(badge));
-  static const BorderRadius smRadius     = BorderRadius.all(Radius.circular(sm));
-  static const BorderRadius buttonRadius = BorderRadius.all(Radius.circular(button));
-  static const BorderRadius inputRadius  = BorderRadius.all(Radius.circular(input));
-  static const BorderRadius chipRadius   = BorderRadius.all(Radius.circular(chip));
-  static const BorderRadius cardRadius   = BorderRadius.all(Radius.circular(card));
-  static const BorderRadius lgRadius     = BorderRadius.all(Radius.circular(lg));
-  static const BorderRadius dialogRadius = BorderRadius.all(Radius.circular(dialog));
-  static const BorderRadius pillRadius   = BorderRadius.all(Radius.circular(pill));
-  static const BorderRadius fullRadius   = BorderRadius.all(Radius.circular(full));
+  // ── 3. Directional BorderRadius ──
+  static const BorderRadius top8     = BorderRadius.vertical(top: Radius.circular(r8));
+  static const BorderRadius top16    = BorderRadius.vertical(top: Radius.circular(r16));
+  static const BorderRadius bottom8  = BorderRadius.vertical(bottom: Radius.circular(r8));
+  static const BorderRadius bottom16 = BorderRadius.vertical(bottom: Radius.circular(r16));
 
-  // ── Directional Sheet / Card Radii ──
-  static const BorderRadius sheetTop   = BorderRadius.vertical(top: Radius.circular(sheet));
-  static const BorderRadius cardTop    = BorderRadius.vertical(top: Radius.circular(card));
+  // ── 4. Radius Helpers (for BorderRadius.only or CustomPainters) ──
+  static const Radius rad4    = Radius.circular(r4);
+  static const Radius rad8    = Radius.circular(r8);
+  static const Radius rad16   = Radius.circular(r16);
+  static const Radius radFull = Radius.circular(rFull);
 }
 
 /// Centralized Spacing, Margins & Padding Tokens
@@ -106,7 +93,7 @@ class AppSpacing {
   static const SizedBox groupToGroupGap    = gapV12;
 
   // ── Semantic Screen & Component Padding (Active) ──
-  static const EdgeInsets cardPadding  = EdgeInsets.all(md);
+  static const EdgeInsets cardPadding  = EdgeInsets.all(sm);
   static const EdgeInsets badgePadding = EdgeInsets.symmetric(horizontal: sm, vertical: xxs);
 }
 
@@ -114,24 +101,40 @@ class AppSpacing {
 class AppDecorations {
   AppDecorations._();
 
-  /// Standard Layer 1 White Card Decoration with 1px border and soft depth shadow
+  /// Canonical crisp, ultra-clean neutral shadow with zero color cast
+  static final List<BoxShadow> cardShadow = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.035),
+      blurRadius: 4.0,
+      offset: const Offset(0, 1.5),
+      spreadRadius: 0,
+    ),
+  ];
+
+  /// 360-degree ambient shadow for borderless cards & chips floating on white surfaces
+  static final List<BoxShadow> shadow360 = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.08),
+      blurRadius: 4.5,
+      offset: Offset.zero,
+      spreadRadius: 0.5,
+    ),
+  ];
+
+  /// Standard Layer 1 White Card Decoration with micro-hairline border and clean shadow
   static BoxDecoration cardBoxDecoration({
     Color backgroundColor = AppColors.white,
     BorderRadius? borderRadius,
+    bool hasBorder = true,
     Color borderColor = AppColors.border,
-    double borderWidth = 1.0,
+    double borderWidth = 0.8,
+    List<BoxShadow>? boxShadow,
   }) {
     return BoxDecoration(
       color: backgroundColor,
-      borderRadius: borderRadius ?? AppRadius.cardRadius,
-      border: Border.all(color: borderColor, width: borderWidth),
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.navy.withValues(alpha: 0.02),
-          blurRadius: 6.0,
-          offset: const Offset(0, 2),
-        ),
-      ],
+      borderRadius: borderRadius ?? AppRadius.k8,
+      border: hasBorder ? Border.all(color: borderColor, width: borderWidth) : null,
+      boxShadow: boxShadow ?? cardShadow,
     );
   }
 
@@ -143,7 +146,7 @@ class AppDecorations {
   }) {
     return BoxDecoration(
       color: backgroundColor,
-      borderRadius: borderRadius ?? AppRadius.badgeRadius,
+      borderRadius: borderRadius ?? AppRadius.k4,
       border: borderColor != null ? Border.all(color: borderColor, width: 1.0) : null,
     );
   }
@@ -155,7 +158,7 @@ class AppDecorations {
   }) {
     return BoxDecoration(
       color: backgroundColor,
-      borderRadius: borderRadius ?? AppRadius.cardTop,
+      borderRadius: borderRadius ?? AppRadius.top16,
     );
   }
 

@@ -27,9 +27,10 @@ abstract class AppColors {
   /// Universal Card Surface, Sheet Canvas, App Bar Background & White Text
   static const Color white        = Color(0xFFFFFFFF);
 
-  /// Universal Page Scaffold Canvas Floor & Neutral Section Base
-  //static const Color pageBg       = Color(0xFFF8FAFC);
-  static const Color pageBg       = Color(0xFFFBFCFD);
+  /// Alternating Row Striping, Inactive Filter Rails & Subtle Item Backgrounds
+  static const Color itemBackground = Color(0xFFF8FAFC);
+  static const Color pageBg         = white;
+
 
   /// Soft Ice-Blue Surface Tint (Trust Ribbon, Q&A Blocks, Info Strips)
   static const Color surfaceBlue  = Color(0xFFEFF6FF);

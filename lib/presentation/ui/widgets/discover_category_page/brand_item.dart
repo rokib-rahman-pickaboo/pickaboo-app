@@ -44,6 +44,8 @@ class BrandItem extends StatelessWidget {
                 width: size,
                 height: size,
                 fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+                constrainHeightInMemCache: false,
                 errorWidget: Center(
                   child: Text(
                     brandName.toUpperCase(),

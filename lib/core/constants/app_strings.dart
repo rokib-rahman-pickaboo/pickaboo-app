@@ -90,9 +90,44 @@ class AppStrings {
   // ===========================================================================
   // ── 6. ACCOUNT & DASHBOARD ────────────────────────────────────────────────
   // ===========================================================================
+  static const String dashboard             = 'Dashboard';
   static const String myOrders              = 'My Orders';
+  static const String myOrdersSubtitle      = 'Track & view orders';
   static const String myWishlist            = 'My Wishlist';
+  static const String supportTickets        = 'Support Tickets';
+  static const String supportTicketsSubtitle= 'Get help & support';
+  static const String pickabooClub          = 'Pickaboo Club';
+  static const String clubPointsSubtitle    = 'Points & rewards';
+  static const String pickabooClubSubtitle  = clubPointsSubtitle;
+  static const String reviews               = 'Reviews';
+  static const String reviewsSubtitle       = 'Ratings & feedback';
+  static const String myReviews             = reviews;
+  static const String myReviewsSubtitle     = reviewsSubtitle;
+  static const String shareAndEarn          = 'Share & Earn';
+  static const String shareAndEarnSubtitle  = 'Invite friends & earn reward points';
+  static const String faqAndSupport         = 'FAQ & Support';
+  static const String faqAndSupportSubtitle = 'Help center & frequent questions';
+  static const String termsAndConditions    = 'Terms & Conditions';
+  static const String termsAndConditionsSubtitle = 'Policies, terms & privacy statement';
   static const String accountInformation    = 'Account Information';
+  static const String accountInformationSubtitle = 'Personal info & security details';
+  static const String manageAddress         = 'Manage Address';
+  static const String manageAddressSubtitle = 'Saved shipping & delivery addresses';
+  static const String savedPaymentMethod    = 'Saved Payment Method';
+  static const String savedPaymentMethodSubtitle = 'Credit cards & mobile wallets';
+  static const String contactUs             = 'Contact Us';
+  static const String contactUsSubtitle     = 'Reach Pickaboo customer support';
+  static const String appSettings           = 'App Settings';
+  static const String appSettingsSubtitle   = 'App preferences, language & notifications';
+  static const String logout                = 'Log Out';
+  static const String logoutSubtitle        = 'Sign out of your account';
+  static const String loginOrRegisterTitle  = 'Login / Register';
+  static const String loginOrRegisterSubtitle = 'Sign in to access your full profile & orders';
+  static const String confirmLogout         = 'Confirm Logout';
+  static const String logoutConfirmMessage  = 'Are you sure you want to log out of your account?';
+  static const String logoutConfirmDetailedMessage =
+      'Are you sure you want to log out of your Pickaboo account? You can log back in anytime.';
+  static const String yesLogout             = 'Yes, Logout';
   static const String editAccountInformation= 'Edit Account Information';
   static const String editProfile           = 'Edit Profile';
   static const String cropPhoto             = 'Crop Photo';
@@ -104,18 +139,12 @@ class AppStrings {
   static const String enterNewPasswordHint  = 'Enter new password';
   static const String changePassword        = 'Change Password';
   static const String changeEmail           = 'Change Email';
-  static const String supportTickets        = 'Support Tickets';
   static const String createTicket          = 'Create New Ticket';
   static const String ticketDetails         = 'Ticket Details';
-  static const String contactUs             = 'Contact Us';
-  static const String termsAndConditions    = 'Terms & Conditions';
   static const String privacyPolicy         = 'Privacy Policy';
   static const String returnPolicy          = 'Return Policy';
-  static const String appSettings           = 'App Settings';
   static const String notifications         = 'Notifications';
   static const String appVersion            = 'App Version';
-  static const String logout                = 'Log Out';
-  static const String logoutConfirmMessage  = 'Are you sure you want to log out of your account?';
 
   // ===========================================================================
   // ── 7. AUTHENTICATION & LOGIN ─────────────────────────────────────────────

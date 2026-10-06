@@ -196,8 +196,8 @@ void main() {
       expect(find.text('Dismissible message'), findsNothing);
     });
 
-    testWidgets('defaultMsgDuration is 1 second and auto-dismisses after 1s', (tester) async {
-      expect(SnackBarUtils.defaultMsgDuration, const Duration(seconds: 1));
+    testWidgets('defaultMsgDuration is 2 seconds and auto-dismisses after 2s', (tester) async {
+      expect(SnackBarUtils.defaultMsgDuration, const Duration(seconds: 2));
 
       await tester.pumpWidget(
         buildTestHarness((context) {

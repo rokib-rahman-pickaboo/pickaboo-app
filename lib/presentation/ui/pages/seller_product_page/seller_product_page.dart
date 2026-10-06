@@ -63,7 +63,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         titleWidget: BlocBuilder<SellerProductsBloc, SellerProductsState>(
           builder: (context, state) {
@@ -215,7 +215,7 @@ class _SellerProductPageState extends State<SellerProductPage> {
       padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.05),
@@ -230,15 +230,15 @@ class _SellerProductPageState extends State<SellerProductPage> {
             width: 60.w,
             height: 60.w,
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: BorderRadius.circular(8.r),
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(
                 color: AppColors.border.withValues(alpha: 0.5),
               ),
             ),
             child: widget.sellerLogo != null && widget.sellerLogo!.isNotEmpty
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: AppRadius.k8,
                     child: AppImage(
                       imageUrl: widget.sellerLogo,
                       fit: BoxFit.contain,

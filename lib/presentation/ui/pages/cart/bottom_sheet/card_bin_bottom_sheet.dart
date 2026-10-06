@@ -18,7 +18,7 @@ class CardBinBottomSheet extends StatefulWidget {
       useSafeArea: true,
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        borderRadius: AppRadius.top16,
       ),
       builder: (sheetCtx) => BlocProvider.value(
         value: context.read<CardBinBloc>(),
@@ -54,7 +54,7 @@ class _CardBinBottomSheetState extends State<CardBinBottomSheet> {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.mutedLight.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: AppRadius.k8,
       ),
     );
 
@@ -98,7 +98,7 @@ class _CardBinBottomSheetState extends State<CardBinBottomSheet> {
                     height: 4.h,
                     decoration: BoxDecoration(
                       color: AppColors.mutedLight.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(2.r),
+                      borderRadius: AppRadius.k4,
                     ),
                   ),
                 ),
@@ -137,7 +137,7 @@ class _CardBinBottomSheetState extends State<CardBinBottomSheet> {
                     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                     decoration: BoxDecoration(
                       color: AppColors.red.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.k8,
                       border: Border.all(color: AppColors.red.withValues(alpha: 0.3)),
                     ),
                     child: Row(

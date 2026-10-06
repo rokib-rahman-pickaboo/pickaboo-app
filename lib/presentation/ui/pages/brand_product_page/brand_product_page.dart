@@ -109,7 +109,7 @@ class _BrandProductPageState extends State<BrandProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         titleWidget: BlocBuilder<BrandProductsBloc, BrandProductsState>(
           builder: (context, state) {
@@ -209,7 +209,7 @@ class _BrandProductPageState extends State<BrandProductPage> {
                 if (!hasFacets &&
                     (state.pagingState.isLoading ||
                         state.pagingState.pages == null)) {
-                  return const CatalogGridSkeleton(hasFeaturedRail: true);
+                  return const CatalogGridSkeleton.brand();
                 }
 
                 if (state.pagingState.error != null &&

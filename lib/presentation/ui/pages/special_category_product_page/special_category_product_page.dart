@@ -30,6 +30,7 @@ import 'package:pickaboo/presentation/bloc/place_picker_bloc/place_picker_bloc.d
 import 'package:pickaboo/presentation/bloc/promo_bloc/promo_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/product_detail_page/product_detail_page.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
@@ -46,6 +47,11 @@ import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/c
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_filter_promo_scroller.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_shop_by_brand.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
+import 'package:pickaboo/domain/entity/common/category/category_entity.dart';
+import 'package:pickaboo/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
+import 'package:pickaboo/presentation/ui/widgets/filters/child_category_chips_widget.dart';
+import 'package:pickaboo/core/utils/category_lookup_helper.dart';
 
 class SpecialCategoryProductPage extends StatefulWidget {
   final String categorySlug;
@@ -72,6 +78,11 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
   @override
   void initState() {
     super.initState();
+    if (widget.isEmbedded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        MainPage.showBottomNav();
+      });
+    }
     CategoryFilterButton.getSavedViewMode().then((isGrid) {
       if (mounted && isGrid != _isGridView) {
         setState(() {
@@ -88,6 +99,16 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
     final bannerBloc = context.read<BannerBloc>();
     if (bannerBloc.state.banners.isEmpty) {
       bannerBloc.add(const BannerEvent.getBannerContent());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SpecialCategoryProductPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isEmbedded && oldWidget.categorySlug != widget.categorySlug) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        MainPage.showBottomNav();
+      });
     }
   }
 
@@ -120,6 +141,7 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
         },
         child: SafeArea(
           top: !widget.isEmbedded,
+          bottom: !widget.isEmbedded,
           child: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
                   buildWhen: (previous, current) =>
                       !identical(previous.categoryData, current.categoryData) ||
@@ -150,7 +172,22 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                         !hasProducts &&
                         (state.pagingState.isLoading ||
                             state.pagingState.pages == null)) {
-                      return const CatalogGridSkeleton();
+                      final catState = context.watch<CategoryBloc>().state;
+                      final rootCategories =
+                          catState.categories ?? const <CategoryEntity>[];
+                      final matchedCategory = CategoryLookupHelper.findCategory(
+                        rootCategories,
+                        categorySlug: widget.categorySlug,
+                        categoryName: widget.categoryName,
+                      );
+                      final hasChildCategories =
+                          matchedCategory != null &&
+                          matchedCategory.children.isNotEmpty;
+
+                      return CatalogGridSkeleton.category(
+                        isEmbedded: widget.isEmbedded,
+                        hasChildCategories: hasChildCategories,
+                      );
                     }
 
                     if (state.pagingState.error != null &&
@@ -184,6 +221,7 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
 
                     return CustomScrollView(
                       controller: _scrollController,
+                      cacheExtent: 1000.0,
                       physics: const AlwaysScrollableScrollPhysics(),
                       slivers: [
                         if (categoryData != null) ...[
@@ -228,6 +266,56 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                               ),
                             ),
                         ],
+
+                        // ── Child Categories Chips (from /rest/V1/all-categories) ──
+                        BlocBuilder<CategoryBloc, CategoryState>(
+                          builder: (context, catState) {
+                            final rootCategories =
+                                catState.categories ?? const <CategoryEntity>[];
+                            if (rootCategories.isEmpty) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (context.mounted) {
+                                  context.read<CategoryBloc>().add(
+                                    const CategoryEvent.getCategories(),
+                                  );
+                                }
+                              });
+                            }
+                            final matchedCategory = CategoryLookupHelper.findCategory(
+                              rootCategories,
+                              categorySlug: widget.categorySlug,
+                              categoryName: widget.categoryName,
+                            );
+
+                            final children = matchedCategory?.children ?? const <CategoryEntity>[];
+                            if (children.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+
+                            final parentIcon = CategoryLookupHelper.resolveCategoryIcon(
+                              rootCategories,
+                              matchedCategory,
+                            );
+
+                            return SliverToBoxAdapter(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: widget.isEmbedded ? 8.h : 0,
+                                  bottom: 8.h,
+                                ),
+                                child: ChildCategoryChipsWidget(
+                                  childCategories: children,
+                                  parentCategoryIcon: parentIcon,
+                                  onChildSelected: (child) {
+                                    context.pushToCategoryProduct(
+                                      categoryId: child.id,
+                                      categoryName: child.name,
+                                      categorySlug: child.slug,
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
 
                         ...facetAttributes
                               .where((attr) => attr.specialForPhone)
@@ -375,7 +463,13 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                                 : null,
                           ),
 
-                        SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                        SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: widget.isEmbedded
+                                ? (90.h + MediaQuery.paddingOf(context).bottom)
+                                : 24.h,
+                          ),
+                        ),
                       ],
                     );
                   },
@@ -386,13 +480,13 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
 
     if (widget.isEmbedded) {
       return Material(
-        color: AppColors.pageBg,
+        color: AppColors.white,
         child: bodyContent,
       );
     }
 
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         titleWidget: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
           builder: (context, state) {

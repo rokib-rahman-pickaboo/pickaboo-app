@@ -78,7 +78,7 @@ class ProfileHeaderCard extends StatelessWidget {
             height: 36.h,
             decoration: BoxDecoration(
               color: AppColors.pickabooBlue.withValues(alpha: 0.08),
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
             ),
             child: IconButton(
               padding: EdgeInsets.zero,
@@ -128,7 +128,7 @@ class ProfileHeaderCard extends StatelessWidget {
                     horizontal: 14.w,
                     vertical: 8.h,
                   ),
-                  borderRadius: AppRadius.fullRadius,
+                  borderRadius: AppRadius.k8,
                   icon: Icon(
                     Icons.login_rounded,
                     size: 14.sp,

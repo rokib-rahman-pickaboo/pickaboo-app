@@ -31,7 +31,7 @@ class CategoryFilterPromoScroller extends StatelessWidget {
             if (image.isEmpty) return const SizedBox.shrink();
 
             final tile = ClipRRect(
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               child: AppImage(
                 imageUrl: image,
                 width: 150.w,

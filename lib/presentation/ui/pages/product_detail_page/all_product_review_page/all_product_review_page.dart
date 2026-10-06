@@ -39,7 +39,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: 'All Reviews',
       ),
@@ -202,7 +202,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(14.w),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
@@ -216,7 +216,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
             decoration: BoxDecoration(
               color: AppColors.white,
               border: Border.all(color: AppColors.border),
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: AppRadius.k8,
             ),
             child: AppImage(
               imageUrl: widget.product.images.isNotEmpty
@@ -278,7 +278,7 @@ class _AllProductReviewPageState extends State<AllProductReviewPage> {
                     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
                     decoration: BoxDecoration(
                       color: AppColors.amberBg,
-                      borderRadius: BorderRadius.circular(6.r),
+                      borderRadius: AppRadius.k4,
                       border: Border.all(color: AppColors.border),
                     ),
                     child: Text(

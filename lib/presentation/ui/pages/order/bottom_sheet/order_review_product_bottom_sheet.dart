@@ -34,9 +34,9 @@ class _OrderReviewProductBottomSheetState
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+        borderRadius: AppRadius.top16,
       ),
       padding: EdgeInsets.only(
         left: 16.w,
@@ -85,7 +85,7 @@ class _OrderReviewProductBottomSheetState
                       selectedItem = item;
                     });
                   },
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     padding: EdgeInsets.all(12.w),
@@ -96,7 +96,7 @@ class _OrderReviewProductBottomSheetState
                             : AppColors.border,
                         width: isSelected ? 1.5 : 1.0,
                       ),
-                      borderRadius: AppRadius.cardRadius,
+                      borderRadius: AppRadius.k8,
                       color: isSelected
                           ? AppColors.surfaceBlue
                           : AppColors.white,
@@ -107,12 +107,12 @@ class _OrderReviewProductBottomSheetState
                           width: 56.w,
                           height: 56.w,
                           decoration: BoxDecoration(
-                            borderRadius: AppRadius.cardRadius,
-                            color: AppColors.pageBg,
+                            borderRadius: AppRadius.k8,
+                            color: AppColors.itemBackground,
                             border: Border.all(color: AppColors.border),
                           ),
                           child: ClipRRect(
-                            borderRadius: AppRadius.cardRadius,
+                            borderRadius: AppRadius.k8,
                             child: AppImage(
                               imageUrl: item.image ?? "",
                               width: 56.w,

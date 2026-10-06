@@ -22,6 +22,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/review_page/review_hub_skeleton.dart';
 
 /// Reviews & Ratings Hub Page
 /// Redesigned to strictly match Pickaboo-App-UI design system tokens.
@@ -50,7 +51,7 @@ class _ReviewState extends State<Review> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: 'Reviews & Ratings',
       ),
@@ -67,7 +68,7 @@ class _ReviewState extends State<Review> {
           }
 
           if (state.isUserReviewsLoading || state.userReviews == null) {
-            return const AppLoader.fullPage();
+            return const ReviewHubSkeleton();
           }
 
           final reviews = state.userReviews!;
@@ -153,7 +154,7 @@ class _ReviewState extends State<Review> {
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceBlue,
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   border: Border.all(
                     color: AppColors.pickabooBlue.withValues(alpha: 0.2),
                   ),
@@ -263,19 +264,19 @@ class _ReviewState extends State<Review> {
                 productName: review.productName,
               );
             },
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Product Thumbnail
                 ClipRRect(
-                  borderRadius: AppRadius.buttonRadius,
+                  borderRadius: AppRadius.k8,
                   child: Container(
                     width: 56.w,
                     height: 56.w,
                     decoration: BoxDecoration(
-                      color: AppColors.pageBg,
-                      borderRadius: AppRadius.buttonRadius,
+                      color: AppColors.itemBackground,
+                      borderRadius: AppRadius.k8,
                       border: Border.all(color: AppColors.border),
                     ),
                     child: review.productImage.isNotEmpty
@@ -417,13 +418,13 @@ class _ReviewState extends State<Review> {
                 separatorBuilder: (context, index) => SizedBox(width: 8.w),
                 itemBuilder: (context, imgIndex) {
                   return ClipRRect(
-                    borderRadius: AppRadius.badgeRadius,
+                    borderRadius: AppRadius.k4,
                     child: Container(
                       width: 60.w,
                       height: 60.h,
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColors.border),
-                        borderRadius: AppRadius.badgeRadius,
+                        borderRadius: AppRadius.k4,
                       ),
                       child: AppImage(
                         imageUrl: review.images[imgIndex],
@@ -517,7 +518,7 @@ class _ReviewState extends State<Review> {
                   horizontal: 20.w,
                   vertical: 10.h,
                 ),
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 onPressed: () => context.push(Routes.orderList),
               ),
             ],

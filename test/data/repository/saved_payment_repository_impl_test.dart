@@ -34,7 +34,7 @@ void main() {
         _,
       ) async {
         await Future.delayed(const Duration(milliseconds: 30));
-        return Right([]);
+        return const Right([]);
       });
 
       when(() => mockMapper.toEntityList(any())).thenReturn(entityList);

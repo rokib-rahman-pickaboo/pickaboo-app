@@ -1,9 +1,3 @@
-// ============================================================================
-// ✍️ ZERO-HARDCODE TYPOGRAPHY ENFORCED
-// All text styles in this file originate from [AppTypography] design tokens.
-// No direct [TextStyle] or [GoogleFonts] instantiations allowed.
-// ============================================================================
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
@@ -35,24 +29,10 @@ class DiscoverSectionCard extends StatelessWidget {
       margin: EdgeInsets.only(
         left: 8.w,
         right: 8.w,
-        bottom: 10.h,
+        bottom: 8.h,
       ),
-      padding: EdgeInsets.all(10.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(
-          color: AppColors.border,
-          width: 1.w,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.02),
-            blurRadius: 6.r,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: EdgeInsets.all(8.w),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -69,13 +49,13 @@ class DiscoverSectionCard extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
 
           // ── 3-Column Item Grid ──
           Column(
             children: [
               for (int i = 0; i < items.length; i += 3) ...[
-                if (i > 0) SizedBox(height: 10.h),
+                if (i > 0) SizedBox(height: 8.h),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -103,7 +83,7 @@ class DiscoverSectionCard extends StatelessWidget {
 
 /// ============================================================================
 /// 🏷️ DISCOVER ITEM TILE
-/// Uniform tile with a full-sized square image and 2-line title underneath.
+/// Uniform tile with name inside the card and prominent 1:1 square icon area.
 /// ============================================================================
 class DiscoverItemTile extends StatelessWidget {
   final DiscoverSubsectionItemEntity item;
@@ -117,6 +97,8 @@ class DiscoverItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasImage = item.imageUrl.trim().isNotEmpty;
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -124,37 +106,47 @@ class DiscoverItemTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Image Container (Full Sized Square 1:1 Aspect Ratio) ──
+          // ── 1. Image without card (floating directly on surface) ──
           AspectRatio(
             aspectRatio: 1.0,
-            child: ClipRRect(
-              borderRadius: AppRadius.buttonRadius,
-              child: AppImage(
-                imageUrl: item.imageUrl,
-                fit: BoxFit.cover,
-                errorWidget: Center(
-                  child: Icon(
-                    Icons.category_outlined,
-                    size: 24.sp,
-                    color: AppColors.mutedLight,
-                  ),
-                ),
-              ),
+            child: Center(
+              child: hasImage
+                  ? AppImage(
+                      imageUrl: item.imageUrl,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.high,
+                      placeholder: const SizedBox.shrink(),
+                      errorWidget: const SizedBox.shrink(),
+                    )
+                  : const SizedBox.shrink(),
             ),
           ),
 
-          SizedBox(height: 6.h),
+          SizedBox(height: 4.h),
 
-          // ── Title Label (Max 2 lines, Navy) ──
-          SizedBox(
+          // ── 2. Name inside card (narrow border, AppRadius.k8, white) ──
+          Container(
+            width: double.infinity,
             height: 28.h,
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+            decoration: AppDecorations.cardBoxDecoration(
+              backgroundColor: AppColors.white,
+              borderRadius: AppRadius.k8,
+              hasBorder: true,
+              borderColor: AppColors.border,
+              borderWidth: 0.8.w,
+            ),
             child: Center(
               child: Text(
                 item.name,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.bodyTiny,
+                style: AppTypography.bodyTiny.copyWith(
+                  color: AppColors.navy,
+                  fontWeight: FontWeight.w600,
+                  height: 1.15,
+                ),
               ),
             ),
           ),

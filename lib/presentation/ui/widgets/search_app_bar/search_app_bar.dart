@@ -44,7 +44,7 @@ class HomeTopHeader extends StatelessWidget {
     final rotatingHints = isForYou ? _kHomeRotatingHints : null;
 
     return Container(
-      color: AppColors.pageBg,
+      color: AppColors.white,
       padding: EdgeInsets.fromLTRB(14.w, _topGap.h, 14.w, _bottomGap.h),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -58,7 +58,7 @@ class HomeTopHeader extends StatelessWidget {
                 // Sky Blue Drawer Icon
                 InkWell(
                   onTap: onMenuTap,
-                  borderRadius: AppRadius.smRadius,
+                  borderRadius: AppRadius.k8,
                   child: Padding(
                     padding: EdgeInsets.all(2.w),
                     child: Icon(
@@ -107,7 +107,7 @@ class HomeTopHeader extends StatelessWidget {
                                   child: InkWell(
                                     onTap: () =>
                                         context.push(Routes.clubPoint),
-                                    borderRadius: AppRadius.dialogRadius,
+                                    borderRadius: AppRadius.k16,
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
                                         horizontal: 8.w,
@@ -115,7 +115,7 @@ class HomeTopHeader extends StatelessWidget {
                                       ),
                                       decoration: BoxDecoration(
                                         color: AppColors.white,
-                                        borderRadius: AppRadius.dialogRadius,
+                                        borderRadius: AppRadius.k16,
                                         border: Border.all(
                                           color: AppColors.border,
                                           width: 0.8.w,
@@ -201,7 +201,7 @@ class HomeTopHeader extends StatelessWidget {
                           MainPage.hideBottomNav.value = false;
                           context.push(Routes.login);
                         },
-                        borderRadius: AppRadius.dialogRadius,
+                        borderRadius: AppRadius.k8,
                         child: Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 10.w,
@@ -209,7 +209,7 @@ class HomeTopHeader extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceBlue,
-                            borderRadius: AppRadius.dialogRadius,
+                            borderRadius: AppRadius.k8,
                             border: Border.all(
                               color: AppColors.pickabooBlue.withValues(alpha: 0.25),
                               width: 0.8.w,
@@ -276,8 +276,8 @@ class SearchAppBar extends StatelessWidget {
         _topGap.h + 38.h + _rowToSearchGap.h + _searchHeight.h + _bottomGap.h;
 
     return SliverAppBar(
-      backgroundColor: AppColors.pageBg,
-      surfaceTintColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
+      surfaceTintColor: AppColors.white,
       elevation: 0,
       pinned: true,
       systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(

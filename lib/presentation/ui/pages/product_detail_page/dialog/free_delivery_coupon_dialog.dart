@@ -29,7 +29,7 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.k16),
       backgroundColor: AppColors.white,
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
@@ -102,10 +102,10 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
         decoration: BoxDecoration(
-          color: AppColors.pageBg,
-          borderRadius: BorderRadius.circular(8.r),
+          color: AppColors.itemBackground,
+          borderRadius: AppRadius.k8,
           border: Border.all(
-            color: AppColors.pageBg,
+            color: AppColors.itemBackground,
             width: 1.w,
             style: BorderStyle.solid,
           ),
@@ -142,7 +142,7 @@ class FreeDeliveryCouponDialog extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: AppButton.primary(
-        borderRadius: BorderRadius.circular(30.r),
+        borderRadius: AppRadius.k8,
         padding: EdgeInsets.symmetric(vertical: 14.h),
         icon: Icon(Icons.copy_rounded, color: AppColors.white, size: 20.sp),
         text: 'Copy Coupon Code',

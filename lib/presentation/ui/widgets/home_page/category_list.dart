@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class CategoryList extends StatelessWidget {
   final List<CategoryListEntity> categories;
@@ -103,7 +104,7 @@ class _CategoryItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: AppRadius.buttonRadius,
+      borderRadius: AppRadius.k8,
       child: SizedBox(
         width: 80.w,
         child: Padding(
@@ -114,7 +115,7 @@ class _CategoryItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
                 child: SizedBox(
                   width: 52.w,
                   height: 52.w,
@@ -124,18 +125,10 @@ class _CategoryItem extends StatelessWidget {
                           fit: BoxFit.cover,
                           width: 52.w,
                           height: 52.w,
-                          placeholder: const SizedBox.shrink(),
-                          errorWidget: Icon(
-                            Icons.category_outlined,
-                            color: AppColors.pickabooBlue,
-                            size: 32.sp,
-                          ),
+                          placeholder: _buildSkeletonShade(),
+                          errorWidget: _buildSkeletonShade(),
                         )
-                      : Icon(
-                          Icons.category_outlined,
-                          color: AppColors.pickabooBlue,
-                          size: 32.sp,
-                        ),
+                      : _buildSkeletonShade(),
                 ),
               ),
               SizedBox(height: 6.h),
@@ -152,6 +145,29 @@ class _CategoryItem extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonShade() {
+    return Skeletonizer(
+      enabled: true,
+      effect: AppDecorations.shimmerEffect,
+      child: Container(
+        width: 52.w,
+        height: 52.w,
+        decoration: BoxDecoration(
+          color: AppColors.itemBackground,
+          borderRadius: AppRadius.k8,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: 24.sp,
+            color: AppColors.skeletonBase,
           ),
         ),
       ),

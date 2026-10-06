@@ -10,12 +10,12 @@ import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/bloc/wishlist/wishlist_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+import 'package:pickaboo/presentation/ui/widgets/wish_list_page/wish_list_skeleton.dart';
 import 'package:pickaboo/presentation/ui/widgets/wish_list_page/wishlist_item_card.dart';
 import 'package:pickaboo/core/utils/connectivity_utils.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class WishListPage extends StatefulWidget {
   const WishListPage({super.key});
@@ -64,7 +64,7 @@ class _WishListPageState extends State<WishListPage> {
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         title: AppStrings.navWishlist,
         actions: [
@@ -121,7 +121,7 @@ class _WishListPageState extends State<WishListPage> {
         },
         builder: (context, state) {
           return state.maybeWhen(
-            loading: () => const AppLoader.fullPage(),
+            loading: () => const WishListSkeleton(),
             error: (message) {
               final isOffline = ConnectivityUtils.isNoInternet(message, context);
               return AppErrorView(

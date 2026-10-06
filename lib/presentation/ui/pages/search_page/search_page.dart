@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
@@ -77,7 +78,7 @@ class _SearchPageState extends State<SearchPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         body: SafeArea(
           top: false,
           child: CustomScrollView(
@@ -225,8 +226,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
       pinned: true,
       toolbarHeight: 50.h,
       automaticallyImplyLeading: false,
-      backgroundColor: AppColors.pageBg,
-      surfaceTintColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
+      surfaceTintColor: AppColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       titleSpacing: 0,
@@ -255,6 +256,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
                     optionsBuilder: (TextEditingValue textEditingValue) {
                       return const Iterable<String>.empty();
                     },
+                    optionsViewBuilder: (context, onSelected, options) =>
+                        const SizedBox.shrink(),
                     onSelected: (String selection) {
                       _controller.text = selection;
                       context.read<SearchBloc>().add(
@@ -278,7 +281,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
                             height: 36.h,
                             decoration: BoxDecoration(
                               color: AppColors.surfaceBlue,
-                              borderRadius: BorderRadius.circular(10.r),
+                              borderRadius: AppRadius.k8,
                               border: Border.all(
                                 color: AppColors.pickabooBlue.withValues(alpha: 0.35),
                                 width: 1.w,

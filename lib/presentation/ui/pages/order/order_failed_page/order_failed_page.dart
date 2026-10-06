@@ -198,18 +198,7 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
                               horizontal: 16.w,
                               vertical: 14.h,
                             ),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: AppRadius.cardRadius,
-                              border: Border.all(color: AppColors.border),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.navy.withValues(alpha: 0.03),
-                                  blurRadius: 8.r,
-                                  offset: Offset(0, 2.h),
-                                ),
-                              ],
-                            ),
+                            decoration: AppDecorations.cardBoxDecoration(),
                             child: Column(
                               children: [
                                 if (retrying) ...[
@@ -234,7 +223,7 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
                                         context.goToOrderDetails(targetOrderId);
                                       }
                                     },
-                                    borderRadius: AppRadius.cardRadius,
+                                    borderRadius: AppRadius.k8,
                                     child: Padding(
                                       padding:
                                           EdgeInsets.symmetric(vertical: 2.h),
@@ -315,7 +304,7 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
                   horizontal: AppSpacing.sameGroupItemSpacing.w * 2,
                   vertical: 12.h,
                 ),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.white,
                   border: Border(top: BorderSide(color: AppColors.border)),
                 ),
@@ -329,7 +318,7 @@ class _OrderFailedPageState extends State<OrderFailedPage> {
                       size: 18.sp,
                       color: AppColors.white,
                     ),
-                    borderRadius: AppRadius.cardRadius,
+                    borderRadius: AppRadius.k8,
                     onPressed: widget.onContinueShopping,
                   ),
                 ),

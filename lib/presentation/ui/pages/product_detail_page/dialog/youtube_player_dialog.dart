@@ -1,3 +1,4 @@
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
@@ -66,7 +67,7 @@ class _YoutubePlayerDialogState extends State<YoutubePlayerDialog> {
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 12.w),
       backgroundColor: AppColors.black,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.k16),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 640),

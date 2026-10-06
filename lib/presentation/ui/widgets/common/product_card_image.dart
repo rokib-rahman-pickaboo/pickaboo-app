@@ -113,7 +113,7 @@ class _ProductCardImageState extends State<ProductCardImage> {
       content = Container(
         width: widget.width,
         height: widget.height,
-        color: AppColors.pageBg,
+        color: AppColors.itemBackground,
         child: const Center(
           child: SizedBox(
             width: 16,
@@ -129,7 +129,7 @@ class _ProductCardImageState extends State<ProductCardImage> {
       content = Container(
         width: widget.width,
         height: widget.height,
-        color: AppColors.pageBg,
+        color: AppColors.itemBackground,
         child: Center(
           child: Icon(
             Icons.image_outlined,

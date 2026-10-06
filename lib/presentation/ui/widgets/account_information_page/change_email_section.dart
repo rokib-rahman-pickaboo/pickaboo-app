@@ -49,16 +49,8 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.dialogRadius,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k16,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,19 +88,19 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -137,19 +129,19 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -172,7 +164,7 @@ class _ChangeEmailSectionState extends State<ChangeEmailSection> {
                   SizedBox(height: 16.h),
                   AppButton.primary(
                     height: 48.h,
-                    borderRadius: AppRadius.cardRadius,
+                    borderRadius: AppRadius.k8,
                     text: 'Save Email',
                     onPressed: _submit,
                   ),

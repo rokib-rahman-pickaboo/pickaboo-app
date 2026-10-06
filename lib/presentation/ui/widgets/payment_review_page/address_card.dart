@@ -39,7 +39,7 @@ class AddressCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
             decoration: BoxDecoration(
               color: AppColors.surfaceBlue,
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               border: Border.all(
                 color: AppColors.pickabooBlue.withValues(alpha: 0.2),
               ),
@@ -67,7 +67,7 @@ class AddressCard extends StatelessWidget {
           SizedBox(height: 10.h),
           AppButton.primary(
             height: 38.h,
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
             padding: EdgeInsets.zero,
             onPressed: onAddNew,
             icon: Icon(Icons.add_location_alt_outlined, size: 16.sp, color: AppColors.white),
@@ -97,9 +97,9 @@ class AddressCard extends StatelessWidget {
           children: [
             Container(
               padding: EdgeInsets.all(4.w),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.surfaceBlue,
-                borderRadius: AppRadius.badgeRadius,
+                borderRadius: AppRadius.k4,
               ),
               child: Icon(
                 Icons.person_outline_rounded,
@@ -120,8 +120,8 @@ class AddressCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.5.h),
                 decoration: BoxDecoration(
-                  color: AppColors.pageBg,
-                  borderRadius: AppRadius.smRadius,
+                  color: AppColors.itemBackground,
+                  borderRadius: AppRadius.k8,
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
@@ -155,9 +155,9 @@ class AddressCard extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-            decoration: const BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.buttonRadius,
+            decoration: BoxDecoration(
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
             ),
             child: Text.rich(
               TextSpan(
@@ -192,7 +192,7 @@ class AddressCard extends StatelessWidget {
             Expanded(
               child: AppButton.secondary(
                 height: 34.h,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 padding: EdgeInsets.zero,
                 onPressed: onChange,
                 icon: Icon(
@@ -211,7 +211,7 @@ class AddressCard extends StatelessWidget {
             Expanded(
               child: AppButton(
                 height: 34.h,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 padding: EdgeInsets.zero,
                 backgroundColor: AppColors.navy,
                 textColor: AppColors.white,

@@ -52,6 +52,8 @@ mixin _$CheckoutEvent {
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -111,6 +113,7 @@ mixin _$CheckoutEvent {
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -170,6 +173,7 @@ mixin _$CheckoutEvent {
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -215,6 +219,7 @@ mixin _$CheckoutEvent {
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -244,6 +249,7 @@ mixin _$CheckoutEvent {
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -272,6 +278,7 @@ mixin _$CheckoutEvent {
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -390,6 +397,8 @@ class _$LoadCheckoutImpl with DiagnosticableTreeMixin implements _LoadCheckout {
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -453,6 +462,7 @@ class _$LoadCheckoutImpl with DiagnosticableTreeMixin implements _LoadCheckout {
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -516,6 +526,7 @@ class _$LoadCheckoutImpl with DiagnosticableTreeMixin implements _LoadCheckout {
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -568,6 +579,7 @@ class _$LoadCheckoutImpl with DiagnosticableTreeMixin implements _LoadCheckout {
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -601,6 +613,7 @@ class _$LoadCheckoutImpl with DiagnosticableTreeMixin implements _LoadCheckout {
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -633,6 +646,7 @@ class _$LoadCheckoutImpl with DiagnosticableTreeMixin implements _LoadCheckout {
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -774,6 +788,8 @@ class _$UpdateShippingAddressImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -837,6 +853,7 @@ class _$UpdateShippingAddressImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -900,6 +917,7 @@ class _$UpdateShippingAddressImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -952,6 +970,7 @@ class _$UpdateShippingAddressImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -985,6 +1004,7 @@ class _$UpdateShippingAddressImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -1017,6 +1037,7 @@ class _$UpdateShippingAddressImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -1167,6 +1188,8 @@ class _$UpdateBillingAddressImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -1230,6 +1253,7 @@ class _$UpdateBillingAddressImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -1293,6 +1317,7 @@ class _$UpdateBillingAddressImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -1345,6 +1370,7 @@ class _$UpdateBillingAddressImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -1378,6 +1404,7 @@ class _$UpdateBillingAddressImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -1410,6 +1437,7 @@ class _$UpdateBillingAddressImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -1559,6 +1587,8 @@ class _$EstimateShippingImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -1622,6 +1652,7 @@ class _$EstimateShippingImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -1685,6 +1716,7 @@ class _$EstimateShippingImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -1737,6 +1769,7 @@ class _$EstimateShippingImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -1770,6 +1803,7 @@ class _$EstimateShippingImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -1802,6 +1836,7 @@ class _$EstimateShippingImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -1966,6 +2001,8 @@ class _$SelectShippingMethodImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -2029,6 +2066,7 @@ class _$SelectShippingMethodImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -2092,6 +2130,7 @@ class _$SelectShippingMethodImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -2144,6 +2183,7 @@ class _$SelectShippingMethodImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -2177,6 +2217,7 @@ class _$SelectShippingMethodImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -2209,6 +2250,7 @@ class _$SelectShippingMethodImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -2362,6 +2404,8 @@ class _$SelectPaymentMethodImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -2425,6 +2469,7 @@ class _$SelectPaymentMethodImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -2488,6 +2533,7 @@ class _$SelectPaymentMethodImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -2540,6 +2586,7 @@ class _$SelectPaymentMethodImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -2573,6 +2620,7 @@ class _$SelectPaymentMethodImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -2605,6 +2653,7 @@ class _$SelectPaymentMethodImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -2719,6 +2768,8 @@ class _$PlaceOrderImpl with DiagnosticableTreeMixin implements _PlaceOrder {
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -2782,6 +2833,7 @@ class _$PlaceOrderImpl with DiagnosticableTreeMixin implements _PlaceOrder {
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -2845,6 +2897,7 @@ class _$PlaceOrderImpl with DiagnosticableTreeMixin implements _PlaceOrder {
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -2897,6 +2950,7 @@ class _$PlaceOrderImpl with DiagnosticableTreeMixin implements _PlaceOrder {
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -2930,6 +2984,7 @@ class _$PlaceOrderImpl with DiagnosticableTreeMixin implements _PlaceOrder {
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -2962,6 +3017,7 @@ class _$PlaceOrderImpl with DiagnosticableTreeMixin implements _PlaceOrder {
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -3162,6 +3218,8 @@ class _$ProcessPaymentImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -3225,6 +3283,7 @@ class _$ProcessPaymentImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -3293,6 +3352,7 @@ class _$ProcessPaymentImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -3350,6 +3410,7 @@ class _$ProcessPaymentImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -3383,6 +3444,7 @@ class _$ProcessPaymentImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -3415,6 +3477,7 @@ class _$ProcessPaymentImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -3584,6 +3647,8 @@ class _$ConfirmPaymentImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -3647,6 +3712,7 @@ class _$ConfirmPaymentImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -3710,6 +3776,7 @@ class _$ConfirmPaymentImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -3762,6 +3829,7 @@ class _$ConfirmPaymentImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -3795,6 +3863,7 @@ class _$ConfirmPaymentImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -3827,6 +3896,7 @@ class _$ConfirmPaymentImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -4008,6 +4078,8 @@ class _$UpdateOrderPaymentImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -4071,6 +4143,7 @@ class _$UpdateOrderPaymentImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -4134,6 +4207,7 @@ class _$UpdateOrderPaymentImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -4186,6 +4260,7 @@ class _$UpdateOrderPaymentImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -4219,6 +4294,7 @@ class _$UpdateOrderPaymentImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -4251,6 +4327,7 @@ class _$UpdateOrderPaymentImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -4435,6 +4512,8 @@ class _$SyncOrderPaymentMethodImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -4498,6 +4577,7 @@ class _$SyncOrderPaymentMethodImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -4561,6 +4641,7 @@ class _$SyncOrderPaymentMethodImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -4613,6 +4694,7 @@ class _$SyncOrderPaymentMethodImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -4646,6 +4728,7 @@ class _$SyncOrderPaymentMethodImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -4678,6 +4761,7 @@ class _$SyncOrderPaymentMethodImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -4827,6 +4911,8 @@ class _$ConfirmOrderImpl with DiagnosticableTreeMixin implements _ConfirmOrder {
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -4890,6 +4976,7 @@ class _$ConfirmOrderImpl with DiagnosticableTreeMixin implements _ConfirmOrder {
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -4953,6 +5040,7 @@ class _$ConfirmOrderImpl with DiagnosticableTreeMixin implements _ConfirmOrder {
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -5005,6 +5093,7 @@ class _$ConfirmOrderImpl with DiagnosticableTreeMixin implements _ConfirmOrder {
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -5038,6 +5127,7 @@ class _$ConfirmOrderImpl with DiagnosticableTreeMixin implements _ConfirmOrder {
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -5070,6 +5160,7 @@ class _$ConfirmOrderImpl with DiagnosticableTreeMixin implements _ConfirmOrder {
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -5246,6 +5337,8 @@ class _$OnPaymentWebViewResultImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -5309,6 +5402,7 @@ class _$OnPaymentWebViewResultImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -5372,6 +5466,7 @@ class _$OnPaymentWebViewResultImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -5424,6 +5519,7 @@ class _$OnPaymentWebViewResultImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -5457,6 +5553,7 @@ class _$OnPaymentWebViewResultImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -5489,6 +5586,7 @@ class _$OnPaymentWebViewResultImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -5652,6 +5750,8 @@ class _$NagadCallbackImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -5715,6 +5815,7 @@ class _$NagadCallbackImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -5778,6 +5879,7 @@ class _$NagadCallbackImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -5830,6 +5932,7 @@ class _$NagadCallbackImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -5863,6 +5966,7 @@ class _$NagadCallbackImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -5895,6 +5999,7 @@ class _$NagadCallbackImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -5925,6 +6030,419 @@ abstract class _NagadCallback implements CheckoutEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$NagadCallbackImplCopyWith<_$NagadCallbackImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$PathaoPayCallbackImplCopyWith<$Res> {
+  factory _$$PathaoPayCallbackImplCopyWith(
+    _$PathaoPayCallbackImpl value,
+    $Res Function(_$PathaoPayCallbackImpl) then,
+  ) = __$$PathaoPayCallbackImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({Map<String, String> callbackParams});
+}
+
+/// @nodoc
+class __$$PathaoPayCallbackImplCopyWithImpl<$Res>
+    extends _$CheckoutEventCopyWithImpl<$Res, _$PathaoPayCallbackImpl>
+    implements _$$PathaoPayCallbackImplCopyWith<$Res> {
+  __$$PathaoPayCallbackImplCopyWithImpl(
+    _$PathaoPayCallbackImpl _value,
+    $Res Function(_$PathaoPayCallbackImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of CheckoutEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? callbackParams = null}) {
+    return _then(
+      _$PathaoPayCallbackImpl(
+        callbackParams:
+            null == callbackParams
+                ? _value._callbackParams
+                : callbackParams // ignore: cast_nullable_to_non_nullable
+                    as Map<String, String>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$PathaoPayCallbackImpl
+    with DiagnosticableTreeMixin
+    implements _PathaoPayCallback {
+  const _$PathaoPayCallbackImpl({
+    required final Map<String, String> callbackParams,
+  }) : _callbackParams = callbackParams;
+
+  final Map<String, String> _callbackParams;
+  @override
+  Map<String, String> get callbackParams {
+    if (_callbackParams is EqualUnmodifiableMapView) return _callbackParams;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_callbackParams);
+  }
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'CheckoutEvent.pathaoPayCallback(callbackParams: $callbackParams)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CheckoutEvent.pathaoPayCallback'))
+      ..add(DiagnosticsProperty('callbackParams', callbackParams));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PathaoPayCallbackImpl &&
+            const DeepCollectionEquality().equals(
+              other._callbackParams,
+              _callbackParams,
+            ));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_callbackParams),
+  );
+
+  /// Create a copy of CheckoutEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PathaoPayCallbackImplCopyWith<_$PathaoPayCallbackImpl> get copyWith =>
+      __$$PathaoPayCallbackImplCopyWithImpl<_$PathaoPayCallbackImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadCheckout,
+    required TResult Function(AddressEntity address) updateShippingAddress,
+    required TResult Function(AddressEntity address) updateBillingAddress,
+    required TResult Function(AddressEntity address) estimateShipping,
+    required TResult Function(String carrierCode, String methodCode)
+    selectShippingMethod,
+    required TResult Function(String paymentMethod) selectPaymentMethod,
+    required TResult Function() placeOrder,
+    required TResult Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+      Map<String, dynamic>? paymentData,
+    )
+    processPayment,
+    required TResult Function(String orderId, String transactionId)
+    confirmPayment,
+    required TResult Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+    )
+    updateOrderPayment,
+    required TResult Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+    )
+    syncOrderPaymentMethod,
+    required TResult Function(String orderId) confirmOrder,
+    required TResult Function(String orderId, bool success, String? message)
+    onPaymentWebViewResult,
+    required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
+    required TResult Function(String paymentId) bkashAgreementCallback,
+    required TResult Function(String paymentId) bkashPaymentCallback,
+    required TResult Function(String agreementId) selectSavedBkashAgreement,
+    required TResult Function() clearSavedBkashAgreement,
+    required TResult Function(String quoteId, String orderId) loadEmiDetails,
+    required TResult Function(
+      String bankName,
+      int tenure,
+      String paymentGateway,
+      String paymentMode,
+      String quoteId,
+    )
+    storeEmiSelection,
+    required TResult Function(
+      String orderId,
+      String quoteId,
+      String bankName,
+      int tenure,
+      String paymentGateway,
+      String paymentMode,
+    )
+    confirmEmiSelection,
+    required TResult Function(String cartId) loadPaymentInfo,
+    required TResult Function() resetCheckout,
+  }) {
+    return pathaoPayCallback(callbackParams);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadCheckout,
+    TResult? Function(AddressEntity address)? updateShippingAddress,
+    TResult? Function(AddressEntity address)? updateBillingAddress,
+    TResult? Function(AddressEntity address)? estimateShipping,
+    TResult? Function(String carrierCode, String methodCode)?
+    selectShippingMethod,
+    TResult? Function(String paymentMethod)? selectPaymentMethod,
+    TResult? Function()? placeOrder,
+    TResult? Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+      Map<String, dynamic>? paymentData,
+    )?
+    processPayment,
+    TResult? Function(String orderId, String transactionId)? confirmPayment,
+    TResult? Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+    )?
+    updateOrderPayment,
+    TResult? Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+    )?
+    syncOrderPaymentMethod,
+    TResult? Function(String orderId)? confirmOrder,
+    TResult? Function(String orderId, bool success, String? message)?
+    onPaymentWebViewResult,
+    TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
+    TResult? Function(String paymentId)? bkashAgreementCallback,
+    TResult? Function(String paymentId)? bkashPaymentCallback,
+    TResult? Function(String agreementId)? selectSavedBkashAgreement,
+    TResult? Function()? clearSavedBkashAgreement,
+    TResult? Function(String quoteId, String orderId)? loadEmiDetails,
+    TResult? Function(
+      String bankName,
+      int tenure,
+      String paymentGateway,
+      String paymentMode,
+      String quoteId,
+    )?
+    storeEmiSelection,
+    TResult? Function(
+      String orderId,
+      String quoteId,
+      String bankName,
+      int tenure,
+      String paymentGateway,
+      String paymentMode,
+    )?
+    confirmEmiSelection,
+    TResult? Function(String cartId)? loadPaymentInfo,
+    TResult? Function()? resetCheckout,
+  }) {
+    return pathaoPayCallback?.call(callbackParams);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadCheckout,
+    TResult Function(AddressEntity address)? updateShippingAddress,
+    TResult Function(AddressEntity address)? updateBillingAddress,
+    TResult Function(AddressEntity address)? estimateShipping,
+    TResult Function(String carrierCode, String methodCode)?
+    selectShippingMethod,
+    TResult Function(String paymentMethod)? selectPaymentMethod,
+    TResult Function()? placeOrder,
+    TResult Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+      Map<String, dynamic>? paymentData,
+    )?
+    processPayment,
+    TResult Function(String orderId, String transactionId)? confirmPayment,
+    TResult Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+    )?
+    updateOrderPayment,
+    TResult Function(
+      String orderId,
+      String paymentMethod,
+      String? paymentGateway,
+    )?
+    syncOrderPaymentMethod,
+    TResult Function(String orderId)? confirmOrder,
+    TResult Function(String orderId, bool success, String? message)?
+    onPaymentWebViewResult,
+    TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
+    TResult Function(String paymentId)? bkashAgreementCallback,
+    TResult Function(String paymentId)? bkashPaymentCallback,
+    TResult Function(String agreementId)? selectSavedBkashAgreement,
+    TResult Function()? clearSavedBkashAgreement,
+    TResult Function(String quoteId, String orderId)? loadEmiDetails,
+    TResult Function(
+      String bankName,
+      int tenure,
+      String paymentGateway,
+      String paymentMode,
+      String quoteId,
+    )?
+    storeEmiSelection,
+    TResult Function(
+      String orderId,
+      String quoteId,
+      String bankName,
+      int tenure,
+      String paymentGateway,
+      String paymentMode,
+    )?
+    confirmEmiSelection,
+    TResult Function(String cartId)? loadPaymentInfo,
+    TResult Function()? resetCheckout,
+    required TResult orElse(),
+  }) {
+    if (pathaoPayCallback != null) {
+      return pathaoPayCallback(callbackParams);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadCheckout value) loadCheckout,
+    required TResult Function(_UpdateShippingAddress value)
+    updateShippingAddress,
+    required TResult Function(_UpdateBillingAddress value) updateBillingAddress,
+    required TResult Function(_EstimateShipping value) estimateShipping,
+    required TResult Function(_SelectShippingMethod value) selectShippingMethod,
+    required TResult Function(_SelectPaymentMethod value) selectPaymentMethod,
+    required TResult Function(_PlaceOrder value) placeOrder,
+    required TResult Function(_ProcessPayment value) processPayment,
+    required TResult Function(_ConfirmPayment value) confirmPayment,
+    required TResult Function(_UpdateOrderPayment value) updateOrderPayment,
+    required TResult Function(_SyncOrderPaymentMethod value)
+    syncOrderPaymentMethod,
+    required TResult Function(_ConfirmOrder value) confirmOrder,
+    required TResult Function(_OnPaymentWebViewResult value)
+    onPaymentWebViewResult,
+    required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
+    required TResult Function(_BkashAgreementCallback value)
+    bkashAgreementCallback,
+    required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
+    required TResult Function(_SelectSavedBkashAgreement value)
+    selectSavedBkashAgreement,
+    required TResult Function(_ClearSavedBkashAgreement value)
+    clearSavedBkashAgreement,
+    required TResult Function(_LoadEmiDetails value) loadEmiDetails,
+    required TResult Function(_StoreEmiSelection value) storeEmiSelection,
+    required TResult Function(_ConfirmEmiSelection value) confirmEmiSelection,
+    required TResult Function(_LoadPaymentInfo value) loadPaymentInfo,
+    required TResult Function(_ResetCheckout value) resetCheckout,
+  }) {
+    return pathaoPayCallback(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadCheckout value)? loadCheckout,
+    TResult? Function(_UpdateShippingAddress value)? updateShippingAddress,
+    TResult? Function(_UpdateBillingAddress value)? updateBillingAddress,
+    TResult? Function(_EstimateShipping value)? estimateShipping,
+    TResult? Function(_SelectShippingMethod value)? selectShippingMethod,
+    TResult? Function(_SelectPaymentMethod value)? selectPaymentMethod,
+    TResult? Function(_PlaceOrder value)? placeOrder,
+    TResult? Function(_ProcessPayment value)? processPayment,
+    TResult? Function(_ConfirmPayment value)? confirmPayment,
+    TResult? Function(_UpdateOrderPayment value)? updateOrderPayment,
+    TResult? Function(_SyncOrderPaymentMethod value)? syncOrderPaymentMethod,
+    TResult? Function(_ConfirmOrder value)? confirmOrder,
+    TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
+    TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
+    TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
+    TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
+    TResult? Function(_SelectSavedBkashAgreement value)?
+    selectSavedBkashAgreement,
+    TResult? Function(_ClearSavedBkashAgreement value)?
+    clearSavedBkashAgreement,
+    TResult? Function(_LoadEmiDetails value)? loadEmiDetails,
+    TResult? Function(_StoreEmiSelection value)? storeEmiSelection,
+    TResult? Function(_ConfirmEmiSelection value)? confirmEmiSelection,
+    TResult? Function(_LoadPaymentInfo value)? loadPaymentInfo,
+    TResult? Function(_ResetCheckout value)? resetCheckout,
+  }) {
+    return pathaoPayCallback?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadCheckout value)? loadCheckout,
+    TResult Function(_UpdateShippingAddress value)? updateShippingAddress,
+    TResult Function(_UpdateBillingAddress value)? updateBillingAddress,
+    TResult Function(_EstimateShipping value)? estimateShipping,
+    TResult Function(_SelectShippingMethod value)? selectShippingMethod,
+    TResult Function(_SelectPaymentMethod value)? selectPaymentMethod,
+    TResult Function(_PlaceOrder value)? placeOrder,
+    TResult Function(_ProcessPayment value)? processPayment,
+    TResult Function(_ConfirmPayment value)? confirmPayment,
+    TResult Function(_UpdateOrderPayment value)? updateOrderPayment,
+    TResult Function(_SyncOrderPaymentMethod value)? syncOrderPaymentMethod,
+    TResult Function(_ConfirmOrder value)? confirmOrder,
+    TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
+    TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
+    TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
+    TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
+    TResult Function(_SelectSavedBkashAgreement value)?
+    selectSavedBkashAgreement,
+    TResult Function(_ClearSavedBkashAgreement value)? clearSavedBkashAgreement,
+    TResult Function(_LoadEmiDetails value)? loadEmiDetails,
+    TResult Function(_StoreEmiSelection value)? storeEmiSelection,
+    TResult Function(_ConfirmEmiSelection value)? confirmEmiSelection,
+    TResult Function(_LoadPaymentInfo value)? loadPaymentInfo,
+    TResult Function(_ResetCheckout value)? resetCheckout,
+    required TResult orElse(),
+  }) {
+    if (pathaoPayCallback != null) {
+      return pathaoPayCallback(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _PathaoPayCallback implements CheckoutEvent {
+  const factory _PathaoPayCallback({
+    required final Map<String, String> callbackParams,
+  }) = _$PathaoPayCallbackImpl;
+
+  Map<String, String> get callbackParams;
+
+  /// Create a copy of CheckoutEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PathaoPayCallbackImplCopyWith<_$PathaoPayCallbackImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -6047,6 +6565,8 @@ class _$BkashAgreementCallbackImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -6110,6 +6630,7 @@ class _$BkashAgreementCallbackImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -6173,6 +6694,7 @@ class _$BkashAgreementCallbackImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -6225,6 +6747,7 @@ class _$BkashAgreementCallbackImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -6258,6 +6781,7 @@ class _$BkashAgreementCallbackImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -6290,6 +6814,7 @@ class _$BkashAgreementCallbackImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -6441,6 +6966,8 @@ class _$BkashPaymentCallbackImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -6504,6 +7031,7 @@ class _$BkashPaymentCallbackImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -6567,6 +7095,7 @@ class _$BkashPaymentCallbackImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -6619,6 +7148,7 @@ class _$BkashPaymentCallbackImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -6652,6 +7182,7 @@ class _$BkashPaymentCallbackImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -6684,6 +7215,7 @@ class _$BkashPaymentCallbackImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -6835,6 +7367,8 @@ class _$SelectSavedBkashAgreementImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -6898,6 +7432,7 @@ class _$SelectSavedBkashAgreementImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -6961,6 +7496,7 @@ class _$SelectSavedBkashAgreementImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -7013,6 +7549,7 @@ class _$SelectSavedBkashAgreementImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -7046,6 +7583,7 @@ class _$SelectSavedBkashAgreementImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -7078,6 +7616,7 @@ class _$SelectSavedBkashAgreementImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -7198,6 +7737,8 @@ class _$ClearSavedBkashAgreementImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -7261,6 +7802,7 @@ class _$ClearSavedBkashAgreementImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -7324,6 +7866,7 @@ class _$ClearSavedBkashAgreementImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -7376,6 +7919,7 @@ class _$ClearSavedBkashAgreementImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -7409,6 +7953,7 @@ class _$ClearSavedBkashAgreementImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -7441,6 +7986,7 @@ class _$ClearSavedBkashAgreementImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -7591,6 +8137,8 @@ class _$LoadEmiDetailsImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -7654,6 +8202,7 @@ class _$LoadEmiDetailsImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -7717,6 +8266,7 @@ class _$LoadEmiDetailsImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -7769,6 +8319,7 @@ class _$LoadEmiDetailsImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -7802,6 +8353,7 @@ class _$LoadEmiDetailsImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -7834,6 +8386,7 @@ class _$LoadEmiDetailsImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -8050,6 +8603,8 @@ class _$StoreEmiSelectionImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -8119,6 +8674,7 @@ class _$StoreEmiSelectionImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -8188,6 +8744,7 @@ class _$StoreEmiSelectionImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -8246,6 +8803,7 @@ class _$StoreEmiSelectionImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -8279,6 +8837,7 @@ class _$StoreEmiSelectionImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -8311,6 +8870,7 @@ class _$StoreEmiSelectionImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -8546,6 +9106,8 @@ class _$ConfirmEmiSelectionImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -8616,6 +9178,7 @@ class _$ConfirmEmiSelectionImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -8686,6 +9249,7 @@ class _$ConfirmEmiSelectionImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -8745,6 +9309,7 @@ class _$ConfirmEmiSelectionImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -8778,6 +9343,7 @@ class _$ConfirmEmiSelectionImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -8810,6 +9376,7 @@ class _$ConfirmEmiSelectionImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -8970,6 +9537,8 @@ class _$LoadPaymentInfoImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -9033,6 +9602,7 @@ class _$LoadPaymentInfoImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -9096,6 +9666,7 @@ class _$LoadPaymentInfoImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -9148,6 +9719,7 @@ class _$LoadPaymentInfoImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -9181,6 +9753,7 @@ class _$LoadPaymentInfoImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -9213,6 +9786,7 @@ class _$LoadPaymentInfoImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?
@@ -9329,6 +9903,8 @@ class _$ResetCheckoutImpl
     required TResult Function(String orderId, bool success, String? message)
     onPaymentWebViewResult,
     required TResult Function(Map<String, String> callbackParams) nagadCallback,
+    required TResult Function(Map<String, String> callbackParams)
+    pathaoPayCallback,
     required TResult Function(String paymentId) bkashAgreementCallback,
     required TResult Function(String paymentId) bkashPaymentCallback,
     required TResult Function(String agreementId) selectSavedBkashAgreement,
@@ -9392,6 +9968,7 @@ class _$ResetCheckoutImpl
     TResult? Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult? Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult? Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult? Function(String paymentId)? bkashAgreementCallback,
     TResult? Function(String paymentId)? bkashPaymentCallback,
     TResult? Function(String agreementId)? selectSavedBkashAgreement,
@@ -9455,6 +10032,7 @@ class _$ResetCheckoutImpl
     TResult Function(String orderId, bool success, String? message)?
     onPaymentWebViewResult,
     TResult Function(Map<String, String> callbackParams)? nagadCallback,
+    TResult Function(Map<String, String> callbackParams)? pathaoPayCallback,
     TResult Function(String paymentId)? bkashAgreementCallback,
     TResult Function(String paymentId)? bkashPaymentCallback,
     TResult Function(String agreementId)? selectSavedBkashAgreement,
@@ -9507,6 +10085,7 @@ class _$ResetCheckoutImpl
     required TResult Function(_OnPaymentWebViewResult value)
     onPaymentWebViewResult,
     required TResult Function(_NagadCallback value) nagadCallback,
+    required TResult Function(_PathaoPayCallback value) pathaoPayCallback,
     required TResult Function(_BkashAgreementCallback value)
     bkashAgreementCallback,
     required TResult Function(_BkashPaymentCallback value) bkashPaymentCallback,
@@ -9540,6 +10119,7 @@ class _$ResetCheckoutImpl
     TResult? Function(_ConfirmOrder value)? confirmOrder,
     TResult? Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult? Function(_NagadCallback value)? nagadCallback,
+    TResult? Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult? Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult? Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult? Function(_SelectSavedBkashAgreement value)?
@@ -9572,6 +10152,7 @@ class _$ResetCheckoutImpl
     TResult Function(_ConfirmOrder value)? confirmOrder,
     TResult Function(_OnPaymentWebViewResult value)? onPaymentWebViewResult,
     TResult Function(_NagadCallback value)? nagadCallback,
+    TResult Function(_PathaoPayCallback value)? pathaoPayCallback,
     TResult Function(_BkashAgreementCallback value)? bkashAgreementCallback,
     TResult Function(_BkashPaymentCallback value)? bkashPaymentCallback,
     TResult Function(_SelectSavedBkashAgreement value)?

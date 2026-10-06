@@ -67,8 +67,8 @@ class DeviceInsuranceDialog extends StatelessWidget {
 
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppRadius.k16,
       ),
       backgroundColor: AppColors.white,
       clipBehavior: Clip.antiAlias,
@@ -148,8 +148,8 @@ class DeviceInsuranceDialog extends StatelessWidget {
                 width: double.infinity,
                 padding: EdgeInsets.all(14.w),
                 decoration: BoxDecoration(
-                  color: AppColors.pageBg,
-                  borderRadius: BorderRadius.circular(8.r),
+                  color: AppColors.itemBackground,
+                  borderRadius: AppRadius.k8,
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
@@ -205,7 +205,7 @@ class DeviceInsuranceDialog extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 0.w),
                 child: AppButton.primary(
-                  borderRadius: BorderRadius.circular(30.r),
+                  borderRadius: AppRadius.k8,
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   text: firstValue.price > 0
                       ? 'Add Protection Plan (৳${firstValue.price})'
@@ -273,7 +273,7 @@ class DeviceInsuranceDialog extends StatelessWidget {
         Container(
           margin: EdgeInsets.only(top: 2.h),
           padding: EdgeInsets.all(2.w),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.pickabooBlue,
             shape: BoxShape.circle,
           ),

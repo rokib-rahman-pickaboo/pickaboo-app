@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,7 +16,7 @@ class AppTheme {
       fontFamily: GoogleFonts.inter().fontFamily,
       textTheme: GoogleFonts.interTextTheme(),
       primaryColor: AppColors.pickabooBlue,
-      scaffoldBackgroundColor: AppColors.pageBg,
+      scaffoldBackgroundColor: AppColors.white,
       colorScheme: const ColorScheme.light(
         primary: AppColors.pickabooBlue,
         secondary: AppColors.navy,
@@ -43,9 +44,10 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.white,
         elevation: 0,
+        shadowColor: AppColors.navy.withValues(alpha: 0.06),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          side: const BorderSide(color: AppColors.border, width: 1),
+          borderRadius: AppRadius.k8,
+          side: BorderSide.none,
         ),
         margin: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       ),
@@ -56,7 +58,7 @@ class AppTheme {
           elevation: 0,
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.button),
+            borderRadius: AppRadius.k8,
           ),
           textStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
         ),
@@ -73,7 +75,7 @@ class AppTheme {
           side: const BorderSide(color: AppColors.pickabooBlue, width: 1.5),
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.button),
+            borderRadius: AppRadius.k8,
           ),
           textStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
         ),
@@ -86,7 +88,7 @@ class AppTheme {
           fontWeight: FontWeight.w700,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: AppRadius.k8,
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -98,23 +100,23 @@ class AppTheme {
           vertical: 14.h,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderRadius: AppRadius.k8,
           borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderRadius: AppRadius.k8,
           borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderRadius: AppRadius.k8,
           borderSide: const BorderSide(color: AppColors.pickabooBlue, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderRadius: AppRadius.k8,
           borderSide: const BorderSide(color: AppColors.red, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderRadius: AppRadius.k8,
           borderSide: const BorderSide(color: AppColors.red, width: 2),
         ),
         labelStyle: const TextStyle(color: AppColors.muted),

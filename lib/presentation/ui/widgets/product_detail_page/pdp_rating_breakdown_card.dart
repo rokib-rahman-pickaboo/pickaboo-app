@@ -149,14 +149,13 @@ class PdpRatingBreakdownCard extends StatelessWidget {
                   return GestureDetector(
                     onTap: () => onPhotoTap?.call(idx),
                     child: ClipRRect(
-                      borderRadius: AppRadius.buttonRadius,
+                      borderRadius: AppRadius.k8,
                       child: Container(
                         width: 60.w,
                         height: 60.w,
                         decoration: BoxDecoration(
-                          color: AppColors.pageBg,
-                          borderRadius: AppRadius.buttonRadius,
-                          border: Border.all(color: AppColors.border),
+                          color: AppColors.itemBackground,
+                          borderRadius: AppRadius.k8,
                         ),
                         child: AppImage(
                           imageUrl: validPhotos[idx],
@@ -249,7 +248,7 @@ class _RatingBarRow extends StatelessWidget {
           SizedBox(width: 6.w),
           Expanded(
             child: ClipRRect(
-              borderRadius: AppRadius.badgeRadius,
+              borderRadius: AppRadius.k4,
               child: LinearProgressIndicator(
                 value: percent.clamp(0.0, 1.0),
                 backgroundColor: AppColors.border,

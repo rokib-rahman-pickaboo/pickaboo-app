@@ -74,7 +74,7 @@ class _OrderCancelledPageState extends State<OrderCancelledPage> {
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         titleWidget: BlocBuilder<OrderBloc, OrderState>(
           builder: (context, state) {

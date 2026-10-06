@@ -27,24 +27,9 @@ class ICheckoutApiService extends CheckoutApiService {
   }
 
   ErrorResponse _detailedError(DioException err, String label) {
-    final status = err.response?.statusCode;
-    final data = err.response?.data;
-
-    String? backendMessage;
-    if (data is Map) {
-      backendMessage = data['message']?.toString();
-    } else if (data is String && data.isNotEmpty) {
-      backendMessage = data;
-    }
-
-    final detail = (backendMessage != null && backendMessage.isNotEmpty)
-        ? backendMessage
-        : (data != null ? data.toString() : (err.message ?? 'Unknown error'));
-
-    return ErrorResponse(
-      success: false,
-      message:
-          '[$label] ${status != null ? 'HTTP $status: ' : ''}$detail',
+    return ApiErrorParser.parse(
+      err,
+      defaultMessage: 'Unable to complete checkout. Please try again.',
     );
   }
 
@@ -281,10 +266,20 @@ class ICheckoutApiService extends CheckoutApiService {
         'dynamicpaymentgateway',
         'cashondelivery',
         'free',
+        'pathaopay',
+        'pathao_pay',
+        'pathao',
+        'patahopay',
+        'pataho_pay',
+        'pataho',
       };
+      final isDirect = paymentGateway != null &&
+          (directMethods.contains(paymentGateway.toLowerCase().trim()) ||
+              paymentGateway.toLowerCase().contains('pathao') ||
+              paymentGateway.toLowerCase().contains('pataho'));
       if (paymentGateway != null &&
           paymentGateway.isNotEmpty &&
-          !directMethods.contains(paymentGateway.toLowerCase().trim())) {
+          !isDirect) {
         body['paymentGetway'] = paymentGateway;
       }
       final response = await _client.post(
@@ -551,6 +546,68 @@ class ICheckoutApiService extends CheckoutApiService {
     }
   }
 
+  String? _extractGatewayUrl(dynamic node) {
+    if (node == null) return null;
+
+    if (node is String) {
+      final trimmed = node.trim();
+      if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+        return trimmed;
+      }
+      return null;
+    }
+
+    if (node is Map) {
+      const candidateKeys = [
+        'redirect_url',
+        'redirectUrl',
+        'payment_url',
+        'paymentUrl',
+        'checkout_url',
+        'checkoutUrl',
+        'gateway_url',
+        'action',
+        'url',
+        'bkashURL',
+        'returnUrl',
+        'retuenUrl',
+        'return_url',
+      ];
+
+      for (final key in candidateKeys) {
+        final val = node[key];
+        if (val is String &&
+            (val.trim().startsWith('http://') ||
+                val.trim().startsWith('https://'))) {
+          return val.trim();
+        }
+      }
+
+      if (node['data'] != null) {
+        final nestedUrl = _extractGatewayUrl(node['data']);
+        if (nestedUrl != null) return nestedUrl;
+      }
+
+      for (final entry in node.entries) {
+        if (entry.key != 'data' && (entry.value is Map || entry.value is List)) {
+          final found = _extractGatewayUrl(entry.value);
+          if (found != null) return found;
+        }
+      }
+      return null;
+    }
+
+    if (node is List) {
+      for (final element in node) {
+        final found = _extractGatewayUrl(element);
+        if (found != null) return found;
+      }
+      return null;
+    }
+
+    return null;
+  }
+
   @override
   Future<Either<ErrorResponse, String>> createDigitalOrder({
     required String orderId,
@@ -559,14 +616,21 @@ class ICheckoutApiService extends CheckoutApiService {
     String? returnPath,
   }) async {
     try {
-
       String endpoint = '';
       Map<String, dynamic> params = {"order_id": orderId};
 
       final String gateway = paymentGateway?.toLowerCase().trim() ?? '';
       final String method = paymentMethodCode.toLowerCase().trim();
 
-      if (gateway == 'citybank') {
+      final isPathao = method.contains('pathao') ||
+          method.contains('pataho') ||
+          gateway.contains('pathao') ||
+          gateway.contains('pataho');
+
+      if (isPathao) {
+        endpoint = ApiEndpoints.pathaoPayRequestUrl;
+        params = {"orderId": orderId};
+      } else if (gateway == 'citybank') {
         endpoint = ApiEndpoints.cityBankCreateOrderUrl;
       } else if (gateway == 'bracbank') {
         endpoint = ApiEndpoints.bracBankCreateOrderUrl;
@@ -577,8 +641,7 @@ class ICheckoutApiService extends CheckoutApiService {
       } else if (gateway == 'mtb' || gateway.contains('mtb')) {
         endpoint = ApiEndpoints.mtbCreateOrderUrl;
         params = {"order_id": orderId, "orderId": orderId};
-      }
-      else if (method == 'nagad') {
+      } else if (method == 'nagad') {
         endpoint = ApiEndpoints.nagadCreateOrderUrl;
         params = {
           "orderId": orderId,
@@ -599,10 +662,13 @@ class ICheckoutApiService extends CheckoutApiService {
       }
 
       final isEblEndpoint = endpoint.contains('/dcastalia-ebl/');
+      final isPathaoEndpoint = endpoint == ApiEndpoints.pathaoPayRequestUrl;
+
       final response = await _client.post(
         endpoint,
         data: isEblEndpoint ? {} : params,
-        queryParameters: params,
+        // Pathao Pay expects `orderId` in JSON body
+        queryParameters: isPathaoEndpoint ? null : params,
         options: Options(
           headers: {
             'User-Agent':
@@ -612,70 +678,76 @@ class ICheckoutApiService extends CheckoutApiService {
           validateStatus: (status) => status != null && status < 500,
         ),
       );
-      final data = response.data;
+      dynamic data = response.data;
       final int? statusCode = response.statusCode;
+
+      if (statusCode != null && statusCode >= 400) {
+        final errorMsg = ApiErrorParser.extractErrorMessage(
+          data,
+          defaultMessage: 'Unable to initiate payment. Please try again.',
+        );
+        return left(ErrorResponse(message: errorMsg));
+      }
 
       if (statusCode != null && statusCode >= 300 && statusCode < 400) {
         final location = response.headers.value('location');
-        if (location != null) {
+        if (location != null && location.isNotEmpty) {
           return right(location);
         }
       }
 
       if (data is String) {
-        return right(data);
-      } else if (data is Map<String, dynamic>) {
-        String? url =
-            data['gateway_url'] ??
-            data['returnUrl'] ??
-            data['retuenUrl'] ??
-            data['redirect_url'] ??
-            data['redirectUrl'] ??
-            data['url'] ??
-            data['bkashURL'];
-
-        if (url != null) {
-          if (endpoint == ApiEndpoints.cityBankCreateOrderUrl) {
-            if (!url.contains('CardNo=')) {
-              url = '$url&CardNo=';
-            }
-          }
-          return right(url.toString());
+        final trimmed = data.trim();
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          return right(trimmed);
         }
-      } else if (data is List) {
-        if (data.isNotEmpty) {
-          final first = data.first;
-          if (first is Map<String, dynamic>) {
-            String? url =
-                first['retuenUrl'] ??
-                first['returnUrl'] ??
-                first['gateway_url'] ??
-                first['redirect_url'] ??
-                first['url'];
-
-            if (url != null) {
-              if (endpoint == ApiEndpoints.cityBankCreateOrderUrl) {
-                if (!url.contains('CardNo=')) {
-                  url = '$url&CardNo=';
-                }
-              }
-              return right(url.toString());
-            }
-          } else if (first is String) {
-            return right(first);
+        try {
+          final decoded = json.decode(trimmed);
+          if (decoded is Map || decoded is List) {
+            data = decoded;
           }
-        } else if (isEblEndpoint) {
-          return right(
-            "${ApiEndpoints.baseUrl}/rest/default/V1/dcastalia-ebl/payment-process?order_id=$orderId",
+        } catch (_) {}
+      }
+
+      if (data is Map) {
+        if (data['status'] == false && data['message'] != null) {
+          final msg = ApiErrorParser.extractErrorMessage(
+            data,
+            defaultMessage: 'Unable to initiate payment. Please try again.',
           );
+          return left(ErrorResponse(message: msg));
         }
       }
 
-      return left(const ErrorResponse(message: 'Invalid gateway response'));
+      String? url = _extractGatewayUrl(data);
+      if (url != null && url.isNotEmpty) {
+        if (endpoint == ApiEndpoints.cityBankCreateOrderUrl) {
+          if (!url.contains('CardNo=')) {
+            url = '$url&CardNo=';
+          }
+        }
+        return right(url);
+      }
+
+      if (isEblEndpoint) {
+        return right(
+          "${ApiEndpoints.baseUrl}/rest/default/V1/dcastalia-ebl/payment-process?order_id=$orderId",
+        );
+      }
+
+      final fallbackMsg = ApiErrorParser.extractErrorMessage(
+        data,
+        defaultMessage: 'Unable to initiate payment. Please try again.',
+      );
+      return left(ErrorResponse(message: fallbackMsg));
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
     } catch (e) {
-      return left(ErrorResponse(message: e.toString()));
+      return left(
+        const ErrorResponse(
+          message: 'Unable to initiate payment. Please try again.',
+        ),
+      );
     }
   }
 
@@ -805,6 +877,29 @@ class ICheckoutApiService extends CheckoutApiService {
   }
 
   @override
+  Future<Either<ErrorResponse, bool>> pathaoPayCapture({
+    required Map<String, String> callbackParams,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.pathaoPayCaptureUrl,
+        queryParameters: callbackParams,
+      );
+      final data = response.data;
+      if (data is Map && data['status'] == false) {
+        final msg = ApiErrorParser.extractErrorMessage(
+          data,
+          defaultMessage: 'Pathao Pay capture failed',
+        );
+        return left(ErrorResponse(message: msg));
+      }
+      return right(response.statusCode == 200 && data != false);
+    } on DioException catch (e) {
+      return left(checkErrorResponse(e));
+    }
+  }
+
+  @override
   Future<Either<ErrorResponse, CardBinVerifyResponse>> verifyCardBin({
     required String orderId,
   }) async {
@@ -874,7 +969,7 @@ class ICheckoutApiService extends CheckoutApiService {
     bool isSaved = false,
   }) async {
     try {
-      final response = await _client.post(
+      await _client.post(
         ApiEndpoints.bkashAgreementSaveUrl,
         queryParameters: {
           'order_id': orderId,

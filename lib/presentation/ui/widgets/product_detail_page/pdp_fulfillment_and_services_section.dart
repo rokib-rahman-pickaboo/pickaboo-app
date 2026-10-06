@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
@@ -125,8 +126,11 @@ class PdpFulfillmentAndServicesSection extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sameGroupItemSpacing.w,
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacing.sameGroupItemSpacing.w,
+                      AppSpacing.sameGroupItemSpacing.h,
+                      AppSpacing.sameGroupItemSpacing.w,
+                      0,
                     ),
                     child: GestureDetector(
                       onTap: () {
@@ -147,6 +151,20 @@ class PdpFulfillmentAndServicesSection extends StatelessWidget {
                       },
                       child: AppHtml(
                         data: cmsState.productOffer?.content ?? "",
+                        style: {
+                          "body": Style(
+                            margin: Margins.zero,
+                            padding: HtmlPaddings.zero,
+                          ),
+                          "p": Style(
+                            margin: Margins.zero,
+                            padding: HtmlPaddings.zero,
+                          ),
+                          "img": Style(
+                            margin: Margins.zero,
+                            padding: HtmlPaddings.zero,
+                          ),
+                        },
                         onLinkTap: (url, attributes, element) async {
                           if (url != null) {
                             final trimmedUrl = url.trim();
@@ -173,6 +191,7 @@ class PdpFulfillmentAndServicesSection extends StatelessWidget {
                                   mode: LaunchMode.externalApplication,
                                 );
                               } catch (e) {
+                                // Ignore launcher errors
                               }
                             }
                           }
@@ -180,10 +199,7 @@ class PdpFulfillmentAndServicesSection extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Container(
-                    height: AppSpacing.groupToGroupSpacing * 0.5,
-                    color: AppColors.pageBg,
-                  ),
+                  SizedBox(height: AppSpacing.sameGroupItemSpacing.h),
                 ],
               );
             }

@@ -53,7 +53,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         final contentPages = state.content ?? [];
 
         return Scaffold(
-          backgroundColor: AppColors.pageBg,
+          backgroundColor: AppColors.white,
           appBar: PickabooAppBar(
             title: title,
           ),

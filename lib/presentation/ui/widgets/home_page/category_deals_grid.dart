@@ -46,7 +46,7 @@ class CategoryDealsGrid extends StatelessWidget {
       padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       decoration: BoxDecoration(
         color: AppColors.surfaceBlue,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(
           color: AppColors.border,
           width: 1.w,
@@ -152,18 +152,8 @@ class _DealCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: AppRadius.buttonRadius,
-          border: Border.all(
-            color: AppColors.border,
-            width: 1.w,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.navy.withValues(alpha: 0.03),
-              blurRadius: 4.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
+          borderRadius: AppRadius.k8,
+          boxShadow: AppDecorations.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -172,7 +162,7 @@ class _DealCard extends StatelessWidget {
               flex: 2,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(AppRadius.button - 1),
+                  top: AppRadius.rad8,
                 ),
                 child: AppImage(
                   imageUrl: deal.mobileImage,
@@ -181,11 +171,11 @@ class _DealCard extends StatelessWidget {
                   height: double.infinity,
                   cacheWidth: imageCacheWidth,
                   placeholder: Container(
-                    color: AppColors.pageBg,
+                    color: AppColors.itemBackground,
                     child: const AppLoader.inline(),
                   ),
                   errorWidget: Container(
-                    color: AppColors.pageBg,
+                    color: AppColors.itemBackground,
                     child: Center(
                       child: Icon(
                         Icons.image_not_supported_outlined,
@@ -202,10 +192,10 @@ class _DealCard extends StatelessWidget {
               height: 44.h,
               padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
               alignment: Alignment.center,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(AppRadius.button - 1),
+                  bottom: AppRadius.rad8,
                 ),
               ),
               child: Column(

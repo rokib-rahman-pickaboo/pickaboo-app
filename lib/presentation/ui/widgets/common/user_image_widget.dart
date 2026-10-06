@@ -174,7 +174,7 @@ class UserImageWidget extends StatelessWidget {
             bottom: 0,
             child: Container(
               padding: EdgeInsets.all(size * 0.06),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.pickabooBlue,
                 shape: BoxShape.circle,
               ),

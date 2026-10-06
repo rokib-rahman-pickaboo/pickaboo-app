@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/brand_products/brand_products_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/filter_sort_bar.dart';
 
@@ -17,6 +19,8 @@ class BrandFilterButton extends StatelessWidget {
 
   final String? activeSortLabel;
 
+  final EdgeInsetsGeometry? padding;
+
   const BrandFilterButton({
     super.key,
     required this.onFilterTap,
@@ -25,6 +29,7 @@ class BrandFilterButton extends StatelessWidget {
     this.onViewModeChanged,
     this.activeFilterCount = 0,
     this.activeSortLabel,
+    this.padding,
   });
 
   @override
@@ -40,6 +45,12 @@ class BrandFilterButton extends StatelessWidget {
       onViewModeChanged: onViewModeChanged,
       activeFilterCount: activeFilterCount,
       activeSortLabel: activeSortLabel,
+      padding: padding ??
+          EdgeInsets.only(
+            left: AppSpacing.sameGroupItemSpacing.w,
+            right: AppSpacing.sameGroupItemSpacing.w,
+            top: 0,
+          ),
     );
   }
 }

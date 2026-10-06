@@ -43,7 +43,7 @@ class SavedWalletItem extends StatelessWidget {
               padding: EdgeInsets.all(4.w),
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: AppRadius.buttonRadius,
+                borderRadius: AppRadius.k8,
                 border: Border.all(
                   color: isSelected
                       ? AppColors.pickabooBlue.withValues(alpha: 0.4)
@@ -75,9 +75,9 @@ class SavedWalletItem extends StatelessWidget {
                           horizontal: 6.w,
                           vertical: 2.h,
                         ),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.surfaceBlue,
-                          borderRadius: AppRadius.badgeRadius,
+                          borderRadius: AppRadius.k4,
                         ),
                         child: Text(
                           'Saved',
@@ -127,7 +127,7 @@ class _RadioDot extends StatelessWidget {
               child: Container(
                 width: 10.w,
                 height: 10.w,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.pickabooBlue,
                 ),

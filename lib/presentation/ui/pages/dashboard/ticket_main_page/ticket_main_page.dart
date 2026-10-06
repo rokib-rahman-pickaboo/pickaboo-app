@@ -24,7 +24,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_main_page/ticket_card.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_main_page/ticket_list_skeleton.dart';
 
 class TicketMainPage extends StatefulWidget {
   const TicketMainPage({super.key});
@@ -79,7 +79,7 @@ class _TicketMainPageState extends State<TicketMainPage> {
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: AppStrings.supportTickets,
       ),
@@ -95,7 +95,7 @@ class _TicketMainPageState extends State<TicketMainPage> {
           },
           builder: (context, state) {
             if (state.status == TicketStatus.loading) {
-              return const AppLoader.fullPage();
+              return const TicketListSkeleton();
             }
 
             final tickets = state.tickets;
@@ -152,12 +152,12 @@ class _TicketMainPageState extends State<TicketMainPage> {
 
       // ── PERSISTENT PINNED BOTTOM BAR ──
       bottomNavigationBar: Container(
-        color: AppColors.pageBg,
+        color: AppColors.white,
         padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
         child: SafeArea(
           child: AppButton.primary(
             height: 48.h,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: AppRadius.k8,
             icon: Icon(
               Icons.add_rounded,
               size: 20.sp,

@@ -40,7 +40,7 @@ class SettingToggleItem extends StatelessWidget {
             activeThumbColor: AppColors.white,
             activeTrackColor: AppColors.pickabooBlue,
             inactiveThumbColor: AppColors.white,
-            inactiveTrackColor: AppColors.pageBg,
+            inactiveTrackColor: AppColors.itemBackground,
           ),
         ],
       ),

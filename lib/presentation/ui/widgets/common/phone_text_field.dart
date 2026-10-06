@@ -49,11 +49,11 @@ class PhoneTextField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.white,
             border: OutlineInputBorder(
-              borderRadius: AppRadius.inputRadius,
+              borderRadius: AppRadius.k8,
               borderSide: BorderSide(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: AppRadius.inputRadius,
+              borderRadius: AppRadius.k8,
               borderSide: BorderSide(color: AppColors.muted.withValues(alpha: 0.2)),
             ),
           ),

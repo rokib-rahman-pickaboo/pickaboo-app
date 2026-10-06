@@ -40,18 +40,7 @@ class CancellationSummaryView extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(16.w),
             width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: AppRadius.cardRadius,
-              border: Border.all(color: AppColors.border),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.navy.withValues(alpha: 0.03),
-                  blurRadius: 8.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
-            ),
+            decoration: AppDecorations.cardBoxDecoration(),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -76,7 +65,7 @@ class CancellationSummaryView extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.red.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.badgeRadius,
+                    borderRadius: AppRadius.k4,
                     border: Border.all(
                       color: AppColors.red.withValues(alpha: 0.2),
                     ),
@@ -96,18 +85,7 @@ class CancellationSummaryView extends StatelessWidget {
           if (order.statusHistories.isNotEmpty)
             Container(
               padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: AppRadius.cardRadius,
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.navy.withValues(alpha: 0.03),
-                    blurRadius: 8.r,
-                    offset: Offset(0, 2.h),
-                  ),
-                ],
-              ),
+              decoration: AppDecorations.cardBoxDecoration(),
               child: FixedTimeline.tileBuilder(
                 theme: TimelineThemeData(
                   nodePosition: 0,
@@ -201,30 +179,19 @@ class CancellationSummaryView extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 6.r,
-            offset: Offset(0, 1.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Row(
         children: [
           Container(
             width: 60.w,
             height: 60.w,
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.cardRadius,
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border),
             ),
             child: ClipRRect(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               child: AppImage(
                 imageUrl: item.image,
                 placeholder: const AppLoader.inline(),

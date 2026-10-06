@@ -111,7 +111,7 @@ class _ProductFrequentlyBoughtTogetherState
     final hasSelected = _selectedCount > 0;
     return AppCard(
       padding: EdgeInsets.zero,
-      borderRadius: BorderRadius.circular(AppRadius.card),
+      borderRadius: AppRadius.k8,
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +152,7 @@ class _ProductFrequentlyBoughtTogetherState
       decoration: BoxDecoration(
         color: AppColors.surfaceBlue,
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AppRadius.card),
+          top: AppRadius.rad8,
         ),
         border: Border(
           bottom: BorderSide(
@@ -196,7 +196,7 @@ class _ProductFrequentlyBoughtTogetherState
                       value: isSelected,
                       activeColor: AppColors.pickabooBlue,
                       shape: const RoundedRectangleBorder(
-                        borderRadius: AppRadius.badgeRadius,
+                        borderRadius: AppRadius.k4,
                       ),
                       side: BorderSide(
                         color: isSelectable ? AppColors.muted : AppColors.border,
@@ -214,15 +214,11 @@ class _ProductFrequentlyBoughtTogetherState
                   width: 58.w,
                   height: 58.w,
                   decoration: BoxDecoration(
-                    borderRadius: AppRadius.smRadius,
-                    color: AppColors.pageBg,
-                    border: Border.all(
-                      color: AppColors.border.withValues(alpha: 0.5),
-                      width: 0.8.w,
-                    ),
+                    borderRadius: AppRadius.k8,
+                    color: AppColors.itemBackground,
                   ),
                   child: ClipRRect(
-                    borderRadius: AppRadius.smRadius,
+                    borderRadius: AppRadius.k8,
                     child: AppImage(
                       imageUrl: item.image,
                       width: 58.w,
@@ -272,7 +268,7 @@ class _ProductFrequentlyBoughtTogetherState
                           padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                           decoration: BoxDecoration(
                             color: AppColors.orange.withValues(alpha: 0.1),
-                            borderRadius: AppRadius.badgeRadius,
+                            borderRadius: AppRadius.k4,
                           ),
                           child: Text(
                             'Out of stock',
@@ -318,7 +314,7 @@ class _ProductFrequentlyBoughtTogetherState
           Container(
             width: 4.w,
             height: 4.w,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.muted,
               shape: BoxShape.circle,
             ),
@@ -357,10 +353,10 @@ class _ProductFrequentlyBoughtTogetherState
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(AppRadius.card),
+          bottom: AppRadius.rad8,
         ),
       ),
       child: Column(
@@ -406,7 +402,7 @@ class _ProductFrequentlyBoughtTogetherState
           AppButton.outline(
             height: 40.h,
             isFullWidth: true,
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
             borderColor: AppColors.pickabooBlue,
             textColor: AppColors.pickabooBlue,
             isDisabled: false,
@@ -471,7 +467,7 @@ class _ProductFrequentlyBoughtTogetherState
                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: AppColors.green.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.badgeRadius,
+                    borderRadius: AppRadius.k4,
                   ),
                   child: Text(
                     'Save ৳ ${_formatPrice(_bundleSavings)}',
@@ -508,7 +504,7 @@ class _ProductFrequentlyBoughtTogetherState
           AppButton.primary(
             height: 40.h,
             isFullWidth: true,
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
             isDisabled: !canAddBundle,
             textStyle: AppTypography.bodySmall.bold().withColor(
               canAddBundle ? AppColors.white : AppColors.muted,

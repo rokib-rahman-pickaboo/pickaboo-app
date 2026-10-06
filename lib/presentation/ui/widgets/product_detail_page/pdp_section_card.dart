@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 
 /// Centralized Reusable PDP Section Container Wrapper.
-/// Unifies background color, internal padding, and bottom gutter separation across all PDP modules.
+/// Provides full-width neutral canvas section container with standard padding
+/// and subtle section spacing, preserving the approved page hierarchy.
 class PdpSectionCard extends StatelessWidget {
   final Widget child;
   final bool hasBottomGutter;
@@ -11,7 +14,7 @@ class PdpSectionCard extends StatelessWidget {
   const PdpSectionCard({
     super.key,
     required this.child,
-    this.hasBottomGutter = true,
+    this.hasBottomGutter = false,
     this.customPadding,
   });
 
@@ -24,14 +27,12 @@ class PdpSectionCard extends StatelessWidget {
         Container(
           width: double.infinity,
           color: AppColors.white,
-          padding: customPadding ?? const EdgeInsets.all(AppSpacing.sameGroupItemSpacing),
+          padding: customPadding ??
+              EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
           child: child,
         ),
         if (hasBottomGutter)
-          Container(
-            height: AppSpacing.groupToGroupSpacing * 0.5,
-            color: AppColors.pageBg,
-          ),
+          SizedBox(height: 8.h),
       ],
     );
   }

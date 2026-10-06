@@ -50,7 +50,7 @@ class KnowledgeBaseSkeleton extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 12.w),
                 decoration: BoxDecoration(
                   color: AppColors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.chip.r),
+                  borderRadius: AppRadius.k8,
                   border: Border.all(color: AppColors.border, width: 1.w),
                 ),
                 child: Row(
@@ -67,7 +67,7 @@ class KnowledgeBaseSkeleton extends StatelessWidget {
                       height: 11.h,
                       decoration: BoxDecoration(
                         color: AppColors.skeletonBase,
-                        borderRadius: BorderRadius.circular(3.r),
+                        borderRadius: AppRadius.k4,
                       ),
                     ),
                   ],
@@ -138,8 +138,8 @@ class KnowledgeBaseSkeleton extends StatelessWidget {
             width: 34.w,
             height: 34.w,
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: BorderRadius.circular(AppRadius.button.r),
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k8,
               border: Border.all(color: AppColors.border, width: 1.w),
             ),
             child: Center(
@@ -163,7 +163,7 @@ class KnowledgeBaseSkeleton extends StatelessWidget {
                   height: 12.h,
                   decoration: BoxDecoration(
                     color: AppColors.skeletonBase,
-                    borderRadius: BorderRadius.circular(3.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
                 SizedBox(height: 5.h),
@@ -172,7 +172,7 @@ class KnowledgeBaseSkeleton extends StatelessWidget {
                   height: 9.h,
                   decoration: BoxDecoration(
                     color: AppColors.skeletonBase,
-                    borderRadius: BorderRadius.circular(2.r),
+                    borderRadius: AppRadius.k4,
                   ),
                 ),
               ],

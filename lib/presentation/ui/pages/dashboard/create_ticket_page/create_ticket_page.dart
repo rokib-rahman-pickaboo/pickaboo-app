@@ -110,8 +110,8 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppRadius.top16,
       ),
       builder: (ctx) {
         return SafeArea(
@@ -131,7 +131,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                     padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Icon(
                       Icons.photo_library_outlined,
@@ -158,7 +158,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                     padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Icon(
                       Icons.camera_alt_outlined,
@@ -185,7 +185,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                     padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Icon(
                       Icons.insert_drive_file_outlined,
@@ -418,12 +418,12 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
     return BlocProvider.value(
       value: _ticketBloc,
       child: Scaffold(
-        backgroundColor: AppColors.pageBg,
+        backgroundColor: AppColors.white,
         appBar: const PickabooAppBar(
           title: 'Support Ticket',
         ),
         bottomNavigationBar: Container(
-          color: AppColors.pageBg,
+          color: AppColors.white,
           padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.sameGroupItemSpacing.w,
             vertical: 12.h,
@@ -435,7 +435,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
               isLoading: _isLoading,
               isFullWidth: true,
               height: 48.h,
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: AppRadius.k8,
               onPressed: _isLoading ? null : _submitTicket,
             ),
           ),
@@ -511,8 +511,8 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 12.w),
                             decoration: BoxDecoration(
-                              color: AppColors.pageBg,
-                              borderRadius: BorderRadius.circular(10.r),
+                              color: AppColors.itemBackground,
+                              borderRadius: AppRadius.k8,
                               border: Border.all(color: AppColors.border),
                             ),
                             child: DropdownButtonHideUnderline(
@@ -556,7 +556,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                 dropdownStyleData: DropdownStyleData(
                                   maxHeight: 320.h,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderRadius: AppRadius.k8,
                                     color: AppColors.white,
                                   ),
                                 ),
@@ -592,21 +592,21 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                         prefixIconConstraints: BoxConstraints(
                                           minWidth: 32.w,
                                         ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8.r),
-                                          borderSide: const BorderSide(
+                                        border: const OutlineInputBorder(
+                                          borderRadius: AppRadius.k8,
+                                          borderSide: BorderSide(
                                             color: AppColors.border,
                                           ),
                                         ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8.r),
-                                          borderSide: const BorderSide(
+                                        enabledBorder: const OutlineInputBorder(
+                                          borderRadius: AppRadius.k8,
+                                          borderSide: BorderSide(
                                             color: AppColors.border,
                                           ),
                                         ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8.r),
-                                          borderSide: const BorderSide(
+                                        focusedBorder: const OutlineInputBorder(
+                                          borderRadius: AppRadius.k8,
+                                          borderSide: BorderSide(
                                             color: AppColors.pickabooBlue,
                                           ),
                                         ),
@@ -660,15 +660,15 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                               hintText: 'Enter subject',
                               hintStyle: AppTypography.inputHint,
                               filled: true,
-                              fillColor: AppColors.pageBg,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.r),
-                                borderSide: const BorderSide(
+                              fillColor: AppColors.itemBackground,
+                              border: const OutlineInputBorder(
+                                borderRadius: AppRadius.k8,
+                                borderSide: BorderSide(
                                   color: AppColors.border,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.r),
+                                borderRadius: AppRadius.k8,
                                 borderSide: BorderSide(
                                   color: _triedSubmit &&
                                           _subjectController.text.trim().isEmpty
@@ -676,9 +676,9 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                       : AppColors.border,
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.r),
-                                borderSide: const BorderSide(
+                              focusedBorder: const OutlineInputBorder(
+                                borderRadius: AppRadius.k8,
+                                borderSide: BorderSide(
                                   color: AppColors.pickabooBlue,
                                   width: 1.5,
                                 ),
@@ -711,8 +711,8 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 12.w),
                             decoration: BoxDecoration(
-                              color: AppColors.pageBg,
-                              borderRadius: BorderRadius.circular(10.r),
+                              color: AppColors.itemBackground,
+                              borderRadius: AppRadius.k8,
                               border: Border.all(
                                 color: _triedSubmit &&
                                         _selectedIssueType == null
@@ -772,15 +772,15 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                               hintText: 'Enter your message',
                               hintStyle: AppTypography.inputHint,
                               filled: true,
-                              fillColor: AppColors.pageBg,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.r),
-                                borderSide: const BorderSide(
+                              fillColor: AppColors.itemBackground,
+                              border: const OutlineInputBorder(
+                                borderRadius: AppRadius.k8,
+                                borderSide: BorderSide(
                                   color: AppColors.border,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.r),
+                                borderRadius: AppRadius.k8,
                                 borderSide: BorderSide(
                                   color: _triedSubmit &&
                                           _messageController.text.trim().isEmpty
@@ -788,9 +788,9 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                       : AppColors.border,
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.r),
-                                borderSide: const BorderSide(
+                              focusedBorder: const OutlineInputBorder(
+                                borderRadius: AppRadius.k8,
+                                borderSide: BorderSide(
                                   color: AppColors.pickabooBlue,
                                   width: 1.5,
                                 ),
@@ -813,7 +813,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                             onTap: remainingSlots > 0
                                 ? _showAttachmentPickerOptions
                                 : null,
-                            borderRadius: BorderRadius.circular(10.r),
+                            borderRadius: AppRadius.k8,
                             child: CustomPaint(
                               painter: _DashedRectPainter(
                                 color: remainingSlots > 0
@@ -822,7 +822,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                 strokeWidth: 1.2.w,
                                 dash: 5.0,
                                 gap: 4.0,
-                                radius: 10.r,
+                                radius: AppRadius.r8,
                               ),
                               child: Container(
                                 width: double.infinity,
@@ -832,7 +832,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppColors.white,
-                                  borderRadius: BorderRadius.circular(10.r),
+                                  borderRadius: AppRadius.k8,
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -881,15 +881,15 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
 
                                 return InkWell(
                                   onTap: () => _removeFile(index),
-                                  borderRadius: BorderRadius.circular(8.r),
+                                  borderRadius: AppRadius.k8,
                                   child: Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 10.w,
                                       vertical: 8.h,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.pageBg,
-                                      borderRadius: BorderRadius.circular(8.r),
+                                      color: AppColors.itemBackground,
+                                      borderRadius: AppRadius.k8,
                                       border: Border.all(
                                         color: AppColors.border,
                                       ),
@@ -904,7 +904,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                               color: AppColors.red
                                                   .withValues(alpha: 0.1),
                                               borderRadius:
-                                                  BorderRadius.circular(6.r),
+                                                  AppRadius.k4,
                                             ),
                                             child: Icon(
                                               Icons.picture_as_pdf_rounded,
@@ -915,7 +915,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                         else
                                           ClipRRect(
                                             borderRadius:
-                                                BorderRadius.circular(6.r),
+                                                AppRadius.k4,
                                             child: Image.file(
                                               file,
                                               width: 38.w,

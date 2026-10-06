@@ -271,9 +271,9 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
 
     return Container(
       height: sheetHeight,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.sheetTop,
+        borderRadius: AppRadius.top16,
       ),
       child: Column(
         children: [
@@ -282,9 +282,9 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
             child: Container(
               width: 36.w,
               height: 4.h,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: AppRadius.badgeRadius,
+                borderRadius: AppRadius.k4,
               ),
             ),
           ),
@@ -308,8 +308,8 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
                   child: Container(
                     width: 32.w,
                     height: 32.w,
-                    decoration: const BoxDecoration(
-                      color: AppColors.pageBg,
+                    decoration: BoxDecoration(
+                      color: AppColors.itemBackground,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -401,9 +401,9 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 4,
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
             child: ClipRRect(
-              borderRadius: AppRadius.buttonRadius,
+              borderRadius: AppRadius.k8,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: 240.h,
@@ -451,7 +451,7 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
             hintText: 'Search for an area or address...',
             hintStyle: AppTypography.bodyMedium.withColor(AppColors.muted),
             filled: true,
-            fillColor: AppColors.pageBg,
+            fillColor: AppColors.itemBackground,
             prefixIcon: Padding(
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               child: Icon(
@@ -485,11 +485,11 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
             suffixIconConstraints: const BoxConstraints(),
             contentPadding: EdgeInsets.symmetric(vertical: 13.h),
             enabledBorder: OutlineInputBorder(
-              borderRadius: AppRadius.pillRadius,
+              borderRadius: AppRadius.kFull,
               borderSide: BorderSide(color: AppColors.border, width: 1.w),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: AppRadius.pillRadius,
+              borderRadius: AppRadius.kFull,
               borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5.w),
             ),
           ),
@@ -561,7 +561,7 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
 
               AppButton.primary(
                 height: 50.h,
-                borderRadius: AppRadius.lgRadius,
+                borderRadius: AppRadius.k16,
                 isDisabled: !canConfirm,
                 isLoading: isLoading,
                 onPressed: canConfirm ? () => Navigator.of(context).pop(place) : null,
@@ -594,7 +594,7 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.lgRadius,
+        borderRadius: AppRadius.k16,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.07),
@@ -664,18 +664,18 @@ class _DeliveryLocationSheetViewState extends State<_DeliveryLocationSheetView>
         Container(
           height: 14.h,
           width: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.border,
-            borderRadius: AppRadius.badgeRadius,
+            borderRadius: AppRadius.k4,
           ),
         ),
         SizedBox(height: 6.h),
         Container(
           height: 12.h,
           width: 120.w,
-          decoration: const BoxDecoration(
-            color: AppColors.pageBg,
-            borderRadius: AppRadius.badgeRadius,
+          decoration: BoxDecoration(
+            color: AppColors.itemBackground,
+            borderRadius: AppRadius.k4,
           ),
         ),
       ],

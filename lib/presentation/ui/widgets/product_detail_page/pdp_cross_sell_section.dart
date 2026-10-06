@@ -48,19 +48,16 @@ class PdpCrossSellSection extends StatelessWidget {
                 if (entity.relatedProducts.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                return PdpSectionCard(
-                  customPadding: EdgeInsets.zero,
-                  child: ProductSectionSlider(
-                    title: 'Related Products',
-                    products: entity.relatedProducts,
-                    onProductTap: (product) {
-                      context.goToProductDetail(
-                        product.id.toString(),
-                        slug: product.slug,
-                        productName: product.productName,
-                      );
-                    },
-                  ),
+                return ProductSectionSlider(
+                  title: 'Related Products',
+                  products: entity.relatedProducts,
+                  onProductTap: (product) {
+                    context.goToProductDetail(
+                      product.id.toString(),
+                      slug: product.slug,
+                      productName: product.productName,
+                    );
+                  },
                 );
               },
               orElse: () => const SizedBox.shrink(),
@@ -76,19 +73,16 @@ class PdpCrossSellSection extends StatelessWidget {
                 if (entity.sellerRecommendedProducts.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                return PdpSectionCard(
-                  customPadding: EdgeInsets.zero,
-                  child: ProductSectionSlider(
-                    title: 'Recommended For You',
-                    products: entity.sellerRecommendedProducts,
-                    onProductTap: (product) {
-                      context.goToProductDetail(
-                        product.id.toString(),
-                        slug: product.slug,
-                        productName: product.productName,
-                      );
-                    },
-                  ),
+                return ProductSectionSlider(
+                  title: 'Recommended For You',
+                  products: entity.sellerRecommendedProducts,
+                  onProductTap: (product) {
+                    context.goToProductDetail(
+                      product.id.toString(),
+                      slug: product.slug,
+                      productName: product.productName,
+                    );
+                  },
                 );
               },
               orElse: () => const SizedBox.shrink(),

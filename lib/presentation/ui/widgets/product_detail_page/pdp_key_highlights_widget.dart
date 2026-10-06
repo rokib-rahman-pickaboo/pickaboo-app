@@ -184,10 +184,8 @@ class PdpKeyHighlightsWidget extends StatelessWidget {
         horizontal: AppSpacing.sameGroupItemSpacing.w,
         vertical: AppSpacing.sameGroupItemSpacing.h,
       ),
-      decoration: BoxDecoration(
-        color: AppColors.pageBg,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.border),
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k8,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

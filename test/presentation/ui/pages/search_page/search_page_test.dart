@@ -9,12 +9,9 @@ import 'package:pickaboo/presentation/bloc/cart_bloc/cart_bloc.dart';
 import 'package:pickaboo/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:pickaboo/presentation/ui/pages/search_page/search_page.dart';
 import 'package:pickaboo/presentation/ui/widgets/search_page/search_results.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_bar_button.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
-import 'package:pickaboo/core/theme/app_typography.dart';
-import 'package:badges/badges.dart' as badges;
 
 class MockSearchBloc extends MockBloc<SearchEvent, SearchState>
     implements SearchBloc {}
@@ -29,7 +26,7 @@ void main() {
     registerFallbackValue(const SearchEvent.searchQueryChanged(query: 'test'));
     registerFallbackValue(
       SearchState(
-        pagingState: PagingState(pages: [], keys: []),
+        pagingState: PagingState(pages: const [], keys: const []),
       ),
     );
     registerFallbackValue(const CartEvent.getCart());
@@ -39,6 +36,7 @@ void main() {
   setUp(() {
     mockSearchBloc = MockSearchBloc();
     mockCartBloc = MockCartBloc();
+    when(() => mockCartBloc.currentCartCount).thenReturn(0);
   });
 
   Widget makeTestableWidget(Widget child) {
@@ -64,18 +62,18 @@ void main() {
       // Setup Stubs with loaded empty state
       when(() => mockSearchBloc.state).thenReturn(
         SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
       whenListen(
         mockSearchBloc,
         Stream.value(
           SearchState(
-            pagingState: PagingState(pages: [], keys: []),
+            pagingState: PagingState(pages: const [], keys: const []),
           ),
         ),
         initialState: SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
 
@@ -115,18 +113,18 @@ void main() {
       // Setup Stubs
       when(() => mockSearchBloc.state).thenReturn(
         SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
       whenListen(
         mockSearchBloc,
         Stream.value(
           SearchState(
-            pagingState: PagingState(pages: [], keys: []),
+            pagingState: PagingState(pages: const [], keys: const []),
           ),
         ),
         initialState: SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
 
@@ -157,18 +155,18 @@ void main() {
       // Setup Stubs
       when(() => mockSearchBloc.state).thenReturn(
         SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
       whenListen(
         mockSearchBloc,
         Stream.value(
           SearchState(
-            pagingState: PagingState(pages: [], keys: []),
+            pagingState: PagingState(pages: const [], keys: const []),
           ),
         ),
         initialState: SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
 
@@ -212,18 +210,18 @@ void main() {
 
       when(() => mockSearchBloc.state).thenReturn(
         SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
       whenListen(
         mockSearchBloc,
         Stream.value(
           SearchState(
-            pagingState: PagingState(pages: [], keys: []),
+            pagingState: PagingState(pages: const [], keys: const []),
           ),
         ),
         initialState: SearchState(
-          pagingState: PagingState(pages: [], keys: []),
+          pagingState: PagingState(pages: const [], keys: const []),
         ),
       );
 
@@ -251,18 +249,18 @@ void main() {
       (WidgetTester tester) async {
         when(() => mockSearchBloc.state).thenReturn(
           SearchState(
-            pagingState: PagingState(pages: [[]], keys: [0]),
+            pagingState: PagingState(pages: const [[]], keys: const [0]),
           ),
         );
         whenListen(
           mockSearchBloc,
           Stream.value(
             SearchState(
-              pagingState: PagingState(pages: [[]], keys: [0]),
+              pagingState: PagingState(pages: const [[]], keys: const [0]),
             ),
           ),
           initialState: SearchState(
-            pagingState: PagingState(pages: [[]], keys: [0]),
+            pagingState: PagingState(pages: const [[]], keys: const [0]),
           ),
         );
 

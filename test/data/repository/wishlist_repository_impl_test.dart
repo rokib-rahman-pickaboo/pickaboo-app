@@ -22,7 +22,7 @@ void main() {
     test('getWishlist performance', () async {
       // Arrange
       final response = [
-        WishlistResponse(wishlistItemId: '1', productName: 'Phone'),
+        const WishlistResponse(wishlistItemId: '1', productName: 'Phone'),
       ];
 
       when(() => mockApiService.getWishlist()).thenAnswer((_) async {

@@ -136,7 +136,7 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
         ),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+          borderRadius: AppRadius.top16,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -154,8 +154,8 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: EdgeInsets.all(4.w),
-                      decoration: const BoxDecoration(
-                        color: AppColors.pageBg,
+                      decoration: BoxDecoration(
+                        color: AppColors.itemBackground,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.close, color: AppColors.text, size: 20.sp),
@@ -228,8 +228,8 @@ class _EmiSelectionBottomSheetState extends State<EmiSelectionBottomSheet> {
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: AppColors.pageBg,
-                          borderRadius: BorderRadius.circular(12.r),
+                          color: AppColors.itemBackground,
+                          borderRadius: AppRadius.k8,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,12 +326,12 @@ class _ModeOption extends StatelessWidget {
 
     return InkWell(
       onTap: () => onChanged(value),
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: AppRadius.k8,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.pickabooBlue.withValues(alpha: 0.05) : AppColors.white,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: AppRadius.k8,
           border: Border.all(
             color: isSelected ? AppColors.pickabooBlue : AppColors.border,
             width: isSelected ? 2 : 1,
@@ -369,13 +369,13 @@ class _DropdownField extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: AppRadius.k8,
       child: Container(
         height: 44.h,
         padding: EdgeInsets.symmetric(horizontal: 14.w),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: AppRadius.k8,
           border: Border.all(color: AppColors.border),
         ),
         child: Row(

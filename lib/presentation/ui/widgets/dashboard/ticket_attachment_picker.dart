@@ -35,7 +35,7 @@ class TicketAttachmentPicker extends StatelessWidget {
     this.maxFileSizeBytes = 10 * 1024 * 1024, // 10MB limit per file
     this.maxTotalSizeBytes = 25 * 1024 * 1024, // 25MB total limit
     this.containerBgColor = AppColors.white,
-    this.itemBgColor = AppColors.pageBg,
+    this.itemBgColor = AppColors.itemBackground,
   });
 
   int get remainingSlots => maxFiles - files.length;
@@ -73,8 +73,8 @@ class TicketAttachmentPicker extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppRadius.top16,
       ),
       builder: (ctx) {
         return SafeArea(
@@ -94,7 +94,7 @@ class TicketAttachmentPicker extends StatelessWidget {
                     padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Icon(
                       Icons.photo_library_outlined,
@@ -121,7 +121,7 @@ class TicketAttachmentPicker extends StatelessWidget {
                     padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Icon(
                       Icons.camera_alt_outlined,
@@ -148,7 +148,7 @@ class TicketAttachmentPicker extends StatelessWidget {
                     padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
                       color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: AppRadius.k8,
                     ),
                     child: Icon(
                       Icons.insert_drive_file_outlined,
@@ -341,7 +341,7 @@ class TicketAttachmentPicker extends StatelessWidget {
           onTap: remainingSlots > 0
               ? () => _showAttachmentPickerOptions(context)
               : null,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: AppRadius.k8,
           child: CustomPaint(
             painter: _DashedRectPainter(
               color: remainingSlots > 0
@@ -350,7 +350,7 @@ class TicketAttachmentPicker extends StatelessWidget {
               strokeWidth: 1.2.w,
               dash: 5.0,
               gap: 4.0,
-              radius: 10.r,
+              radius: AppRadius.r8,
             ),
             child: Container(
               width: double.infinity,
@@ -360,7 +360,7 @@ class TicketAttachmentPicker extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: containerBgColor,
-                borderRadius: BorderRadius.circular(10.r),
+                borderRadius: AppRadius.k8,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -406,7 +406,7 @@ class TicketAttachmentPicker extends StatelessWidget {
 
               return InkWell(
                 onTap: () => _removeFile(index),
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: AppRadius.k8,
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
@@ -414,7 +414,7 @@ class TicketAttachmentPicker extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: itemBgColor,
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: AppRadius.k8,
                     border: Border.all(
                       color: AppColors.border,
                     ),
@@ -427,7 +427,7 @@ class TicketAttachmentPicker extends StatelessWidget {
                           height: 38.h,
                           decoration: BoxDecoration(
                             color: AppColors.red.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6.r),
+                            borderRadius: AppRadius.k4,
                           ),
                           child: Icon(
                             Icons.picture_as_pdf_rounded,
@@ -437,7 +437,7 @@ class TicketAttachmentPicker extends StatelessWidget {
                         )
                       else
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(6.r),
+                          borderRadius: AppRadius.k4,
                           child: Image.file(
                             file,
                             width: 38.w,

@@ -61,7 +61,7 @@ class _EmiBottomSheetState extends State<EmiBottomSheet> {
       child: Material(
         color: AppColors.white,
         clipBehavior: Clip.antiAlias,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        borderRadius: AppRadius.top16,
         child: SafeArea(
           top: false,
           child: Column(
@@ -247,7 +247,7 @@ class _EmiBottomSheetState extends State<EmiBottomSheet> {
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: AppRadius.k8,
           border: Border.all(
             color: _isBankDropdownOpen ? AppColors.pickabooBlue : AppColors.border,
             width: 1.2.w,
@@ -294,7 +294,7 @@ class _EmiBottomSheetState extends State<EmiBottomSheet> {
       constraints: BoxConstraints(maxHeight: 280.h),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -305,7 +305,7 @@ class _EmiBottomSheetState extends State<EmiBottomSheet> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: AppRadius.k8,
         child: ListView.separated(
           shrinkWrap: true,
           padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -406,7 +406,7 @@ class _EmiBottomSheetState extends State<EmiBottomSheet> {
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
             decoration: BoxDecoration(
               color: isSelected ? AppColors.surfaceBlue : AppColors.white,
-              borderRadius: BorderRadius.circular(20.r),
+              borderRadius: AppRadius.kFull,
               border: Border.all(
                 color: isSelected ? AppColors.pickabooBlue : AppColors.border,
                 width: isSelected ? 1.5.w : 1.w,
@@ -434,7 +434,7 @@ class _EmiBottomSheetState extends State<EmiBottomSheet> {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.border),
       ),
       child: Column(

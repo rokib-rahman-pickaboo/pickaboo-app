@@ -244,7 +244,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                     : AppColors.border,
             width: isSelected || hasOptionError ? 1.4.w : 1.w,
           ),
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: AppRadius.k8,
           boxShadow: isSelected
               ? [
                   BoxShadow(
@@ -313,7 +313,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                 width: 1.2.w,
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.pickabooBlue : AppColors.border,
-                  borderRadius: BorderRadius.circular(1.w),
+                  borderRadius: AppRadius.k4,
                 ),
               ),
               Expanded(
@@ -407,7 +407,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        borderRadius: AppRadius.top16,
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.1),
@@ -428,7 +428,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
               height: 4.h,
               decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2.r),
+                borderRadius: AppRadius.k4,
               ),
             ),
           ),
@@ -605,7 +605,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
                                     decoration: BoxDecoration(
                                       color: AppColors.redBg,
-                                      borderRadius: BorderRadius.circular(4.r),
+                                      borderRadius: AppRadius.k4,
                                     ),
                                     child: Text(
                                       'Required',
@@ -678,7 +678,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
             padding: EdgeInsets.all(16.w),
             child: AppButton.primary(
               height: 48.h,
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: AppRadius.k8,
               text: widget.isBuyNow && !widget.isSelectionOnly
                   ? 'BUY NOW'
                   : 'CONTINUE',

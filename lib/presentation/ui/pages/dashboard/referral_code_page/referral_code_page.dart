@@ -1,3 +1,4 @@
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -145,7 +146,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppColors.pickabooBlue.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12.r),
+                                  borderRadius: AppRadius.k8,
                                   border: Border.all(
                                     color: AppColors.pickabooBlue.withValues(
                                       alpha: 0.3,
@@ -179,7 +180,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                                   padding: EdgeInsets.all(16.w),
                                   decoration: BoxDecoration(
                                     color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(12.r),
+                                    borderRadius: AppRadius.k8,
                                     boxShadow: [
                                       BoxShadow(
                                         color: AppColors.black.withValues(
@@ -247,7 +248,7 @@ class _ReferralCodePageState extends State<ReferralCodePage>
                     ),
                     isFullWidth: true,
                     height: 48.h,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: AppRadius.k8,
                     onPressed: _continueToHome,
                   ),
                 ),

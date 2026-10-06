@@ -31,7 +31,7 @@ class BannerItemView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveWidth = width ?? double.maxFinite;
-    final effectiveBorderRadius = borderRadius ?? AppRadius.cardRadius;
+    final effectiveBorderRadius = borderRadius ?? AppRadius.k8;
     final imageWidth = effectiveWidth == double.maxFinite
         ? MediaQuery.sizeOf(context).width - 2 * AppSpacing.sameGroupItemSpacing.w
         : effectiveWidth;

@@ -12,6 +12,7 @@ import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/home_content/home_content_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
 class TimerBannerWidget extends StatefulWidget {
   final SliderEntity banner;
@@ -76,31 +77,39 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
         color: AppColors.pickabooBlue.withValues(
           alpha: 0.2,
         ),
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         boxShadow: [
           BoxShadow(
-            color: AppColors.pageBg.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               flex: 9,
-              child: Image.asset(
-                AppAssets.timerBannerDemo,
-                fit: BoxFit.fill,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.pickabooBlue.withValues(alpha: 0.3),
-                  );
-                },
-              ),
+              child: (widget.banner.mobileImage.isNotEmpty ||
+                      widget.banner.image.isNotEmpty)
+                  ? AppImage(
+                      imageUrl: widget.banner.mobileImage.isNotEmpty
+                          ? widget.banner.mobileImage
+                          : widget.banner.image,
+                      fit: BoxFit.cover,
+                      placeholder: Container(
+                        color: AppColors.pickabooBlue.withValues(alpha: 0.3),
+                      ),
+                      errorWidget: Container(
+                        color: AppColors.pickabooBlue.withValues(alpha: 0.3),
+                      ),
+                    )
+                  : Container(
+                      color: AppColors.pickabooBlue.withValues(alpha: 0.3),
+                    ),
             ),
             SizedBox(width: 8.w),
             Expanded(
@@ -168,7 +177,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
                         horizontal: 10.w,
                         vertical: 0,
                       ),
-                      borderRadius: AppRadius.smRadius,
+                      borderRadius: AppRadius.k8,
                       onPressed: widget.onShopNow,
                       text: 'Shop Now',
                       textStyle: AppTypography.bodyMedium.copyWith(
@@ -235,7 +244,7 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.pickabooBlue, width: 2.w),
       ),
       child: Column(

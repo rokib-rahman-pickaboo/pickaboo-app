@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -45,7 +46,7 @@ class AppSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveHint = hintText ?? AppStrings.searchHint;
     final effectiveHeight = height ?? 36.h;
-    final effectiveRadius = borderRadius ?? AppRadius.chip.r;
+    final effectiveRadius = borderRadius ?? AppRadius.r8.r;
 
     final bool hasRotatingHints =
         readOnly && rotatingHints != null && rotatingHints!.isNotEmpty;

@@ -52,7 +52,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         title: 'Product Comparison',
         actions: [
@@ -138,7 +138,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                                 _highlightDifferencesOnly = !_highlightDifferencesOnly;
                               });
                             },
-                            borderRadius: BorderRadius.circular(20.r),
+                            borderRadius: AppRadius.kFull,
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
@@ -146,7 +146,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                                 color: _highlightDifferencesOnly
                                     ? AppColors.surfaceBlue
                                     : AppColors.white,
-                                borderRadius: BorderRadius.circular(20.r),
+                                borderRadius: AppRadius.kFull,
                                 border: Border.all(
                                   color: _highlightDifferencesOnly
                                       ? AppColors.pickabooBlue
@@ -210,7 +210,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
           children: [
             Container(
               padding: EdgeInsets.all(20.w),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.surfaceBlue,
                 shape: BoxShape.circle,
               ),
@@ -237,7 +237,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
               icon: Icon(Icons.add_rounded, size: 18.sp, color: AppColors.white),
               isFullWidth: false,
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: AppRadius.k8,
               onPressed: () => _openAddProductSheet(),
             ),
           ],
@@ -257,11 +257,11 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
@@ -313,7 +313,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.border),
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -326,7 +326,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceBlue,
-                  borderRadius: BorderRadius.circular(4.r),
+                  borderRadius: AppRadius.k4,
                 ),
                 child: Text(
                   label.toUpperCase(),
@@ -341,11 +341,11 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                         ),
                       );
                 },
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: AppRadius.kFull,
                 child: Container(
                   padding: EdgeInsets.all(3.w),
                   decoration: BoxDecoration(
-                    color: AppColors.pageBg,
+                    color: AppColors.itemBackground,
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.border),
                   ),
@@ -406,7 +406,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                   padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                   decoration: BoxDecoration(
                     color: AppColors.orangeBg,
-                    borderRadius: BorderRadius.circular(4.r),
+                    borderRadius: AppRadius.k4,
                   ),
                   child: Text(
                     '$discount% OFF',
@@ -427,7 +427,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                   text: 'Swap',
                   size: AppButtonSize.sm,
                   height: 32.h,
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: AppRadius.k8,
                   textStyle: AppTypography.bodyTiny,
                   onPressed: onSwap,
                 ),
@@ -441,7 +441,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
                   backgroundColor: AppColors.surfaceBlue,
                   textColor: AppColors.pickabooBlue,
                   borderColor: AppColors.pickabooBlue,
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: AppRadius.k8,
                   textStyle: AppTypography.brandTag,
                   onPressed: () => context.goToProductDetail(product.id.toString()),
                 ),
@@ -459,8 +459,8 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
       child: Container(
         padding: EdgeInsets.all(8.w),
         decoration: BoxDecoration(
-          color: AppColors.pageBg,
-          borderRadius: AppRadius.cardRadius,
+          color: AppColors.itemBackground,
+          borderRadius: AppRadius.k8,
           border: Border.all(
             color: AppColors.pickabooBlue.withValues(alpha: 0.5),
             style: BorderStyle.solid,
@@ -503,7 +503,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
               text: 'Select Product',
               size: AppButtonSize.sm,
               height: 34.h,
-              borderRadius: BorderRadius.circular(6.r),
+              borderRadius: AppRadius.k8,
               isFullWidth: true,
               onPressed: () => _openAddProductSheet(baseProduct),
             ),
@@ -547,18 +547,18 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         child: Column(
           children: attributes.map((attr) {
             return _buildComparisonRow(attr, products);
@@ -603,14 +603,14 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
             ),
             color: shouldHighlight
                 ? AppColors.surfaceBlue
-                : AppColors.pageBg.withValues(alpha: 0.7),
+                : AppColors.itemBackground,
             child: Row(
               children: [
                 if (shouldHighlight) ...[
                   Container(
                     width: 6.w,
                     height: 6.w,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.pickabooBlue,
                       shape: BoxShape.circle,
                     ),
@@ -637,7 +637,7 @@ class _ProductComparisonPageState extends State<ProductComparisonPage> {
               Expanded(
                 child: Container(
                   padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     border: Border(
                       right: BorderSide(
                         color: AppColors.border,

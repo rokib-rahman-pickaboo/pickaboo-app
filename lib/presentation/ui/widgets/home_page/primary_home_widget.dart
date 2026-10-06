@@ -209,9 +209,11 @@ class _PrimaryHomeWidgetState extends State<PrimaryHomeWidget> {
                 if (flashState.status == HomeFlashSaleStatus.success &&
                     flashState.flashSale != null) {
                   final flashSale = flashState.flashSale!;
+                  final hasBanners =
+                      flashSale.banners.isNotEmpty && flashSale.isVisible;
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: AppSpacing.groupToGroupSpacing.h,
+                      bottom: hasBanners ? 4.h : 0,
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

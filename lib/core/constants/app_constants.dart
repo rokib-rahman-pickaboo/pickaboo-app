@@ -7,6 +7,9 @@ class AppConstants {
 
   static const int maxCartQuantity = 10;
 
+  /// Feature switch to enable/disable navigating to brand page when tapping brand name on PDP
+  static const bool enableBrandPageNavigation = false;
+
   /// Google OAuth Web Client ID (used as serverClientId on Android & Web)
   static const String googleAndroidWebClientId =
       '72825511182-rgt3jj91nkfja7l6mvehtf37bfmf2l50.apps.googleusercontent.com';

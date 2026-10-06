@@ -46,9 +46,9 @@ class _DraggableCompareButtonState extends State<DraggableCompareButton> {
     Widget buttonContent = Container(
       width: 50.w,
       height: 50.w,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.pickabooBlue,
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         boxShadow: [
           BoxShadow(
             color: AppColors.black26,

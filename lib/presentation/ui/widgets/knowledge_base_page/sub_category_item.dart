@@ -21,13 +21,13 @@ class SubCategoryItem extends StatelessWidget {
       color: AppColors.black.withValues(alpha: 0.0),
       child: InkWell(
         onTap: onTap,
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
           margin: EdgeInsets.only(bottom: 8.h),
           decoration: BoxDecoration(
-            color: AppColors.pageBg.withValues(alpha: 0.5),
-            borderRadius: AppRadius.buttonRadius,
+            color: AppColors.itemBackground,
+            borderRadius: AppRadius.k8,
           ),
           child: Row(
             children: [

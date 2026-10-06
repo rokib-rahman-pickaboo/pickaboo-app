@@ -120,7 +120,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
                 },
                 child: Scaffold(
                   key: _scaffoldKey,
-                  backgroundColor: AppColors.pageBg,
+                  backgroundColor: AppColors.white,
                   appBar: PickabooAppBar(
                     title: AppStrings.allCategories,
                     showBackButton: true,
@@ -186,7 +186,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
                 },
                 child: Scaffold(
                   key: _scaffoldKey,
-                  backgroundColor: AppColors.pageBg,
+                  backgroundColor: AppColors.white,
                   appBar: PickabooAppBar(
                     title: AppStrings.allCategories,
                     showBackButton: true,
@@ -226,7 +226,7 @@ class _DiscoverCategoryPageState extends State<DiscoverCategoryPage> {
             },
             child: Scaffold(
               key: _scaffoldKey,
-              backgroundColor: AppColors.pageBg,
+              backgroundColor: AppColors.white,
               appBar: PickabooAppBar(
                 title: AppStrings.allCategories,
                 showBackButton: true,

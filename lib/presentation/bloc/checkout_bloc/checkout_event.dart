@@ -64,6 +64,10 @@ class CheckoutEvent with _$CheckoutEvent {
     required Map<String, String> callbackParams,
   }) = _NagadCallback;
 
+  const factory CheckoutEvent.pathaoPayCallback({
+    required Map<String, String> callbackParams,
+  }) = _PathaoPayCallback;
+
   const factory CheckoutEvent.bkashAgreementCallback({
     required String paymentId,
   }) = _BkashAgreementCallback;

@@ -34,7 +34,7 @@ class CategoryBanner extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: _height.h,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
@@ -71,10 +71,16 @@ class CategoryBanner extends StatelessWidget {
               flex: _artworkFlex,
               child: Padding(
                 padding: EdgeInsets.only(right: 12.w, top: 8.h, bottom: 8.h),
-                child: AppImage(
-                  imageUrl: banner.imageUrl,
-                  fit: BoxFit.contain,
-                  errorWidget: const SizedBox.shrink(),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: AppImage(
+                    imageUrl: banner.imageUrl,
+                    height: 76.h,
+                    fit: BoxFit.contain,
+                    filterQuality: FilterQuality.high,
+                    constrainHeightInMemCache: false,
+                    errorWidget: const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),

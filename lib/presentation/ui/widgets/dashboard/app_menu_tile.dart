@@ -105,7 +105,7 @@ class AppMenuTile extends StatelessWidget {
                   height: 34.h,
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.buttonRadius,
+                    borderRadius: AppRadius.k8,
                   ),
                   child: Center(
                     child: Icon(icon, color: iconColor, size: 18.sp),
@@ -194,7 +194,7 @@ class AppMenuTile extends StatelessWidget {
           AnimatedCrossFade(
             firstChild: const SizedBox(width: double.infinity),
             secondChild: Container(
-              color: AppColors.pageBg,
+              color: AppColors.itemBackground,
               child: Column(
                 children: subItems!.map((subTitle) {
                   return InkWell(
@@ -207,7 +207,7 @@ class AppMenuTile extends StatelessWidget {
                           Container(
                             width: 5.w,
                             height: 5.h,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: AppColors.pickabooBlue,
                               shape: BoxShape.circle,
                             ),

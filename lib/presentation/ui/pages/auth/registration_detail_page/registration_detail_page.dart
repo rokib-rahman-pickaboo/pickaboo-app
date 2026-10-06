@@ -106,23 +106,23 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       border: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.border),
       ),
       enabledBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.border),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
       ),
       errorBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.red),
       ),
       focusedErrorBorder: const OutlineInputBorder(
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         borderSide: BorderSide(color: AppColors.red, width: 1.5),
       ),
     );
@@ -402,7 +402,7 @@ class _RegistrationDetailPageState extends State<RegistrationDetailPage> {
                             context.go(Routes.login);
                           }
                         },
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: AppRadius.k16,
                         child: Padding(
                           padding: EdgeInsets.all(8.r),
                           child: Icon(

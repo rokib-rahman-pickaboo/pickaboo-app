@@ -36,13 +36,13 @@ class CategoryItem extends StatelessWidget {
           color: AppColors.transparent,
           child: InkWell(
           onTap: hasChildren ? onTap : onCategoryTap,
-          borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+          borderRadius: AppRadius.k8,
           child: Container(
             margin: EdgeInsets.only(bottom: 2.h),
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 9.h),
             decoration: BoxDecoration(
               color: isExpanded ? FaqTheme.primaryTint : null,
-              borderRadius: BorderRadius.circular(FaqTheme.radiusSmall),
+              borderRadius: AppRadius.k8,
             ),
             child: Row(
               children: [
@@ -50,7 +50,7 @@ class CategoryItem extends StatelessWidget {
                   width: 32.w,
                   height: 32.w,
                   decoration: BoxDecoration(
-                    color: isExpanded ? AppColors.white : AppColors.pageBg,
+                    color: isExpanded ? AppColors.white : AppColors.itemBackground,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -117,9 +117,7 @@ class CategoryItem extends StatelessWidget {
                       for (final subCategory in category.children)
                         InkWell(
                           onTap: () => onSubCategoryTap(subCategory),
-                          borderRadius: BorderRadius.circular(
-                            FaqTheme.radiusSmall,
-                          ),
+                          borderRadius: AppRadius.k8,
                           child: Container(
                             margin: EdgeInsets.only(bottom: 1.h),
                             padding: EdgeInsets.symmetric(

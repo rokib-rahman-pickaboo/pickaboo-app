@@ -99,7 +99,7 @@ void main() {
 
       when(() => mockApiService.getUserProfile()).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 80));
-        return Right(response);
+        return const Right(response);
       });
 
       when(

@@ -30,7 +30,7 @@ class BrandPreviewBanner extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width - 32.w;
 
     final banimage = ClipRRect(
-      borderRadius: AppRadius.buttonRadius,
+      borderRadius: AppRadius.k8,
       child: AppImage(imageUrl: image, width: width, fit: BoxFit.fitWidth),
     );
 

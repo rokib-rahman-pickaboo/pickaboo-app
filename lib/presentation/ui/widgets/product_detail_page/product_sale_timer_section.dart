@@ -72,19 +72,21 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
 
     final subtitle = widget.subtitle?.trim() ?? '';
 
-    return Container(
-      margin: EdgeInsets.only(
-        left: AppSpacing.sameGroupItemSpacing.w,
-        right: AppSpacing.sameGroupItemSpacing.w,
-        bottom: (AppSpacing.groupToGroupSpacing * 0.5).h,
-      ),
-      decoration: BoxDecoration(
-        image: const DecorationImage(
-          image: AssetImage(AppAssets.specialTimerBackground),
-          fit: BoxFit.cover,
+    return RepaintBoundary(
+      child: Container(
+        margin: EdgeInsets.only(
+          left: AppSpacing.sameGroupItemSpacing.w,
+          right: AppSpacing.sameGroupItemSpacing.w,
+          bottom: (AppSpacing.groupToGroupSpacing * 0.5).h,
         ),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
+        decoration: BoxDecoration(
+          image: const DecorationImage(
+            image: AssetImage(AppAssets.specialTimerBackground),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: AppRadius.k8,
+          boxShadow: AppDecorations.cardShadow,
+        ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         child: Row(
@@ -172,7 +174,7 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
             Expanded(
               flex: 26,
               child: AppButton.primary(
-                borderRadius: AppRadius.smRadius,
+                borderRadius: AppRadius.k8,
                 padding: EdgeInsets.symmetric(
                   horizontal: 6.w,
                   vertical: 8.h,
@@ -197,15 +199,17 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
           ],
         ),
       ),
+      ),
     );
   }
 
   Widget _buildTimerBox(BuildContext context, String value, String label) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 2.w),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.smRadius,
+        borderRadius: AppRadius.k8,
+        boxShadow: AppDecorations.cardShadow,
       ),
       alignment: Alignment.center,
       child: Column(

@@ -15,10 +15,10 @@ import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_event.dart
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_state.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/club_point_page/club_point_skeleton.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/club_point_page/club_points_header.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/club_point_page/point_history_item.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class ClubPointPage extends StatefulWidget {
   const ClubPointPage({super.key});
@@ -51,7 +51,7 @@ class _ClubPointPageState extends State<ClubPointPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: const PickabooAppBar(
         title: 'Club Points',
       ),
@@ -66,7 +66,7 @@ class _ClubPointPageState extends State<ClubPointPage> {
           return state.maybeWhen(
             loading: () => _lastData != null
                 ? _buildContent(context, _lastData!, isLoadingMore: true)
-                : const AppLoader.fullPage(),
+                : const ClubPointSkeleton(),
             error: (message) => _lastData != null
                 ? _buildContent(context, _lastData!)
                 : Center(
@@ -121,9 +121,9 @@ class _ClubPointPageState extends State<ClubPointPage> {
                     children: [
                       Container(
                         padding: EdgeInsets.all(7.w),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.surfaceBlue,
-                          borderRadius: AppRadius.buttonRadius,
+                          borderRadius: AppRadius.k8,
                         ),
                         child: Icon(
                           Icons.history_rounded,
@@ -150,7 +150,7 @@ class _ClubPointPageState extends State<ClubPointPage> {
                         text: 'Load More',
                         textColor: AppColors.pickabooBlue,
                         borderColor: AppColors.pickabooBlue,
-                        borderRadius: BorderRadius.circular(10.r),
+                        borderRadius: AppRadius.k8,
                         isFullWidth: false,
                         size: AppButtonSize.sm,
                         isLoading: isLoadingMore,
@@ -180,9 +180,9 @@ class _ClubPointPageState extends State<ClubPointPage> {
                   children: [
                     Container(
                       padding: EdgeInsets.all(7.w),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.greenBg,
-                        borderRadius: AppRadius.buttonRadius,
+                        borderRadius: AppRadius.k8,
                       ),
                       child: Icon(
                         Icons.card_giftcard_rounded,
@@ -256,9 +256,9 @@ class _ClubPointPageState extends State<ClubPointPage> {
                   children: [
                     Container(
                       padding: EdgeInsets.all(7.w),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.redBg,
-                        borderRadius: AppRadius.buttonRadius,
+                        borderRadius: AppRadius.k8,
                       ),
                       child: Icon(
                         Icons.shopping_cart_outlined,
@@ -303,7 +303,7 @@ class _ClubPointPageState extends State<ClubPointPage> {
           padding: EdgeInsets.all(8.w),
           decoration: BoxDecoration(
             color: iconBg,
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: AppRadius.k8,
           ),
           child: Icon(icon, color: iconColor, size: 18.sp),
         ),

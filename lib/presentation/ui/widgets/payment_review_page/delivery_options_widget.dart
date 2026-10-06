@@ -23,21 +23,7 @@ class DeliveryOptionsWidget extends StatelessWidget {
         horizontal: AppSpacing.sameGroupItemSpacing.w,
       ),
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(
-          color: AppColors.border.withValues(alpha: 0.8),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 6.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -93,7 +79,7 @@ class _DeliveryOptionCard extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: selected ? AppColors.surfaceBlue : AppColors.white,
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           border: Border.all(
             color: selected ? AppColors.pickabooBlue : AppColors.border,
             width: selected ? 1.5 : 1,
@@ -162,7 +148,7 @@ class _RadioDot extends StatelessWidget {
               child: Container(
                 width: 8.w,
                 height: 8.w,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.pickabooBlue,
                 ),

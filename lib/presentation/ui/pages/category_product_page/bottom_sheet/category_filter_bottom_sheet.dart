@@ -115,7 +115,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
     if (_validAttributes.isEmpty) {
       return Material(
         color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+        borderRadius: AppRadius.top16,
         child: SizedBox(
           height: 180.h,
           child: Center(
@@ -156,7 +156,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
     return Material(
       color: AppColors.white,
       clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      borderRadius: AppRadius.top16,
       child: SafeArea(
         top: false,
         child: Column(
@@ -202,7 +202,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
   Widget _buildHeader(BuildContext context, int totalSelected) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(
           bottom: BorderSide(color: AppColors.border, width: 1),
@@ -243,7 +243,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
           final bool isWhite = (_validAttributes.length - 1 - index).isEven;
           final Color backgroundColor = isSelected
               ? AppColors.surfaceBlue
-              : (isWhite ? AppColors.white : AppColors.pageBg);
+              : (isWhite ? AppColors.white : AppColors.itemBackground);
 
           return InkWell(
             onTap: () {
@@ -288,7 +288,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.pickabooBlue,
-                        borderRadius: BorderRadius.circular(10.r),
+                        borderRadius: AppRadius.k4,
                       ),
                       child: Text(
                         '$count',
@@ -315,7 +315,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
         thumbVisibility: true,
         trackVisibility: false,
         thickness: 4.w,
-        radius: Radius.circular(3.r),
+        radius: AppRadius.rad4,
         thumbColor: AppColors.pickabooBlue,
         child: ListView.builder(
           controller: _optionsScrollController,
@@ -328,7 +328,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
             final bool isWhite =
                 (activeAttribute.items.length - 1 - index).isEven;
             final Color itemBg =
-                isWhite ? AppColors.white : AppColors.pageBg;
+                isWhite ? AppColors.white : AppColors.itemBackground;
 
             return InkWell(
               onTap: () => _toggleOption(
@@ -352,7 +352,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
                         color: isChecked
                             ? AppColors.pickabooBlue
                             : AppColors.white,
-                        borderRadius: BorderRadius.circular(3.r),
+                        borderRadius: AppRadius.k4,
                         border: Border.all(
                           color: isChecked
                               ? AppColors.pickabooBlue
@@ -397,7 +397,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
   Widget _buildBottomBar(BuildContext context, int totalSelected) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.white,
         border: Border(
           top: BorderSide(
@@ -408,7 +408,7 @@ class _CategoryFilterBottomSheetState extends State<CategoryFilterBottomSheet> {
       ),
       child: AppButton.primary(
         height: 46.h,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: AppRadius.k8,
         text: totalSelected > 0
             ? 'Apply Filters ($totalSelected)'
             : 'Apply Filters',

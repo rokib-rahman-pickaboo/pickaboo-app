@@ -145,32 +145,18 @@ class SliderProductView extends StatelessWidget {
         },
         child: Container(
           width: width.w,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: AppRadius.cardRadius,
-            border: Border.all(
-              color: AppColors.border,
-              width: 1.2.w,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.navy.withValues(alpha: 0.03),
-                blurRadius: 6.r,
-                offset: Offset(0, 2.h),
-              ),
-            ],
-          ),
+          decoration: AppDecorations.cardBoxDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // ── 1. Top 1:1 Image ──
               ClipRRect(
-                borderRadius: AppRadius.cardTop,
+                borderRadius: AppRadius.top8,
                 child: AspectRatio(
                   aspectRatio: 1.0,
                   child: Container(
-                    color: AppColors.pageBg,
+                    color: AppColors.itemBackground,
                     child: ProductCardImage(
                       productId: int.tryParse(product.id) ?? 0,
                       imageUrl: product.productImg,
@@ -232,11 +218,13 @@ class SliderProductView extends StatelessWidget {
                             const Spacer(),
                           if (product.expressDelivery) ...[
                             SizedBox(width: 4.w),
-                            SvgPicture.asset(
-                              AppAssets.express,
-                              width: 66.w,
-                              height: brandHeight,
-                              fit: BoxFit.contain,
+                            Flexible(
+                              child: SvgPicture.asset(
+                                AppAssets.express,
+                                width: 66.w,
+                                height: brandHeight,
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ],
                         ],
@@ -314,9 +302,9 @@ class SliderProductView extends StatelessWidget {
                                             horizontal: 5.w,
                                             vertical: 2.h,
                                           ),
-                                          decoration: const BoxDecoration(
+                                          decoration: BoxDecoration(
                                             color: AppColors.orangeBg,
-                                            borderRadius: AppRadius.badgeRadius,
+                                            borderRadius: AppRadius.k4,
                                           ),
                                           child: Text(
                                             AppStrings.discountTag(discount),
@@ -333,7 +321,7 @@ class SliderProductView extends StatelessWidget {
                                     ),
                                     decoration: BoxDecoration(
                                       color: AppColors.primary.withValues(alpha: 0.08),
-                                      borderRadius: AppRadius.badgeRadius,
+                                      borderRadius: AppRadius.k4,
                                     ),
                                     child: Text(
                                       AppStrings.viewPrice,
@@ -348,9 +336,9 @@ class SliderProductView extends StatelessWidget {
                                   horizontal: 5.w,
                                   vertical: 1.5.h,
                                 ),
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   color: AppColors.redBg,
-                                  borderRadius: AppRadius.badgeRadius,
+                                  borderRadius: AppRadius.k4,
                                 ),
                                 child: Text(
                                   AppStrings.outOfStock,

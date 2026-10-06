@@ -8,7 +8,7 @@ class ShopSellerIndex extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         title: 'Product Shop Screen',
       ),

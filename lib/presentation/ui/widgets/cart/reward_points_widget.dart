@@ -41,6 +41,7 @@ class RewardPointsWidget extends StatefulWidget {
 
 class _RewardPointsWidgetState extends State<RewardPointsWidget> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   bool _useMaxPoints = false;
 
   bool get _isPointsApplied => widget.appliedPoints > 0;
@@ -52,6 +53,9 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
     if (_isPointsApplied) {
       _controller.text = widget.appliedPoints.toString();
     }
+    _focusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -73,6 +77,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -119,21 +124,10 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(
-          color: _isPointsApplied
-              ? AppColors.amber.withValues(alpha: 0.4)
-              : AppColors.border,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.02),
-            blurRadius: 6.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+      decoration: AppDecorations.cardBoxDecoration(
+        borderColor: _isPointsApplied
+            ? AppColors.amber.withValues(alpha: 0.4)
+            : AppColors.border,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,117 +160,164 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
             ),
           ],
           SizedBox(height: 12.h),
-          SizedBox(
-            height: 44.h,
-            child: TextField(
-              controller: _controller,
-              keyboardType: TextInputType.number,
-              enabled: !_isPointsApplied && _canRedeem,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                _MaxPointsInputFormatter(widget.maxPoints),
-              ],
-              onChanged: (value) {
-                if (_useMaxPoints && value != widget.maxPoints.toString()) {
-                  setState(() {
-                    _useMaxPoints = false;
-                  });
-                }
-              },
-              style: AppTypography.titleSmall.copyWith(
-                fontSize: 13.sp,
-                color: AppColors.navy,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Enter Amount of Points to Spend',
-                hintStyle: AppTypography.inputHint,
-                filled: true,
-                fillColor: _isPointsApplied
-                    ? AppColors.pageBg
-                    : AppColors.white,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 14.w,
-                  vertical: 12.h,
-                ),
-                border: const OutlineInputBorder(
-                  borderRadius: AppRadius.inputRadius,
-                  borderSide: BorderSide(color: AppColors.border),
-                ),
-                enabledBorder: const OutlineInputBorder(
-                  borderRadius: AppRadius.inputRadius,
-                  borderSide: BorderSide(color: AppColors.border),
-                ),
-                disabledBorder: const OutlineInputBorder(
-                  borderRadius: AppRadius.inputRadius,
-                  borderSide: BorderSide(color: AppColors.border),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderRadius: AppRadius.inputRadius,
-                  borderSide: BorderSide(
-                    color: AppColors.pickabooBlue,
-                    width: 1.2,
-                  ),
+          if (_isPointsApplied)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: AppColors.amberBg,
+                borderRadius: AppRadius.k8,
+                border: Border.all(
+                  color: AppColors.amber.withValues(alpha: 0.3),
                 ),
               ),
-            ),
-          ),
-          if (!_isPointsApplied && _canRedeem) ...[
-            SizedBox(height: 10.h),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  _useMaxPoints = !_useMaxPoints;
-                  if (_useMaxPoints) {
-                    _controller.text = widget.maxPoints.toString();
-                  } else {
-                    _controller.clear();
-                  }
-                });
-              },
               child: Row(
                 children: [
                   Icon(
-                    _useMaxPoints
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    size: 18.sp,
-                    color: _useMaxPoints
-                        ? AppColors.pickabooBlue
-                        : AppColors.mutedLight,
+                    Icons.stars_rounded,
+                    size: 20.sp,
+                    color: AppColors.amber,
                   ),
                   SizedBox(width: 8.w),
                   Expanded(
-                    child: Text(
-                      'Use maximum ${widget.maxPoints} Club Points',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.navy,
-                        fontWeight: FontWeight.w500,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${widget.appliedPoints} Club Points applied',
+                          style: AppTypography.titleSmall.copyWith(
+                            color: AppColors.navy,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          'Saved on this order',
+                          style: AppTypography.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    onTap: _handleCancel,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      child: Text(
+                        'Remove',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.red,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-          AppSpacing.gapV12,
-          _isPointsApplied
-              ? AppButton.outline(
-                  text: 'Cancel Points',
-                  onPressed: _handleCancel,
-                  isFullWidth: true,
-                  height: 42.h,
-                  backgroundColor: AppColors.pageBg,
-                  borderColor: AppColors.border,
-                  textColor: AppColors.navy,
-                )
-              : AppButton.primary(
-                  text: 'Apply Points',
-                  onPressed: _canRedeem ? _handleApply : null,
-                  isDisabled: !_canRedeem,
-                  isFullWidth: true,
-                  height: 42.h,
+            )
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                      color: !_canRedeem
+                          ? AppColors.itemBackground
+                          : AppColors.white,
+                      borderRadius: AppRadius.k8,
+                      border: Border.all(
+                        color: _focusNode.hasFocus && _canRedeem
+                            ? AppColors.pickabooBlue
+                            : AppColors.border,
+                        width: _focusNode.hasFocus && _canRedeem ? 1.2 : 1.0,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: TextField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      textAlignVertical: TextAlignVertical.center,
+                      keyboardType: TextInputType.number,
+                      enabled: _canRedeem,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        _MaxPointsInputFormatter(widget.maxPoints),
+                      ],
+                      onChanged: (value) {
+                        if (_useMaxPoints && value != widget.maxPoints.toString()) {
+                          setState(() {
+                            _useMaxPoints = false;
+                          });
+                        }
+                      },
+                      style: AppTypography.titleSmall.copyWith(
+                        fontSize: 13.sp,
+                        color: AppColors.navy,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Enter Points to Spend',
+                        hintStyle: AppTypography.inputHint,
+                        filled: false,
+                        fillColor: AppColors.transparent,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 14.w),
+                      ),
+                    ),
+                  ),
                 ),
+                AppSpacing.gapH8,
+                AppButton.primary(
+                  text: 'Apply',
+                  height: 40.h,
+                  size: AppButtonSize.sm,
+                  isFullWidth: false,
+                  isDisabled: !_canRedeem,
+                  padding: EdgeInsets.symmetric(horizontal: 22.w),
+                  onPressed: _canRedeem ? _handleApply : null,
+                ),
+              ],
+            ),
+            if (_canRedeem) ...[
+              SizedBox(height: 8.h),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _useMaxPoints = !_useMaxPoints;
+                    if (_useMaxPoints) {
+                      _controller.text = widget.maxPoints.toString();
+                    } else {
+                      _controller.clear();
+                    }
+                  });
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      _useMaxPoints
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                      size: 16.sp,
+                      color: _useMaxPoints
+                          ? AppColors.pickabooBlue
+                          : AppColors.mutedLight,
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        'Use maximum ${widget.maxPoints} Club Points',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.navy,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
         ],
       ),
     );

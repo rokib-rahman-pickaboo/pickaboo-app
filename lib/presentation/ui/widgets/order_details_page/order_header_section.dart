@@ -48,18 +48,7 @@ class OrderHeaderSection extends StatelessWidget {
         vertical: 4.h,
       ),
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: 0.03),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -84,7 +73,7 @@ class OrderHeaderSection extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 5.h),
                 decoration: BoxDecoration(
                   color: statusAttr.backgroundColor.withValues(alpha: 0.1),
-                  borderRadius: AppRadius.badgeRadius,
+                  borderRadius: AppRadius.k4,
                   border: Border.all(
                     color: statusAttr.backgroundColor.withValues(alpha: 0.2),
                     width: 1.w,
@@ -102,13 +91,13 @@ class OrderHeaderSection extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.pickabooBlue, width: 1.w),
-                borderRadius: AppRadius.cardRadius,
+                borderRadius: AppRadius.k8,
               ),
               child: Material(
                 color: AppColors.transparent,
                 child: InkWell(
                   onTap: onReview,
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   splashColor: AppColors.pickabooBlue.withValues(alpha: 0.1),
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -136,7 +125,7 @@ class OrderHeaderSection extends StatelessWidget {
             SizedBox(height: showReview ? 10.h : 16.h),
             AppButton.primary(
               height: 44.h,
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               text: 'Pay Now',
               onPressed: onPayNow,
             ),

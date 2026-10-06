@@ -42,6 +42,7 @@ import 'package:pickaboo/presentation/ui/pages/main_page.dart';
 import 'package:pickaboo/presentation/ui/pages/no_internet_page/no_internet_page.dart';
 import 'package:pickaboo/core/cache/category_preload_cache.dart';
 import 'package:pickaboo/core/services/category_preload_queue.dart';
+import 'package:pickaboo/core/utils/category_lookup_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class HomePage extends StatefulWidget {
@@ -243,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                 homeContentState.status == HomeContentStatus.initial) {
               return Scaffold(
                 key: _scaffoldKey,
-                backgroundColor: AppColors.pageBg,
+                backgroundColor: AppColors.white,
                 body: SafeArea(
                   bottom: false,
                   child: Column(
@@ -279,7 +280,7 @@ class _HomePageState extends State<HomePage> {
               if (isOffline) {
                 return Scaffold(
                   key: _scaffoldKey,
-                  backgroundColor: AppColors.pageBg,
+                  backgroundColor: AppColors.white,
                   body: SafeArea(
                     child: NoInternetPage(
                       showAppBar: false,
@@ -291,7 +292,7 @@ class _HomePageState extends State<HomePage> {
 
               return Scaffold(
                 key: _scaffoldKey,
-                backgroundColor: AppColors.pageBg,
+                backgroundColor: AppColors.white,
                 body: SafeArea(
                   child: AppErrorView(
                     type: AppErrorType.generic,
@@ -310,6 +311,7 @@ class _HomePageState extends State<HomePage> {
             if (MainPage.hideBottomNav.value != false) {
               MainPage.hideBottomNav.value = false;
             }
+            MainPage.showBottomNav();
           });
 
           final homeFeed = homeContentState.homeFeed;
@@ -371,11 +373,15 @@ class _HomePageState extends State<HomePage> {
                 if (_scrollController.hasClients) {
                   _scrollController.jumpTo(0);
                 }
+                if (_isCategoryNavCollapsed.value) {
+                  _isCategoryNavCollapsed.value = false;
+                }
+                MainPage.showBottomNav();
               }
             },
             child: Scaffold(
               key: _scaffoldKey,
-              backgroundColor: AppColors.pageBg,
+              backgroundColor: AppColors.white,
             body: SafeArea(
               bottom: false,
               child: Column(
@@ -402,6 +408,10 @@ class _HomePageState extends State<HomePage> {
                               if (_scrollController.hasClients) {
                                 _scrollController.jumpTo(0);
                               }
+                              if (_isCategoryNavCollapsed.value) {
+                                _isCategoryNavCollapsed.value = false;
+                              }
+                              MainPage.showBottomNav();
                             }
                           },
                           onViewAll: () {
@@ -459,13 +469,46 @@ class _HomePageState extends State<HomePage> {
                             )
                           : Builder(
                               builder: (context) {
-                                final selectedCategoryEntity =
+                                var selectedCategoryEntity =
                                     displayCategories.firstWhereOrNull(
                                   (c) => c.name == _selectedCategory,
                                 ) ?? homeFeed?.categoryList.firstWhereOrNull(
                                   (c) => c.name == _selectedCategory,
                                 );
                                 if (selectedCategoryEntity != null) {
+                                  // Enrich with canonical drawer categories if ID or slug is missing
+                                  if (selectedCategoryEntity.id.isEmpty || selectedCategoryEntity.slug.isEmpty) {
+                                    final matched = CategoryLookupHelper.findCategory(
+                                      drawerCategories,
+                                      categoryId: selectedCategoryEntity.id,
+                                      categorySlug: selectedCategoryEntity.slug,
+                                      categoryName: selectedCategoryEntity.name,
+                                    );
+                                    if (matched != null) {
+                                      selectedCategoryEntity = CategoryListEntity(
+                                        id: selectedCategoryEntity.id.isNotEmpty
+                                            ? selectedCategoryEntity.id
+                                            : matched.id,
+                                        slug: selectedCategoryEntity.slug.isNotEmpty
+                                            ? selectedCategoryEntity.slug
+                                            : matched.slug,
+                                        name: selectedCategoryEntity.name,
+                                        isSpecial: matched.isSpecial,
+                                        icon: CategoryLookupHelper.canonicalIcon(
+                                          selectedCategoryEntity.icon.isNotEmpty
+                                              ? selectedCategoryEntity.icon
+                                              : matched.icon,
+                                          id: selectedCategoryEntity.id.isNotEmpty
+                                              ? selectedCategoryEntity.id
+                                              : matched.id,
+                                          slug: selectedCategoryEntity.slug.isNotEmpty
+                                              ? selectedCategoryEntity.slug
+                                              : matched.slug,
+                                          name: selectedCategoryEntity.name,
+                                        ),
+                                      );
+                                    }
+                                  }
                                   final categoryKey = selectedCategoryEntity.id.isNotEmpty
                                       ? selectedCategoryEntity.id
                                       : (selectedCategoryEntity.slug.isNotEmpty
@@ -509,6 +552,10 @@ List<CategoryListEntity> alignCategoriesWithDrawerOrder(
     if (cat.id.isNotEmpty) orderMap[cat.id] = i;
     if (cat.slug.isNotEmpty) orderMap[cat.slug.toLowerCase()] = i;
     if (cat.name.isNotEmpty) orderMap[cat.name.toLowerCase()] = i;
+    final stemmedName = CategoryLookupHelper.stemAndNormalize(cat.name);
+    if (stemmedName.isNotEmpty) orderMap[stemmedName] = i;
+    final stemmedSlug = CategoryLookupHelper.stemAndNormalize(cat.slug);
+    if (stemmedSlug.isNotEmpty) orderMap[stemmedSlug] = i;
   }
 
   final sorted = List<CategoryListEntity>.from(homeCategories);
@@ -516,10 +563,14 @@ List<CategoryListEntity> alignCategoriesWithDrawerOrder(
     final indexA = orderMap[a.id] ??
         orderMap[a.slug.toLowerCase()] ??
         orderMap[a.name.toLowerCase()] ??
+        orderMap[CategoryLookupHelper.stemAndNormalize(a.name)] ??
+        orderMap[CategoryLookupHelper.stemAndNormalize(a.slug)] ??
         999;
     final indexB = orderMap[b.id] ??
         orderMap[b.slug.toLowerCase()] ??
         orderMap[b.name.toLowerCase()] ??
+        orderMap[CategoryLookupHelper.stemAndNormalize(b.name)] ??
+        orderMap[CategoryLookupHelper.stemAndNormalize(b.slug)] ??
         999;
     return indexA.compareTo(indexB);
   });

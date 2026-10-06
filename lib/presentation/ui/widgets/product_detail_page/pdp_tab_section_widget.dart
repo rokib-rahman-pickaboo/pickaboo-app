@@ -188,18 +188,12 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
         final Widget specificationsContent = Container(
           decoration: BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.circular(AppRadius.card.r),
-          ),
-          foregroundDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.card.r),
-            border: Border.all(
-              color: AppColors.border,
-              width: 1.w,
-            ),
+            borderRadius: AppRadius.k8,
+            boxShadow: AppDecorations.cardShadow,
           ),
           clipBehavior: Clip.antiAlias,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.card.r),
+            borderRadius: AppRadius.k8,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -245,7 +239,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                       decoration: BoxDecoration(
                         color: i % 2 == 0
                             ? AppColors.white
-                            : AppColors.pageBg,
+                            : AppColors.itemBackground,
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +317,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                         _isSpecificationsExpanded = !_isSpecificationsExpanded;
                       });
                     },
-                    borderRadius: AppRadius.smRadius,
+                    borderRadius: AppRadius.k8,
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 14.w,
@@ -433,7 +427,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                         _isOverviewExpanded = !_isOverviewExpanded;
                       });
                     },
-                    borderRadius: AppRadius.smRadius,
+                    borderRadius: AppRadius.k8,
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 14.w,
@@ -558,8 +552,8 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                             padding: EdgeInsets.all(12.w),
                             decoration: BoxDecoration(
                               color: AppColors.white,
-                              borderRadius: AppRadius.cardRadius,
-                              border: Border.all(color: AppColors.border),
+                              borderRadius: AppRadius.k8,
+                              boxShadow: AppDecorations.cardShadow,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,8 +563,8 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                     Container(
                                       width: 32.r,
                                       height: 32.r,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.pageBg,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.itemBackground,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -581,18 +575,18 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                         Container(
                                           width: 100.w,
                                           height: 14.h,
-                                          decoration: const BoxDecoration(
-                                            color: AppColors.pageBg,
-                                            borderRadius: AppRadius.smRadius,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.itemBackground,
+                                            borderRadius: AppRadius.k8,
                                           ),
                                         ),
                                         SizedBox(height: 4.h),
                                         Container(
                                           width: 60.w,
                                           height: 10.h,
-                                          decoration: const BoxDecoration(
-                                            color: AppColors.pageBg,
-                                            borderRadius: AppRadius.smRadius,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.itemBackground,
+                                            borderRadius: AppRadius.k8,
                                           ),
                                         ),
                                       ],
@@ -603,18 +597,18 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                 Container(
                                   width: double.infinity,
                                   height: 12.h,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.pageBg,
-                                    borderRadius: AppRadius.smRadius,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.itemBackground,
+                                    borderRadius: AppRadius.k8,
                                   ),
                                 ),
                                 SizedBox(height: 6.h),
                                 Container(
                                   width: 180.w,
                                   height: 12.h,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.pageBg,
-                                    borderRadius: AppRadius.smRadius,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.itemBackground,
+                                    borderRadius: AppRadius.k8,
                                   ),
                                 ),
                               ],
@@ -639,7 +633,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                       borderColor: AppColors.pickabooBlue,
                       isFullWidth: true,
                       height: 42.h,
-                      borderRadius: AppRadius.buttonRadius,
+                      borderRadius: AppRadius.k8,
                       onPressed: widget.onViewAllReviewsTap,
                     ),
                   ],

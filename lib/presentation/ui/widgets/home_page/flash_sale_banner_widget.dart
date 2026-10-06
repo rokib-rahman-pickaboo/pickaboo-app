@@ -63,17 +63,17 @@ class FlashSaleBannerWidget extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: AppColors.pickabooBlue.withValues(alpha: 0.2),
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           boxShadow: [
             BoxShadow(
-              color: AppColors.pageBg.withValues(alpha: 0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           child: Stack(
             children: [
               Positioned.fill(
@@ -179,7 +179,7 @@ class FlashSaleBannerWidget extends StatelessWidget {
                               horizontal: 22.w,
                               vertical: 0,
                             ),
-                            borderRadius: AppRadius.smRadius,
+                            borderRadius: AppRadius.k8,
                             onPressed: onShopNow,
                             text: 'Shop Now',
                             textStyle: AppTypography.bodyMedium.copyWith(
@@ -367,7 +367,7 @@ class _CountdownViewState extends State<_CountdownView> {
       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(color: AppColors.pickabooBlue, width: 2.w),
       ),
       child: Column(

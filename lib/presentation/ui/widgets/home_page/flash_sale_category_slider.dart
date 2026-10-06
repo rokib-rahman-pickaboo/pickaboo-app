@@ -26,7 +26,7 @@ class FlashSaleCategorySlider extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.only(bottom: AppSpacing.groupToGroupSpacing.h),
+      margin: EdgeInsets.only(bottom: AppSpacing.xs.h),
       child: CommonProductSectionSlider(
         title: title,
         products: category.products,

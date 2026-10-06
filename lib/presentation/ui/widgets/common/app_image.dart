@@ -202,9 +202,9 @@ class _AppImageState extends State<AppImage> {
           child: Container(
             width: width,
             height: height,
-            decoration: const BoxDecoration(
-              color: AppColors.pageBg,
-              borderRadius: AppRadius.badgeRadius,
+            decoration: BoxDecoration(
+              color: AppColors.itemBackground,
+              borderRadius: AppRadius.k4,
             ),
           ),
         );

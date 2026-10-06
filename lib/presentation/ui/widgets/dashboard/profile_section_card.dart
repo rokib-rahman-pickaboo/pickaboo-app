@@ -16,6 +16,7 @@ class ProfileSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: EdgeInsets.zero,
       child: Column(
         children: [
           for (int i = 0; i < children.length; i++) ...[

@@ -34,12 +34,14 @@ class SpotlightItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ClipRRect(
-            borderRadius: AppRadius.cardRadius,
+            borderRadius: AppRadius.k8,
             child: AppImage(
               imageUrl: imageUrl,
               width: size,
               height: size,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+              constrainHeightInMemCache: false,
               errorWidget: Container(
                 color: AppColors.surfaceBlue,
                 padding: EdgeInsets.all(6.w),

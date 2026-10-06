@@ -291,7 +291,7 @@ class AppButton extends StatelessWidget {
     final effectiveHeight = shrinkWrap ? height : _resolveHeight();
     final effectiveBg = _resolveBgColor();
     final effectiveBorderSide = _resolveBorderSide();
-    final effectiveRadius = borderRadius ?? AppRadius.cardRadius;
+    final effectiveRadius = borderRadius ?? AppRadius.k8;
     final effectiveTextStyle = _resolveTextStyle();
     final isClickable = !isLoading && !isDisabled && onPressed != null;
 

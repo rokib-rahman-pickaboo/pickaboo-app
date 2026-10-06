@@ -164,7 +164,7 @@ class AddressAutocompleteSection extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: AppColors.pickabooBlue
                                     .withValues(alpha: 0.1),
-                                borderRadius: AppRadius.pillRadius,
+                                borderRadius: AppRadius.kFull,
                                 border: Border.all(
                                   color: AppColors.pickabooBlue
                                       .withValues(alpha: 0.35),
@@ -182,26 +182,26 @@ class AddressAutocompleteSection extends StatelessWidget {
                     ),
                     suffixIconConstraints: const BoxConstraints(),
                     border: OutlineInputBorder(
-                      borderRadius: AppRadius.inputRadius,
+                      borderRadius: AppRadius.k8,
                       borderSide: BorderSide(
                         color: AppColors.muted.withValues(alpha: 0.2),
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.inputRadius,
+                      borderRadius: AppRadius.k8,
                       borderSide: BorderSide(
                         color: AppColors.muted.withValues(alpha: 0.2),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.inputRadius,
+                      borderRadius: AppRadius.k8,
                       borderSide: BorderSide(
                         color: AppColors.pickabooBlue,
                         width: 1.5.w,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.inputRadius,
+                      borderRadius: AppRadius.k8,
                       borderSide: BorderSide(
                         color: AppColors.red,
                         width: 1.w,
@@ -218,9 +218,9 @@ class AddressAutocompleteSection extends StatelessWidget {
               child: Material(
                 elevation: 6,
                 shadowColor: AppColors.black.withValues(alpha: 0.12),
-                borderRadius: AppRadius.chipRadius,
+                borderRadius: AppRadius.k8,
                 child: ClipRRect(
-                  borderRadius: AppRadius.chipRadius,
+                  borderRadius: AppRadius.k8,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxHeight: 240.h,
@@ -235,7 +235,7 @@ class AddressAutocompleteSection extends StatelessWidget {
                             horizontal: 14.w,
                             vertical: 8.h,
                           ),
-                          color: AppColors.pageBg,
+                          color: AppColors.itemBackground,
                           child: Text(
                             'Suggestions',
                             style: AppTypography.bodySmall.copyWith(
@@ -292,7 +292,7 @@ class AddressAutocompleteSection extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
         color: AppColors.pickabooBlue.withValues(alpha: 0.06),
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
         border: Border.all(
           color: AppColors.pickabooBlue.withValues(alpha: 0.25),
         ),

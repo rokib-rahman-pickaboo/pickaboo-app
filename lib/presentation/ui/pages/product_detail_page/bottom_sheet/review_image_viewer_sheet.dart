@@ -1,3 +1,4 @@
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -75,7 +76,7 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
                         (event.expectedTotalBytes ?? 1),
               color: AppColors.white,
             ),
-            backgroundDecoration: const BoxDecoration(color: AppColors.black),
+            backgroundDecoration: BoxDecoration(color: AppColors.black),
             pageController: _pageController,
             onPageChanged: (index) {
               setState(() {
@@ -111,7 +112,7 @@ class _ReviewImageViewerSheetState extends State<ReviewImageViewerSheet> {
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.black.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(20.r),
+                          borderRadius: AppRadius.top16,
                         ),
                         child: Text(
                           "${_currentIndex + 1}/${widget.imageUrls.length}",

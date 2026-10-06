@@ -208,7 +208,7 @@ class _ChangePhoneNumberBottomSheetState
         return Container(
           decoration: BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+            borderRadius: AppRadius.top16,
           ),
           child: SafeArea(
             top: false,
@@ -248,7 +248,7 @@ class _ChangePhoneNumberBottomSheetState
               height: 4.h,
               decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2.r),
+                borderRadius: AppRadius.k4,
               ),
             ),
           ),
@@ -300,19 +300,19 @@ class _ChangePhoneNumberBottomSheetState
               hintText: 'New Phone Number',
               hintStyle: AppTypography.inputHint,
               filled: true,
-              fillColor: AppColors.pageBg,
+              fillColor: AppColors.itemBackground,
               errorText: _phoneError,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: const BorderSide(color: AppColors.border),
+              border: const OutlineInputBorder(
+                borderRadius: AppRadius.k8,
+                borderSide: BorderSide(color: AppColors.border),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: const BorderSide(color: AppColors.border),
+              enabledBorder: const OutlineInputBorder(
+                borderRadius: AppRadius.k8,
+                borderSide: BorderSide(color: AppColors.border),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: const BorderSide(
+              focusedBorder: const OutlineInputBorder(
+                borderRadius: AppRadius.k8,
+                borderSide: BorderSide(
                   color: AppColors.pickabooBlue,
                   width: 1.5,
                 ),
@@ -332,7 +332,7 @@ class _ChangePhoneNumberBottomSheetState
             isLoading: isUpdating,
             isFullWidth: true,
             height: 48.h,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: AppRadius.k8,
             onPressed: isUpdating ? null : _sendOtp,
           ),
         ],
@@ -358,7 +358,7 @@ class _ChangePhoneNumberBottomSheetState
               height: 4.h,
               decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2.r),
+                borderRadius: AppRadius.k4,
               ),
             ),
           ),
@@ -432,19 +432,19 @@ class _ChangePhoneNumberBottomSheetState
               hintText: 'Enter OTP',
               hintStyle: AppTypography.inputHint,
               filled: true,
-              fillColor: AppColors.pageBg,
+              fillColor: AppColors.itemBackground,
               errorText: _otpError,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: const BorderSide(color: AppColors.border),
+              border: const OutlineInputBorder(
+                borderRadius: AppRadius.k8,
+                borderSide: BorderSide(color: AppColors.border),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: const BorderSide(color: AppColors.border),
+              enabledBorder: const OutlineInputBorder(
+                borderRadius: AppRadius.k8,
+                borderSide: BorderSide(color: AppColors.border),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: const BorderSide(
+              focusedBorder: const OutlineInputBorder(
+                borderRadius: AppRadius.k8,
+                borderSide: BorderSide(
                   color: AppColors.pickabooBlue,
                   width: 1.5,
                 ),
@@ -502,7 +502,7 @@ class _ChangePhoneNumberBottomSheetState
             isDisabled: !isOtpValid,
             isFullWidth: true,
             height: 48.h,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: AppRadius.k8,
             onPressed: (isUpdating || !isOtpValid) ? null : _verifyOtp,
           ),
         ],

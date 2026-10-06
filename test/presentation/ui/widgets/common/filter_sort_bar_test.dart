@@ -95,7 +95,7 @@ void main() {
       final badgeContainer12 = tester.widget<Container>(badgeFinder12);
       final decoration12 = badgeContainer12.decoration as BoxDecoration;
       expect(decoration12.shape, equals(BoxShape.rectangle));
-      expect(decoration12.borderRadius, equals(AppRadius.pillRadius));
+      expect(decoration12.borderRadius, equals(AppRadius.kFull));
     });
 
     testWidgets('Sort button: toggles between navy and blue without changing border',

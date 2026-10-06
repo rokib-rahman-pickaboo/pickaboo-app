@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:pickaboo/core/constants/app_constants.dart';
+import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/core/utils/error_filters.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
@@ -479,6 +480,10 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                   'visamaster': 'Visa/Master',
                   'bkash': 'bKash Payment',
                   'nagad': 'Nagad',
+                  'pathaopay': 'Pathao Pay',
+                  'pathao_pay': 'Pathao Pay',
+                  'pathao': 'Pathao Pay',
+                  'patahopay': 'Pathao Pay',
                   'amex': 'AMEX',
                   'cashondelivery': 'Cash On Delivery',
                   'cardondelivery': 'Card On Delivery',
@@ -526,6 +531,19 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                     CheckoutEvent.nagadCallback(callbackParams: params),
                   );
                 },
+                onPathaoCallback: (params) {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                  context.read<CheckoutBloc>().add(
+                    CheckoutEvent.pathaoPayCallback(
+                      callbackParams: {
+                        if (widget.orderId != null) 'order_id': widget.orderId!,
+                        ...params,
+                      },
+                    ),
+                  );
+                },
                 onUserClosed: () {
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
@@ -550,9 +568,10 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               context.goToOrderFailed(orderId: targetOrderId);
               SnackBarUtils.showError(
                 context,
-                errorMessage.isNotEmpty
-                    ? errorMessage
-                    : AppStrings.somethingWentWrong,
+                ApiErrorParser.sanitize(
+                  errorMessage,
+                  fallback: AppStrings.somethingWentWrong,
+                ),
               );
             },
             orderConfirmed: (success, _) {
@@ -585,9 +604,10 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               if (isSilentCartError(error.message)) return;
               SnackBarUtils.showError(
                 context,
-                error.message.isNotEmpty
-                    ? error.message
-                    : AppStrings.somethingWentWrong,
+                ApiErrorParser.sanitize(
+                  error.message,
+                  fallback: AppStrings.somethingWentWrong,
+                ),
               );
             },
             orElse: () {},
@@ -650,7 +670,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           );
 
           final scaffold = Scaffold(
-            backgroundColor: AppColors.pageBg,
+            backgroundColor: AppColors.white,
             appBar: const PickabooAppBar(
               title: AppStrings.paymentMethod,
             ),
@@ -753,13 +773,29 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   }
 
   String _assetForCode(String code) {
-    switch (code.toLowerCase()) {
+    final cleanCode = code.toLowerCase().trim();
+    if (cleanCode.contains('pathao') || cleanCode.contains('pataho')) {
+      return AppAssets.pathaoPay;
+    }
+    switch (cleanCode) {
       case 'pickabooeblmastercard':
         return AppAssets.pickabooMastercard;
       case 'visamaster':
         return AppAssets.visaMastercard;
+      case 'visa':
+      case 'visacard':
+        return AppAssets.visa;
+      case 'mastercard':
+        return AppAssets.mastercard;
+      case 'cardpayment':
+      case 'card_payment':
+      case 'onlinecard':
+        return AppAssets.cardPayment;
       case 'cashondelivery':
         return AppAssets.cashOnDelivery;
+      case 'cardondelivery':
+      case 'card_on_delivery':
+        return AppAssets.cardOnDelivery;
       case 'emi':
         return AppAssets.emiPayment;
       case 'bkash':
@@ -767,9 +803,22 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       case 'nagad':
         return AppAssets.nagad;
       case 'amex':
+      case 'americanexpress':
         return AppAssets.amex;
+      case 'others':
+      case 'other':
+        return AppAssets.paymentOthers;
       default:
-        return AppAssets.cashOnDelivery;
+        if (cleanCode.contains('card') && cleanCode.contains('delivery')) {
+          return AppAssets.cardOnDelivery;
+        }
+        if (cleanCode.contains('card')) {
+          return AppAssets.cardPayment;
+        }
+        if (cleanCode.contains('cash')) {
+          return AppAssets.cashOnDelivery;
+        }
+        return AppAssets.paymentWalletOthers;
     }
   }
 
@@ -839,6 +888,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     final code = method.code;
     final asset = _assetForCode(code);
     final subtitle = _subtitleForMethod(method);
+    final title = method.title;
 
     if (code == 'emi') {
       final eligible = _isEmiEligible();
@@ -846,7 +896,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       final remaining = AppConstants.minEmiAmount - grandTotal;
       return PaymentOptionItem(
         id: code,
-        title: method.title,
+        title: title,
         asset: asset,
         isSelected: _currentSelection == code,
         isEnabled: eligible,
@@ -869,7 +919,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     if (code == 'bkash') {
       return PaymentOptionItem(
         id: code,
-        title: method.title,
+        title: title,
         subtitle: subtitle,
         asset: asset,
         isSelected: _currentSelection == code && _selectedAgreementId == null,
@@ -884,7 +934,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               cardBinState.cardBinVerifyResponse?.success == true;
           return PaymentOptionItem(
             id: code,
-            title: method.title,
+            title: title,
             subtitle: subtitle,
             asset: asset,
             isSelected: _currentSelection == code,
@@ -892,7 +942,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
               decoration: const BoxDecoration(
                 color: AppColors.green,
-                borderRadius: AppRadius.badgeRadius,
+                borderRadius: AppRadius.k4,
               ),
               child: Text(
                 'DISCOUNT APPLIED',
@@ -913,7 +963,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
     return PaymentOptionItem(
       id: code,
-      title: method.title,
+      title: title,
       subtitle: subtitle,
       asset: asset,
       isSelected: _currentSelection == code,
@@ -1305,15 +1355,26 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       'dynamicpaymentgateway',
       'cashondelivery',
       'free',
+      'pathaopay',
+      'pathao_pay',
+      'pathao',
+      'patahopay',
+      'pataho_pay',
+      'pataho',
     };
-    if (directMethods.contains(method)) return null;
+    final isDirect = directMethods.contains(method) ||
+        method.contains('pathao') ||
+        method.contains('pataho');
+    if (isDirect) return null;
 
     final localGateway = _availablePaymentMethods
         .firstWhereOrNull((e) => e.code == methodCode)
         ?.paymentGateway;
     if (localGateway != null &&
         localGateway.isNotEmpty &&
-        !directMethods.contains(localGateway.toLowerCase().trim())) {
+        !directMethods.contains(localGateway.toLowerCase().trim()) &&
+        !localGateway.toLowerCase().contains('pathao') &&
+        !localGateway.toLowerCase().contains('pataho')) {
       return localGateway;
     }
 

@@ -51,16 +51,8 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
     return Container(
       margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
       padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.dialogRadius,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k16,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,19 +92,19 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -138,19 +130,19 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -176,19 +168,19 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                         color: AppColors.muted,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.border.withAlpha(128),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.cardRadius,
+                        borderRadius: AppRadius.k8,
                         borderSide: BorderSide(
                           color: AppColors.pickabooBlue,
                           width: 1.5.w,
@@ -208,7 +200,7 @@ class _ChangePasswordSectionState extends State<ChangePasswordSection> {
                   SizedBox(height: 16.h),
                   AppButton.primary(
                     height: 48.h,
-                    borderRadius: AppRadius.cardRadius,
+                    borderRadius: AppRadius.k8,
                     text: 'Save Password',
                     onPressed: _submit,
                   ),

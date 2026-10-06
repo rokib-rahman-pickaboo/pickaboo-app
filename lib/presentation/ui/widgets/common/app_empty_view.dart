@@ -26,7 +26,7 @@ class AppEmptyView extends StatelessWidget {
   /// Optional standard icon (rendered within a softly tinted container circle).
   final IconData? icon;
 
-  /// Optional SVG asset path (e.g. 'assets/new/svg/empty_cart_icon.svg').
+  /// Optional SVG asset path (e.g. AppAssets.emptyCart or 'assets/illustrations/empty_cart.svg').
   final String? svgAsset;
 
   /// Optional bitmap image asset path.
@@ -591,7 +591,7 @@ class AppEmptyView extends StatelessWidget {
           horizontal: 20.w,
           vertical: isCompact ? 8.h : 12.h,
         ),
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
       );
       buttons.add(primaryBtn);
     }
@@ -616,7 +616,7 @@ class AppEmptyView extends StatelessWidget {
           horizontal: 18.w,
           vertical: isCompact ? 8.h : 12.h,
         ),
-        borderRadius: AppRadius.buttonRadius,
+        borderRadius: AppRadius.k8,
       );
       buttons.add(secondaryBtn);
     }

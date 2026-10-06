@@ -53,8 +53,8 @@ class PaymentMethodListSkeleton extends StatelessWidget {
                       width: 36.w,
                       height: 36.w,
                       decoration: BoxDecoration(
-                        color: AppColors.pageBg,
-                        borderRadius: AppRadius.buttonRadius,
+                        color: AppColors.itemBackground,
+                        borderRadius: AppRadius.k8,
                         border: Border.all(color: AppColors.border),
                       ),
                     ),
@@ -68,8 +68,8 @@ class PaymentMethodListSkeleton extends StatelessWidget {
                             width: (i.isEven ? 130 : 95).w,
                             height: 14.h,
                             decoration: BoxDecoration(
-                              color: AppColors.pageBg,
-                              borderRadius: BorderRadius.circular(4.r),
+                              color: AppColors.itemBackground,
+                              borderRadius: AppRadius.k4,
                             ),
                           ),
                           SizedBox(height: 6.h),
@@ -77,8 +77,8 @@ class PaymentMethodListSkeleton extends StatelessWidget {
                             width: (i % 3 == 0 ? 190 : 140).w,
                             height: 10.h,
                             decoration: BoxDecoration(
-                              color: AppColors.pageBg,
-                              borderRadius: BorderRadius.circular(4.r),
+                              color: AppColors.itemBackground,
+                              borderRadius: AppRadius.k4,
                             ),
                           ),
                         ],
@@ -89,9 +89,9 @@ class PaymentMethodListSkeleton extends StatelessWidget {
                     Container(
                       width: 20.r,
                       height: 20.r,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.pageBg,
+                        color: AppColors.itemBackground,
                       ),
                     ),
                   ],
@@ -123,18 +123,7 @@ class PaymentSummarySkeleton extends StatelessWidget {
       effect: AppDecorations.shimmerEffect,
       child: Container(
         padding: EdgeInsets.all(14.w),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.cardRadius,
-          border: Border.all(color: AppColors.border),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.navy.withValues(alpha: 0.02),
-              blurRadius: 6.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
+        decoration: AppDecorations.cardBoxDecoration(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -162,9 +151,9 @@ class PaymentSummarySkeleton extends StatelessWidget {
           Container(
             width: 20.r,
             height: 20.r,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.pageBg,
+              color: AppColors.itemBackground,
             ),
           ),
           SizedBox(width: 8.w),
@@ -173,8 +162,8 @@ class PaymentSummarySkeleton extends StatelessWidget {
           width: width,
           height: isTotal ? 16.h : 13.h,
           decoration: BoxDecoration(
-            color: AppColors.pageBg,
-            borderRadius: BorderRadius.circular(4.r),
+            color: AppColors.itemBackground,
+            borderRadius: AppRadius.k4,
           ),
         ),
         const Spacer(),
@@ -182,8 +171,8 @@ class PaymentSummarySkeleton extends StatelessWidget {
           width: valWidth,
           height: isTotal ? 16.h : 13.h,
           decoration: BoxDecoration(
-            color: AppColors.pageBg,
-            borderRadius: BorderRadius.circular(4.r),
+            color: AppColors.itemBackground,
+            borderRadius: AppRadius.k4,
           ),
         ),
       ],

@@ -95,7 +95,7 @@ class NoInternetPage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: PickabooAppBar(
         title: title ?? 'Pickaboo',
         showBackButton: canPop || onBack != null,

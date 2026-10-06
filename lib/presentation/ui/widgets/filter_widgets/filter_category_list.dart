@@ -23,7 +23,7 @@ class FilterCategoryList extends StatelessWidget {
           loaded: (categories, selectedCategoryCode, selectionCounts) {
             return Container(
               width: 125.w,
-              color: AppColors.pageBg,
+              color: AppColors.itemBackground,
               child: ListView.builder(
                 padding: EdgeInsets.zero,
                 itemExtent: 48.h,
@@ -41,7 +41,7 @@ class FilterCategoryList extends StatelessWidget {
                   final bool isWhite = (categories.length - 1 - index).isEven;
                   final Color backgroundColor = isSelected
                       ? AppColors.surfaceBlue
-                      : (isWhite ? AppColors.white : AppColors.pageBg);
+                      : (isWhite ? AppColors.white : AppColors.itemBackground);
 
                   return InkWell(
                     onTap: () {
@@ -83,9 +83,9 @@ class FilterCategoryList extends StatelessWidget {
                                 horizontal: 5.w,
                                 vertical: 2.h,
                               ),
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 color: AppColors.pickabooBlue,
-                                borderRadius: AppRadius.chipRadius,
+                                borderRadius: AppRadius.k8,
                               ),
                               child: Text(
                                 '$selectionCount',

@@ -47,7 +47,7 @@ class _FilterOptionsListState extends State<FilterOptionsList> {
             thumbVisibility: true,
             trackVisibility: false,
             thickness: 4.w,
-            radius: const Radius.circular(AppRadius.badge),
+            radius: AppRadius.rad4,
             thumbColor: AppColors.pickabooBlue,
             child: ListView.builder(
               controller: _scrollController,
@@ -56,7 +56,7 @@ class _FilterOptionsListState extends State<FilterOptionsList> {
               itemBuilder: (context, index) {
                 final option = items[index];
                 final bool isWhite = (items.length - 1 - index).isEven;
-                final Color itemBg = isWhite ? AppColors.white : AppColors.pageBg;
+                final Color itemBg = isWhite ? AppColors.white : AppColors.itemBackground;
                 return _buildFilterOption(
                   context,
                   option,
@@ -97,7 +97,7 @@ class _FilterOptionsListState extends State<FilterOptionsList> {
               height: 18.w,
               decoration: BoxDecoration(
                 color: option.isSelected ? AppColors.pickabooBlue : AppColors.white,
-                borderRadius: AppRadius.badgeRadius,
+                borderRadius: AppRadius.k4,
                 border: Border.all(
                   color: option.isSelected
                       ? AppColors.pickabooBlue

@@ -170,7 +170,7 @@ class _EditAccountInformationPageState
       context: context,
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+        borderRadius: AppRadius.top16,
       ),
       builder: (context) => Container(
         padding: EdgeInsets.fromLTRB(
@@ -191,7 +191,7 @@ class _EditAccountInformationPageState
               final isSelected = gender == _selectedGender;
               return ListTile(
                 shape: const RoundedRectangleBorder(
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                 ),
                 tileColor: isSelected ? AppColors.surfaceBlue : null,
                 title: Text(
@@ -360,7 +360,7 @@ class _EditAccountInformationPageState
           );
 
           return Scaffold(
-            backgroundColor: AppColors.pageBg,
+            backgroundColor: AppColors.white,
             appBar: const PickabooAppBar(
               title: AppStrings.editProfile,
             ),
@@ -373,7 +373,7 @@ class _EditAccountInformationPageState
                 color: AppColors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.navy.withValues(alpha: 0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10.r,
                     offset: Offset(0, -2.h),
                   ),
@@ -383,7 +383,7 @@ class _EditAccountInformationPageState
                 top: false,
                 child: AppButton.primary(
                   height: 50.h,
-                  borderRadius: AppRadius.cardRadius,
+                  borderRadius: AppRadius.k8,
                   isLoading: isLoading,
                   onPressed: _saveProfile,
                   text: AppStrings.saveChanges,
@@ -406,18 +406,7 @@ class _EditAccountInformationPageState
                         horizontal: AppSpacing.sameGroupItemSpacing.w,
                       ),
                       padding: EdgeInsets.symmetric(vertical: 20.h),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: AppRadius.cardRadius,
-                        border: Border.all(color: AppColors.border),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.navy.withValues(alpha: 0.03),
-                            blurRadius: 8.r,
-                            offset: Offset(0, 2.h),
-                          ),
-                        ],
-                      ),
+                      decoration: AppDecorations.cardBoxDecoration(),
                       child: Column(
                         children: [
                           GestureDetector(
@@ -522,18 +511,7 @@ class _EditAccountInformationPageState
                         horizontal: AppSpacing.sameGroupItemSpacing.w,
                       ),
                       padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: AppRadius.cardRadius,
-                        border: Border.all(color: AppColors.border),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.navy.withValues(alpha: 0.03),
-                            blurRadius: 8.r,
-                            offset: Offset(0, 2.h),
-                          ),
-                        ],
-                      ),
+                      decoration: AppDecorations.cardBoxDecoration(),
                       child: _buildEditForm(),
                     ),
                   ),
@@ -628,21 +606,21 @@ class _EditAccountInformationPageState
               vertical: 14.h,
             ),
             filled: !enabled,
-            fillColor: enabled ? AppColors.white : AppColors.pageBg,
+            fillColor: enabled ? AppColors.white : AppColors.itemBackground,
             border: const OutlineInputBorder(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               borderSide: BorderSide(color: AppColors.border),
             ),
             enabledBorder: const OutlineInputBorder(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               borderSide: BorderSide(color: AppColors.border),
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.6)),
             ),
             focusedBorder: const OutlineInputBorder(
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
               borderSide: BorderSide(color: AppColors.pickabooBlue, width: 1.5),
             ),
           ),
@@ -669,7 +647,7 @@ class _EditAccountInformationPageState
         SizedBox(height: 6.h),
         InkWell(
           onTap: onTap,
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.k8,
           child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: 16.w,
@@ -678,7 +656,7 @@ class _EditAccountInformationPageState
             decoration: BoxDecoration(
               color: AppColors.white,
               border: Border.all(color: AppColors.border),
-              borderRadius: AppRadius.cardRadius,
+              borderRadius: AppRadius.k8,
             ),
             child: Row(
               children: [

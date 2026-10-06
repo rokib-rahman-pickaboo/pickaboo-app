@@ -5,6 +5,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
@@ -31,7 +32,7 @@ class PermissionPrompt {
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: const RoundedRectangleBorder(
-          borderRadius: AppRadius.dialogRadius,
+          borderRadius: AppRadius.k16,
         ),
         title: Text(title),
         content: Text(message),
@@ -47,7 +48,7 @@ class PermissionPrompt {
             text: AppStrings.openSettings,
             isFullWidth: false,
             size: AppButtonSize.sm,
-            borderRadius: AppRadius.buttonRadius,
+            borderRadius: AppRadius.k8,
             onPressed: () => Navigator.of(dialogContext).pop(true),
           ),
         ],

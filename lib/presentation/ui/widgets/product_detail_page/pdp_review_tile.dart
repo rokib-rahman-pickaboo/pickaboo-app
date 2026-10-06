@@ -65,10 +65,8 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.sameGroupItemSpacing.h),
       padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
-      decoration: BoxDecoration(
-        color: AppColors.pageBg,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.border),
+      decoration: AppDecorations.cardBoxDecoration(
+        borderRadius: AppRadius.k8,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +99,7 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                 padding: AppSpacing.badgePadding,
                 decoration: BoxDecoration(
                   color: AppColors.pickabooBlue,
-                  borderRadius: BorderRadius.circular(AppRadius.badge),
+                  borderRadius: AppRadius.k4,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -203,13 +201,12 @@ class _PdpReviewTileState extends State<PdpReviewTile> {
                       );
                     },
                     child: ClipRRect(
-                      borderRadius: AppRadius.badgeRadius,
+                      borderRadius: AppRadius.k4,
                       child: Container(
                         width: 48.w,
                         height: 48.w,
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
-                          borderRadius: AppRadius.badgeRadius,
+                          borderRadius: AppRadius.k4,
                         ),
                         child: AppImage(
                           imageUrl: widget.review.images[index],

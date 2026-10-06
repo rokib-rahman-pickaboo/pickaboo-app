@@ -21,23 +21,27 @@ class PdpDealsAndOffersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasOffers = product.isPartial ||
-        (product.offers.trim().isNotEmpty &&
-            RegExp(r'[a-zA-Z]').hasMatch(product.offers));
+    final offers = PdpAvailableOffersWidget.parseDynamicOffers(product.offers);
+    final hasOffers = product.isPartial || offers.isNotEmpty;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // ── Flash Sale Timer Banner (if active) ──
-        BlocBuilder<ProductFlashSaleBloc, ProductFlashSaleState>(
-          builder: (context, flashSaleState) {
-            if (flashSaleState.status == ProductFlashSaleStatus.success &&
-                flashSaleState.flashSale != null &&
-                flashSaleState.flashSale!.inFlashSale &&
-                flashSaleState.flashSale!.flashSale?.endTime != null) {
-              final sale = flashSaleState.flashSale!.flashSale!;
-              return ProductSaleTimerSection(
+    return BlocBuilder<ProductFlashSaleBloc, ProductFlashSaleState>(
+      builder: (context, flashSaleState) {
+        final sale = flashSaleState.flashSale?.flashSale;
+        final isFlashSaleActive = flashSaleState.status == ProductFlashSaleStatus.success &&
+            flashSaleState.flashSale?.inFlashSale == true &&
+            sale?.endTime != null;
+
+        if (!isFlashSaleActive && !hasOffers) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Flash Sale Timer Banner (if active) ──
+            if (isFlashSaleActive && sale != null)
+              ProductSaleTimerSection(
                 title: sale.title,
                 subtitle: sale.shortDescription,
                 endTime: sale.endTime!,
@@ -55,24 +59,26 @@ class PdpDealsAndOffersSection extends StatelessWidget {
                     );
                   }
                 },
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
+              ),
 
-        // ── Available Offers & Bank Discounts ──
-        if (hasOffers)
-          PdpSectionCard(
-            customPadding: EdgeInsets.symmetric(
-              vertical: AppSpacing.sameGroupItemSpacing.h,
-            ),
-            child: PdpAvailableOffersWidget(
-              promoOffer: product.isPartial ? null : product.offers,
-              isLoading: product.isPartial,
-            ),
-          ),
-      ],
+            // ── Available Offers & Bank Discounts ──
+            if (hasOffers)
+              PdpSectionCard(
+                customPadding: EdgeInsets.fromLTRB(
+                  0,
+                  AppSpacing.sameGroupItemSpacing.h,
+                  0,
+                  4.h,
+                ),
+                child: PdpAvailableOffersWidget(
+                  promoOffer: product.isPartial ? null : product.offers,
+                  customOffers: product.isPartial ? null : offers,
+                  isLoading: product.isPartial,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

@@ -17,17 +17,7 @@ class TicketMessageItem extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.cardRadius,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.03),
-            blurRadius: 6.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.cardBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -85,15 +75,15 @@ class TicketMessageItem extends StatelessWidget {
                 child: InkWell(
                   onTap: () =>
                       _openAttachment(context, message.attachments[index]),
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: AppRadius.k8,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 12.w,
                       vertical: 8.h,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.pageBg,
-                      borderRadius: BorderRadius.circular(8.r),
+                      color: AppColors.itemBackground,
+                      borderRadius: AppRadius.k8,
                       border: Border.all(color: AppColors.border),
                     ),
                     child: Row(

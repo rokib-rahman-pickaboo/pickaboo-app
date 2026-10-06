@@ -40,9 +40,9 @@ class CommonProductSectionSlider extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final double computedRailHeight = railHeight != null
+    final double computedRailHeight = (railHeight != null
         ? railHeight!.h
-        : SliderProductView.calculateCardHeight(context, cardWidth);
+        : SliderProductView.calculateCardHeight(context, cardWidth)) + 8.h;
 
     return Container(
       color: backgroundColor,
@@ -59,7 +59,7 @@ class CommonProductSectionSlider extends StatelessWidget {
               horizontal: AppSpacing.sameGroupItemSpacing.w,
             ),
           ),
-          SizedBox(height: AppSpacing.sameGroupItemSpacing.h),
+          SizedBox(height: 4.h),
 
           // ── 2. Horizontal Product Card Rail ──
           RepaintBoundary(
@@ -71,6 +71,7 @@ class CommonProductSectionSlider extends StatelessWidget {
                 clipBehavior: Clip.none,
                 padding: EdgeInsets.symmetric(
                   horizontal: AppSpacing.sameGroupItemSpacing.w,
+                  vertical: 4.h,
                 ),
                 itemCount: products.length,
                 separatorBuilder: (context, index) =>

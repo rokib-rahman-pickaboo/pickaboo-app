@@ -177,16 +177,16 @@ void main() {
   group('OrderSummarySection Convenience Fee Tests', () {
     testWidgets('Renders Convenience Fee with percentage and formatted amount',
         (WidgetTester tester) async {
-      final order = OrderDetailEntity(
+      const order = OrderDetailEntity(
         orderId: 100,
         orderNumber: '0709942132',
         customerId: 1,
         createdAt: '2026-09-17 12:00:00',
         state: 'complete',
         status: 'complete',
-        items: const [],
+        items: [],
         spentRewardPoints: 0,
-        orderSummary: const OrderSummaryDetailEntity(
+        orderSummary: OrderSummaryDetailEntity(
           subtotal: 19990,
           totalOrderQty: 1,
           discountAmount: 0,
@@ -199,8 +199,8 @@ void main() {
         ),
         shippingMethod: 'Regular Delivery',
         paymentMethod: 'emi',
-        paymentInformation: const [],
-        statusHistory: const [],
+        paymentInformation: [],
+        statusHistory: [],
       );
 
       await tester.pumpWidget(

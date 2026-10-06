@@ -64,7 +64,7 @@ class SortDropdown extends StatelessWidget {
     return PopupMenuButton<SortOptionItem>(
       icon: Icon(Icons.arrow_drop_down, color: AppColors.text, size: 24.sp),
       offset: Offset(0, 40.h),
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.cardRadius),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.k8),
       color: AppColors.white,
       elevation: 8,
       itemBuilder: (context) {

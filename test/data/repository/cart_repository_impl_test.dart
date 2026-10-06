@@ -35,11 +35,11 @@ void main() {
   group('CartRepositoryImpl Performance Tests', () {
     test('getBasicCart performance', () async {
       // Arrange
-      final response = CartResponse(id: 1, items: [], isActive: true);
+      const response = CartResponse(id: 1, items: [], isActive: true);
 
       when(() => mockCartApiService.getBasicCart()).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 75));
-        return Right(response);
+        return const Right(response);
       });
 
       // Act & Measure
@@ -57,7 +57,7 @@ void main() {
       const sku = 'SKU123';
       const qty = 1;
       const quoteId = '1';
-      final response = CartItemResponse(
+      const response = CartItemResponse(
         itemId: 123,
         sku: sku,
         qty: qty,
@@ -69,7 +69,7 @@ void main() {
         () => mockCartApiService.addItem(request: any(named: 'request')),
       ).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 120));
-        return Right(response);
+        return const Right(response);
       });
 
       // Act & Measure

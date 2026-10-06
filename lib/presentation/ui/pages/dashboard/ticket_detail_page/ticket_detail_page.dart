@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/ticket/ticket_entity.dart';
@@ -18,6 +17,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/dashboard/ticket_detail_page/ticket_detail_skeleton.dart';
 
 class TicketDetailPage extends StatefulWidget {
   final String ticketId;
@@ -95,7 +95,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: AppRadius.k16,
         ),
         title: Text(
           'Close Ticket',
@@ -122,7 +122,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
             textColor: AppColors.white,
             isFullWidth: false,
             size: AppButtonSize.sm,
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: AppRadius.k8,
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
@@ -149,7 +149,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: AppColors.white,
       appBar: widget.embedded
           ? null
           : const PickabooAppBar(
@@ -185,7 +185,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
             if (state.status == TicketStatus.loading &&
                 detailEntity == null &&
                 _initialTicket == null) {
-              return const AppLoader.fullPage();
+              return const TicketDetailSkeleton();
             }
 
             final isSubmitting =

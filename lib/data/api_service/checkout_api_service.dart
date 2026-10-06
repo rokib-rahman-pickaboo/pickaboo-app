@@ -122,6 +122,10 @@ abstract class CheckoutApiService {
     required Map<String, String> callbackParams,
   });
 
+  Future<Either<ErrorResponse, bool>> pathaoPayCapture({
+    required Map<String, String> callbackParams,
+  });
+
   Future<Either<ErrorResponse, CardBinVerifyResponse>> verifyCardBin({
     required String orderId,
   });
