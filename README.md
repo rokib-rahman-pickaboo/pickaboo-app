@@ -179,6 +179,11 @@ flutter analyze
 - Debug logging is wrapped in `if (kDebugMode)`.
 - Analyzer directives (`// ignore: …`) are the only comments kept in `lib/`; the rest of the source is intentionally comment-free.
 
-## Tools
+## Documentation & Tools
 
-`tools/postman/` — Postman collection and curl reproductions used to chase backend 500s.
+All architecture specs, design mission logs, API reports, and Postman collections are maintained in the companion documentation repository:
+- **[Pickaboo-App-Docs](../Pickaboo-App-Docs/)**:
+  - `postman/` — Postman API collections and environment configs.
+  - `mission-new-ui/` — Mission New UI design specifications and layout guides.
+  - `api-reports/` — API response audit reports.
+  - `analytics-reports/` — Analytics and tracking parity reports.
