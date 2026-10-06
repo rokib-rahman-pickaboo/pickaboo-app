@@ -39,28 +39,28 @@ class ChildCategoryChipsWidget extends StatelessWidget {
 
   static const double imageSize = 44.0;
   static const double imageToChipGap = 4.0;
-  static const double nameChipHeight = 28.0;
+  static const double nameChipHeight = 32.0;
 
-  static const double _fontSizeRegular = 10.5;
+  static const double _fontSizeRegular = 10.0;
   static const double _fontSizeSmall = 8.5;
 
-  /// Exactly 2 sizes:
-  /// - Standard [10.5.sp] for normal names (e.g. Xiaomi, realme, Honor, Infinix, Samsung)
-  /// - Small [8.5.sp] for longer names (e.g. 5G Smartphone, Smartphones, Air Conditioner)
+  /// Exactly 2 font sizes:
+  /// - Standard [10.0.sp] for single-word short names (e.g. Realme, Xiaomi, Apple, Honor)
+  /// - Small [8.5.sp] for 2-line & longer names (e.g. IP Cameras, HDD & SSD, Smartphones, Mouse & Keyboard)
   static double _resolveFontSize(String text) {
     final clean = text.trim();
     if (clean.isEmpty) return _fontSizeRegular.sp;
 
-    final words = clean.split(RegExp(r'\s+'));
-    int maxWordLen = 0;
-    for (final w in words) {
-      if (w.length > maxWordLen) maxWordLen = w.length;
+    final len = clean.length;
+    final hasMultipleWords = clean.contains(' ');
+
+    // Single-word short name (e.g. Realme, Xiaomi, Apple) -> fits on 1 line
+    if (!hasMultipleWords && len <= 8) {
+      return _fontSizeRegular.sp;
     }
 
-    if (maxWordLen >= 8 || clean.length >= 11) {
-      return _fontSizeSmall.sp;
-    }
-    return _fontSizeRegular.sp;
+    // 2-line or longer names -> comfortable small size
+    return _fontSizeSmall.sp;
   }
 
   @override

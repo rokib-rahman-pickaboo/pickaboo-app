@@ -1,6 +1,6 @@
 # Pickaboo — Flutter App
 
-E-commerce app for Pickaboo (Bangladesh), backed by a Magento 2 REST API. Flutter rewrite of the previous React Native app; version tracks continue from it (iOS `26.9.1+62`, Android `7.0.10 / 70010`).
+E-commerce app for Pickaboo (Bangladesh), backed by a Magento 2 REST API. Flutter rewrite of the previous React Native app; version tracks continue from it (iOS `26.9.2+66`, Android `7.0.11 / 70011`).
 
 - Dart SDK: `^3.9.2` (Flutter 3.35+)
 - Platforms: Android (`com.pickaboo.app`), iOS
