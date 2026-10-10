@@ -531,7 +531,40 @@ class IProductApiService extends ProductApiService {
 
       final data = response.data;
       if (data is Map<String, dynamic>) {
-        return right(ProductReviewsResponse.fromJson(data));
+        final modifiedReviews = Map<String, dynamic>.from(data);
+        if (modifiedReviews['detailed_ratings'] is List) {
+          modifiedReviews['detailed_ratings'] = (modifiedReviews['detailed_ratings'] as List)
+              .map((e) {
+                if (e is Map<String, dynamic>) {
+                  final m = Map<String, dynamic>.from(e);
+                  if (m['avg_value'] != null) {
+                    m['avg_value'] = (m['avg_value'] is num)
+                        ? (m['avg_value'] as num).toDouble()
+                        : (double.tryParse(m['avg_value'].toString()) ?? 0.0);
+                  }
+                  return m;
+                }
+                return e;
+              })
+              .toList();
+        }
+        if (modifiedReviews['reviews'] is List) {
+          modifiedReviews['reviews'] = (modifiedReviews['reviews'] as List)
+              .map((e) {
+                if (e is Map<String, dynamic>) {
+                  final m = Map<String, dynamic>.from(e);
+                  if (m['reviewer_rating'] != null) {
+                    m['reviewer_rating'] = (m['reviewer_rating'] is num)
+                        ? (m['reviewer_rating'] as num).toDouble()
+                        : (double.tryParse(m['reviewer_rating'].toString()) ?? 0.0);
+                  }
+                  return m;
+                }
+                return e;
+              })
+              .toList();
+        }
+        return right(ProductReviewsResponse.fromJson(modifiedReviews));
       } else {
         final errorList = _tryParseErrorList(data);
         if (errorList != null) {
@@ -1019,6 +1052,47 @@ ProductDetailResponse _parseProductDetailResponse(Map<String, dynamic> data) {
         .map((e) => (e is num) ? e.toInt() : (int.tryParse(e.toString()) ?? 0))
         .toList();
   }
+  if (modifiedJson['detailed_ratings'] is List) {
+    modifiedJson['detailed_ratings'] = (modifiedJson['detailed_ratings'] as List)
+        .map((e) {
+          if (e is Map<String, dynamic>) {
+            final m = Map<String, dynamic>.from(e);
+            if (m['avg_value'] != null) {
+              m['avg_value'] = (m['avg_value'] is num)
+                  ? (m['avg_value'] as num).toDouble()
+                  : (double.tryParse(m['avg_value'].toString()) ?? 0.0);
+            }
+            return m;
+          }
+          return e;
+        })
+        .toList();
+  }
+
+  num? toNum(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val;
+    if (val is String) return num.tryParse(val);
+    return null;
+  }
+
+  int? toInt(dynamic val) => toNum(val)?.toInt();
+  double? toDouble(dynamic val) => toNum(val)?.toDouble();
+
+  if (modifiedJson['id'] != null) modifiedJson['id'] = toInt(modifiedJson['id']);
+  if (modifiedJson['prod_offer_price'] != null) modifiedJson['prod_offer_price'] = toInt(modifiedJson['prod_offer_price']);
+  if (modifiedJson['best_price'] != null) modifiedJson['best_price'] = toInt(modifiedJson['best_price']);
+  if (modifiedJson['free_delivery'] != null) modifiedJson['free_delivery'] = toInt(modifiedJson['free_delivery']);
+  if (modifiedJson['regular_price'] != null) modifiedJson['regular_price'] = toInt(modifiedJson['regular_price']);
+  if (modifiedJson['spacial_price'] != null) modifiedJson['spacial_price'] = toInt(modifiedJson['spacial_price']);
+  if (modifiedJson['discount'] != null) modifiedJson['discount'] = toInt(modifiedJson['discount']);
+  if (modifiedJson['express_delivery'] != null) modifiedJson['express_delivery'] = toInt(modifiedJson['express_delivery']);
+  if (modifiedJson['club_points'] != null) modifiedJson['club_points'] = toDouble(modifiedJson['club_points']);
+  if (modifiedJson['emi'] != null) modifiedJson['emi'] = toDouble(modifiedJson['emi']);
+  if (modifiedJson['rating_summary_value'] != null) modifiedJson['rating_summary_value'] = toDouble(modifiedJson['rating_summary_value']);
+  if (modifiedJson['rating_summary'] != null) modifiedJson['rating_summary'] = toInt(modifiedJson['rating_summary']);
+  if (modifiedJson['reviews_count'] != null) modifiedJson['reviews_count'] = toInt(modifiedJson['reviews_count']);
+
   if (modifiedJson['variant_matrix'] is! Map<String, dynamic>) {
     modifiedJson['variant_matrix'] = null;
   }

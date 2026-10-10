@@ -162,6 +162,7 @@ class AppStrings {
   static const String error                 = 'Error';
   static const String warning               = 'Warning';
   static const String pageNotFound          = 'Page Not Found';
+  static const String somethingWentWrongTitle = 'Something Went Wrong';
   static const String somethingWentWrong    = 'Something went wrong. Please try again.';
   static const String noInternetConnection  = 'No internet connection. Please check your network.';
   static const String itemAddedToWishlist   = 'Item added to your wishlist';

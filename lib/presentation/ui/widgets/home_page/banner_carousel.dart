@@ -68,7 +68,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
   }
 
   String _getBannerImageUrl(SliderEntity banner) {
-    return banner.mobileImage.isNotEmpty ? banner.mobileImage : banner.image;
+    return banner.image.isNotEmpty ? banner.image : banner.mobileImage;
   }
 
   String _getActiveBannerUrl() {

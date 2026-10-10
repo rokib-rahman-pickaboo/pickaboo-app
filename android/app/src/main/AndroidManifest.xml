@@ -60,6 +60,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="http" android:host="www.pickaboo.com" />
                 <data android:scheme="https" android:host="www.pickaboo.com" />
+                <!-- 1. All standard product pages ending in .html (Google search results) -->
+                <data android:pathPattern=".*\\.html" />
+                <!-- 2. Catalog product and category paths -->
+                <data android:pathPrefix="/product" />
+                <data android:pathPrefix="/product-detail" />
+                <data android:pathPrefix="/category" />
+                <data android:pathPrefix="/order" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

@@ -6,8 +6,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/core/cache/auth_cache_manager.dart';
 import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:pickaboo/injection.dart';
 
 class FileDownloadHelper {
   static final Dio _dio = Dio(
@@ -77,9 +78,21 @@ class FileDownloadHelper {
         SnackBarUtils.showInfo(context, 'Downloading $fileName...');
       }
 
+      String? token;
+      if (getIt.isRegistered<AuthCacheManager>()) {
+        token = await getIt<AuthCacheManager>().getToken();
+      }
+
+      final options = Options(
+        headers: {
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        },
+      );
+
       await _dio.download(
         url,
         targetPath,
+        options: options,
         onReceiveProgress: (received, total) {
           if (total > 0 && onProgress != null) {
             final progress = (received / total).clamp(0.0, 1.0);
@@ -90,6 +103,24 @@ class FileDownloadHelper {
 
       final downloadedFile = File(targetPath);
       if (await downloadedFile.exists()) {
+        // Validate that server did not return an HTML error/login page disguised as an attachment
+        final lowerName = fileName.toLowerCase();
+        if (lowerName.endsWith('.png') ||
+            lowerName.endsWith('.jpg') ||
+            lowerName.endsWith('.jpeg') ||
+            lowerName.endsWith('.webp') ||
+            lowerName.endsWith('.pdf')) {
+          final length = await downloadedFile.length();
+          if (length < 2048) {
+            final sampleBytes = await downloadedFile.openRead(0, 100).first;
+            final sampleText = String.fromCharCodes(sampleBytes).toLowerCase();
+            if (sampleText.contains('<!doctype') || sampleText.contains('<html')) {
+              await downloadedFile.delete();
+              throw Exception('Server returned an invalid response or expired attachment.');
+            }
+          }
+        }
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -100,16 +131,7 @@ class FileDownloadHelper {
               ),
               backgroundColor: AppColors.black87,
               behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 5),
-              action: SnackBarAction(
-                label: 'Open / Share',
-                textColor: AppColors.pickabooBlue,
-                onPressed: () {
-                  SharePlus.instance.share(
-                    ShareParams(files: [XFile(downloadedFile.path)]),
-                  );
-                },
-              ),
+              duration: const Duration(seconds: 4),
             ),
           );
         }
@@ -119,7 +141,10 @@ class FileDownloadHelper {
       }
     } catch (e) {
       if (context.mounted) {
-        SnackBarUtils.showError(context, "Failed to download $fileName.");
+        final message = e is Exception && e.toString().contains('invalid response')
+            ? 'Attachment is no longer available on server.'
+            : 'Failed to download $fileName.';
+        SnackBarUtils.showError(context, message);
       }
       return null;
     }
@@ -190,7 +215,7 @@ class FileDownloadHelper {
                     IconButton(
                       icon: Container(
                         padding: EdgeInsets.all(6.w),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.black54,
                           borderRadius: AppRadius.kFull,
                         ),
@@ -205,7 +230,7 @@ class FileDownloadHelper {
                     IconButton(
                       icon: Container(
                         padding: EdgeInsets.all(6.w),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.black54,
                           borderRadius: AppRadius.kFull,
                         ),

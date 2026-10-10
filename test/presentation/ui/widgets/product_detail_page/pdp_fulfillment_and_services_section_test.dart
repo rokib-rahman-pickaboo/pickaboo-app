@@ -184,5 +184,77 @@ void main() {
       await tester.tap(find.byType(PdpDeliveryLocationSelector));
       expect(tapped, isTrue);
     });
+
+    testWidgets(
+        'Location in Gazipur with Dhaka division uses outside charge (non-Dhaka district)',
+        (WidgetTester tester) async {
+      when(() => deliveryChargeBloc.state).thenReturn(
+        const DeliveryChargeState.loaded(
+          DeliveryChargeEntity(
+            insideCharge: 60,
+            outsideCharge: 120,
+          ),
+        ),
+      );
+
+      const gazipurLocation = PlacePickResultEntity(
+        latitude: 23.99,
+        longitude: 90.42,
+        division: 'Dhaka',
+        district: 'Gazipur',
+        city: 'Gazipur',
+        address: 'Joydebpur, Gazipur',
+      );
+
+      final product = _dummyProduct(stockAvailable: true);
+      await tester.pumpWidget(
+        _buildTestWidget(
+          product: product,
+          deliveryChargeBloc: deliveryChargeBloc,
+          cmsContentBloc: cmsContentBloc,
+          selectedDeliveryLocation: gazipurLocation,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('৳ 120'), findsOneWidget);
+      expect(find.text('৳ 60'), findsNothing);
+    });
+
+    testWidgets(
+        'Location in Dhaka district uses inside charge',
+        (WidgetTester tester) async {
+      when(() => deliveryChargeBloc.state).thenReturn(
+        const DeliveryChargeState.loaded(
+          DeliveryChargeEntity(
+            insideCharge: 60,
+            outsideCharge: 120,
+          ),
+        ),
+      );
+
+      const dhakaLocation = PlacePickResultEntity(
+        latitude: 23.79,
+        longitude: 90.40,
+        division: 'Dhaka',
+        district: 'Dhaka',
+        city: 'Dhaka',
+        address: 'Gulshan 1, Dhaka',
+      );
+
+      final product = _dummyProduct(stockAvailable: true);
+      await tester.pumpWidget(
+        _buildTestWidget(
+          product: product,
+          deliveryChargeBloc: deliveryChargeBloc,
+          cmsContentBloc: cmsContentBloc,
+          selectedDeliveryLocation: dhakaLocation,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('৳ 60'), findsOneWidget);
+      expect(find.text('৳ 120'), findsNothing);
+    });
   });
 }

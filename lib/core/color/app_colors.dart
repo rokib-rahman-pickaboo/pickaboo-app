@@ -22,6 +22,7 @@ abstract class AppColors {
 
   /// Primary Dark Navy (Page Headings, Card Titles, High-Contrast Text)
   static const Color navy         = Color(0xFF14304A);
+  static const Color navyBlue     = Color(0xFF034078);
 
   // 2. Canvas, Surfaces & Cards
   /// Universal Card Surface, Sheet Canvas, App Bar Background & White Text

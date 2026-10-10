@@ -27,8 +27,7 @@ class IAnalyticsService implements AnalyticsService {
         await _facebook.logEvent(name: name, valueToSum: valueToSum);
       }
       await _facebook.flush();
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   @override
@@ -45,8 +44,7 @@ class IAnalyticsService implements AnalyticsService {
 
       await _facebook.setAutoLogAppEventsEnabled(true);
       await _facebook.setAdvertiserTracking(enabled: tracking);
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   @override
@@ -74,8 +72,7 @@ class IAnalyticsService implements AnalyticsService {
           ),
         ],
       );
-    } catch (e) {
-    }
+    } catch (_) {}
 
     await _logFB(
       name: 'ViewContent',
@@ -125,7 +122,7 @@ class IAnalyticsService implements AnalyticsService {
           'product_id': id,
           'prod_name': name,
           'quantity': quantity.toString(),
-        }
+        },
       ];
 
       await _logFB(
@@ -153,8 +150,7 @@ class IAnalyticsService implements AnalyticsService {
       try {
         await _facebook.flush();
       } catch (_) {}
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
   @override
@@ -326,34 +322,36 @@ class IAnalyticsService implements AnalyticsService {
     required double total,
     required List<Map<String, dynamic>> items,
   }) async {
-    await _firebase.logPurchase(
-      transactionId: orderId,
-      value: total,
-      currency: 'BDT',
-      items: items
-          .map(
-            (i) => AnalyticsEventItem(
-              itemId: i['id'],
-              itemName: i['name'],
-              price: i['price'].toDouble(),
-              quantity: i['qty'] is int
-                  ? i['qty']
-                  : int.tryParse(i['qty'].toString()) ?? 1,
-            ),
-          )
-          .toList(),
-    );
-
-    await _facebook.logPurchase(
-      amount: total,
-      currency: 'BDT',
-      parameters: {
-        'order_id': orderId,
-        'content_ids': items.map((e) => e['id']).join(','),
-      },
-    );
     try {
-      await _facebook.flush();
+      await _firebase.logPurchase(
+        transactionId: orderId,
+        value: total,
+        currency: 'BDT',
+        items: items
+            .map(
+              (i) => AnalyticsEventItem(
+                itemId: i['id'],
+                itemName: i['name'],
+                price: i['price'].toDouble(),
+                quantity: i['qty'] is int
+                    ? i['qty']
+                    : int.tryParse(i['qty'].toString()) ?? 1,
+              ),
+            )
+            .toList(),
+      );
+
+      await _facebook.logPurchase(
+        amount: total,
+        currency: 'BDT',
+        parameters: {
+          'order_id': orderId,
+          'content_ids': items.map((e) => e['id']).join(','),
+        },
+      );
+      try {
+        await _facebook.flush();
+      } catch (_) {}
     } catch (_) {}
   }
 
@@ -526,10 +524,12 @@ class IAnalyticsService implements AnalyticsService {
     required String name,
     Map<String, dynamic>? parameters,
   }) async {
-    await _firebase.logEvent(
-      name: name,
-      parameters: parameters?.cast<String, Object>(),
-    );
+    try {
+      await _firebase.logEvent(
+        name: name,
+        parameters: parameters?.cast<String, Object>(),
+      );
+    } catch (_) {}
 
     Map<String, dynamic>? sanitizedParams;
     if (parameters != null) {

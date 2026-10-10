@@ -119,16 +119,10 @@ class TicketMessageItem extends StatelessWidget {
                           tooltip: 'Download file',
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
-                          onPressed: () {
-                            final url =
-                                _resolveUrl(message.attachments[index].path);
-                            FileDownloadHelper.downloadFile(
-                              context: context,
-                              url: url,
-                              fileName:
-                                  _displayName(message.attachments[index]),
-                            );
-                          },
+                          onPressed: () => _openAttachment(
+                            context,
+                            message.attachments[index],
+                          ),
                         ),
                       ],
                     ),
@@ -231,21 +225,12 @@ class TicketMessageItem extends StatelessWidget {
 
     final fileName = _displayName(attachment);
 
-    // If it's an image, show in-app preview dialog with pinch-to-zoom and download
-    if (_isImageFileType(attachment)) {
-      FileDownloadHelper.showImagePreview(
-        context: context,
-        imageUrl: url,
-        fileName: fileName,
-      );
-    } else {
-      // If document/PDF, download directly in-app without opening any browser
-      await FileDownloadHelper.downloadFile(
-        context: context,
-        url: url,
-        fileName: fileName,
-      );
-    }
+    // Download directly to the device without opening any in-app preview
+    await FileDownloadHelper.downloadFile(
+      context: context,
+      url: url,
+      fileName: fileName,
+    );
   }
 
   String _formatDateTime(String? dateStr) {

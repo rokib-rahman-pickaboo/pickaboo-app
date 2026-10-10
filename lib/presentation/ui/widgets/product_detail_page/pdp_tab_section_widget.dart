@@ -149,6 +149,59 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
     );
   }
 
+  Widget _buildExpandCollapseButton({
+    required bool isExpanded,
+    required VoidCallback onTap,
+  }) {
+    return Center(
+      child: Material(
+        color: AppColors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 8.h,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: AppColors.border,
+                width: 0.8.w,
+              ),
+              boxShadow: AppDecorations.cardShadow,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  isExpanded ? AppStrings.viewLess : AppStrings.viewMore,
+                  style: AppTypography.titleSmall.copyWith(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.navy,
+                    height: 1.0,
+                  ),
+                ),
+                SizedBox(width: 4.w),
+                Icon(
+                  isExpanded
+                      ? Icons.keyboard_arrow_up_rounded
+                      : Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.navy,
+                  size: 16.sp,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActiveTabContent(ProductDetailEntity p) {
     switch (_selectedTab) {
       case 0: // Specifications
@@ -310,44 +363,13 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
 
               if (isLong) ...[
                 SizedBox(height: 8.h),
-                Center(
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _isSpecificationsExpanded = !_isSpecificationsExpanded;
-                      });
-                    },
-                    borderRadius: AppRadius.k8,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 14.w,
-                        vertical: 6.h,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _isSpecificationsExpanded
-                                ? AppStrings.viewLess
-                                : AppStrings.viewAll,
-                            style: AppTypography.titleSmall.copyWith(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.pickabooBlue,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                          Icon(
-                            _isSpecificationsExpanded
-                                ? Icons.keyboard_arrow_up_rounded
-                                : Icons.keyboard_arrow_down_rounded,
-                            color: AppColors.pickabooBlue,
-                            size: 18.sp,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                _buildExpandCollapseButton(
+                  isExpanded: _isSpecificationsExpanded,
+                  onTap: () {
+                    setState(() {
+                      _isSpecificationsExpanded = !_isSpecificationsExpanded;
+                    });
+                  },
                 ),
               ],
             ],
@@ -420,42 +442,13 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
 
               if (isLong) ...[
                 SizedBox(height: 8.h),
-                Center(
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _isOverviewExpanded = !_isOverviewExpanded;
-                      });
-                    },
-                    borderRadius: AppRadius.k8,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 14.w,
-                        vertical: 6.h,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _isOverviewExpanded ? AppStrings.viewLess : AppStrings.viewMore,
-                            style: AppTypography.titleSmall.copyWith(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.pickabooBlue,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                          Icon(
-                            _isOverviewExpanded
-                                ? Icons.keyboard_arrow_up_rounded
-                                : Icons.keyboard_arrow_down_rounded,
-                            color: AppColors.pickabooBlue,
-                            size: 18.sp,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                _buildExpandCollapseButton(
+                  isExpanded: _isOverviewExpanded,
+                  onTap: () {
+                    setState(() {
+                      _isOverviewExpanded = !_isOverviewExpanded;
+                    });
+                  },
                 ),
               ],
             ],
@@ -563,7 +556,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                     Container(
                                       width: 32.r,
                                       height: 32.r,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: AppColors.itemBackground,
                                         shape: BoxShape.circle,
                                       ),
@@ -575,7 +568,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                         Container(
                                           width: 100.w,
                                           height: 14.h,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: AppColors.itemBackground,
                                             borderRadius: AppRadius.k8,
                                           ),
@@ -584,7 +577,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                         Container(
                                           width: 60.w,
                                           height: 10.h,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: AppColors.itemBackground,
                                             borderRadius: AppRadius.k8,
                                           ),
@@ -597,7 +590,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                 Container(
                                   width: double.infinity,
                                   height: 12.h,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.itemBackground,
                                     borderRadius: AppRadius.k8,
                                   ),
@@ -606,7 +599,7 @@ class PdpTabSectionWidgetState extends State<PdpTabSectionWidget> {
                                 Container(
                                   width: 180.w,
                                   height: 12.h,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.itemBackground,
                                     borderRadius: AppRadius.k8,
                                   ),

@@ -118,27 +118,29 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
       backgroundColor: AppColors.transparent,
       builder: (ctx) => Container(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.75),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: AppRadius.radFull),
+          borderRadius: AppRadius.top16,
         ),
         padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle Bar
-            Center(
-              child: Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: AppRadius.k4,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle Bar
+              Center(
+                child: Container(
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: const BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: AppRadius.k4,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 12.h),
+              SizedBox(height: 12.h),
 
             // Header Title & Close Button
             Row(
@@ -238,8 +240,9 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   double _calculateCardWidth({
     required OfferItemData offer,
@@ -434,7 +437,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
               Container(
                 width: 48.w,
                 height: 12.h,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.itemBackground,
                   borderRadius: AppRadius.k4,
                 ),
@@ -483,7 +486,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
           Container(
             width: 22.w,
             height: 22.w,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.surfaceBlue,
               shape: BoxShape.circle,
             ),
@@ -504,7 +507,7 @@ class _PdpAvailableOffersWidgetState extends State<PdpAvailableOffersWidget> {
                 Container(
                   width: double.infinity,
                   height: 10.h,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.border,
                     borderRadius: AppRadius.k4,
                   ),

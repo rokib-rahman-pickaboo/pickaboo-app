@@ -115,6 +115,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   bool _isSharing = false;
   List<ConfigurableItemOptionEntity> _selectedVariantsStatus = [];
   List<ConfigurableItemOptionEntity> _selectedAddonOptions = [];
+  bool _optionsConfirmed = false;
 
   bool _showVariantError = false;
 
@@ -323,9 +324,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   bool _isDhakaPlace(PlacePickResultEntity? place) {
     if (place == null) return false;
+    // Dhaka division contains other districts (e.g. Gazipur, Narayanganj).
+    // Division is intentionally skipped; only Dhaka district qualifies as Dhaka.
+    final district = place.district?.trim().toLowerCase();
+    if (district != null && district.isNotEmpty) {
+      return district.contains('dhaka');
+    }
     final candidates = [
-      place.district,
-      place.division,
       place.city,
       place.address,
       place.placeName,
@@ -363,12 +368,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         (a) => a.defaultShipping,
         orElse: () => addresses.first,
       );
-      final List<String> candidates = [
-        addr.city,
-        addr.region.region,
-        ...addr.street,
-      ];
-      final isDhaka = candidates.any(
+      // addr.region.region is division (e.g. 'Dhaka' even for Gazipur/Narayanganj).
+      // Only check city or street, skipping division region.
+      final city = addr.city.trim().toLowerCase();
+      if (city.isNotEmpty) {
+        return !city.contains('dhaka');
+      }
+      final isDhaka = addr.street.any(
         (c) => c.toLowerCase().contains('dhaka'),
       );
       return !isDhaka;
@@ -456,7 +462,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       return;
     }
 
-    if (!_validateSelection(mainProduct)) {
+    if (_shouldPromptOptionsSheet(mainProduct)) {
       _openOptionsSheet(mainProduct, isBuyNow: false);
       return;
     }
@@ -555,6 +561,33 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return allVariantsSelected && allAddonsSelected;
   }
 
+  bool _hasCustomizableExtraOptions(ProductDetailEntity product) {
+    return product.extraOptions.any(
+      (o) => !o.title.toLowerCase().contains('insurance'),
+    );
+  }
+
+  bool _shouldPromptOptionsSheet(ProductDetailEntity product) {
+    if (product.isPartial) return false;
+
+    // 1. If options already confirmed by the user in this session, check strict requirements
+    if (_optionsConfirmed) {
+      return !_validateSelection(product);
+    }
+
+    // 2. Strict validation failure (e.g. required variants or required addons missing)
+    if (!_validateSelection(product)) {
+      return true;
+    }
+
+    // 3. Product has non-insurance extra options (even if optional, like Installation Charge)
+    if (_hasCustomizableExtraOptions(product)) {
+      return true;
+    }
+
+    return false;
+  }
+
   Future<void> _openOptionsSheet(
     ProductDetailEntity product, {
     bool isBuyNow = false,
@@ -593,9 +626,24 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
 
     if (result != null && mounted) {
+      int totalAddonPrice = 0;
+      for (final addon in result.addons) {
+        if (!addon.isCustomOption) continue;
+        try {
+          final option = product.extraOptions.firstWhere(
+            (o) => o.optionId.toString() == addon.optionId,
+          );
+          final value = option.values.firstWhere(
+            (v) => v.optionTypeId.toString() == addon.optionValue,
+          );
+          totalAddonPrice += value.price;
+        } catch (_) {}
+      }
       setState(() {
         _selectedVariantsStatus = result.variants;
         _selectedAddonOptions = result.addons;
+        _totalAddonPrice = totalAddonPrice;
+        _optionsConfirmed = true;
       });
       if (!isSelectionOnly) {
         // The sheet already validated selections, so skip re-validation
@@ -711,7 +759,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       return;
     }
 
-    if (!skipValidation && !_validateSelection(product)) {
+    if (!skipValidation && _shouldPromptOptionsSheet(product)) {
       _openOptionsSheet(product, isBuyNow: false);
       return;
     }
@@ -753,7 +801,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       return;
     }
 
-    if (!skipValidation && !_validateSelection(product)) {
+    if (!skipValidation && _shouldPromptOptionsSheet(product)) {
       _openOptionsSheet(product, isBuyNow: true);
       return;
     }
@@ -1332,7 +1380,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               Expanded(
                 child: Container(
                   height: 44.h,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.skeletonBase,
                     borderRadius: AppRadius.k8,
                   ),
@@ -1571,6 +1619,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           onHeaderTap: () => _openOptionsSheet(product, isSelectionOnly: true),
                         ),
                       ),
+
                     // ── 5. Deals & Offers Section (Flash Sale Countdown & Available Offers / Bank Discounts) ──
                     PdpDealsAndOffersSection(
                       product: product,

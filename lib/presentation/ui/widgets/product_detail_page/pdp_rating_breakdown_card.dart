@@ -84,7 +84,7 @@ class PdpRatingBreakdownCard extends StatelessWidget {
                   ),
                 ],
               ),
-              AppSpacing.groupToGroupGap,
+              SizedBox(width: 16.w),
               Expanded(
                 child: Column(
                   children: [
@@ -153,7 +153,7 @@ class PdpRatingBreakdownCard extends StatelessWidget {
                       child: Container(
                         width: 60.w,
                         height: 60.w,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: AppColors.itemBackground,
                           borderRadius: AppRadius.k8,
                         ),
@@ -235,9 +235,11 @@ class _RatingBarRow extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 22.w,
+            width: 30.w,
             child: Text(
               starLabel,
+              maxLines: 1,
+              softWrap: false,
               style: AppTypography.bodySmall.copyWith(
                 fontSize: 10.sp,
                 fontWeight: FontWeight.w600,
@@ -259,10 +261,12 @@ class _RatingBarRow extends StatelessWidget {
           ),
           SizedBox(width: 8.w),
           SizedBox(
-            width: 24.w,
+            width: 28.w,
             child: Text(
               count,
               textAlign: TextAlign.end,
+              maxLines: 1,
+              softWrap: false,
               style: AppTypography.bodySmall.copyWith(
                 fontSize: 10.sp,
               ),

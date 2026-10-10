@@ -39,6 +39,7 @@ import 'package:pickaboo/presentation/ui/pages/search_page/search_page.dart';
 import 'package:pickaboo/presentation/ui/pages/seller_product_page/seller_product_page.dart';
 import 'package:pickaboo/presentation/ui/pages/special_category_product_page/special_category_product_page.dart';
 import 'package:pickaboo/presentation/ui/pages/dashboard/write_review_page/write_review_page.dart';
+import 'package:pickaboo/presentation/ui/pages/deep_link_resolver_page.dart';
 
 /// Routes for products, catalog, search, and product details.
 final List<RouteBase> productRoutes = [
@@ -120,6 +121,15 @@ final List<RouteBase> productRoutes = [
     path: Routes.productDetail,
     name: 'productDetail',
     builder: (context, state) {
+      final rawId = state.pathParameters['id'] ?? '';
+      final isNumericId = int.tryParse(rawId) != null;
+
+      if (!isNumericId && rawId.isNotEmpty) {
+        // Deep link or web URL with a slug under /product/<slug> (can be category or product).
+        // Route through DeepLinkResolverPage to dynamically resolve whether it's a category or product.
+        return DeepLinkResolverPage(slug: rawId, type: 'auto');
+      }
+
       final extra = state.extra;
       String? previewImageUrl;
       String? previewPrice;
@@ -132,7 +142,6 @@ final List<RouteBase> productRoutes = [
       previewImageUrl ??= state.uri.queryParameters['image'];
       previewPrice ??= state.uri.queryParameters['price'];
 
-      final rawId = state.pathParameters['id'] ?? '';
       final intId = int.tryParse(rawId) ?? 0;
       final cachedImage = ProductImageResolver.getCachedImage(intId);
 

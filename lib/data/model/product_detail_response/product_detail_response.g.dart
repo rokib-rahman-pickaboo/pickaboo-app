@@ -867,7 +867,7 @@ Map<String, dynamic> _$$YoutubeVideoImplToJson(_$YoutubeVideoImpl instance) =>
 _$DetailedRatingImpl _$$DetailedRatingImplFromJson(Map<String, dynamic> json) =>
     _$DetailedRatingImpl(
       rating: json['rating'] as String?,
-      avgValue: (json['avg_value'] as num?)?.toDouble(),
+      avgValue: _toDoubleSafe(json['avg_value']),
     );
 
 Map<String, dynamic> _$$DetailedRatingImplToJson(

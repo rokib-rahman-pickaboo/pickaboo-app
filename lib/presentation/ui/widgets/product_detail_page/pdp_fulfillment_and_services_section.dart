@@ -38,9 +38,13 @@ class PdpFulfillmentAndServicesSection extends StatelessWidget {
 
   bool _isDhakaPlace(PlacePickResultEntity? place) {
     if (place == null) return false;
+    // Dhaka division contains other districts (e.g. Gazipur, Narayanganj).
+    // Division is intentionally skipped; only Dhaka district qualifies as Dhaka.
+    final district = place.district?.trim().toLowerCase();
+    if (district != null && district.isNotEmpty) {
+      return district.contains('dhaka');
+    }
     final candidates = [
-      place.district,
-      place.division,
       place.city,
       place.address,
       place.placeName,

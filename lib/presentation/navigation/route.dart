@@ -40,16 +40,9 @@ class AppRouter {
             Icon(Icons.error_outline, size: 64.sp, color: AppColors.red),
             SizedBox(height: 16.h),
             Text(
-              AppStrings.pageNotFound,
+              AppStrings.somethingWentWrongTitle,
               style: AppTypography.heroTitle.withColor(
                 AppColors.navy,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              state.matchedLocation,
-              style: AppTypography.bodyMedium.withColor(
-                AppColors.muted,
               ),
             ),
             SizedBox(height: 24.h),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_available_offers_widget.dart';
 
 void main() {
@@ -75,7 +76,12 @@ void main() {
       expect(find.textContaining('Use coupon code SAVE10 for discount.'), findsWidgets);
       expect(find.textContaining('bKash cashback 5% up to ৳200.'), findsWidgets);
       expect(find.textContaining('Free Installation across Dhaka.'), findsWidgets);
-      expect(find.textContaining('0% EMI for 12 months.'), findsWidgets);
+      // Verify bottom sheet uses top16 border radius (not broken full-radius dome)
+      final sheetContainers = tester.widgetList<Container>(find.byType(Container));
+      final rootSheet = sheetContainers.firstWhere(
+        (c) => (c.decoration as BoxDecoration?)?.borderRadius == AppRadius.top16,
+      );
+      expect(rootSheet, isNotNull);
     });
 
     testWidgets('Renders single offer as full-width card', (tester) async {

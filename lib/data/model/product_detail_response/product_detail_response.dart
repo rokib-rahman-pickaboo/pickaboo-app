@@ -9,6 +9,14 @@ part 'product_detail_response.g.dart';
 
 String? _toStringSafe(dynamic value) => value?.toString();
 
+double? _toDoubleSafe(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  if (value is String) return num.tryParse(value)?.toDouble();
+  return null;
+}
+
 bool _boolFromJson(dynamic value) {
   if (value == null) return false;
   if (value is bool) return value;
@@ -96,7 +104,7 @@ class YoutubeVideo with _$YoutubeVideo {
 class DetailedRating with _$DetailedRating {
   const factory DetailedRating({
     @HiveField(0) @JsonKey(name: "rating") String? rating,
-    @HiveField(1) @JsonKey(name: "avg_value") double? avgValue,
+    @HiveField(1) @JsonKey(name: "avg_value", fromJson: _toDoubleSafe) double? avgValue,
   }) = _DetailedRating;
 
   factory DetailedRating.fromJson(Map<String, dynamic> json) =>

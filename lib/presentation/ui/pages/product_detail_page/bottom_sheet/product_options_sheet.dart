@@ -426,7 +426,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
               margin: EdgeInsets.only(top: 10.h),
               width: 40.w,
               height: 4.h,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.border,
                 borderRadius: AppRadius.k4,
               ),
@@ -437,13 +437,17 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.product.variantGroups.isNotEmpty
-                      ? 'Select options'
-                      : 'Select add-ons',
-                  style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.navy,
+                Expanded(
+                  child: Text(
+                    widget.product.variantGroups.isNotEmpty
+                        ? 'Select options'
+                        : 'Customize your order',
+                    style: AppTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.navy,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
@@ -529,21 +533,12 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                     if (filteredOptions.isEmpty) return <Widget>[];
 
                     return <Widget>[
-                      Divider(
-                        color: AppColors.border,
-                        thickness: 1.h,
-                        height: 1.h,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 8.h),
-                        child: Text(
-                          'Options',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: AppColors.navy,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      if (widget.product.variantGroups.isNotEmpty)
+                        Divider(
+                          color: AppColors.border,
+                          thickness: 1.h,
+                          height: 1.h,
                         ),
-                      ),
                       ...filteredOptions.map((option) {
                       final hasOptionSelected = _selectedAddons.any(
                         (e) => e.optionId == option.optionId.toString(),
@@ -603,7 +598,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                                   SizedBox(width: 6.w),
                                   Container(
                                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: AppColors.redBg,
                                       borderRadius: AppRadius.k4,
                                     ),

@@ -9,16 +9,16 @@ part of 'product_reviews_response.dart';
 _$ProductReviewsResponseImpl _$$ProductReviewsResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$ProductReviewsResponseImpl(
-  totalReviews: (json['total_reviews'] as num?)?.toInt(),
-  averageRating: (json['average_rating'] as num?)?.toDouble(),
-  rating5Count: (json['rating5_count'] as num?)?.toInt(),
-  rating4Count: (json['rating4_count'] as num?)?.toInt(),
-  rating3Count: (json['rating3_count'] as num?)?.toInt(),
-  rating2Count: (json['rating2_count'] as num?)?.toInt(),
-  rating1Count: (json['rating1_count'] as num?)?.toInt(),
-  currentPage: (json['current_page'] as num?)?.toInt(),
-  pageSize: (json['page_size'] as num?)?.toInt(),
-  totalPages: (json['total_pages'] as num?)?.toInt(),
+  totalReviews: _toIntSafe(json['total_reviews']),
+  averageRating: _toDoubleSafe(json['average_rating']),
+  rating5Count: _toIntSafe(json['rating5_count']),
+  rating4Count: _toIntSafe(json['rating4_count']),
+  rating3Count: _toIntSafe(json['rating3_count']),
+  rating2Count: _toIntSafe(json['rating2_count']),
+  rating1Count: _toIntSafe(json['rating1_count']),
+  currentPage: _toIntSafe(json['current_page']),
+  pageSize: _toIntSafe(json['page_size']),
+  totalPages: _toIntSafe(json['total_pages']),
   reviews:
       (json['reviews'] as List<dynamic>?)
           ?.map(
@@ -26,7 +26,7 @@ _$ProductReviewsResponseImpl _$$ProductReviewsResponseImplFromJson(
                 ProductReviewItemResponse.fromJson(e as Map<String, dynamic>),
           )
           .toList(),
-  ratingSummary: (json['rating_summary'] as num?)?.toInt(),
+  ratingSummary: _toIntSafe(json['rating_summary']),
   detailedRatings:
       (json['detailed_ratings'] as List<dynamic>?)
           ?.map(
@@ -63,11 +63,11 @@ Map<String, dynamic> _$$ProductReviewsResponseImplToJson(
 _$ProductReviewItemResponseImpl _$$ProductReviewItemResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$ProductReviewItemResponseImpl(
-  reviewId: (json['review_id'] as num?)?.toInt(),
+  reviewId: _toIntSafe(json['review_id']),
   postedOn: safeDateTimeFromJson(json['posted_on']),
   reviewerName: json['reviewer_name'] as String?,
   reviewerImage: json['reviewer_image'] as String?,
-  reviewerRating: (json['reviewer_rating'] as num?)?.toDouble(),
+  reviewerRating: _toDoubleSafe(json['reviewer_rating']),
   title: json['title'] as String?,
   detail: json['detail'] as String?,
   isRecommended: json['is_recommended'] as String?,
@@ -92,7 +92,7 @@ _$ReviewDetailedRatingResponseImpl _$$ReviewDetailedRatingResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$ReviewDetailedRatingResponseImpl(
   rating: json['rating'] as String?,
-  avgValue: (json['avg_value'] as num?)?.toDouble(),
+  avgValue: _toDoubleSafe(json['avg_value']),
 );
 
 Map<String, dynamic> _$$ReviewDetailedRatingResponseImplToJson(

@@ -66,9 +66,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
   Future<void> _onLoad(_Load event, Emitter<ProductDetailState> emit) async {
     // 1. Instant Frame 0 hydration from preview product if available
-    bool hasInitialOrCachedData = false;
     if (event.initialProduct != null) {
-      hasInitialOrCachedData = true;
       emit(ProductDetailState.loaded(
         ProductDetailEntity.fromProductEntity(event.initialProduct!),
       ));
@@ -102,7 +100,6 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     final cachedResult = await repository.getSavedProductDetail(productId: productId);
     cachedResult.fold((_) {}, (cachedProduct) {
       if (cachedProduct != null) {
-        hasInitialOrCachedData = true;
         emit(ProductDetailState.loaded(cachedProduct));
       }
     });
@@ -111,7 +108,11 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     result.fold(
       (error) {
-        if (!hasInitialOrCachedData) {
+        final currentProduct = state.maybeWhen(
+          loaded: (p) => p,
+          orElse: () => null,
+        );
+        if (currentProduct == null || currentProduct.isPartial) {
           emit(ProductDetailState.error(error));
         }
       },

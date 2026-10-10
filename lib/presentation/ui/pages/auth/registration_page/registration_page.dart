@@ -118,7 +118,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Future<void> _signInWithGoogle() async {
     _dismissKeyboard();
     try {
-
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
         serverClientId: AppConstants.googleAndroidWebClientId,

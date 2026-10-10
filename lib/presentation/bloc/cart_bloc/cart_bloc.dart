@@ -432,8 +432,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
               emit(CartState.error(error: error, lastCart: _currentCart));
             },
             (cart) async {
-              final enrichedCart = await _withCheckoutTotals(cart);
-              _currentCart = enrichedCart;
+              _currentCart = cart;
               _isPendingAddition = false;
               _analytics.logAddToCart(
                 id: item.sku,
@@ -442,10 +441,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
                 quantity: item.qty,
               );
               emit(
-                CartState.itemAdded(cart: enrichedCart, message: 'Item added to cart'),
+                CartState.itemAdded(cart: cart, message: 'Item added to cart'),
               );
 
-              emit(CartState.loaded(enrichedCart));
+              emit(CartState.loaded(cart));
             },
           );
         },
@@ -1087,14 +1086,27 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     _AddItemSmart event,
     Emitter<CartState> emit,
   ) async {
+    // 1. Fast path: use in-memory quote ID or persisted quote ID directly without redundant network lookup
+    String? quoteId = _currentCart?.id;
+    if (quoteId == null || quoteId.isEmpty) {
+      quoteId = await _cacheManager.getAuthQuoteId();
+    }
+
+    if (quoteId != null && quoteId.isNotEmpty) {
+      await _performAddItem(event, emit, quoteId, isGuest: false);
+      return;
+    }
+
+    // 2. Only if quote ID is not cached, fetch basic cart once to retrieve it
     final cartResult = await repository.getBasicCart();
 
     await cartResult.fold(
       (error) async {
-        final String quoteId = _currentCart?.id ?? '';
-        await _performAddItem(event, emit, quoteId, isGuest: false);
+        final String fallbackQuoteId = _currentCart?.id ?? '';
+        await _performAddItem(event, emit, fallbackQuoteId, isGuest: false);
       },
       (cart) async {
+        await _cacheManager.setAuthQuoteId(quoteId: cart.id);
         await _performAddItem(event, emit, cart.id, isGuest: false);
       },
     );
@@ -1191,8 +1203,18 @@ class CartBloc extends Bloc<CartEvent, CartState> {
               },
             );
           } else {
-            _isPendingAddition = false;
-            emit(CartState.error(error: error, lastCart: _currentCart));
+            await _cacheManager.clearAuthQuoteId();
+            final createResult = await repository.createCart();
+            await createResult.fold(
+              (createError) async {
+                _isPendingAddition = false;
+                emit(CartState.error(error: createError, lastCart: _currentCart));
+              },
+              (newQuoteId) async {
+                await _cacheManager.setAuthQuoteId(quoteId: newQuoteId);
+                await _performAddItem(event, emit, newQuoteId, isGuest: false, isRetry: true);
+              },
+            );
           }
         } else {
           _isPendingAddition = false;
@@ -1200,33 +1222,70 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         }
       },
       (item) async {
+        // Immediate optimistic feedback: update memory cart and increment badge
+        CartEntity? interimCart;
+        if (_currentCart != null) {
+          final existingItems = List<CartItemEntity>.from(_currentCart!.items);
+          final existingIndex = existingItems.indexWhere((i) => i.sku == item.sku);
+          if (existingIndex != -1) {
+            existingItems[existingIndex] = existingItems[existingIndex].copyWith(
+              qty: existingItems[existingIndex].qty + item.qty,
+            );
+          } else {
+            existingItems.add(item);
+          }
+          final addedValue = item.price * item.qty;
+          interimCart = _currentCart!.copyWith(
+            items: existingItems,
+            itemsCount: _currentCart!.itemsCount + item.qty,
+            subtotal: _currentCart!.subtotal + addedValue,
+            grandTotal: _currentCart!.grandTotal + addedValue,
+          );
+          _currentCart = interimCart;
+        }
+
+        _isPendingAddition = false;
+        _analytics.logAddToCart(
+          id: item.sku,
+          name: item.name,
+          price: item.price,
+          quantity: item.qty,
+        );
+
+        final initialCart = interimCart ??
+            _currentCart ??
+            CartEntity(
+              id: quoteId,
+              itemsCount: item.qty,
+              items: [item],
+              subtotal: item.price * item.qty,
+              grandTotal: item.price * item.qty,
+              discountAmount: 0,
+              shippingAmount: 0,
+              taxAmount: 0,
+              couponCode: '',
+            );
+
+        // Emit itemAdded immediately so the PDP button unlocks and snackbar shows without delay
+        emit(
+          CartState.itemAdded(
+            cart: initialCart,
+            message: 'Item added to cart',
+          ),
+        );
+
+        // Fetch fresh authoritative cart to ensure synchronization with backend
         final cartResult = isGuest
             ? await repository.getGuestCart(cartId: quoteId)
             : await repository.getBasicCart();
 
         await cartResult.fold(
           (error) async {
-            _isPendingAddition = false;
-            emit(CartState.error(error: error, lastCart: _currentCart));
+            emit(CartState.loaded(initialCart));
           },
           (cart) async {
-            final enrichedCart =
-                isGuest ? cart : await _withCheckoutTotals(cart);
-            _currentCart = enrichedCart;
-            _isPendingAddition = false;
-            _analytics.logAddToCart(
-              id: item.sku,
-              name: item.name,
-              price: item.price,
-              quantity: item.qty,
-            );
-            emit(
-              CartState.itemAdded(
-                cart: enrichedCart,
-                message: 'Item added to cart',
-              ),
-            );
-            emit(CartState.loaded(enrichedCart));
+            _currentCart = cart;
+            emit(CartState.loaded(cart));
           },
         );
       },

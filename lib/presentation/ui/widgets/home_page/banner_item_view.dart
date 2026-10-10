@@ -40,9 +40,9 @@ class BannerItemView extends StatelessWidget {
     final int calculatedCacheWidth =
         cacheWidth ?? (imageWidth * devicePixelRatio).round().clamp(400, 1600);
 
-    final imageUrl = banner.mobileImage.isNotEmpty
-        ? banner.mobileImage
-        : banner.image;
+    final imageUrl = banner.image.isNotEmpty
+        ? banner.image
+        : banner.mobileImage;
 
     final imageChild = ClipRRect(
       borderRadius: effectiveBorderRadius,

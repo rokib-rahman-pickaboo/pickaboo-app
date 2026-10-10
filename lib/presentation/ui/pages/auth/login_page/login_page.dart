@@ -123,7 +123,6 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signInWithGoogle() async {
     _dismissKeyboard();
     try {
-
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: Platform.isIOS ? AppConstants.googleIosClientId : null,
         serverClientId: AppConstants.googleAndroidWebClientId,

@@ -93,12 +93,12 @@ class _TimerBannerWidgetState extends State<TimerBannerWidget> {
           children: [
             Expanded(
               flex: 9,
-              child: (widget.banner.mobileImage.isNotEmpty ||
-                      widget.banner.image.isNotEmpty)
+              child: (widget.banner.image.isNotEmpty ||
+                      widget.banner.mobileImage.isNotEmpty)
                   ? AppImage(
-                      imageUrl: widget.banner.mobileImage.isNotEmpty
-                          ? widget.banner.mobileImage
-                          : widget.banner.image,
+                      imageUrl: widget.banner.image.isNotEmpty
+                          ? widget.banner.image
+                          : widget.banner.mobileImage,
                       fit: BoxFit.cover,
                       placeholder: Container(
                         color: AppColors.pickabooBlue.withValues(alpha: 0.3),
