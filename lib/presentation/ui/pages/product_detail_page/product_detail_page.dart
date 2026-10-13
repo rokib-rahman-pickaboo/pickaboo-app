@@ -57,6 +57,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_error_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/draggable_compare_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_bottom_action_bar.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_cross_sell_section.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_customize_order_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_deals_and_offers_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_fulfillment_and_services_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_key_highlights_widget.dart';
@@ -116,8 +117,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   List<ConfigurableItemOptionEntity> _selectedVariantsStatus = [];
   List<ConfigurableItemOptionEntity> _selectedAddonOptions = [];
   bool _optionsConfirmed = false;
+  bool _insurancePrompted = false;
 
   bool _showVariantError = false;
+  bool _showAddonError = false;
 
   PlacePickResultEntity? _selectedDeliveryLocation;
   bool _secondarySectionsLoaded = false;
@@ -552,9 +555,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         );
 
     // Only display inline error banner if full product is loaded and user skipped options
-    if (!product.isPartial && product.hasVariants) {
+    if (!product.isPartial) {
       setState(() {
-        _showVariantError = !allVariantsSelected;
+        if (product.hasVariants) {
+          _showVariantError = !allVariantsSelected;
+        }
+        if (_hasCustomizableExtraOptions(product)) {
+          _showAddonError = !allAddonsSelected;
+        }
       });
     }
 
@@ -565,6 +573,24 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return product.extraOptions.any(
       (o) => !o.title.toLowerCase().contains('insurance'),
     );
+  }
+
+  bool _shouldPromptInsurance(ProductDetailEntity product) {
+    final insuranceOptions = product.extraOptions
+        .where((o) => o.title.toLowerCase().contains('insurance'))
+        .toList();
+    if (insuranceOptions.isEmpty) return false;
+
+    final option = insuranceOptions.first;
+    final alreadySelected = _selectedAddonOptions.any(
+      (addon) => addon.optionId == option.optionId.toString(),
+    );
+    if (alreadySelected) return false;
+
+    // If optional and user already saw/dismissed it in this session, don't ask again
+    if (_insurancePrompted && !option.isRequire) return false;
+
+    return true;
   }
 
   bool _shouldPromptOptionsSheet(ProductDetailEntity product) {
@@ -621,6 +647,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           _selectedAddonOptions = addons;
           _totalAddonPrice = totalAddonPrice;
           _showVariantError = false;
+          _showAddonError = false;
         });
       },
     );
@@ -644,6 +671,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         _selectedAddonOptions = result.addons;
         _totalAddonPrice = totalAddonPrice;
         _optionsConfirmed = true;
+        _showVariantError = false;
+        _showAddonError = false;
       });
       if (!isSelectionOnly) {
         // The sheet already validated selections, so skip re-validation
@@ -690,7 +719,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   /// Checks if the product has insurance options and shows the
   /// [DeviceInsuranceDialog]. This is called after the options sheet
-  /// confirms the user's selections (i.e. validation is already done).
+  /// confirms the user's selections or directly before cart addition.
   ///
   /// When the insurance option has `isRequire == true`, the dialog hides
   /// "No thanks" and auto-includes insurance even if dismissed, so that
@@ -706,8 +735,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     if (insuranceOptions.isNotEmpty && mounted) {
       final option = insuranceOptions.first;
       final firstValue = option.values.isNotEmpty ? option.values.first : null;
+      final alreadySelected = _selectedAddonOptions.any(
+        (addon) => addon.optionId == option.optionId.toString(),
+      );
 
-      if (firstValue != null) {
+      if (!alreadySelected && (!_insurancePrompted || option.isRequire) && firstValue != null) {
+        _insurancePrompted = true;
         final result = await DeviceInsuranceDialog.show(
           context,
           insuranceOption: option,
@@ -718,7 +751,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           // User tapped "Add Protection Plan"
           setState(() {
             _selectedAddonOptions = [
-              ..._selectedAddonOptions,
+              ..._selectedAddonOptions.where((a) => a.optionId != option.optionId.toString()),
               ConfigurableItemOptionEntity(
                 optionId: result.optionId.toString(),
                 optionValue: result.optionTypeId.toString(),
@@ -730,7 +763,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           // Required insurance: auto-include even if user closed the dialog
           setState(() {
             _selectedAddonOptions = [
-              ..._selectedAddonOptions,
+              ..._selectedAddonOptions.where((a) => a.optionId != option.optionId.toString()),
               ConfigurableItemOptionEntity(
                 optionId: option.optionId.toString(),
                 optionValue: firstValue.optionTypeId.toString(),
@@ -759,9 +792,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       return;
     }
 
-    if (!skipValidation && _shouldPromptOptionsSheet(product)) {
-      _openOptionsSheet(product, isBuyNow: false);
-      return;
+    if (!skipValidation) {
+      if (_shouldPromptOptionsSheet(product)) {
+        _openOptionsSheet(product, isBuyNow: false);
+        return;
+      }
+      if (_shouldPromptInsurance(product)) {
+        _proceedWithInsuranceCheck(product, isBuyNow: false);
+        return;
+      }
     }
 
     _logAddToCartEvent(product);
@@ -770,6 +809,24 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ..._selectedVariantsStatus,
       ..._selectedAddonOptions,
     ];
+
+    // Safety guard: Ensure all mandatory required extra options (e.g. required insurance)
+    // are present so Magento's backend validation never rejects with 400.
+    final List<ConfigurableItemOptionEntity> finalOptions = List.from(combinedOptions);
+    for (final opt in product.extraOptions) {
+      if (opt.isRequire && opt.values.isNotEmpty) {
+        final alreadyHas = finalOptions.any((o) => o.optionId == opt.optionId.toString());
+        if (!alreadyHas) {
+          finalOptions.add(
+            ConfigurableItemOptionEntity(
+              optionId: opt.optionId.toString(),
+              optionValue: opt.values.first.optionTypeId.toString(),
+              isCustomOption: true,
+            ),
+          );
+        }
+      }
+    }
 
     if (product.images.isNotEmpty) {
       ProductImageResolver.cacheImage(product.id, product.images.first);
@@ -789,7 +846,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         sku: product.sku,
         qty: _quantity,
         productType: effectiveType,
-        configurableOptions: combinedOptions,
+        configurableOptions: finalOptions,
       ),
     );
   }
@@ -801,9 +858,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       return;
     }
 
-    if (!skipValidation && _shouldPromptOptionsSheet(product)) {
-      _openOptionsSheet(product, isBuyNow: true);
-      return;
+    if (!skipValidation) {
+      if (_shouldPromptOptionsSheet(product)) {
+        _openOptionsSheet(product, isBuyNow: true);
+        return;
+      }
+      if (_shouldPromptInsurance(product)) {
+        _proceedWithInsuranceCheck(product, isBuyNow: true);
+        return;
+      }
     }
 
     _logAddToCartEvent(product);
@@ -812,6 +875,24 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ..._selectedVariantsStatus,
       ..._selectedAddonOptions,
     ];
+
+    // Safety guard: Ensure all mandatory required extra options (e.g. required insurance)
+    // are present so Magento's backend validation never rejects with 400.
+    final List<ConfigurableItemOptionEntity> finalOptions = List.from(combinedOptions);
+    for (final opt in product.extraOptions) {
+      if (opt.isRequire && opt.values.isNotEmpty) {
+        final alreadyHas = finalOptions.any((o) => o.optionId == opt.optionId.toString());
+        if (!alreadyHas) {
+          finalOptions.add(
+            ConfigurableItemOptionEntity(
+              optionId: opt.optionId.toString(),
+              optionValue: opt.values.first.optionTypeId.toString(),
+              isCustomOption: true,
+            ),
+          );
+        }
+      }
+    }
 
     if (product.images.isNotEmpty) {
       ProductImageResolver.cacheImage(product.id, product.images.first);
@@ -831,7 +912,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         sku: product.sku,
         qty: _quantity,
         productType: effectiveType,
-        configurableOptions: combinedOptions,
+        configurableOptions: finalOptions,
       ),
     );
 
@@ -1408,8 +1489,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final activeImages = _resolveImages(product);
     final int basePrice = _calculateBasePrice(product);
     final int regularPrice = _calculateRegularPrice(product);
-    final int currentPrice = (basePrice + _totalAddonPrice) * _quantity;
-    final int originalPrice = (regularPrice + _totalAddonPrice) * _quantity;
+    final int currentPrice = basePrice * _quantity;
+    final int originalPrice = regularPrice * _quantity;
     final int saving = originalPrice > currentPrice ? originalPrice - currentPrice : 0;
 
     return KeyedSubtree(
@@ -1617,6 +1698,31 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             });
                           },
                           onHeaderTap: () => _openOptionsSheet(product, isSelectionOnly: true),
+                        ),
+                      ),
+
+                    // ── 4.5 Customize Your Order Section (Addons, e.g. Installation Charge) ──
+                    if (_hasCustomizableExtraOptions(product))
+                      PdpSectionCard(
+                        child: PdpCustomizeOrderSection(
+                          extraOptions: product.extraOptions
+                              .where((o) => !o.title.toLowerCase().contains('insurance'))
+                              .toList(),
+                          selectedAddons: _selectedAddonOptions,
+                          totalAddonPrice: _totalAddonPrice,
+                          mainPrice: basePrice * _quantity,
+                          showError: _showAddonError,
+                          isEnabled: product.stockAvailable,
+                          onAddonsChanged: (addons, totalPrice) {
+                            setState(() {
+                              _selectedAddonOptions = addons;
+                              _totalAddonPrice = totalPrice;
+                              _showAddonError = false;
+                            });
+                          },
+                          onHeaderTap: product.stockAvailable
+                              ? () => _openOptionsSheet(product, isSelectionOnly: true)
+                              : null,
                         ),
                       ),
 

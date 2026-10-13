@@ -121,6 +121,13 @@ class IProductApiService extends ProductApiService {
       }
     } on DioException catch (e) {
       return left(checkErrorResponse(e));
+    } catch (e) {
+      return left(
+        const ErrorResponse(
+          success: false,
+          message: 'Could not load categories. Please try again.',
+        ),
+      );
     }
   }
 

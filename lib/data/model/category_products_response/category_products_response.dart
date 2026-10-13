@@ -17,6 +17,34 @@ int? _toIntSafe(dynamic value) {
 
 String? _toStringSafe(dynamic value) => value?.toString();
 
+List<T>? _listOrNull<T>(
+    dynamic value, T Function(Map<String, dynamic>) fromJson) {
+  if (value is! List) return null;
+  return value
+      .whereType<Map>()
+      .map((e) => fromJson(Map<String, dynamic>.from(e)))
+      .toList();
+}
+
+List<Slider>? _slidersFromJson(dynamic v) => _listOrNull(v, Slider.fromJson);
+List<Product>? _productsFromJson(dynamic v) => _listOrNull(v, Product.fromJson);
+List<Category>? _categoriesFromJson(dynamic v) =>
+    _listOrNull(v, Category.fromJson);
+List<SortOption>? _sortOptionsFromJson(dynamic v) =>
+    _listOrNull(v, SortOption.fromJson);
+List<FilterAttribute>? _filterAttributesFromJson(dynamic v) =>
+    _listOrNull(v, FilterAttribute.fromJson);
+List<FeaturedCategory>? _featuredCategoriesFromJson(dynamic v) =>
+    _listOrNull(v, FeaturedCategory.fromJson);
+
+List<AppliedFilter>? _appliedFiltersFromJson(dynamic value) {
+  if (value is! List) return null;
+  return value
+      .whereType<Map>()
+      .map((e) => AppliedFilter.fromJson(Map<String, dynamic>.from(e)))
+      .toList();
+}
+
 @freezed
 class CategoryProductsResponse with _$CategoryProductsResponse {
   const factory CategoryProductsResponse({
@@ -28,20 +56,27 @@ class CategoryProductsResponse with _$CategoryProductsResponse {
     @JsonKey(name: "meta_description") String? metaDescription,
     @JsonKey(name: "image") String? image,
     @JsonKey(name: "mobile_image") String? mobileImage,
-    @JsonKey(name: "banner") List<Slider>? banner,
-    @JsonKey(name: "filter_data") List<Slider>? filterData,
+    @JsonKey(name: "banner", fromJson: _slidersFromJson) List<Slider>? banner,
+    @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
+    List<Slider>? filterData,
     @JsonKey(name: "featured_product_total", fromJson: _toIntSafe)
     int? featuredProductTotal,
     @JsonKey(name: "total_cat_prods", fromJson: _toIntSafe)
     int? totalCatProds,
-    @JsonKey(name: "cat_prods") List<Product>? catProds,
-    @JsonKey(name: "featured_products") List<Product>? featuredProducts,
-    @JsonKey(name: "featured_category") List<FeaturedCategory>? featuredCategory,
-    @JsonKey(name: "brands") List<Category>? brands,
-    @JsonKey(name: "sort_data") List<SortOption>? sortData,
-    @JsonKey(name: "filterable_attributes")
+    @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
+    List<Product>? catProds,
+    @JsonKey(name: "featured_products", fromJson: _productsFromJson)
+    List<Product>? featuredProducts,
+    @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
+    List<FeaturedCategory>? featuredCategory,
+    @JsonKey(name: "brands", fromJson: _categoriesFromJson)
+    List<Category>? brands,
+    @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
+    List<SortOption>? sortData,
+    @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
     List<FilterAttribute>? filterableAttributes,
-    @JsonKey(name: "applied_filters") List<AppliedFilter>? appliedFilters,
+    @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
+    List<AppliedFilter>? appliedFilters,
     @JsonKey(name: "category_discription") String? categoryDiscription,
     @JsonKey(name: "cache_time") DateTime? cacheTime,
   }) = _CategoryProductsResponse;
@@ -69,7 +104,8 @@ class FeaturedCategory with _$FeaturedCategory {
     @JsonKey(name: "category_id", fromJson: _toIntSafe) int? categoryId,
     @JsonKey(name: "category_name") String? categoryName,
     @JsonKey(name: "slug") String? slug,
-    @JsonKey(name: "products") List<Product>? products,
+    @JsonKey(name: "products", fromJson: _productsFromJson)
+    List<Product>? products,
   }) = _FeaturedCategory;
 
   factory FeaturedCategory.fromJson(Map<String, dynamic> json) =>

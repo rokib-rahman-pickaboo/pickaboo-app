@@ -222,9 +222,9 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
     try {
       final picker = ImagePicker();
       final pickedFiles = await picker.pickMultiImage(
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
         requestFullMetadata: false,
       );
 
@@ -270,9 +270,9 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(
         source: ImageSource.camera,
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
         requestFullMetadata: false,
       );
 

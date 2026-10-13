@@ -20,7 +20,7 @@ class ApiConfig {
   /// Environment switch:
   /// - `true`: Production environment (LIVE - https://www.pickaboo.com)
   /// - `false`: Staging / Development environment (TESTING - https://gcpbeta.pickaboo.com)
-  static const bool isProduction = true;
+  static const bool isProduction = false;
 
   /// Production backend domain (LIVE customer traffic).
   static const String productionURL = 'https://www.pickaboo.com';

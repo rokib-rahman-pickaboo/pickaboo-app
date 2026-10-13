@@ -14,7 +14,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 /// Configured according to specifications:
 /// - Core: Native CarouselSlider.builder + smooth_page_indicator
 /// - Dynamic Resolution: Reads image resolution and adjusts height proportionally
-/// - Non-Swipeable: User cannot manually drag (scrollPhysics: NeverScrollableScrollPhysics)
+/// - Swipeable: Allows user to swipe back and next with BouncingScrollPhysics
 /// - Auto-Slide: Fixed rotation every 3.6s with 400ms easeInOutCubic animation
 /// - Sizing & Peek: Dynamic height based on intrinsic aspect ratio, viewportFraction 0.95, enlargeCenterPage true (0.15 factor)
 /// - Indicator: Overlaid inside image at bottom
@@ -181,7 +181,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          // ── 1. Carousel Slider (Non-swipeable by user, auto-slides via timer) ──
+          // ── 1. Carousel Slider (Swipeable by user, auto-slides via timer) ──
           CarouselSlider.builder(
             carouselController: _carouselController,
             itemCount: widget.banners.length,
@@ -202,8 +202,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
               height: calculatedHeight,
               viewportFraction: viewportFraction,
               enableInfiniteScroll: hasMultipleBanners,
-              scrollPhysics:
-                  const NeverScrollableScrollPhysics(), // Non-swipeable by user
+              scrollPhysics: const BouncingScrollPhysics(),
               autoPlay: hasMultipleBanners,
               autoPlayInterval: const Duration(milliseconds: 3600), // 3.6s
               autoPlayAnimationDuration:

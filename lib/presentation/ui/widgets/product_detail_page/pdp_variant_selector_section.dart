@@ -177,7 +177,7 @@ class PdpVariantSelectorSection extends StatelessWidget {
                 child: Opacity(
                   opacity: isOutOfStock ? 0.4 : 1.0,
                   child: SizedBox(
-                    width: 58.w,
+                    width: 66.w,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -241,15 +241,19 @@ class PdpVariantSelectorSection extends StatelessWidget {
                         ),
                         SizedBox(height: 5.h),
                         SizedBox(
-                          width: 58.w,
+                          width: 66.w,
                           child: Text(
                             opt.optionText,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: isSel
-                                ? AppTypography.brandAction
-                                : AppTypography.brandAction.withColor(AppColors.navy),
+                            style: (isSel
+                                    ? AppTypography.brandAction
+                                    : AppTypography.brandAction.withColor(AppColors.navy))
+                                .copyWith(
+                              fontSize: 10.5.sp,
+                              height: 1.2,
+                            ),
                           ),
                         ),
                       ],

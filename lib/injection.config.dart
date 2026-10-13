@@ -24,7 +24,6 @@ import 'core/cache/category_preload_cache.dart' as _i547;
 import 'core/cache/special_category_filter_store.dart' as _i568;
 import 'core/endpoints/api_endpoints.dart' as _i560;
 import 'core/services/category_preload_queue.dart' as _i154;
-import 'core/utils/encryption_helper.dart' as _i40;
 import 'data/api_service/auth_api_service.dart' as _i925;
 import 'data/api_service/cart_api_service.dart' as _i411;
 import 'data/api_service/category_banner_api_service.dart' as _i1026;
@@ -233,7 +232,6 @@ Future<_i174.GetIt> $initGetIt(
   );
   gh.lazySingleton<_i655.CategoryFacetCache>(() => _i655.CategoryFacetCache());
   gh.lazySingleton<_i475.AuthCacheManager>(() => _i475.AuthCacheManager());
-  gh.lazySingleton<_i40.EncryptionHelper>(() => _i40.EncryptionHelper());
   gh.lazySingleton<_i462.SavedPaymentMapper>(() => _i462.SavedPaymentMapper());
   gh.lazySingleton<_i37.TicketMapper>(() => _i37.TicketMapper());
   gh.lazySingleton<_i573.PushNotificationService>(

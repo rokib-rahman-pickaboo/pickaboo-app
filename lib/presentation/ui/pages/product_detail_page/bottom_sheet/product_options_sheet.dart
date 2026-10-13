@@ -13,6 +13,7 @@ import 'package:pickaboo/core/utils/snackbar_utils/snack_bar_utils.dart';
 import 'package:pickaboo/domain/entity/cart/cart_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
+import 'package:pickaboo/presentation/ui/widgets/product_detail_page/pdp_customize_order_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/product_detail_page/product_variant_selector.dart';
 
 class ProductOptionsSheetResult {
@@ -159,193 +160,10 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
 
     return isValid;
   }
-
-  void _onAddonTap(ExtraOptionEntity option, ExtraOptionValueEntity val,
-      bool isSelected) {
-    final currentSelections =
-        List<ConfigurableItemOptionEntity>.from(_selectedAddons);
-    currentSelections.removeWhere(
-      (e) => e.optionId == option.optionId.toString(),
-    );
-    if (!isSelected) {
-      currentSelections.add(
-        ConfigurableItemOptionEntity(
-          optionId: option.optionId.toString(),
-          optionValue: val.optionTypeId.toString(),
-          isCustomOption: true,
-        ),
-      );
-    }
-
-    int newTotalAddonPrice = 0;
-    for (var sel in currentSelections) {
-      try {
-        final opt = widget.product.extraOptions.firstWhere(
-          (o) => o.optionId.toString() == sel.optionId,
-        );
-        final v = opt.values.firstWhere(
-          (v) => v.optionTypeId.toString() == sel.optionValue,
-        );
-        newTotalAddonPrice += v.price;
-      } catch (_) {}
-    }
-
-    final requiredOptions =
-        widget.product.extraOptions.where((o) => o.isRequire).toList();
-    final selectedIds = currentSelections
-        .where((e) => e.isCustomOption)
-        .map((e) => e.optionId)
-        .toSet();
-    final allRequiredFulfilled = requiredOptions
-        .every((o) => selectedIds.contains(o.optionId.toString()));
-
-    setState(() {
-      _selectedAddons = currentSelections;
-      _totalAddonPrice = newTotalAddonPrice;
-      if (allRequiredFulfilled) {
-        _showAddonError = false;
-      }
-    });
-    _publishSelections();
-  }
-
   void _publishSelections() {
     widget.onSelectionsChanged?.call(
       List.unmodifiable(_selectedVariants),
       List.unmodifiable(_selectedAddons),
-    );
-  }
-
-  Widget _buildAddonItem({
-    required ExtraOptionEntity option,
-    required ExtraOptionValueEntity val,
-    required bool hasOptionError,
-  }) {
-    final isSelected = _selectedAddons.any(
-      (e) =>
-          e.optionId == option.optionId.toString() &&
-          e.optionValue == val.optionTypeId.toString(),
-    );
-
-    return GestureDetector(
-      onTap: () => _onAddonTap(option, val, isSelected),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.surfaceBlue
-              : AppColors.white,
-          border: Border.all(
-            color: isSelected
-                ? AppColors.pickabooBlue
-                : hasOptionError
-                    ? AppColors.red
-                    : AppColors.border,
-            width: isSelected || hasOptionError ? 1.4.w : 1.w,
-          ),
-          borderRadius: AppRadius.k8,
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.pickabooBlue.withValues(alpha: 0.08),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : hasOptionError
-                  ? [
-                      BoxShadow(
-                        color: AppColors.red.withValues(alpha: 0.06),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-        ),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isSelected ? AppColors.surfaceBlue : AppColors.white,
-                      border: Border.all(
-                        color:
-                            isSelected ? AppColors.pickabooBlue : AppColors.border,
-                        width: 1.w,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.settings_outlined,
-                      color:
-                          isSelected ? AppColors.pickabooBlue : AppColors.mutedLight,
-                      size: 12.sp,
-                    ),
-                  ),
-                  if (isSelected)
-                    Positioned(
-                      right: -2.w,
-                      bottom: -2.h,
-                      child: Container(
-                        padding: EdgeInsets.all(1.5.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.green,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.white, width: 1.w),
-                        ),
-                        child: Icon(
-                          Icons.check,
-                          color: AppColors.white,
-                          size: 7.sp,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 8.w),
-                width: 1.2.w,
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.pickabooBlue : AppColors.border,
-                  borderRadius: AppRadius.k4,
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '${val.price} ৳',
-                      style: AppTypography.bodyMedium.bold().copyWith(
-                        color: isSelected ? AppColors.pickabooBlue : AppColors.navy,
-                        fontSize: 11.5.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 1.h),
-                    Text(
-                      val.title,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.navy,
-                        fontSize: 10.5.sp,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -390,9 +208,7 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
         ? (baseSpecialPrice > 0 ? baseSpecialPrice : baseRegularPrice)
         : baseRegularPrice;
 
-    final currentPrice = basePrice + _totalAddonPrice;
-
-    final formattedPrice = currentPrice.toString().replaceAllMapped(
+    final formattedPrice = basePrice.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (m) => '${m[1]},',
     );
@@ -539,128 +355,39 @@ class _ProductOptionsSheetState extends State<ProductOptionsSheet> {
                           thickness: 1.h,
                           height: 1.h,
                         ),
-                      ...filteredOptions.map((option) {
-                      final hasOptionSelected = _selectedAddons.any(
-                        (e) => e.optionId == option.optionId.toString(),
-                      );
-                      final hasOptionError = _showAddonError &&
-                          option.isRequire &&
-                          !hasOptionSelected;
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 12.h,
+                        ),
+                        child: PdpCustomizeOrderSection(
+                          extraOptions: filteredOptions,
+                          selectedAddons: _selectedAddons,
+                          totalAddonPrice: _totalAddonPrice,
+                          mainPrice: basePrice,
+                          showHeader: false,
+                          showError: _showAddonError,
+                          onAddonsChanged: (addons, totalPrice) {
+                            final requiredOptions =
+                                filteredOptions.where((o) => o.isRequire).toList();
+                            final selectedIds = addons
+                                .where((e) => e.isCustomOption)
+                                .map((e) => e.optionId)
+                                .toSet();
+                            final allRequiredFulfilled = requiredOptions
+                                .every((o) => selectedIds.contains(o.optionId.toString()));
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16.w,
-                              vertical: 6.h,
-                            ),
-                            child: Row(
-                              children: [
-                                Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: option.title,
-                                        style: AppTypography.bodyMedium.medium().copyWith(
-                                          color: hasOptionError
-                                              ? AppColors.red
-                                              : AppColors.navy,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      if (option.isRequire)
-                                        TextSpan(
-                                          text: ' *',
-                                          style: AppTypography.bodyLarge.red.bold(),
-                                        )
-                                      else
-                                        TextSpan(
-                                          text: ' (Optional)',
-                                          style: AppTypography.bodySmall.copyWith(
-                                            color: AppColors.muted,
-                                            fontSize: 11.5.sp,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                      TextSpan(
-                                        text: ':',
-                                        style: AppTypography.bodyMedium.medium().copyWith(
-                                          color: hasOptionError
-                                              ? AppColors.red
-                                              : AppColors.navy,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (hasOptionError) ...[
-                                  SizedBox(width: 6.w),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.redBg,
-                                      borderRadius: AppRadius.k4,
-                                    ),
-                                    child: Text(
-                                      'Required',
-                                      style: AppTypography.bodySmall.copyWith(
-                                        color: AppColors.red,
-                                        fontSize: 10.5.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              16.w,
-                              0,
-                              16.w,
-                              12.h,
-                            ),
-                            child: Column(
-                              children: [
-                                for (int i = 0;
-                                    i < option.values.length;
-                                    i += 2) ...[
-                                  if (i > 0) SizedBox(height: 8.h),
-                                  IntrinsicHeight(
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Expanded(
-                                          child: _buildAddonItem(
-                                            option: option,
-                                            val: option.values[i],
-                                            hasOptionError: hasOptionError,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8.w),
-                                        Expanded(
-                                          child: i + 1 < option.values.length
-                                              ? _buildAddonItem(
-                                                  option: option,
-                                                  val: option.values[i + 1],
-                                                  hasOptionError:
-                                                      hasOptionError,
-                                                )
-                                              : const SizedBox.shrink(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
+                            setState(() {
+                              _selectedAddons = addons;
+                              _totalAddonPrice = totalPrice;
+                              if (allRequiredFulfilled) {
+                                _showAddonError = false;
+                              }
+                            });
+                            _publishSelections();
+                          },
+                        ),
+                      ),
                     ];
                   })(),
                   SizedBox(height: 8.h),

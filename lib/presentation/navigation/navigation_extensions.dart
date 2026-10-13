@@ -268,20 +268,23 @@ extension NavigationExtensions on BuildContext {
         return;
 
       case 'category':
+        final catId = (link.isNotEmpty ? link : urlKey) ?? '';
         pushToCategoryProduct(
-          categoryId: (link.isNotEmpty ? link : urlKey) ?? '',
+          categoryId: catId,
           categoryName: sanitizedName,
         );
         return;
       case 'special_category':
+        final catSlug = _firstNonEmpty([link, urlKey]) ?? '';
         pushToSpecialCategoryProduct(
-            categorySlug: _firstNonEmpty([link, urlKey]) ?? '',
+            categorySlug: catSlug,
             categoryName: sanitizedName);
         return;
 
       case 'brand':
+        final bKey = _firstNonEmpty([link, urlKey]) ?? '';
         pushToBrandProduct(
-            brandKey: _firstNonEmpty([link, urlKey]) ?? '',
+            brandKey: bKey,
             brandName: sanitizedName);
         return;
 
@@ -294,18 +297,19 @@ extension NavigationExtensions on BuildContext {
 
       case 'faq':
       case 'hyperlink':
-        goToKnowledgeBaseArticle(link.isNotEmpty ? link : (urlKey ?? ''));
+        final target = link.isNotEmpty ? link : (urlKey ?? '');
+        goToKnowledgeBaseArticle(target);
         return;
 
       case 'external':
-        await _openExternalLink(_firstNonEmpty([link, urlKey]));
+        final extUrl = _firstNonEmpty([link, urlKey]);
+        await _openExternalLink(extUrl);
         return;
 
       default:
+        final fallbackUrl = _firstNonEmpty([link, urlKey, linkType]);
         if (type.isEmpty) return;
-        await _openExternalLink(
-          _firstNonEmpty([link, urlKey, linkType]),
-        );
+        await _openExternalLink(fallbackUrl);
         return;
     }
   }

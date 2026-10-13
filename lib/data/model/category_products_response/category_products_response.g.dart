@@ -17,44 +17,19 @@ _$CategoryProductsResponseImpl _$$CategoryProductsResponseImplFromJson(
   metaDescription: json['meta_description'] as String?,
   image: json['image'] as String?,
   mobileImage: json['mobile_image'] as String?,
-  banner:
-      (json['banner'] as List<dynamic>?)
-          ?.map((e) => Slider.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  filterData:
-      (json['filter_data'] as List<dynamic>?)
-          ?.map((e) => Slider.fromJson(e as Map<String, dynamic>))
-          .toList(),
+  banner: _slidersFromJson(json['banner']),
+  filterData: _slidersFromJson(json['filter_data']),
   featuredProductTotal: _toIntSafe(json['featured_product_total']),
   totalCatProds: _toIntSafe(json['total_cat_prods']),
-  catProds:
-      (json['cat_prods'] as List<dynamic>?)
-          ?.map((e) => Product.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  featuredProducts:
-      (json['featured_products'] as List<dynamic>?)
-          ?.map((e) => Product.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  featuredCategory:
-      (json['featured_category'] as List<dynamic>?)
-          ?.map((e) => FeaturedCategory.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  brands:
-      (json['brands'] as List<dynamic>?)
-          ?.map((e) => Category.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  sortData:
-      (json['sort_data'] as List<dynamic>?)
-          ?.map((e) => SortOption.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  filterableAttributes:
-      (json['filterable_attributes'] as List<dynamic>?)
-          ?.map((e) => FilterAttribute.fromJson(e as Map<String, dynamic>))
-          .toList(),
-  appliedFilters:
-      (json['applied_filters'] as List<dynamic>?)
-          ?.map((e) => AppliedFilter.fromJson(e as Map<String, dynamic>))
-          .toList(),
+  catProds: _productsFromJson(json['cat_prods']),
+  featuredProducts: _productsFromJson(json['featured_products']),
+  featuredCategory: _featuredCategoriesFromJson(json['featured_category']),
+  brands: _categoriesFromJson(json['brands']),
+  sortData: _sortOptionsFromJson(json['sort_data']),
+  filterableAttributes: _filterAttributesFromJson(
+    json['filterable_attributes'],
+  ),
+  appliedFilters: _appliedFiltersFromJson(json['applied_filters']),
   categoryDiscription: json['category_discription'] as String?,
   cacheTime:
       json['cache_time'] == null
@@ -110,10 +85,7 @@ _$FeaturedCategoryImpl _$$FeaturedCategoryImplFromJson(
   categoryId: _toIntSafe(json['category_id']),
   categoryName: json['category_name'] as String?,
   slug: json['slug'] as String?,
-  products:
-      (json['products'] as List<dynamic>?)
-          ?.map((e) => Product.fromJson(e as Map<String, dynamic>))
-          .toList(),
+  products: _productsFromJson(json['products']),
 );
 
 Map<String, dynamic> _$$FeaturedCategoryImplToJson(

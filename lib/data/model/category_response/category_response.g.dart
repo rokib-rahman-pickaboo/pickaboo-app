@@ -62,15 +62,12 @@ class CategoryResponseAdapter extends TypeAdapter<CategoryResponse> {
 _$CategoryResponseImpl _$$CategoryResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$CategoryResponseImpl(
-  id: json['id'] as String?,
+  id: _toStringSafe(json['id']),
   slug: json['slug'] as String?,
   name: json['name'] as String?,
-  isSpecial: json['is_special'] as String?,
+  isSpecial: _toStringSafe(json['is_special']),
   icon: json['icon'] as String?,
-  childs:
-      (json['childs'] as List<dynamic>?)
-          ?.map((e) => CategoryResponse.fromJson(e as Map<String, dynamic>))
-          .toList(),
+  childs: _childsFromJson(json['childs']),
 );
 
 Map<String, dynamic> _$$CategoryResponseImplToJson(

@@ -74,7 +74,7 @@ class HomeTopHeader extends StatelessWidget {
                 // Pickaboo Brand Logo Asset
                 Image.asset(
                   AppAssets.logoNew,
-                  height: 25.h,
+                  height: 30.h,
                   fit: BoxFit.contain,
                 ),
 

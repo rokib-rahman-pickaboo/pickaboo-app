@@ -228,7 +228,7 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
         widget.showError && !_selectedOptions.containsKey(variant.optionId);
 
     return SizedBox(
-      height: 95.h,
+      height: 106.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: options.length,
@@ -328,16 +328,23 @@ class _ProductVariantSelectorState extends State<ProductVariantSelector> {
                         ),
                     ],
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 10.h),
-                    child: Text(
-                      option.optionText,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: isSelected ? AppColors.pickabooBlue : AppColors.text,
-                        fontSize: 10.sp,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w400,
+                  SizedBox(
+                    width: 65.w,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 6.h),
+                      child: Text(
+                        option.optionText,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: isSelected ? AppColors.pickabooBlue : AppColors.text,
+                          fontSize: 10.sp,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          height: 1.2,
+                        ),
                       ),
                     ),
                   ),

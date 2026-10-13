@@ -32,10 +32,10 @@ android {
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         // Pinned to continue the React Native app's Play Store track
-        // (live was 7.0.4 / 70004). Must stay > the live versionCode.
+        // (live was 72011). Must stay > the live versionCode.
         // Decoupled from pubspec because iOS is on a separate version track.
-        versionCode = 70013
-        versionName = "7.0.13"
+        versionCode = 72016
+        versionName = "7.0.16"
     }
 
     signingConfigs {
@@ -56,6 +56,12 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         debug {
             //signingConfig = signingConfigs.getByName("debug")
@@ -70,4 +76,5 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.3")
+    implementation("androidx.activity:activity-ktx:1.9.3")
 }

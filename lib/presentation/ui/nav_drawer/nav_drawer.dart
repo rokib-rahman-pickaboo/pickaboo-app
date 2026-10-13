@@ -280,9 +280,9 @@ class NavDrawer extends StatelessWidget {
   Widget _buildShopForSection(BuildContext context) {
     return BlocBuilder<CategoryBloc, CategoryState>(
       builder: (context, state) {
-        if (state.status == CategoryStatus.success &&
-            state.categories != null) {
-          final topCategories = state.categories!.toList();
+        final categories = state.categories;
+        if (categories != null && categories.isNotEmpty) {
+          final topCategories = categories.toList();
           return DrawerShopForSection(
             categories: topCategories,
             onCategoryTap: (selectedCategory) {
@@ -290,6 +290,13 @@ class NavDrawer extends StatelessWidget {
               _navigateToCategory(context, selectedCategory);
             },
           );
+        }
+        if (state.status == CategoryStatus.initial) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.read<CategoryBloc>().add(const CategoryEvent.getCategories());
+            }
+          });
         }
         return const SizedBox.shrink();
       },

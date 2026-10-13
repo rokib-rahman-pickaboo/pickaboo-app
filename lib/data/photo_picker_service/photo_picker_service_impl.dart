@@ -9,8 +9,8 @@ class PhotoPickerServiceImpl implements PhotoPickerService {
   @override
   Future<XFile?> pickFromCamera({
     int? imageQuality = 80,
-    double? maxWidth = 1280,
-    double? maxHeight = 1280,
+    double? maxWidth = 1024,
+    double? maxHeight = 1024,
   }) async {
     return await _picker.pickImage(
       source: ImageSource.camera,
@@ -24,8 +24,8 @@ class PhotoPickerServiceImpl implements PhotoPickerService {
   @override
   Future<XFile?> pickFromGallery({
     int? imageQuality = 80,
-    double? maxWidth = 1280,
-    double? maxHeight = 1280,
+    double? maxWidth = 1024,
+    double? maxHeight = 1024,
   }) async {
     return await _picker.pickImage(
       source: ImageSource.gallery,
@@ -39,8 +39,8 @@ class PhotoPickerServiceImpl implements PhotoPickerService {
   @override
   Future<List<XFile>> pickMultiFromGallery({
     int? imageQuality = 80,
-    double? maxWidth = 1280,
-    double? maxHeight = 1280,
+    double? maxWidth = 1024,
+    double? maxHeight = 1024,
   }) async {
     final pickedFiles = await _picker.pickMultiImage(
       imageQuality: imageQuality,
