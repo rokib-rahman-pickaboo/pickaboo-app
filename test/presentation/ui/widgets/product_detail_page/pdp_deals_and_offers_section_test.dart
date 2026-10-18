@@ -124,6 +124,40 @@ void main() {
       expect(find.text('Mega Flash Sale'), findsOneWidget);
     });
 
+    testWidgets('Renders flash sale timer when upcoming with startTime',
+        (WidgetTester tester) async {
+      final startTime = DateTime.now().add(const Duration(days: 1, hours: 10));
+      final endTime = DateTime.now().add(const Duration(days: 6, hours: 15));
+      when(() => flashSaleBloc.state).thenReturn(
+        ProductFlashSaleState(
+          status: ProductFlashSaleStatus.success,
+          flashSale: ProductFlashSaleEntity(
+            inFlashSale: true,
+            flashSale: FlashSaleDetailEntity(
+              saleId: 2,
+              title: 'Upcoming Flash Sale',
+              shortDescription: 'Starts soon',
+              startTime: startTime,
+              endTime: endTime,
+              isUpcoming: true,
+              slug: 'upcoming-flash-sale',
+            ),
+          ),
+        ),
+      );
+
+      final product = _dummyProduct(offers: '');
+      await tester.pumpWidget(
+        _buildTestWidget(product: product, flashSaleBloc: flashSaleBloc),
+      );
+      await tester.pump();
+
+      expect(find.byType(ProductSaleTimerSection), findsOneWidget);
+      expect(find.text('Upcoming Flash Sale'), findsOneWidget);
+      // Timer should display 01 Day (countdown to startTime, not 06 Days to endTime)
+      expect(find.text('01'), findsOneWidget);
+    });
+
     testWidgets('Renders available offers widget when offers exist',
         (WidgetTester tester) async {
       when(() => flashSaleBloc.state).thenReturn(

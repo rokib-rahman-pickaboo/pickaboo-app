@@ -20,7 +20,9 @@ class CategoryFilterPromoScroller extends StatelessWidget {
         height: 110.h,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.sameGroupItemSpacing.w,
+          ),
           itemCount: filters.length,
           separatorBuilder: (_, __) => SizedBox(width: 12.w),
           itemBuilder: (context, index) {

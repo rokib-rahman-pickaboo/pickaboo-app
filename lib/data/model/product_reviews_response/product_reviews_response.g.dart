@@ -65,6 +65,7 @@ _$ProductReviewItemResponseImpl _$$ProductReviewItemResponseImplFromJson(
 ) => _$ProductReviewItemResponseImpl(
   reviewId: _toIntSafe(json['review_id']),
   postedOn: safeDateTimeFromJson(json['posted_on']),
+  reviewerId: _toStringSafe(json['reviewer_id']),
   reviewerName: json['reviewer_name'] as String?,
   reviewerImage: json['reviewer_image'] as String?,
   reviewerRating: _toDoubleSafe(json['reviewer_rating']),
@@ -72,6 +73,10 @@ _$ProductReviewItemResponseImpl _$$ProductReviewItemResponseImplFromJson(
   detail: json['detail'] as String?,
   isRecommended: json['is_recommended'] as String?,
   images: (json['images'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  likeCount: _toIntSafe(json['like_count']),
+  dislikesCount: _toIntSafe(json['dislikes_count']),
+  doLike: _toBoolSafe(json['do_like']),
+  doDislike: _toBoolSafe(json['do_dislike']),
 );
 
 Map<String, dynamic> _$$ProductReviewItemResponseImplToJson(
@@ -79,6 +84,7 @@ Map<String, dynamic> _$$ProductReviewItemResponseImplToJson(
 ) => <String, dynamic>{
   'review_id': instance.reviewId,
   'posted_on': safeDateTimeToJson(instance.postedOn),
+  'reviewer_id': instance.reviewerId,
   'reviewer_name': instance.reviewerName,
   'reviewer_image': instance.reviewerImage,
   'reviewer_rating': instance.reviewerRating,
@@ -86,6 +92,10 @@ Map<String, dynamic> _$$ProductReviewItemResponseImplToJson(
   'detail': instance.detail,
   'is_recommended': instance.isRecommended,
   'images': instance.images,
+  'like_count': instance.likeCount,
+  'dislikes_count': instance.dislikesCount,
+  'do_like': instance.doLike,
+  'do_dislike': instance.doDislike,
 };
 
 _$ReviewDetailedRatingResponseImpl _$$ReviewDetailedRatingResponseImplFromJson(

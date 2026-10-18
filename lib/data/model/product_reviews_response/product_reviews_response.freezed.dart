@@ -23,30 +23,30 @@ ProductReviewsResponse _$ProductReviewsResponseFromJson(
 
 /// @nodoc
 mixin _$ProductReviewsResponse {
-  @JsonKey(name: "total_reviews")
+  @JsonKey(name: "total_reviews", fromJson: _toIntSafe)
   int? get totalReviews => throw _privateConstructorUsedError;
-  @JsonKey(name: "average_rating")
+  @JsonKey(name: "average_rating", fromJson: _toDoubleSafe)
   double? get averageRating => throw _privateConstructorUsedError;
-  @JsonKey(name: "rating5_count")
+  @JsonKey(name: "rating5_count", fromJson: _toIntSafe)
   int? get rating5Count => throw _privateConstructorUsedError;
-  @JsonKey(name: "rating4_count")
+  @JsonKey(name: "rating4_count", fromJson: _toIntSafe)
   int? get rating4Count => throw _privateConstructorUsedError;
-  @JsonKey(name: "rating3_count")
+  @JsonKey(name: "rating3_count", fromJson: _toIntSafe)
   int? get rating3Count => throw _privateConstructorUsedError;
-  @JsonKey(name: "rating2_count")
+  @JsonKey(name: "rating2_count", fromJson: _toIntSafe)
   int? get rating2Count => throw _privateConstructorUsedError;
-  @JsonKey(name: "rating1_count")
+  @JsonKey(name: "rating1_count", fromJson: _toIntSafe)
   int? get rating1Count => throw _privateConstructorUsedError;
-  @JsonKey(name: "current_page")
+  @JsonKey(name: "current_page", fromJson: _toIntSafe)
   int? get currentPage => throw _privateConstructorUsedError;
-  @JsonKey(name: "page_size")
+  @JsonKey(name: "page_size", fromJson: _toIntSafe)
   int? get pageSize => throw _privateConstructorUsedError;
-  @JsonKey(name: "total_pages")
+  @JsonKey(name: "total_pages", fromJson: _toIntSafe)
   int? get totalPages => throw _privateConstructorUsedError;
   @JsonKey(name: "reviews")
   List<ProductReviewItemResponse>? get reviews =>
       throw _privateConstructorUsedError;
-  @JsonKey(name: "rating_summary")
+  @JsonKey(name: "rating_summary", fromJson: _toIntSafe)
   int? get ratingSummary => throw _privateConstructorUsedError;
   @JsonKey(name: "detailed_ratings")
   List<ReviewDetailedRatingResponse>? get detailedRatings =>
@@ -72,18 +72,19 @@ abstract class $ProductReviewsResponseCopyWith<$Res> {
   ) = _$ProductReviewsResponseCopyWithImpl<$Res, ProductReviewsResponse>;
   @useResult
   $Res call({
-    @JsonKey(name: "total_reviews") int? totalReviews,
-    @JsonKey(name: "average_rating") double? averageRating,
-    @JsonKey(name: "rating5_count") int? rating5Count,
-    @JsonKey(name: "rating4_count") int? rating4Count,
-    @JsonKey(name: "rating3_count") int? rating3Count,
-    @JsonKey(name: "rating2_count") int? rating2Count,
-    @JsonKey(name: "rating1_count") int? rating1Count,
-    @JsonKey(name: "current_page") int? currentPage,
-    @JsonKey(name: "page_size") int? pageSize,
-    @JsonKey(name: "total_pages") int? totalPages,
+    @JsonKey(name: "total_reviews", fromJson: _toIntSafe) int? totalReviews,
+    @JsonKey(name: "average_rating", fromJson: _toDoubleSafe)
+    double? averageRating,
+    @JsonKey(name: "rating5_count", fromJson: _toIntSafe) int? rating5Count,
+    @JsonKey(name: "rating4_count", fromJson: _toIntSafe) int? rating4Count,
+    @JsonKey(name: "rating3_count", fromJson: _toIntSafe) int? rating3Count,
+    @JsonKey(name: "rating2_count", fromJson: _toIntSafe) int? rating2Count,
+    @JsonKey(name: "rating1_count", fromJson: _toIntSafe) int? rating1Count,
+    @JsonKey(name: "current_page", fromJson: _toIntSafe) int? currentPage,
+    @JsonKey(name: "page_size", fromJson: _toIntSafe) int? pageSize,
+    @JsonKey(name: "total_pages", fromJson: _toIntSafe) int? totalPages,
     @JsonKey(name: "reviews") List<ProductReviewItemResponse>? reviews,
-    @JsonKey(name: "rating_summary") int? ratingSummary,
+    @JsonKey(name: "rating_summary", fromJson: _toIntSafe) int? ratingSummary,
     @JsonKey(name: "detailed_ratings")
     List<ReviewDetailedRatingResponse>? detailedRatings,
     @JsonKey(name: "all_review_images") List<String>? allReviewImages,
@@ -211,18 +212,19 @@ abstract class _$$ProductReviewsResponseImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "total_reviews") int? totalReviews,
-    @JsonKey(name: "average_rating") double? averageRating,
-    @JsonKey(name: "rating5_count") int? rating5Count,
-    @JsonKey(name: "rating4_count") int? rating4Count,
-    @JsonKey(name: "rating3_count") int? rating3Count,
-    @JsonKey(name: "rating2_count") int? rating2Count,
-    @JsonKey(name: "rating1_count") int? rating1Count,
-    @JsonKey(name: "current_page") int? currentPage,
-    @JsonKey(name: "page_size") int? pageSize,
-    @JsonKey(name: "total_pages") int? totalPages,
+    @JsonKey(name: "total_reviews", fromJson: _toIntSafe) int? totalReviews,
+    @JsonKey(name: "average_rating", fromJson: _toDoubleSafe)
+    double? averageRating,
+    @JsonKey(name: "rating5_count", fromJson: _toIntSafe) int? rating5Count,
+    @JsonKey(name: "rating4_count", fromJson: _toIntSafe) int? rating4Count,
+    @JsonKey(name: "rating3_count", fromJson: _toIntSafe) int? rating3Count,
+    @JsonKey(name: "rating2_count", fromJson: _toIntSafe) int? rating2Count,
+    @JsonKey(name: "rating1_count", fromJson: _toIntSafe) int? rating1Count,
+    @JsonKey(name: "current_page", fromJson: _toIntSafe) int? currentPage,
+    @JsonKey(name: "page_size", fromJson: _toIntSafe) int? pageSize,
+    @JsonKey(name: "total_pages", fromJson: _toIntSafe) int? totalPages,
     @JsonKey(name: "reviews") List<ProductReviewItemResponse>? reviews,
-    @JsonKey(name: "rating_summary") int? ratingSummary,
+    @JsonKey(name: "rating_summary", fromJson: _toIntSafe) int? ratingSummary,
     @JsonKey(name: "detailed_ratings")
     List<ReviewDetailedRatingResponse>? detailedRatings,
     @JsonKey(name: "all_review_images") List<String>? allReviewImages,
@@ -340,18 +342,19 @@ class __$$ProductReviewsResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ProductReviewsResponseImpl implements _ProductReviewsResponse {
   const _$ProductReviewsResponseImpl({
-    @JsonKey(name: "total_reviews") this.totalReviews,
-    @JsonKey(name: "average_rating") this.averageRating,
-    @JsonKey(name: "rating5_count") this.rating5Count,
-    @JsonKey(name: "rating4_count") this.rating4Count,
-    @JsonKey(name: "rating3_count") this.rating3Count,
-    @JsonKey(name: "rating2_count") this.rating2Count,
-    @JsonKey(name: "rating1_count") this.rating1Count,
-    @JsonKey(name: "current_page") this.currentPage,
-    @JsonKey(name: "page_size") this.pageSize,
-    @JsonKey(name: "total_pages") this.totalPages,
+    @JsonKey(name: "total_reviews", fromJson: _toIntSafe) this.totalReviews,
+    @JsonKey(name: "average_rating", fromJson: _toDoubleSafe)
+    this.averageRating,
+    @JsonKey(name: "rating5_count", fromJson: _toIntSafe) this.rating5Count,
+    @JsonKey(name: "rating4_count", fromJson: _toIntSafe) this.rating4Count,
+    @JsonKey(name: "rating3_count", fromJson: _toIntSafe) this.rating3Count,
+    @JsonKey(name: "rating2_count", fromJson: _toIntSafe) this.rating2Count,
+    @JsonKey(name: "rating1_count", fromJson: _toIntSafe) this.rating1Count,
+    @JsonKey(name: "current_page", fromJson: _toIntSafe) this.currentPage,
+    @JsonKey(name: "page_size", fromJson: _toIntSafe) this.pageSize,
+    @JsonKey(name: "total_pages", fromJson: _toIntSafe) this.totalPages,
     @JsonKey(name: "reviews") final List<ProductReviewItemResponse>? reviews,
-    @JsonKey(name: "rating_summary") this.ratingSummary,
+    @JsonKey(name: "rating_summary", fromJson: _toIntSafe) this.ratingSummary,
     @JsonKey(name: "detailed_ratings")
     final List<ReviewDetailedRatingResponse>? detailedRatings,
     @JsonKey(name: "all_review_images") final List<String>? allReviewImages,
@@ -363,34 +366,34 @@ class _$ProductReviewsResponseImpl implements _ProductReviewsResponse {
       _$$ProductReviewsResponseImplFromJson(json);
 
   @override
-  @JsonKey(name: "total_reviews")
+  @JsonKey(name: "total_reviews", fromJson: _toIntSafe)
   final int? totalReviews;
   @override
-  @JsonKey(name: "average_rating")
+  @JsonKey(name: "average_rating", fromJson: _toDoubleSafe)
   final double? averageRating;
   @override
-  @JsonKey(name: "rating5_count")
+  @JsonKey(name: "rating5_count", fromJson: _toIntSafe)
   final int? rating5Count;
   @override
-  @JsonKey(name: "rating4_count")
+  @JsonKey(name: "rating4_count", fromJson: _toIntSafe)
   final int? rating4Count;
   @override
-  @JsonKey(name: "rating3_count")
+  @JsonKey(name: "rating3_count", fromJson: _toIntSafe)
   final int? rating3Count;
   @override
-  @JsonKey(name: "rating2_count")
+  @JsonKey(name: "rating2_count", fromJson: _toIntSafe)
   final int? rating2Count;
   @override
-  @JsonKey(name: "rating1_count")
+  @JsonKey(name: "rating1_count", fromJson: _toIntSafe)
   final int? rating1Count;
   @override
-  @JsonKey(name: "current_page")
+  @JsonKey(name: "current_page", fromJson: _toIntSafe)
   final int? currentPage;
   @override
-  @JsonKey(name: "page_size")
+  @JsonKey(name: "page_size", fromJson: _toIntSafe)
   final int? pageSize;
   @override
-  @JsonKey(name: "total_pages")
+  @JsonKey(name: "total_pages", fromJson: _toIntSafe)
   final int? totalPages;
   final List<ProductReviewItemResponse>? _reviews;
   @override
@@ -404,7 +407,7 @@ class _$ProductReviewsResponseImpl implements _ProductReviewsResponse {
   }
 
   @override
-  @JsonKey(name: "rating_summary")
+  @JsonKey(name: "rating_summary", fromJson: _toIntSafe)
   final int? ratingSummary;
   final List<ReviewDetailedRatingResponse>? _detailedRatings;
   @override
@@ -511,18 +514,26 @@ class _$ProductReviewsResponseImpl implements _ProductReviewsResponse {
 
 abstract class _ProductReviewsResponse implements ProductReviewsResponse {
   const factory _ProductReviewsResponse({
-    @JsonKey(name: "total_reviews") final int? totalReviews,
-    @JsonKey(name: "average_rating") final double? averageRating,
-    @JsonKey(name: "rating5_count") final int? rating5Count,
-    @JsonKey(name: "rating4_count") final int? rating4Count,
-    @JsonKey(name: "rating3_count") final int? rating3Count,
-    @JsonKey(name: "rating2_count") final int? rating2Count,
-    @JsonKey(name: "rating1_count") final int? rating1Count,
-    @JsonKey(name: "current_page") final int? currentPage,
-    @JsonKey(name: "page_size") final int? pageSize,
-    @JsonKey(name: "total_pages") final int? totalPages,
+    @JsonKey(name: "total_reviews", fromJson: _toIntSafe)
+    final int? totalReviews,
+    @JsonKey(name: "average_rating", fromJson: _toDoubleSafe)
+    final double? averageRating,
+    @JsonKey(name: "rating5_count", fromJson: _toIntSafe)
+    final int? rating5Count,
+    @JsonKey(name: "rating4_count", fromJson: _toIntSafe)
+    final int? rating4Count,
+    @JsonKey(name: "rating3_count", fromJson: _toIntSafe)
+    final int? rating3Count,
+    @JsonKey(name: "rating2_count", fromJson: _toIntSafe)
+    final int? rating2Count,
+    @JsonKey(name: "rating1_count", fromJson: _toIntSafe)
+    final int? rating1Count,
+    @JsonKey(name: "current_page", fromJson: _toIntSafe) final int? currentPage,
+    @JsonKey(name: "page_size", fromJson: _toIntSafe) final int? pageSize,
+    @JsonKey(name: "total_pages", fromJson: _toIntSafe) final int? totalPages,
     @JsonKey(name: "reviews") final List<ProductReviewItemResponse>? reviews,
-    @JsonKey(name: "rating_summary") final int? ratingSummary,
+    @JsonKey(name: "rating_summary", fromJson: _toIntSafe)
+    final int? ratingSummary,
     @JsonKey(name: "detailed_ratings")
     final List<ReviewDetailedRatingResponse>? detailedRatings,
     @JsonKey(name: "all_review_images") final List<String>? allReviewImages,
@@ -532,40 +543,40 @@ abstract class _ProductReviewsResponse implements ProductReviewsResponse {
       _$ProductReviewsResponseImpl.fromJson;
 
   @override
-  @JsonKey(name: "total_reviews")
+  @JsonKey(name: "total_reviews", fromJson: _toIntSafe)
   int? get totalReviews;
   @override
-  @JsonKey(name: "average_rating")
+  @JsonKey(name: "average_rating", fromJson: _toDoubleSafe)
   double? get averageRating;
   @override
-  @JsonKey(name: "rating5_count")
+  @JsonKey(name: "rating5_count", fromJson: _toIntSafe)
   int? get rating5Count;
   @override
-  @JsonKey(name: "rating4_count")
+  @JsonKey(name: "rating4_count", fromJson: _toIntSafe)
   int? get rating4Count;
   @override
-  @JsonKey(name: "rating3_count")
+  @JsonKey(name: "rating3_count", fromJson: _toIntSafe)
   int? get rating3Count;
   @override
-  @JsonKey(name: "rating2_count")
+  @JsonKey(name: "rating2_count", fromJson: _toIntSafe)
   int? get rating2Count;
   @override
-  @JsonKey(name: "rating1_count")
+  @JsonKey(name: "rating1_count", fromJson: _toIntSafe)
   int? get rating1Count;
   @override
-  @JsonKey(name: "current_page")
+  @JsonKey(name: "current_page", fromJson: _toIntSafe)
   int? get currentPage;
   @override
-  @JsonKey(name: "page_size")
+  @JsonKey(name: "page_size", fromJson: _toIntSafe)
   int? get pageSize;
   @override
-  @JsonKey(name: "total_pages")
+  @JsonKey(name: "total_pages", fromJson: _toIntSafe)
   int? get totalPages;
   @override
   @JsonKey(name: "reviews")
   List<ProductReviewItemResponse>? get reviews;
   @override
-  @JsonKey(name: "rating_summary")
+  @JsonKey(name: "rating_summary", fromJson: _toIntSafe)
   int? get ratingSummary;
   @override
   @JsonKey(name: "detailed_ratings")
@@ -590,7 +601,7 @@ ProductReviewItemResponse _$ProductReviewItemResponseFromJson(
 
 /// @nodoc
 mixin _$ProductReviewItemResponse {
-  @JsonKey(name: "review_id")
+  @JsonKey(name: "review_id", fromJson: _toIntSafe)
   int? get reviewId => throw _privateConstructorUsedError;
   @JsonKey(
     name: "posted_on",
@@ -598,11 +609,13 @@ mixin _$ProductReviewItemResponse {
     toJson: safeDateTimeToJson,
   )
   DateTime? get postedOn => throw _privateConstructorUsedError;
+  @JsonKey(name: "reviewer_id", fromJson: _toStringSafe)
+  String? get reviewerId => throw _privateConstructorUsedError;
   @JsonKey(name: "reviewer_name")
   String? get reviewerName => throw _privateConstructorUsedError;
   @JsonKey(name: "reviewer_image")
   String? get reviewerImage => throw _privateConstructorUsedError;
-  @JsonKey(name: "reviewer_rating")
+  @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe)
   double? get reviewerRating => throw _privateConstructorUsedError;
   @JsonKey(name: "title")
   String? get title => throw _privateConstructorUsedError;
@@ -612,6 +625,14 @@ mixin _$ProductReviewItemResponse {
   String? get isRecommended => throw _privateConstructorUsedError;
   @JsonKey(name: "images")
   List<String>? get images => throw _privateConstructorUsedError;
+  @JsonKey(name: "like_count", fromJson: _toIntSafe)
+  int? get likeCount => throw _privateConstructorUsedError;
+  @JsonKey(name: "dislikes_count", fromJson: _toIntSafe)
+  int? get dislikesCount => throw _privateConstructorUsedError;
+  @JsonKey(name: "do_like", fromJson: _toBoolSafe)
+  bool? get doLike => throw _privateConstructorUsedError;
+  @JsonKey(name: "do_dislike", fromJson: _toBoolSafe)
+  bool? get doDislike => throw _privateConstructorUsedError;
 
   /// Serializes this ProductReviewItemResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -631,20 +652,26 @@ abstract class $ProductReviewItemResponseCopyWith<$Res> {
   ) = _$ProductReviewItemResponseCopyWithImpl<$Res, ProductReviewItemResponse>;
   @useResult
   $Res call({
-    @JsonKey(name: "review_id") int? reviewId,
+    @JsonKey(name: "review_id", fromJson: _toIntSafe) int? reviewId,
     @JsonKey(
       name: "posted_on",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     DateTime? postedOn,
+    @JsonKey(name: "reviewer_id", fromJson: _toStringSafe) String? reviewerId,
     @JsonKey(name: "reviewer_name") String? reviewerName,
     @JsonKey(name: "reviewer_image") String? reviewerImage,
-    @JsonKey(name: "reviewer_rating") double? reviewerRating,
+    @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe)
+    double? reviewerRating,
     @JsonKey(name: "title") String? title,
     @JsonKey(name: "detail") String? detail,
     @JsonKey(name: "is_recommended") String? isRecommended,
     @JsonKey(name: "images") List<String>? images,
+    @JsonKey(name: "like_count", fromJson: _toIntSafe) int? likeCount,
+    @JsonKey(name: "dislikes_count", fromJson: _toIntSafe) int? dislikesCount,
+    @JsonKey(name: "do_like", fromJson: _toBoolSafe) bool? doLike,
+    @JsonKey(name: "do_dislike", fromJson: _toBoolSafe) bool? doDislike,
   });
 }
 
@@ -668,6 +695,7 @@ class _$ProductReviewItemResponseCopyWithImpl<
   $Res call({
     Object? reviewId = freezed,
     Object? postedOn = freezed,
+    Object? reviewerId = freezed,
     Object? reviewerName = freezed,
     Object? reviewerImage = freezed,
     Object? reviewerRating = freezed,
@@ -675,6 +703,10 @@ class _$ProductReviewItemResponseCopyWithImpl<
     Object? detail = freezed,
     Object? isRecommended = freezed,
     Object? images = freezed,
+    Object? likeCount = freezed,
+    Object? dislikesCount = freezed,
+    Object? doLike = freezed,
+    Object? doDislike = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -688,6 +720,11 @@ class _$ProductReviewItemResponseCopyWithImpl<
                     ? _value.postedOn
                     : postedOn // ignore: cast_nullable_to_non_nullable
                         as DateTime?,
+            reviewerId:
+                freezed == reviewerId
+                    ? _value.reviewerId
+                    : reviewerId // ignore: cast_nullable_to_non_nullable
+                        as String?,
             reviewerName:
                 freezed == reviewerName
                     ? _value.reviewerName
@@ -723,6 +760,26 @@ class _$ProductReviewItemResponseCopyWithImpl<
                     ? _value.images
                     : images // ignore: cast_nullable_to_non_nullable
                         as List<String>?,
+            likeCount:
+                freezed == likeCount
+                    ? _value.likeCount
+                    : likeCount // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            dislikesCount:
+                freezed == dislikesCount
+                    ? _value.dislikesCount
+                    : dislikesCount // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            doLike:
+                freezed == doLike
+                    ? _value.doLike
+                    : doLike // ignore: cast_nullable_to_non_nullable
+                        as bool?,
+            doDislike:
+                freezed == doDislike
+                    ? _value.doDislike
+                    : doDislike // ignore: cast_nullable_to_non_nullable
+                        as bool?,
           )
           as $Val,
     );
@@ -739,20 +796,26 @@ abstract class _$$ProductReviewItemResponseImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "review_id") int? reviewId,
+    @JsonKey(name: "review_id", fromJson: _toIntSafe) int? reviewId,
     @JsonKey(
       name: "posted_on",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     DateTime? postedOn,
+    @JsonKey(name: "reviewer_id", fromJson: _toStringSafe) String? reviewerId,
     @JsonKey(name: "reviewer_name") String? reviewerName,
     @JsonKey(name: "reviewer_image") String? reviewerImage,
-    @JsonKey(name: "reviewer_rating") double? reviewerRating,
+    @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe)
+    double? reviewerRating,
     @JsonKey(name: "title") String? title,
     @JsonKey(name: "detail") String? detail,
     @JsonKey(name: "is_recommended") String? isRecommended,
     @JsonKey(name: "images") List<String>? images,
+    @JsonKey(name: "like_count", fromJson: _toIntSafe) int? likeCount,
+    @JsonKey(name: "dislikes_count", fromJson: _toIntSafe) int? dislikesCount,
+    @JsonKey(name: "do_like", fromJson: _toBoolSafe) bool? doLike,
+    @JsonKey(name: "do_dislike", fromJson: _toBoolSafe) bool? doDislike,
   });
 }
 
@@ -776,6 +839,7 @@ class __$$ProductReviewItemResponseImplCopyWithImpl<$Res>
   $Res call({
     Object? reviewId = freezed,
     Object? postedOn = freezed,
+    Object? reviewerId = freezed,
     Object? reviewerName = freezed,
     Object? reviewerImage = freezed,
     Object? reviewerRating = freezed,
@@ -783,6 +847,10 @@ class __$$ProductReviewItemResponseImplCopyWithImpl<$Res>
     Object? detail = freezed,
     Object? isRecommended = freezed,
     Object? images = freezed,
+    Object? likeCount = freezed,
+    Object? dislikesCount = freezed,
+    Object? doLike = freezed,
+    Object? doDislike = freezed,
   }) {
     return _then(
       _$ProductReviewItemResponseImpl(
@@ -796,6 +864,11 @@ class __$$ProductReviewItemResponseImplCopyWithImpl<$Res>
                 ? _value.postedOn
                 : postedOn // ignore: cast_nullable_to_non_nullable
                     as DateTime?,
+        reviewerId:
+            freezed == reviewerId
+                ? _value.reviewerId
+                : reviewerId // ignore: cast_nullable_to_non_nullable
+                    as String?,
         reviewerName:
             freezed == reviewerName
                 ? _value.reviewerName
@@ -831,6 +904,26 @@ class __$$ProductReviewItemResponseImplCopyWithImpl<$Res>
                 ? _value._images
                 : images // ignore: cast_nullable_to_non_nullable
                     as List<String>?,
+        likeCount:
+            freezed == likeCount
+                ? _value.likeCount
+                : likeCount // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        dislikesCount:
+            freezed == dislikesCount
+                ? _value.dislikesCount
+                : dislikesCount // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        doLike:
+            freezed == doLike
+                ? _value.doLike
+                : doLike // ignore: cast_nullable_to_non_nullable
+                    as bool?,
+        doDislike:
+            freezed == doDislike
+                ? _value.doDislike
+                : doDislike // ignore: cast_nullable_to_non_nullable
+                    as bool?,
       ),
     );
   }
@@ -840,27 +933,33 @@ class __$$ProductReviewItemResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
   const _$ProductReviewItemResponseImpl({
-    @JsonKey(name: "review_id") this.reviewId,
+    @JsonKey(name: "review_id", fromJson: _toIntSafe) this.reviewId,
     @JsonKey(
       name: "posted_on",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     this.postedOn,
+    @JsonKey(name: "reviewer_id", fromJson: _toStringSafe) this.reviewerId,
     @JsonKey(name: "reviewer_name") this.reviewerName,
     @JsonKey(name: "reviewer_image") this.reviewerImage,
-    @JsonKey(name: "reviewer_rating") this.reviewerRating,
+    @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe)
+    this.reviewerRating,
     @JsonKey(name: "title") this.title,
     @JsonKey(name: "detail") this.detail,
     @JsonKey(name: "is_recommended") this.isRecommended,
     @JsonKey(name: "images") final List<String>? images,
+    @JsonKey(name: "like_count", fromJson: _toIntSafe) this.likeCount,
+    @JsonKey(name: "dislikes_count", fromJson: _toIntSafe) this.dislikesCount,
+    @JsonKey(name: "do_like", fromJson: _toBoolSafe) this.doLike,
+    @JsonKey(name: "do_dislike", fromJson: _toBoolSafe) this.doDislike,
   }) : _images = images;
 
   factory _$ProductReviewItemResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$ProductReviewItemResponseImplFromJson(json);
 
   @override
-  @JsonKey(name: "review_id")
+  @JsonKey(name: "review_id", fromJson: _toIntSafe)
   final int? reviewId;
   @override
   @JsonKey(
@@ -870,13 +969,16 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
   )
   final DateTime? postedOn;
   @override
+  @JsonKey(name: "reviewer_id", fromJson: _toStringSafe)
+  final String? reviewerId;
+  @override
   @JsonKey(name: "reviewer_name")
   final String? reviewerName;
   @override
   @JsonKey(name: "reviewer_image")
   final String? reviewerImage;
   @override
-  @JsonKey(name: "reviewer_rating")
+  @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe)
   final double? reviewerRating;
   @override
   @JsonKey(name: "title")
@@ -899,8 +1001,21 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
   }
 
   @override
+  @JsonKey(name: "like_count", fromJson: _toIntSafe)
+  final int? likeCount;
+  @override
+  @JsonKey(name: "dislikes_count", fromJson: _toIntSafe)
+  final int? dislikesCount;
+  @override
+  @JsonKey(name: "do_like", fromJson: _toBoolSafe)
+  final bool? doLike;
+  @override
+  @JsonKey(name: "do_dislike", fromJson: _toBoolSafe)
+  final bool? doDislike;
+
+  @override
   String toString() {
-    return 'ProductReviewItemResponse(reviewId: $reviewId, postedOn: $postedOn, reviewerName: $reviewerName, reviewerImage: $reviewerImage, reviewerRating: $reviewerRating, title: $title, detail: $detail, isRecommended: $isRecommended, images: $images)';
+    return 'ProductReviewItemResponse(reviewId: $reviewId, postedOn: $postedOn, reviewerId: $reviewerId, reviewerName: $reviewerName, reviewerImage: $reviewerImage, reviewerRating: $reviewerRating, title: $title, detail: $detail, isRecommended: $isRecommended, images: $images, likeCount: $likeCount, dislikesCount: $dislikesCount, doLike: $doLike, doDislike: $doDislike)';
   }
 
   @override
@@ -912,6 +1027,8 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
                 other.reviewId == reviewId) &&
             (identical(other.postedOn, postedOn) ||
                 other.postedOn == postedOn) &&
+            (identical(other.reviewerId, reviewerId) ||
+                other.reviewerId == reviewerId) &&
             (identical(other.reviewerName, reviewerName) ||
                 other.reviewerName == reviewerName) &&
             (identical(other.reviewerImage, reviewerImage) ||
@@ -922,7 +1039,14 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
             (identical(other.detail, detail) || other.detail == detail) &&
             (identical(other.isRecommended, isRecommended) ||
                 other.isRecommended == isRecommended) &&
-            const DeepCollectionEquality().equals(other._images, _images));
+            const DeepCollectionEquality().equals(other._images, _images) &&
+            (identical(other.likeCount, likeCount) ||
+                other.likeCount == likeCount) &&
+            (identical(other.dislikesCount, dislikesCount) ||
+                other.dislikesCount == dislikesCount) &&
+            (identical(other.doLike, doLike) || other.doLike == doLike) &&
+            (identical(other.doDislike, doDislike) ||
+                other.doDislike == doDislike));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -931,6 +1055,7 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
     runtimeType,
     reviewId,
     postedOn,
+    reviewerId,
     reviewerName,
     reviewerImage,
     reviewerRating,
@@ -938,6 +1063,10 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
     detail,
     isRecommended,
     const DeepCollectionEquality().hash(_images),
+    likeCount,
+    dislikesCount,
+    doLike,
+    doDislike,
   );
 
   /// Create a copy of ProductReviewItemResponse
@@ -958,27 +1087,35 @@ class _$ProductReviewItemResponseImpl implements _ProductReviewItemResponse {
 
 abstract class _ProductReviewItemResponse implements ProductReviewItemResponse {
   const factory _ProductReviewItemResponse({
-    @JsonKey(name: "review_id") final int? reviewId,
+    @JsonKey(name: "review_id", fromJson: _toIntSafe) final int? reviewId,
     @JsonKey(
       name: "posted_on",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     final DateTime? postedOn,
+    @JsonKey(name: "reviewer_id", fromJson: _toStringSafe)
+    final String? reviewerId,
     @JsonKey(name: "reviewer_name") final String? reviewerName,
     @JsonKey(name: "reviewer_image") final String? reviewerImage,
-    @JsonKey(name: "reviewer_rating") final double? reviewerRating,
+    @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe)
+    final double? reviewerRating,
     @JsonKey(name: "title") final String? title,
     @JsonKey(name: "detail") final String? detail,
     @JsonKey(name: "is_recommended") final String? isRecommended,
     @JsonKey(name: "images") final List<String>? images,
+    @JsonKey(name: "like_count", fromJson: _toIntSafe) final int? likeCount,
+    @JsonKey(name: "dislikes_count", fromJson: _toIntSafe)
+    final int? dislikesCount,
+    @JsonKey(name: "do_like", fromJson: _toBoolSafe) final bool? doLike,
+    @JsonKey(name: "do_dislike", fromJson: _toBoolSafe) final bool? doDislike,
   }) = _$ProductReviewItemResponseImpl;
 
   factory _ProductReviewItemResponse.fromJson(Map<String, dynamic> json) =
       _$ProductReviewItemResponseImpl.fromJson;
 
   @override
-  @JsonKey(name: "review_id")
+  @JsonKey(name: "review_id", fromJson: _toIntSafe)
   int? get reviewId;
   @override
   @JsonKey(
@@ -988,13 +1125,16 @@ abstract class _ProductReviewItemResponse implements ProductReviewItemResponse {
   )
   DateTime? get postedOn;
   @override
+  @JsonKey(name: "reviewer_id", fromJson: _toStringSafe)
+  String? get reviewerId;
+  @override
   @JsonKey(name: "reviewer_name")
   String? get reviewerName;
   @override
   @JsonKey(name: "reviewer_image")
   String? get reviewerImage;
   @override
-  @JsonKey(name: "reviewer_rating")
+  @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe)
   double? get reviewerRating;
   @override
   @JsonKey(name: "title")
@@ -1008,6 +1148,18 @@ abstract class _ProductReviewItemResponse implements ProductReviewItemResponse {
   @override
   @JsonKey(name: "images")
   List<String>? get images;
+  @override
+  @JsonKey(name: "like_count", fromJson: _toIntSafe)
+  int? get likeCount;
+  @override
+  @JsonKey(name: "dislikes_count", fromJson: _toIntSafe)
+  int? get dislikesCount;
+  @override
+  @JsonKey(name: "do_like", fromJson: _toBoolSafe)
+  bool? get doLike;
+  @override
+  @JsonKey(name: "do_dislike", fromJson: _toBoolSafe)
+  bool? get doDislike;
 
   /// Create a copy of ProductReviewItemResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -1027,7 +1179,7 @@ ReviewDetailedRatingResponse _$ReviewDetailedRatingResponseFromJson(
 mixin _$ReviewDetailedRatingResponse {
   @JsonKey(name: "rating")
   String? get rating => throw _privateConstructorUsedError;
-  @JsonKey(name: "avg_value")
+  @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
   double? get avgValue => throw _privateConstructorUsedError;
 
   /// Serializes this ReviewDetailedRatingResponse to a JSON map.
@@ -1053,7 +1205,7 @@ abstract class $ReviewDetailedRatingResponseCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: "rating") String? rating,
-    @JsonKey(name: "avg_value") double? avgValue,
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe) double? avgValue,
   });
 }
 
@@ -1104,7 +1256,7 @@ abstract class _$$ReviewDetailedRatingResponseImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: "rating") String? rating,
-    @JsonKey(name: "avg_value") double? avgValue,
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe) double? avgValue,
   });
 }
 
@@ -1149,7 +1301,7 @@ class _$ReviewDetailedRatingResponseImpl
     implements _ReviewDetailedRatingResponse {
   const _$ReviewDetailedRatingResponseImpl({
     @JsonKey(name: "rating") this.rating,
-    @JsonKey(name: "avg_value") this.avgValue,
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe) this.avgValue,
   });
 
   factory _$ReviewDetailedRatingResponseImpl.fromJson(
@@ -1160,7 +1312,7 @@ class _$ReviewDetailedRatingResponseImpl
   @JsonKey(name: "rating")
   final String? rating;
   @override
-  @JsonKey(name: "avg_value")
+  @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
   final double? avgValue;
 
   @override
@@ -1204,7 +1356,7 @@ abstract class _ReviewDetailedRatingResponse
     implements ReviewDetailedRatingResponse {
   const factory _ReviewDetailedRatingResponse({
     @JsonKey(name: "rating") final String? rating,
-    @JsonKey(name: "avg_value") final double? avgValue,
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe) final double? avgValue,
   }) = _$ReviewDetailedRatingResponseImpl;
 
   factory _ReviewDetailedRatingResponse.fromJson(Map<String, dynamic> json) =
@@ -1214,7 +1366,7 @@ abstract class _ReviewDetailedRatingResponse
   @JsonKey(name: "rating")
   String? get rating;
   @override
-  @JsonKey(name: "avg_value")
+  @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
   double? get avgValue;
 
   /// Create a copy of ReviewDetailedRatingResponse

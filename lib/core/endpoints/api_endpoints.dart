@@ -242,11 +242,11 @@ class ApiEndpoints {
   static String productRelatedUrl({required String productId}) =>
       '/rest/V1/product/related-products/id/$productId';
 
-  static String sellerRecommendedProductsUrl({required String slug}) =>
-      '/rest/V1/seller-recommended-products/$slug';
+  static String sellerRecommendedProductsUrl({required String productId}) =>
+      '/rest/V1/seller-recommended-products/id/$productId';
 
-  static String relatedProductsUrl({required String slug}) =>
-      '/rest/V1/related-products/$slug';
+  static String relatedProductsUrl({required String productId}) =>
+      '/rest/V1/related-products/id/$productId';
 
   /// Product Detail - Banners
   static const String productBannerUrl =

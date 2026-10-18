@@ -9,7 +9,6 @@ import 'package:pickaboo/data/local_data_source/product_detail_local_data_source
 import 'package:pickaboo/data/model/category_response/category_response.dart';
 import 'package:pickaboo/data/model/error_response/error_response.dart';
 import 'package:pickaboo/data/model/product_reviews_response/product_reviews_response.dart';
-import 'package:pickaboo/data/model/review_response/review_response.dart';
 import 'package:pickaboo/data/repository/product_repository_impl.dart';
 
 import '../../utils/performance_monitor.dart';
@@ -108,8 +107,30 @@ void main() {
     });
   });
 
-  group('getProductReviews vote merge', () {
-    const tReviewsResponse = ProductReviewsResponse(
+  group('getProductReviews', () {
+    const tReviewsResponseWithVotes = ProductReviewsResponse(
+      totalReviews: 1,
+      averageRating: 4.7,
+      currentPage: 1,
+      pageSize: 10,
+      totalPages: 1,
+      reviews: [
+        ProductReviewItemResponse(
+          reviewId: 57,
+          reviewerId: '42',
+          reviewerName: 'Niaj',
+          reviewerRating: 4.7,
+          title: 'Great',
+          detail: 'Good headphones',
+          likeCount: 9,
+          dislikesCount: 2,
+          doLike: true,
+          doDislike: false,
+        ),
+      ],
+    );
+
+    const tReviewsResponseWithoutVotes = ProductReviewsResponse(
       totalReviews: 1,
       averageRating: 4.7,
       currentPage: 1,
@@ -126,33 +147,15 @@ void main() {
       ],
     );
 
-    void stubReviews() {
+    test('returns reviews with vote counts from primary endpoint and passes customerId', () async {
       when(
         () => mockApiService.getProductReviews(
           productId: any(named: 'productId'),
           page: any(named: 'page'),
           pageSize: any(named: 'pageSize'),
-        ),
-      ).thenAnswer((_) async => const Right(tReviewsResponse));
-    }
-
-    test('merges vote counts into the reviews page', () async {
-      stubReviews();
-      when(
-        () => mockApiService.getProductReviewVotes(
-          productId: any(named: 'productId'),
           customerId: any(named: 'customerId'),
         ),
-      ).thenAnswer(
-        (_) async => const Right([
-          ReviewResponse(
-            reviewId: '57',
-            likeCount: 9,
-            dislikesCount: 2,
-            doLike: true,
-          ),
-        ]),
-      );
+      ).thenAnswer((_) async => const Right(tReviewsResponseWithVotes));
 
       final result = await repository.getProductReviews(
         productId: '79013',
@@ -165,26 +168,28 @@ void main() {
       expect(reviews.reviews.single.likeCount, 9);
       expect(reviews.reviews.single.dislikesCount, 2);
       expect(reviews.reviews.single.doLike, isTrue);
+      expect(reviews.reviews.single.doDislike, isFalse);
+      expect(reviews.reviews.single.reviwerId, '42');
 
-      // customerId must reach the votes call — it is what resolves do_like.
       verify(
-        () => mockApiService.getProductReviewVotes(
+        () => mockApiService.getProductReviews(
           productId: '79013',
+          page: 1,
+          pageSize: 10,
           customerId: 42,
         ),
       ).called(1);
     });
 
-    test('still returns reviews when the votes call fails', () async {
-      stubReviews();
+    test('falls back to 0 count and false when vote fields are null (live API fallback)', () async {
       when(
-        () => mockApiService.getProductReviewVotes(
+        () => mockApiService.getProductReviews(
           productId: any(named: 'productId'),
+          page: any(named: 'page'),
+          pageSize: any(named: 'pageSize'),
           customerId: any(named: 'customerId'),
         ),
-      ).thenAnswer(
-        (_) async => const Left(ErrorResponse(message: 'votes unavailable')),
-      );
+      ).thenAnswer((_) async => const Right(tReviewsResponseWithoutVotes));
 
       final result = await repository.getProductReviews(
         productId: '79013',
@@ -195,7 +200,9 @@ void main() {
       expect(result.isRight(), isTrue);
       final reviews = result.getOrElse(() => throw StateError('expected Right'));
       expect(reviews.reviews.single.likeCount, 0);
+      expect(reviews.reviews.single.dislikesCount, 0);
       expect(reviews.reviews.single.doLike, isFalse);
+      expect(reviews.reviews.single.doDislike, isFalse);
     });
 
     test('propagates a failure of the reviews call itself', () async {
@@ -204,16 +211,11 @@ void main() {
           productId: any(named: 'productId'),
           page: any(named: 'page'),
           pageSize: any(named: 'pageSize'),
+          customerId: any(named: 'customerId'),
         ),
       ).thenAnswer(
         (_) async => const Left(ErrorResponse(message: 'reviews down')),
       );
-      when(
-        () => mockApiService.getProductReviewVotes(
-          productId: any(named: 'productId'),
-          customerId: any(named: 'customerId'),
-        ),
-      ).thenAnswer((_) async => const Right([]));
 
       final result = await repository.getProductReviews(
         productId: '79013',

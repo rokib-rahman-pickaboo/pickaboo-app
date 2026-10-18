@@ -82,17 +82,18 @@ abstract class ProductApiService {
   });
 
   Future<Either<ErrorResponse, RecommendedProductResponse>> getRecommendedProducts({
-    required String slug
+    required String productId,
   });
 
   Future<Either<ErrorResponse, RelatedProductResponse>> getRelatedProducts({
-    required String slug,
+    required String productId,
   });
 
   Future<Either<ErrorResponse, ProductReviewsResponse>> getProductReviews({
     required String productId,
     required int page,
     required int pageSize,
+    int? customerId,
   });
 
   Future<Either<ErrorResponse, List<ReviewResponse>>> getProductReviewVotes({

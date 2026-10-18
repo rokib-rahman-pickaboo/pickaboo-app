@@ -92,8 +92,7 @@ class _KnowledgeBaseDetailsPageState extends State<KnowledgeBaseDetailsPage> {
   }
 
   String _formatDate(DateTime date) {
-    final adjustedDate = date.add(const Duration(hours: 6));
-    return DateFormat('MMM d, yyyy').format(adjustedDate);
+    return DateFormat('MMM d, yyyy').format(date);
   }
 
   Future<void> _onRefresh() async {

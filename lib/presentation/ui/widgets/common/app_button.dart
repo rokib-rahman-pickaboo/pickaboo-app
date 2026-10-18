@@ -225,8 +225,19 @@ class AppButton extends StatelessWidget {
   }
 
   Color _resolveBgColor() {
+    if (isDisabled) {
+      switch (type) {
+        case AppButtonType.primary:
+        case AppButtonType.danger:
+          return AppColors.skeletonBase;
+        case AppButtonType.secondary:
+        case AppButtonType.outline:
+          return AppColors.border;
+        case AppButtonType.ghost:
+          return AppColors.transparent;
+      }
+    }
     if (backgroundColor != null) return backgroundColor!;
-    if (isDisabled) return AppColors.border;
     switch (type) {
       case AppButtonType.primary:
         return AppColors.pickabooBlue;
@@ -240,8 +251,18 @@ class AppButton extends StatelessWidget {
   }
 
   Color _resolveTextColor() {
+    if (isDisabled) {
+      switch (type) {
+        case AppButtonType.primary:
+        case AppButtonType.danger:
+          return AppColors.white;
+        case AppButtonType.secondary:
+        case AppButtonType.outline:
+        case AppButtonType.ghost:
+          return AppColors.muted;
+      }
+    }
     if (textColor != null) return textColor!;
-    if (isDisabled) return AppColors.mutedLight;
     switch (type) {
       case AppButtonType.primary:
       case AppButtonType.danger:
@@ -256,12 +277,14 @@ class AppButton extends StatelessWidget {
   }
 
   BorderSide? _resolveBorderSide() {
-    if (borderColor != null) {
-      return BorderSide(color: borderColor!, width: 1.2);
-    }
     if (isDisabled) {
       return null;
     }
+    if (borderColor != null) {
+      return BorderSide(color: borderColor!, width: 1.2);
+    }
+
+
     switch (type) {
       case AppButtonType.secondary:
         return const BorderSide(color: AppColors.pickabooBlue, width: 1.2);
@@ -275,8 +298,13 @@ class AppButton extends StatelessWidget {
   }
 
   TextStyle _resolveTextStyle() {
-    if (textStyle != null) return textStyle!;
     final color = _resolveTextColor();
+    if (textStyle != null) {
+      if (isDisabled) {
+        return textStyle!.copyWith(color: color);
+      }
+      return textStyle!.copyWith(color: textColor ?? color);
+    }
     switch (size) {
       case AppButtonSize.sm:
         return AppTypography.bodySmall.bold().withColor(color);

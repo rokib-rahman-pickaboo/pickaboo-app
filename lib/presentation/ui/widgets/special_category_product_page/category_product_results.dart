@@ -143,8 +143,8 @@ class _SpecialCategoryProductResultsState
       slivers: [
         // ── Interleaved Product Rows & Questions ──
         SliverPadding(
-          padding: EdgeInsets.symmetric(
-            vertical: AppSpacing.sameGroupItemSpacing.h,
+          padding: EdgeInsets.only(
+            top: AppSpacing.sameGroupItemSpacing.h,
           ),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
@@ -336,8 +336,8 @@ class _SpecialCategoryProductResultsState
         state.pagingState.pages?.expand((p) => p).toList() ?? const [];
 
     return SliverPadding(
-      padding: EdgeInsets.symmetric(
-        vertical: AppSpacing.sameGroupItemSpacing.h,
+      padding: EdgeInsets.only(
+        top: 4.h,
       ),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {

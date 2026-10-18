@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_empty_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/dashboard/profile_header_card.dart';
 
 void main() {
+
   TestWidgetsFlutterBinding.ensureInitialized();
 
   Widget wrapWithScreenUtil(Widget child, {double width = 375, double height = 812}) {
@@ -156,4 +158,68 @@ void main() {
       expect(buttonSize.width, lessThan(cardSize.width));
     });
   });
+
+  group('AppButton disabled and secondary styling tests', () {
+    testWidgets('AppButton.secondary active state uses pickabooBlue text even if AppTypography.button is provided', (tester) async {
+      await tester.pumpWidget(
+        wrapWithScreenUtil(
+          AppButton.secondary(
+            text: 'ADD TO CART',
+            onPressed: () {},
+            textStyle: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final textWidget = tester.widget<Text>(find.text('ADD TO CART'));
+      expect(textWidget.style?.color, AppColors.pickabooBlue);
+    });
+
+    testWidgets('AppButton.secondary disabled state uses muted text, lighter gray bg and no border', (tester) async {
+      await tester.pumpWidget(
+        wrapWithScreenUtil(
+          AppButton.secondary(
+            text: 'ADD TO CART',
+            isDisabled: true,
+            onPressed: null,
+            textStyle: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final textWidget = tester.widget<Text>(find.text('ADD TO CART'));
+      expect(textWidget.style?.color, AppColors.muted);
+
+      final materialFinder = find.descendant(of: find.byType(AppButton), matching: find.byType(Material));
+      final materialWidget = tester.widget<Material>(materialFinder);
+      expect(materialWidget.color, AppColors.border);
+      final border = materialWidget.shape as RoundedRectangleBorder;
+      expect(border.side, BorderSide.none);
+    });
+
+
+    testWidgets('AppButton.primary disabled state uses skeletonBase bg and white text', (tester) async {
+      await tester.pumpWidget(
+        wrapWithScreenUtil(
+          AppButton.primary(
+            text: 'BUY NOW',
+            isDisabled: true,
+            onPressed: null,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final textWidget = tester.widget<Text>(find.text('BUY NOW'));
+      expect(textWidget.style?.color, AppColors.white);
+
+      final materialFinder = find.descendant(of: find.byType(AppButton), matching: find.byType(Material));
+      final materialWidget = tester.widget<Material>(materialFinder);
+      expect(materialWidget.color, AppColors.skeletonBase);
+    });
+  });
 }
+
+

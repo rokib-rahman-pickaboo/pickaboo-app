@@ -148,7 +148,11 @@ class HomeCategoryNav extends StatelessWidget {
                       textAlign: TextAlign.center,
                       maxLines: isCollapsed ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodyTiny.medium().navy.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
+                        fontSize: 10.2.sp,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                         height: 1.2,
                         color: isSelected
                             ? AppColors.navy
@@ -254,7 +258,11 @@ class HomeCategoryNav extends StatelessWidget {
                       textAlign: TextAlign.center,
                       maxLines: isCollapsed ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodyTiny.medium().navy.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
+                        fontSize: 10.2.sp,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                         height: 1.2,
                         color: isSelected
                             ? AppColors.navy
@@ -313,7 +321,7 @@ class HomeCategoryNav extends StatelessWidget {
                   child: Container(
                     width: 40.w,
                     height: 40.w,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.white,
                       borderRadius: AppRadius.k8,
                     ),
@@ -337,7 +345,9 @@ class HomeCategoryNav extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.bodyTiny.medium().navy.copyWith(
+                    style: AppTypography.bodySmall.copyWith(
+                      fontSize: 10.2.sp,
+                      fontWeight: FontWeight.w600,
                       height: 1.2,
                       color: AppColors.pickabooBlue,
                     ),
@@ -351,7 +361,7 @@ class HomeCategoryNav extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 height: 2.5.h,
                 width: 0,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.transparent,
                   borderRadius: AppRadius.k4,
                 ),

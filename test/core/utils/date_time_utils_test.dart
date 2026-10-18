@@ -77,6 +77,7 @@ void main() {
     test('parses 24-hour SQL timestamp string', () {
       final dt = parseServerDateTime('2026-09-13 16:03:20');
       expect(dt, isNotNull);
+      expect(dt!.year, equals(2026));
     });
 
     test('handles null, empty, or invalid input safely without throwing', () {

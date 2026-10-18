@@ -129,15 +129,23 @@ class _OrderListPageState extends State<OrderListPage> {
             }
           },
           builder: (context, state) {
-            return SafeArea(
-              top: false,
-              child: RefreshIndicator(
-                color: AppColors.pickabooBlue,
-                onRefresh: () async {
-                  context.read<OrderBloc>().add(const OrderEvent.refresh());
-                  await Future.delayed(const Duration(milliseconds: 500));
-                },
-              child: CustomScrollView(
+            final isReordering = _reorderingOrderId != null;
+            return Column(
+              children: [
+                if (isReordering)
+                  const AppLoader.linear(),
+                Expanded(
+                  child: AbsorbPointer(
+                    absorbing: isReordering,
+                    child: SafeArea(
+                      top: false,
+                      child: RefreshIndicator(
+                        color: AppColors.pickabooBlue,
+                        onRefresh: () async {
+                          context.read<OrderBloc>().add(const OrderEvent.refresh());
+                          await Future.delayed(const Duration(milliseconds: 500));
+                        },
+                      child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
@@ -237,7 +245,11 @@ class _OrderListPageState extends State<OrderListPage> {
                 ],
               ),
             ),
-          );
+          ),
+        ),
+      ),
+    ],
+  );
         },
       ),
     ),

@@ -26,6 +26,7 @@ import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_card.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 
 class CreateTicketPage extends StatefulWidget {
@@ -432,15 +433,23 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
             top: false,
             child: AppButton.primary(
               text: 'Submit Ticket',
-              isLoading: _isLoading,
+              isDisabled: _isLoading,
               isFullWidth: true,
               height: 48.h,
               borderRadius: AppRadius.k8,
               onPressed: _isLoading ? null : _submitTicket,
             ),
+
           ),
         ),
-        body: BlocListener<TicketBloc, TicketState>(
+        body: Column(
+          children: [
+            if (_isLoading)
+              const AppLoader.linear(),
+            Expanded(
+              child: AbsorbPointer(
+                absorbing: _isLoading,
+                child: BlocListener<TicketBloc, TicketState>(
           bloc: _ticketBloc,
           listener: (context, state) {
             if (state.status == TicketStatus.loading && _triedSubmit) {
@@ -555,7 +564,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                     setState(() => _selectedOrder = val),
                                 dropdownStyleData: DropdownStyleData(
                                   maxHeight: 320.h,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     borderRadius: AppRadius.k8,
                                     color: AppColors.white,
                                   ),
@@ -830,7 +839,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                                   vertical: 24.h,
                                   horizontal: 16.w,
                                 ),
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: AppColors.white,
                                   borderRadius: AppRadius.k8,
                                 ),
@@ -972,6 +981,10 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
             },
           ),
         ),
+      ),
+    ),
+  ],
+),
       ),
     );
   }

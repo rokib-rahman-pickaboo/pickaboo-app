@@ -25,7 +25,8 @@ class OrderTimelineSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (statusHistory.isEmpty) return const SizedBox.shrink();
+    final history = _filterTimelineHistory(statusHistory, formatStatusText);
+    if (history.isEmpty) return const SizedBox.shrink();
 
     return Container(
       margin: EdgeInsets.symmetric(
@@ -46,12 +47,17 @@ class OrderTimelineSection extends StatelessWidget {
         ),
         builder: TimelineTileBuilder.connected(
           connectionDirection: ConnectionDirection.after,
-          itemCount: statusHistory.length,
+          itemCount: history.length,
           contentsBuilder: (_, index) {
-            final history = statusHistory.reversed.toList();
             final status = history[index];
-            final isLatest = index == (statusHistory.length - 1);
-            final date = parseServerDateTime(status.createdAt);
+            final isLatest = index == (history.length - 1);
+            final titleText = (status.label != null && status.label!.trim().isNotEmpty)
+                ? status.label!
+                : formatStatusText(status.status);
+            final date = parseServerDateTime(status.time ?? status.createdAt);
+            final timeDisplay = date != null
+                ? DateFormat('MMM dd, yyyy - hh:mm a').format(date)
+                : (status.time ?? status.createdAt);
 
             return Padding(
               padding: EdgeInsets.only(left: 12.w, bottom: 20.h),
@@ -59,13 +65,13 @@ class OrderTimelineSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    formatStatusText(status.status),
+                    titleText,
                     style: isLatest ? AppTypography.brandAction : AppTypography.titleSmall,
                   ),
-                  if (date != null) ...[
+                  if (timeDisplay.isNotEmpty) ...[
                     SizedBox(height: 3.h),
                     Text(
-                      DateFormat('MMM dd, yyyy - hh:mm a').format(date),
+                      timeDisplay,
                       style: AppTypography.bodySmall.mutedLight,
                     ),
                   ],
@@ -93,5 +99,62 @@ class OrderTimelineSection extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Filters out redundant consecutive status updates (backend internal logs)
+  /// so that customer order timeline displays distinct milestones.
+  List<StatusHistoryEntity> _filterTimelineHistory(
+    List<StatusHistoryEntity> rawHistory,
+    String Function(String) formatStatusText,
+  ) {
+    if (rawHistory.isEmpty) return [];
+
+    // Ensure chronological ordering (earliest milestone first, latest last)
+    List<StatusHistoryEntity> chronological;
+    final parsedDates =
+        rawHistory.map((e) => parseServerDateTime(e.time ?? e.createdAt)).toList();
+    final allHaveDates = parsedDates.every((d) => d != null);
+
+    if (allHaveDates && parsedDates.length > 1) {
+      if (parsedDates.first!.isBefore(parsedDates.last!)) {
+        chronological = List.of(rawHistory);
+      } else {
+        chronological = rawHistory.reversed.toList();
+      }
+    } else {
+      chronological = rawHistory.reversed.toList();
+    }
+
+    final filtered = <StatusHistoryEntity>[];
+    for (final item in chronological) {
+      if (filtered.isEmpty) {
+        filtered.add(item);
+        continue;
+      }
+
+      final prev = filtered.last;
+      final prevTitle = (prev.label != null && prev.label!.trim().isNotEmpty)
+          ? prev.label!.trim().toLowerCase()
+          : formatStatusText(prev.status).trim().toLowerCase();
+      final currTitle = (item.label != null && item.label!.trim().isNotEmpty)
+          ? item.label!.trim().toLowerCase()
+          : formatStatusText(item.status).trim().toLowerCase();
+
+      final isSameStatus = prevTitle == currTitle;
+      final itemComment = item.comment?.trim();
+      final prevComment = prev.comment?.trim();
+      final hasDistinctComment = itemComment != null &&
+          itemComment.isNotEmpty &&
+          itemComment != prevComment;
+
+      // Skip redundant internal log updates that don't represent a status change or user-visible note
+      if (isSameStatus && !hasDistinctComment) {
+        continue;
+      }
+
+      filtered.add(item);
+    }
+
+    return filtered;
   }
 }

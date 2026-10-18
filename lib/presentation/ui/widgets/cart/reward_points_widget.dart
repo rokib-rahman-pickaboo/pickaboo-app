@@ -24,6 +24,7 @@ class RewardPointsWidget extends StatefulWidget {
   final int appliedPoints;
   final Function(int) onApply;
   final VoidCallback? onCancel;
+  final bool isEnabled;
 
   const RewardPointsWidget({
     super.key,
@@ -33,6 +34,7 @@ class RewardPointsWidget extends StatefulWidget {
     required this.appliedPoints,
     required this.onApply,
     this.onCancel,
+    this.isEnabled = true,
   });
 
   @override
@@ -83,6 +85,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
   }
 
   void _handleApply() {
+    if (!widget.isEnabled) return;
     final text = _controller.text.trim();
     if (text.isEmpty) {
       SnackBarUtils.showWarning(context, 'Please enter amount of points to spend');
@@ -112,6 +115,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
   }
 
   void _handleCancel() {
+    if (!widget.isEnabled) return;
     FocusScope.of(context).unfocus();
     setState(() {
       _useMaxPoints = false;
@@ -197,13 +201,13 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                     ),
                   ),
                   InkWell(
-                    onTap: _handleCancel,
+                    onTap: widget.isEnabled ? _handleCancel : null,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       child: Text(
                         'Remove',
                         style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.red,
+                          color: widget.isEnabled ? AppColors.red : AppColors.muted,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -219,15 +223,17 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                   child: Container(
                     height: 40.h,
                     decoration: BoxDecoration(
-                      color: !_canRedeem
+                      color: (!_canRedeem || !widget.isEnabled)
                           ? AppColors.itemBackground
                           : AppColors.white,
                       borderRadius: AppRadius.k8,
                       border: Border.all(
-                        color: _focusNode.hasFocus && _canRedeem
+                        color: _focusNode.hasFocus && _canRedeem && widget.isEnabled
                             ? AppColors.pickabooBlue
                             : AppColors.border,
-                        width: _focusNode.hasFocus && _canRedeem ? 1.2 : 1.0,
+                        width: _focusNode.hasFocus && _canRedeem && widget.isEnabled
+                            ? 1.2
+                            : 1.0,
                       ),
                     ),
                     alignment: Alignment.center,
@@ -236,7 +242,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                       focusNode: _focusNode,
                       textAlignVertical: TextAlignVertical.center,
                       keyboardType: TextInputType.number,
-                      enabled: _canRedeem,
+                      enabled: _canRedeem && widget.isEnabled,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
                         _MaxPointsInputFormatter(widget.maxPoints),
@@ -250,7 +256,7 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                       },
                       style: AppTypography.titleSmall.copyWith(
                         fontSize: 13.sp,
-                        color: AppColors.navy,
+                        color: widget.isEnabled ? AppColors.navy : AppColors.muted,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter Points to Spend',
@@ -273,25 +279,27 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                   height: 40.h,
                   size: AppButtonSize.sm,
                   isFullWidth: false,
-                  isDisabled: !_canRedeem,
+                  isDisabled: !_canRedeem || !widget.isEnabled,
                   padding: EdgeInsets.symmetric(horizontal: 22.w),
-                  onPressed: _canRedeem ? _handleApply : null,
+                  onPressed: (_canRedeem && widget.isEnabled) ? _handleApply : null,
                 ),
               ],
             ),
             if (_canRedeem) ...[
               SizedBox(height: 8.h),
               InkWell(
-                onTap: () {
-                  setState(() {
-                    _useMaxPoints = !_useMaxPoints;
-                    if (_useMaxPoints) {
-                      _controller.text = widget.maxPoints.toString();
-                    } else {
-                      _controller.clear();
-                    }
-                  });
-                },
+                onTap: widget.isEnabled
+                    ? () {
+                        setState(() {
+                          _useMaxPoints = !_useMaxPoints;
+                          if (_useMaxPoints) {
+                            _controller.text = widget.maxPoints.toString();
+                          } else {
+                            _controller.clear();
+                          }
+                        });
+                      }
+                    : null,
                 child: Row(
                   children: [
                     Icon(
@@ -300,7 +308,9 @@ class _RewardPointsWidgetState extends State<RewardPointsWidget> {
                           : Icons.radio_button_unchecked,
                       size: 16.sp,
                       color: _useMaxPoints
-                          ? AppColors.pickabooBlue
+                          ? (widget.isEnabled
+                              ? AppColors.pickabooBlue
+                              : AppColors.muted)
                           : AppColors.mutedLight,
                     ),
                     SizedBox(width: 8.w),

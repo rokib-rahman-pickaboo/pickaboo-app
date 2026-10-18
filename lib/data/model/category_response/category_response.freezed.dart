@@ -22,7 +22,7 @@ CategoryResponse _$CategoryResponseFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$CategoryResponse {
   @HiveField(0)
-  @JsonKey(name: "id")
+  @JsonKey(name: "id", fromJson: _toStringSafe)
   String? get id => throw _privateConstructorUsedError;
   @HiveField(1)
   @JsonKey(name: "slug")
@@ -31,13 +31,13 @@ mixin _$CategoryResponse {
   @JsonKey(name: "name")
   String? get name => throw _privateConstructorUsedError;
   @HiveField(3)
-  @JsonKey(name: "is_special")
+  @JsonKey(name: "is_special", fromJson: _toStringSafe)
   String? get isSpecial => throw _privateConstructorUsedError;
   @HiveField(4)
   @JsonKey(name: "icon")
   String? get icon => throw _privateConstructorUsedError;
   @HiveField(5)
-  @JsonKey(name: "childs")
+  @JsonKey(name: "childs", fromJson: _childsFromJson)
   List<CategoryResponse>? get childs => throw _privateConstructorUsedError;
 
   /// Serializes this CategoryResponse to a JSON map.
@@ -58,12 +58,16 @@ abstract class $CategoryResponseCopyWith<$Res> {
   ) = _$CategoryResponseCopyWithImpl<$Res, CategoryResponse>;
   @useResult
   $Res call({
-    @HiveField(0) @JsonKey(name: "id") String? id,
+    @HiveField(0) @JsonKey(name: "id", fromJson: _toStringSafe) String? id,
     @HiveField(1) @JsonKey(name: "slug") String? slug,
     @HiveField(2) @JsonKey(name: "name") String? name,
-    @HiveField(3) @JsonKey(name: "is_special") String? isSpecial,
+    @HiveField(3)
+    @JsonKey(name: "is_special", fromJson: _toStringSafe)
+    String? isSpecial,
     @HiveField(4) @JsonKey(name: "icon") String? icon,
-    @HiveField(5) @JsonKey(name: "childs") List<CategoryResponse>? childs,
+    @HiveField(5)
+    @JsonKey(name: "childs", fromJson: _childsFromJson)
+    List<CategoryResponse>? childs,
   });
 }
 
@@ -137,12 +141,16 @@ abstract class _$$CategoryResponseImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @HiveField(0) @JsonKey(name: "id") String? id,
+    @HiveField(0) @JsonKey(name: "id", fromJson: _toStringSafe) String? id,
     @HiveField(1) @JsonKey(name: "slug") String? slug,
     @HiveField(2) @JsonKey(name: "name") String? name,
-    @HiveField(3) @JsonKey(name: "is_special") String? isSpecial,
+    @HiveField(3)
+    @JsonKey(name: "is_special", fromJson: _toStringSafe)
+    String? isSpecial,
     @HiveField(4) @JsonKey(name: "icon") String? icon,
-    @HiveField(5) @JsonKey(name: "childs") List<CategoryResponse>? childs,
+    @HiveField(5)
+    @JsonKey(name: "childs", fromJson: _childsFromJson)
+    List<CategoryResponse>? childs,
   });
 }
 
@@ -208,12 +216,16 @@ class __$$CategoryResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CategoryResponseImpl implements _CategoryResponse {
   const _$CategoryResponseImpl({
-    @HiveField(0) @JsonKey(name: "id") this.id,
+    @HiveField(0) @JsonKey(name: "id", fromJson: _toStringSafe) this.id,
     @HiveField(1) @JsonKey(name: "slug") this.slug,
     @HiveField(2) @JsonKey(name: "name") this.name,
-    @HiveField(3) @JsonKey(name: "is_special") this.isSpecial,
+    @HiveField(3)
+    @JsonKey(name: "is_special", fromJson: _toStringSafe)
+    this.isSpecial,
     @HiveField(4) @JsonKey(name: "icon") this.icon,
-    @HiveField(5) @JsonKey(name: "childs") final List<CategoryResponse>? childs,
+    @HiveField(5)
+    @JsonKey(name: "childs", fromJson: _childsFromJson)
+    final List<CategoryResponse>? childs,
   }) : _childs = childs;
 
   factory _$CategoryResponseImpl.fromJson(Map<String, dynamic> json) =>
@@ -221,7 +233,7 @@ class _$CategoryResponseImpl implements _CategoryResponse {
 
   @override
   @HiveField(0)
-  @JsonKey(name: "id")
+  @JsonKey(name: "id", fromJson: _toStringSafe)
   final String? id;
   @override
   @HiveField(1)
@@ -233,7 +245,7 @@ class _$CategoryResponseImpl implements _CategoryResponse {
   final String? name;
   @override
   @HiveField(3)
-  @JsonKey(name: "is_special")
+  @JsonKey(name: "is_special", fromJson: _toStringSafe)
   final String? isSpecial;
   @override
   @HiveField(4)
@@ -242,7 +254,7 @@ class _$CategoryResponseImpl implements _CategoryResponse {
   final List<CategoryResponse>? _childs;
   @override
   @HiveField(5)
-  @JsonKey(name: "childs")
+  @JsonKey(name: "childs", fromJson: _childsFromJson)
   List<CategoryResponse>? get childs {
     final value = _childs;
     if (value == null) return null;
@@ -301,12 +313,18 @@ class _$CategoryResponseImpl implements _CategoryResponse {
 
 abstract class _CategoryResponse implements CategoryResponse {
   const factory _CategoryResponse({
-    @HiveField(0) @JsonKey(name: "id") final String? id,
+    @HiveField(0)
+    @JsonKey(name: "id", fromJson: _toStringSafe)
+    final String? id,
     @HiveField(1) @JsonKey(name: "slug") final String? slug,
     @HiveField(2) @JsonKey(name: "name") final String? name,
-    @HiveField(3) @JsonKey(name: "is_special") final String? isSpecial,
+    @HiveField(3)
+    @JsonKey(name: "is_special", fromJson: _toStringSafe)
+    final String? isSpecial,
     @HiveField(4) @JsonKey(name: "icon") final String? icon,
-    @HiveField(5) @JsonKey(name: "childs") final List<CategoryResponse>? childs,
+    @HiveField(5)
+    @JsonKey(name: "childs", fromJson: _childsFromJson)
+    final List<CategoryResponse>? childs,
   }) = _$CategoryResponseImpl;
 
   factory _CategoryResponse.fromJson(Map<String, dynamic> json) =
@@ -314,7 +332,7 @@ abstract class _CategoryResponse implements CategoryResponse {
 
   @override
   @HiveField(0)
-  @JsonKey(name: "id")
+  @JsonKey(name: "id", fromJson: _toStringSafe)
   String? get id;
   @override
   @HiveField(1)
@@ -326,7 +344,7 @@ abstract class _CategoryResponse implements CategoryResponse {
   String? get name;
   @override
   @HiveField(3)
-  @JsonKey(name: "is_special")
+  @JsonKey(name: "is_special", fromJson: _toStringSafe)
   String? get isSpecial;
   @override
   @HiveField(4)
@@ -334,7 +352,7 @@ abstract class _CategoryResponse implements CategoryResponse {
   String? get icon;
   @override
   @HiveField(5)
-  @JsonKey(name: "childs")
+  @JsonKey(name: "childs", fromJson: _childsFromJson)
   List<CategoryResponse>? get childs;
 
   /// Create a copy of CategoryResponse

@@ -5,8 +5,6 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
-
-import 'package:pickaboo/core/config/api_config.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/network/api_error_parser.dart';
 import 'package:pickaboo/data/api_service/user_profile_api_service.dart';
@@ -867,23 +865,10 @@ class IUserProfileApiService implements UserProfileApiService {
   ) async {
 
     try {
-      Response response;
-      try {
-        response = await _dio.get(
-          ApiEndpoints.getCityUrl,
-          queryParameters: {'param': division},
-        );
-      } on DioException {
-        // If staging has a backend DI failure, automatically fallback to production
-        if (_dio.options.baseUrl != ApiConfig.productionURL) {
-          response = await _dio.get(
-            '${ApiConfig.productionURL}${ApiEndpoints.getCityUrl}',
-            queryParameters: {'param': division},
-          );
-        } else {
-          rethrow;
-        }
-      }
+      final response = await _dio.get(
+        ApiEndpoints.getCityUrl,
+        queryParameters: {'param': division},
+      );
 
       if (response.data is List) {
         final cities = (response.data as List)
@@ -912,23 +897,10 @@ class IUserProfileApiService implements UserProfileApiService {
   ) async {
 
     try {
-      Response response;
-      try {
-        response = await _dio.get(
-          ApiEndpoints.getAreaUrl,
-          queryParameters: {'param': city},
-        );
-      } on DioException {
-        // If staging has a backend DI failure, automatically fallback to production
-        if (_dio.options.baseUrl != ApiConfig.productionURL) {
-          response = await _dio.get(
-            '${ApiConfig.productionURL}${ApiEndpoints.getAreaUrl}',
-            queryParameters: {'param': city},
-          );
-        } else {
-          rethrow;
-        }
-      }
+      final response = await _dio.get(
+        ApiEndpoints.getAreaUrl,
+        queryParameters: {'param': city},
+      );
 
       if (response.data is List) {
         final areas = (response.data as List)

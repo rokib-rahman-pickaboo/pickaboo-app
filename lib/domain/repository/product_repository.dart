@@ -104,11 +104,11 @@ abstract class ProductRepository {
   Future<Either<AppErrorEntity, List<BannerEntity>>> getBannerContent();
 
   Future<Either<AppErrorEntity, RecommendedProductEntity>> getRecommendedProducts({
-    required String slug,
+    required String productId,
   });
 
   Future<Either<AppErrorEntity, RelatedProductEntity>> getRelatedProducts({
-    required String slug,
+    required String productId,
   });
 
   Future<Either<AppErrorEntity, HomeFlashSaleEntity>> getHomeFlashSale({

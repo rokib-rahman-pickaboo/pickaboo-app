@@ -24,7 +24,7 @@ class RelatedProductsBloc extends Bloc<RelatedProductsEvent, RelatedProductsStat
   Future<void> _onLoad(_Load event, Emitter<RelatedProductsState> emit) async {
     emit(const RelatedProductsState.loading());
 
-    final result = await repository.getRelatedProducts(slug: event.slug);
+    final result = await repository.getRelatedProducts(productId: event.productId);
 
     await result.fold(
       (error) async => emit(RelatedProductsState.error(error)),

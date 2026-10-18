@@ -6,6 +6,7 @@
 
 import 'dart:async';
 import 'package:pickaboo/core/theme/app_decorations.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -253,10 +254,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     context.read<CmsContentBloc>().add(const CmsContentEvent.loadAll());
 
     // 2. Defer bottom sliders slightly (200ms) so hero & initial frame paint instantly
-    if (effectiveSlug.isNotEmpty) {
+    final earlyPid = (int.tryParse(widget.productId) != null)
+        ? widget.productId
+        : (widget.previewProduct?.id ?? '');
+    if (earlyPid.isNotEmpty && int.tryParse(earlyPid) != null) {
       Future.delayed(const Duration(milliseconds: 200), () {
         if (!mounted) return;
-        _loadBottomSliders(effectiveSlug);
+        _loadBottomSliders(earlyPid);
       });
     }
   }
@@ -286,7 +290,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
     final effectiveProductId = product.id > 0
         ? product.id.toString()
-        : (int.tryParse(widget.productId) != null ? widget.productId : '');
+        : (int.tryParse(widget.productId) != null ? widget.productId : (widget.previewProduct?.id ?? ''));
     if (effectiveProductId.isNotEmpty) {
       context.read<EmiBloc>().add(
         EmiEvent.load(productId: effectiveProductId),
@@ -298,20 +302,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     context.read<CmsContentBloc>().add(const CmsContentEvent.loadAll());
 
     // 2. Load bottom sliders if not already loaded
-    if (!_bottomSlidersLoaded && effectiveSlug.isNotEmpty) {
-      _loadBottomSliders(effectiveSlug);
+    if (!_bottomSlidersLoaded && effectiveProductId.isNotEmpty && int.tryParse(effectiveProductId) != null) {
+      _loadBottomSliders(effectiveProductId);
     }
   }
 
-  void _loadBottomSliders(String slug) {
-    if (_bottomSlidersLoaded || slug.isEmpty) return;
+  void _loadBottomSliders(String productId) {
+    if (_bottomSlidersLoaded || productId.isEmpty) return;
     _bottomSlidersLoaded = true;
 
     context.read<RecommendedProductsBloc>().add(
-      RecommendedProductsEvent.load(slug: slug),
+      RecommendedProductsEvent.load(productId: productId),
     );
     context.read<RelatedProductsBloc>().add(
-      RelatedProductsEvent.load(slug: slug),
+      RelatedProductsEvent.load(productId: productId),
     );
   }
 
@@ -1153,7 +1157,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             authenticated: (token, user) => true,
             orElse: () => false,
           );
-          final cartCount = context.watch<CartBloc>().state.maybeWhen(
+          final cartState = context.watch<CartBloc>().state;
+          final isCartProcessing = cartState.maybeWhen(
+            operationInProgress: (_, __) => true,
+            loading: () => true,
+            orElse: () => false,
+          ) || _pendingCartAction != null || context.watch<CartBloc>().isPendingAddition;
+
+          final cartCount = cartState.maybeWhen(
             loaded: (cart) => cart.itemsCount,
             itemAdded: (cart, _) => cart.itemsCount,
             couponApplied: (cart, _) => cart.itemsCount,
@@ -1216,9 +1227,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         child: state.when(
                           initial: () => _buildLoadingState(cartCount, isLoggedIn),
                           loading: () => _buildLoadingState(cartCount, isLoggedIn),
-                          loaded: (product) => _buildLoadedState(
-                            product,
-                            isLoggedIn,
+                          loaded: (product) => AbsorbPointer(
+                            absorbing: isCartProcessing,
+                            child: _buildLoadedState(
+                              product,
+                              isLoggedIn,
+                            ),
                           ),
                           error: (error) => _buildErrorState(error),
                         ),
@@ -1245,27 +1259,29 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         ),
                       // ── Floating Top App Bar (Slides in/out based on scroll) ──
                       _buildFloatingAppBar(state),
-                      // ── Top Progressive Loading Bar when syncing full details ──
-                      state.maybeWhen(
-                        loaded: (product) {
-                          if (product.isPartial) {
-                            return const Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              child: SizedBox(
-                                height: 3.0,
-                                child: LinearProgressIndicator(
-                                  backgroundColor: AppColors.surfaceBlue,
-                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.pickabooBlue),
-                                ),
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                        orElse: () => const SizedBox.shrink(),
-                      ),
+                      // ── Top Progressive Loading Bar when syncing full details or processing cart ──
+                      if (isCartProcessing)
+                        const Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: AppLoader.linear(),
+                        )
+                      else
+                        state.maybeWhen(
+                          loaded: (product) {
+                            if (product.isPartial) {
+                              return const Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                child: AppLoader.linear(),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                          orElse: () => const SizedBox.shrink(),
+                        ),
                     ],
                   ),
                 ),

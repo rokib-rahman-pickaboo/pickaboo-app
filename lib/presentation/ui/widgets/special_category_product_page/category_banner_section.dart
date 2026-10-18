@@ -5,6 +5,7 @@ import 'package:pickaboo/domain/entity/banner/banner_entity.dart';
 import 'package:pickaboo/domain/entity/home_content/category_insertion_models.dart';
 import 'package:pickaboo/presentation/bloc/banner_bloc/banner_bloc.dart';
 import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
+import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/home_page/banner_item_view.dart';
 
 class CategoryBannerGroup {
@@ -152,7 +153,9 @@ class _SingleBanner extends StatelessWidget {
     if (policy == BannerDisplayPolicy.skip) return const SizedBox.shrink();
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+      ),
       child: BannerItemView(
         banner: banner.toSliderEntity(),
         naturalHeight: true,
@@ -198,7 +201,9 @@ class _MultiColumnBanners extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.sameGroupItemSpacing.w,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

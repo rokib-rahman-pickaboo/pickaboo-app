@@ -27,31 +27,16 @@ class SafeDateTimeConverter implements JsonConverter<DateTime?, Object?> {
 /// - Timestamps: Unix epoch milliseconds
 DateTime? parseServerDateTime(dynamic raw) {
   if (raw == null) return null;
-  if (raw is DateTime) return raw.toLocal();
-  if (raw is int) return DateTime.fromMillisecondsSinceEpoch(raw).toLocal();
+  if (raw is DateTime) return raw;
+  if (raw is int) return DateTime.fromMillisecondsSinceEpoch(raw);
 
   final str = raw.toString().trim();
   if (str.isEmpty) return null;
 
-  // 1. Try standard ISO-8601 parser first
+  // 1. Try standard ISO-8601 parser first.
   final isoParsed = DateTime.tryParse(str);
   if (isoParsed != null) {
-    if (isoParsed.isUtc) return isoParsed.toLocal();
-    // For ISO dates without timezone indicator, Magento stores in UTC:
-    if (!str.endsWith('Z') &&
-        !str.contains('+') &&
-        !RegExp(r'-\d{2}:\d{2}$').hasMatch(str)) {
-      return DateTime.utc(
-        isoParsed.year,
-        isoParsed.month,
-        isoParsed.day,
-        isoParsed.hour,
-        isoParsed.minute,
-        isoParsed.second,
-        isoParsed.millisecond,
-      ).toLocal();
-    }
-    return isoParsed.toLocal();
+    return isoParsed;
   }
 
   // 2. Pattern 1: yyyy-MM-dd or yyyy/MM/dd with optional time and AM/PM

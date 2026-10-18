@@ -23,8 +23,11 @@ import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_event.dart
 import 'package:pickaboo/presentation/bloc/club_point_bloc/club_point_state.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:pickaboo/presentation/bloc/user_profile/user_profile_state.dart';
+import 'package:pickaboo/presentation/navigation/navigation_extensions.dart';
 import 'package:pickaboo/presentation/navigation/route_constants.dart';
+
 import 'package:pickaboo/presentation/ui/widgets/cart/cart_item_card.dart';
+
 import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/cart_checkout_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/cart_page/empty_cart_view.dart';
 import 'package:pickaboo/presentation/ui/widgets/cart/coupon_widget.dart';
@@ -160,22 +163,33 @@ class _CartPageState extends State<CartPage> {
       appBar: PickabooAppBar(
         title: 'My Cart',
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.favorite_border_rounded,
-              color: AppColors.navy,
-              size: 22.sp,
-            ),
-            onPressed: () {
-              final isLoggedIn = context.read<AuthBloc>().state.maybeWhen(
-                authenticated: (token, user) => true,
+          BlocBuilder<CartBloc, CartState>(
+            builder: (context, state) {
+              final isBusy = state.maybeWhen(
+                loading: () => true,
+                operationInProgress: (_, __) => true,
                 orElse: () => false,
               );
-              if (isLoggedIn) {
-                context.push(Routes.wishlist);
-              } else {
-                context.push(Routes.login);
-              }
+              return IconButton(
+                icon: Icon(
+                  Icons.favorite_border_rounded,
+                  color: isBusy ? AppColors.muted : AppColors.navy,
+                  size: 22.sp,
+                ),
+                onPressed: isBusy
+                    ? null
+                    : () {
+                        final isLoggedIn = context.read<AuthBloc>().state.maybeWhen(
+                          authenticated: (token, user) => true,
+                          orElse: () => false,
+                        );
+                        if (isLoggedIn) {
+                          context.push(Routes.wishlist);
+                        } else {
+                          context.push(Routes.login);
+                        }
+                      },
+              );
             },
           ),
           SizedBox(width: 4.w),
@@ -349,8 +363,8 @@ class _CartPageState extends State<CartPage> {
 
             return CartCheckoutButton(
               grandTotal: cart.grandTotal,
-              isLoading: isUpdating,
-              isDisabled: hasOutOfStock,
+              isLoading: false,
+              isDisabled: isUpdating || hasOutOfStock,
               onCheckout: () {
                 if (isUpdating) return;
                 if (ConnectivityUtils.isOffline(context)) {
@@ -436,7 +450,9 @@ class _CartPageState extends State<CartPage> {
         if (isLoading)
           const AppLoader.linear(),
         Expanded(
-          child: SingleChildScrollView(
+          child: AbsorbPointer(
+            absorbing: isLoading,
+            child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.fromLTRB(
               AppSpacing.sameGroupItemSpacing.w,
@@ -462,7 +478,27 @@ class _CartPageState extends State<CartPage> {
                               isLoading: isLoading,
                               showOuterCard: false,
                               showDivider: i < cart.items.length - 1,
+                              onTap: () {
+                                final targetId = item.productId > 0
+                                    ? item.productId.toString()
+                                    : (item.productUrlKey.isNotEmpty
+                                        ? item.productUrlKey
+                                        : item.sku);
+                                final targetSlug = item.productUrlKey.isNotEmpty
+                                    ? item.productUrlKey
+                                    : (item.productId > 0
+                                        ? item.productId.toString()
+                                        : item.sku);
+                                context.goToProductDetail(
+                                  targetId,
+                                  slug: targetSlug,
+                                  productName: item.name,
+                                  productImage: item.imageUrl,
+                                  productPrice: item.price.toString(),
+                                );
+                              },
                               onQuantityChanged: (qty) {
+
                                 context.read<CartBloc>().add(
                                   CartEvent.updateItemQuantity(
                                     itemId: item.itemId,
@@ -509,6 +545,7 @@ class _CartPageState extends State<CartPage> {
                 // ── 2. APPLY DISCOUNT CODE CARD ──
                 CouponWidget(
                   appliedCoupon: cart.couponCode,
+                  isEnabled: !isLoading,
                   onApply: (code) {
                     _requireAuth(context, () {
                       context.read<CartBloc>().add(
@@ -545,6 +582,7 @@ class _CartPageState extends State<CartPage> {
                       minPoints: cart.minSpendablePoints,
                       pointsToEarn: cart.pointsToEarn,
                       appliedPoints: cart.appliedPoints,
+                      isEnabled: !isLoading,
                       onApply: (points) {
                         _requireAuth(context, () {
                           context.read<CartBloc>().add(
@@ -588,7 +626,8 @@ class _CartPageState extends State<CartPage> {
             ),
           ),
         ),
-      ],
-    );
+      ),
+    ],
+  );
   }
 }

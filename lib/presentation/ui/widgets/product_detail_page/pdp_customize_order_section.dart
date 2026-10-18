@@ -221,33 +221,9 @@ class PdpCustomizeOrderSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Customize your order',
-                    style: AppTypography.titleMedium,
-                  ),
-                  if (!isEnabled) ...[
-                    SizedBox(width: 8.w),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                      decoration: BoxDecoration(
-                        color: AppColors.itemBackground,
-                        borderRadius: AppRadius.k4,
-                        border: Border.all(color: AppColors.border, width: 1.w),
-                      ),
-                      child: Text(
-                        'Unavailable',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.muted,
-                          fontSize: 10.5.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
+              Text(
+                'Customize your order',
+                style: AppTypography.titleMedium,
               ),
               if (onHeaderTap != null && isEnabled)
                 GestureDetector(

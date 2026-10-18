@@ -41,11 +41,10 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/catalog_grid_skeleton.dart';
 import 'package:pickaboo/presentation/ui/pages/special_category_product_page/bottom_sheet/category_filter_bottom_sheet.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_product_results.dart';
-import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_filter_chips.dart';
+// import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_filter_chips.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_banner_section.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_preview_banner.dart';
 import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_filter_promo_scroller.dart';
-import 'package:pickaboo/presentation/ui/widgets/special_category_product_page/category_shop_by_brand.dart';
 import 'package:pickaboo/core/utils/html_extensions.dart';
 import 'package:pickaboo/domain/entity/common/category/category_entity.dart';
 import 'package:pickaboo/presentation/bloc/category_bloc/category_bloc.dart';
@@ -225,13 +224,16 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                       physics: const AlwaysScrollableScrollPhysics(),
                       slivers: [
                         if (categoryData != null) ...[
+                          // Banner 1 (index: 0): Top Hero Banner (no top margin directly after app bar)
                           if (categoryData.banners.isNotEmpty)
                             SliverToBoxAdapter(
                               child: CategoryPreviewBanner(
                                 banners: categoryData.banners,
                                 index: 0,
+                                topPadding: widget.isEmbedded ? 8.h : 0,
                               ),
                             ),
+                          // Banner 2 (index: 1): Second Banner
                           if (categoryData.banners.length > 1)
                             SliverToBoxAdapter(
                               child: CategoryPreviewBanner(
@@ -239,25 +241,14 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                                 index: 1,
                               ),
                             ),
-                          if (categoryData.banners.length > 3)
-                            SliverToBoxAdapter(
-                              child: CategoryPreviewBanner(
-                                banners: categoryData.banners,
-                                index: 3,
-                              ),
-                            ),
+                          // Filter Promo Scroller (filter_data: 3 cards)
                           if (categoryData.filters.isNotEmpty)
                             SliverToBoxAdapter(
                               child: CategoryFilterPromoScroller(
                                 filters: categoryData.filters,
                               ),
                             ),
-                          if (categoryData.brands.isNotEmpty)
-                            SliverToBoxAdapter(
-                              child: CategoryShopByBrand(
-                                brands: categoryData.brands,
-                              ),
-                            ),
+                          // Banner 3 (index: 2): Yellow Banner
                           if (categoryData.banners.length > 2)
                             SliverToBoxAdapter(
                               child: CategoryPreviewBanner(
@@ -266,6 +257,21 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                               ),
                             ),
                         ],
+
+                        // ── Brand / Attribute Filter Chips commented out ──
+                        // (Users filter brand from default filter bottom sheet)
+                        // ...facetAttributes
+                        //       .where((attr) => attr.specialForPhone)
+                        //       .map(
+                        //         (attr) => SliverToBoxAdapter(
+                        //           child: CategoryFilterChips(
+                        //             attribute: attr,
+                        //             currentFilters:
+                        //                 state.currentFilters ?? const {},
+                        //             categorySlug: widget.categorySlug,
+                        //           ),
+                        //         ),
+                        //       ),
 
                         // ── Child Categories Chips (from /rest/V1/all-categories) ──
                         BlocBuilder<CategoryBloc, CategoryState>(
@@ -317,19 +323,6 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                           },
                         ),
 
-                        ...facetAttributes
-                              .where((attr) => attr.specialForPhone)
-                              .map(
-                                (attr) => SliverToBoxAdapter(
-                                  child: CategoryFilterChips(
-                                    attribute: attr,
-                                    currentFilters:
-                                        state.currentFilters ?? const {},
-                                    categorySlug: widget.categorySlug,
-                                  ),
-                                ),
-                              ),
-
                         if (hasFacets)
                           SliverToBoxAdapter(
                             child: CategoryFilterButton(
@@ -339,6 +332,8 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                                 facetSortOptions,
                                 state.currentSort,
                               ),
+                              hasTopBanner: categoryData != null &&
+                                  categoryData.banners.isNotEmpty,
                               onSortSelected: (sortValue) {
                                 context.read<SpecialCategoryProductsBloc>().add(
                                   SpecialCategoryProductsEvent.applySort(
@@ -462,6 +457,17 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
                                   }
                                 : null,
                           ),
+
+                        // Banner 4 (index: 3): Bottom Banner(s) after all products
+                        if (categoryData != null && categoryData.banners.length > 3)
+                          for (int i = 3; i < categoryData.banners.length; i++)
+                            SliverToBoxAdapter(
+                              child: CategoryPreviewBanner(
+                                banners: categoryData.banners,
+                                index: i,
+                                topPadding: i == 3 ? 0 : null,
+                              ),
+                            ),
 
                         SliverToBoxAdapter(
                           child: SizedBox(

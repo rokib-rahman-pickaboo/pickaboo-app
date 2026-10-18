@@ -39,29 +39,29 @@ mixin _$CategoryProductsResponse {
   String? get image => throw _privateConstructorUsedError;
   @JsonKey(name: "mobile_image")
   String? get mobileImage => throw _privateConstructorUsedError;
-  @JsonKey(name: "banner")
+  @JsonKey(name: "banner", fromJson: _slidersFromJson)
   List<Slider>? get banner => throw _privateConstructorUsedError;
-  @JsonKey(name: "filter_data")
+  @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
   List<Slider>? get filterData => throw _privateConstructorUsedError;
   @JsonKey(name: "featured_product_total", fromJson: _toIntSafe)
   int? get featuredProductTotal => throw _privateConstructorUsedError;
   @JsonKey(name: "total_cat_prods", fromJson: _toIntSafe)
   int? get totalCatProds => throw _privateConstructorUsedError;
-  @JsonKey(name: "cat_prods")
+  @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
   List<Product>? get catProds => throw _privateConstructorUsedError;
-  @JsonKey(name: "featured_products")
+  @JsonKey(name: "featured_products", fromJson: _productsFromJson)
   List<Product>? get featuredProducts => throw _privateConstructorUsedError;
-  @JsonKey(name: "featured_category")
+  @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
   List<FeaturedCategory>? get featuredCategory =>
       throw _privateConstructorUsedError;
-  @JsonKey(name: "brands")
+  @JsonKey(name: "brands", fromJson: _categoriesFromJson)
   List<Category>? get brands => throw _privateConstructorUsedError;
-  @JsonKey(name: "sort_data")
+  @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
   List<SortOption>? get sortData => throw _privateConstructorUsedError;
-  @JsonKey(name: "filterable_attributes")
+  @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
   List<FilterAttribute>? get filterableAttributes =>
       throw _privateConstructorUsedError;
-  @JsonKey(name: "applied_filters")
+  @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
   List<AppliedFilter>? get appliedFilters => throw _privateConstructorUsedError;
   @JsonKey(name: "category_discription")
   String? get categoryDiscription => throw _privateConstructorUsedError;
@@ -94,20 +94,26 @@ abstract class $CategoryProductsResponseCopyWith<$Res> {
     @JsonKey(name: "meta_description") String? metaDescription,
     @JsonKey(name: "image") String? image,
     @JsonKey(name: "mobile_image") String? mobileImage,
-    @JsonKey(name: "banner") List<Slider>? banner,
-    @JsonKey(name: "filter_data") List<Slider>? filterData,
+    @JsonKey(name: "banner", fromJson: _slidersFromJson) List<Slider>? banner,
+    @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
+    List<Slider>? filterData,
     @JsonKey(name: "featured_product_total", fromJson: _toIntSafe)
     int? featuredProductTotal,
     @JsonKey(name: "total_cat_prods", fromJson: _toIntSafe) int? totalCatProds,
-    @JsonKey(name: "cat_prods") List<Product>? catProds,
-    @JsonKey(name: "featured_products") List<Product>? featuredProducts,
-    @JsonKey(name: "featured_category")
+    @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
+    List<Product>? catProds,
+    @JsonKey(name: "featured_products", fromJson: _productsFromJson)
+    List<Product>? featuredProducts,
+    @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
     List<FeaturedCategory>? featuredCategory,
-    @JsonKey(name: "brands") List<Category>? brands,
-    @JsonKey(name: "sort_data") List<SortOption>? sortData,
-    @JsonKey(name: "filterable_attributes")
+    @JsonKey(name: "brands", fromJson: _categoriesFromJson)
+    List<Category>? brands,
+    @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
+    List<SortOption>? sortData,
+    @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
     List<FilterAttribute>? filterableAttributes,
-    @JsonKey(name: "applied_filters") List<AppliedFilter>? appliedFilters,
+    @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
+    List<AppliedFilter>? appliedFilters,
     @JsonKey(name: "category_discription") String? categoryDiscription,
     @JsonKey(name: "cache_time") DateTime? cacheTime,
   });
@@ -284,20 +290,26 @@ abstract class _$$CategoryProductsResponseImplCopyWith<$Res>
     @JsonKey(name: "meta_description") String? metaDescription,
     @JsonKey(name: "image") String? image,
     @JsonKey(name: "mobile_image") String? mobileImage,
-    @JsonKey(name: "banner") List<Slider>? banner,
-    @JsonKey(name: "filter_data") List<Slider>? filterData,
+    @JsonKey(name: "banner", fromJson: _slidersFromJson) List<Slider>? banner,
+    @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
+    List<Slider>? filterData,
     @JsonKey(name: "featured_product_total", fromJson: _toIntSafe)
     int? featuredProductTotal,
     @JsonKey(name: "total_cat_prods", fromJson: _toIntSafe) int? totalCatProds,
-    @JsonKey(name: "cat_prods") List<Product>? catProds,
-    @JsonKey(name: "featured_products") List<Product>? featuredProducts,
-    @JsonKey(name: "featured_category")
+    @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
+    List<Product>? catProds,
+    @JsonKey(name: "featured_products", fromJson: _productsFromJson)
+    List<Product>? featuredProducts,
+    @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
     List<FeaturedCategory>? featuredCategory,
-    @JsonKey(name: "brands") List<Category>? brands,
-    @JsonKey(name: "sort_data") List<SortOption>? sortData,
-    @JsonKey(name: "filterable_attributes")
+    @JsonKey(name: "brands", fromJson: _categoriesFromJson)
+    List<Category>? brands,
+    @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
+    List<SortOption>? sortData,
+    @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
     List<FilterAttribute>? filterableAttributes,
-    @JsonKey(name: "applied_filters") List<AppliedFilter>? appliedFilters,
+    @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
+    List<AppliedFilter>? appliedFilters,
     @JsonKey(name: "category_discription") String? categoryDiscription,
     @JsonKey(name: "cache_time") DateTime? cacheTime,
   });
@@ -467,20 +479,27 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
     @JsonKey(name: "meta_description") this.metaDescription,
     @JsonKey(name: "image") this.image,
     @JsonKey(name: "mobile_image") this.mobileImage,
-    @JsonKey(name: "banner") final List<Slider>? banner,
-    @JsonKey(name: "filter_data") final List<Slider>? filterData,
+    @JsonKey(name: "banner", fromJson: _slidersFromJson)
+    final List<Slider>? banner,
+    @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
+    final List<Slider>? filterData,
     @JsonKey(name: "featured_product_total", fromJson: _toIntSafe)
     this.featuredProductTotal,
     @JsonKey(name: "total_cat_prods", fromJson: _toIntSafe) this.totalCatProds,
-    @JsonKey(name: "cat_prods") final List<Product>? catProds,
-    @JsonKey(name: "featured_products") final List<Product>? featuredProducts,
-    @JsonKey(name: "featured_category")
+    @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
+    final List<Product>? catProds,
+    @JsonKey(name: "featured_products", fromJson: _productsFromJson)
+    final List<Product>? featuredProducts,
+    @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
     final List<FeaturedCategory>? featuredCategory,
-    @JsonKey(name: "brands") final List<Category>? brands,
-    @JsonKey(name: "sort_data") final List<SortOption>? sortData,
-    @JsonKey(name: "filterable_attributes")
+    @JsonKey(name: "brands", fromJson: _categoriesFromJson)
+    final List<Category>? brands,
+    @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
+    final List<SortOption>? sortData,
+    @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
     final List<FilterAttribute>? filterableAttributes,
-    @JsonKey(name: "applied_filters") final List<AppliedFilter>? appliedFilters,
+    @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
+    final List<AppliedFilter>? appliedFilters,
     @JsonKey(name: "category_discription") this.categoryDiscription,
     @JsonKey(name: "cache_time") this.cacheTime,
   }) : _banner = banner,
@@ -522,7 +541,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
   final String? mobileImage;
   final List<Slider>? _banner;
   @override
-  @JsonKey(name: "banner")
+  @JsonKey(name: "banner", fromJson: _slidersFromJson)
   List<Slider>? get banner {
     final value = _banner;
     if (value == null) return null;
@@ -533,7 +552,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
 
   final List<Slider>? _filterData;
   @override
-  @JsonKey(name: "filter_data")
+  @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
   List<Slider>? get filterData {
     final value = _filterData;
     if (value == null) return null;
@@ -550,7 +569,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
   final int? totalCatProds;
   final List<Product>? _catProds;
   @override
-  @JsonKey(name: "cat_prods")
+  @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
   List<Product>? get catProds {
     final value = _catProds;
     if (value == null) return null;
@@ -561,7 +580,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
 
   final List<Product>? _featuredProducts;
   @override
-  @JsonKey(name: "featured_products")
+  @JsonKey(name: "featured_products", fromJson: _productsFromJson)
   List<Product>? get featuredProducts {
     final value = _featuredProducts;
     if (value == null) return null;
@@ -573,7 +592,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
 
   final List<FeaturedCategory>? _featuredCategory;
   @override
-  @JsonKey(name: "featured_category")
+  @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
   List<FeaturedCategory>? get featuredCategory {
     final value = _featuredCategory;
     if (value == null) return null;
@@ -585,7 +604,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
 
   final List<Category>? _brands;
   @override
-  @JsonKey(name: "brands")
+  @JsonKey(name: "brands", fromJson: _categoriesFromJson)
   List<Category>? get brands {
     final value = _brands;
     if (value == null) return null;
@@ -596,7 +615,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
 
   final List<SortOption>? _sortData;
   @override
-  @JsonKey(name: "sort_data")
+  @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
   List<SortOption>? get sortData {
     final value = _sortData;
     if (value == null) return null;
@@ -607,7 +626,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
 
   final List<FilterAttribute>? _filterableAttributes;
   @override
-  @JsonKey(name: "filterable_attributes")
+  @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
   List<FilterAttribute>? get filterableAttributes {
     final value = _filterableAttributes;
     if (value == null) return null;
@@ -619,7 +638,7 @@ class _$CategoryProductsResponseImpl implements _CategoryProductsResponse {
 
   final List<AppliedFilter>? _appliedFilters;
   @override
-  @JsonKey(name: "applied_filters")
+  @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
   List<AppliedFilter>? get appliedFilters {
     final value = _appliedFilters;
     if (value == null) return null;
@@ -747,21 +766,28 @@ abstract class _CategoryProductsResponse implements CategoryProductsResponse {
     @JsonKey(name: "meta_description") final String? metaDescription,
     @JsonKey(name: "image") final String? image,
     @JsonKey(name: "mobile_image") final String? mobileImage,
-    @JsonKey(name: "banner") final List<Slider>? banner,
-    @JsonKey(name: "filter_data") final List<Slider>? filterData,
+    @JsonKey(name: "banner", fromJson: _slidersFromJson)
+    final List<Slider>? banner,
+    @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
+    final List<Slider>? filterData,
     @JsonKey(name: "featured_product_total", fromJson: _toIntSafe)
     final int? featuredProductTotal,
     @JsonKey(name: "total_cat_prods", fromJson: _toIntSafe)
     final int? totalCatProds,
-    @JsonKey(name: "cat_prods") final List<Product>? catProds,
-    @JsonKey(name: "featured_products") final List<Product>? featuredProducts,
-    @JsonKey(name: "featured_category")
+    @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
+    final List<Product>? catProds,
+    @JsonKey(name: "featured_products", fromJson: _productsFromJson)
+    final List<Product>? featuredProducts,
+    @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
     final List<FeaturedCategory>? featuredCategory,
-    @JsonKey(name: "brands") final List<Category>? brands,
-    @JsonKey(name: "sort_data") final List<SortOption>? sortData,
-    @JsonKey(name: "filterable_attributes")
+    @JsonKey(name: "brands", fromJson: _categoriesFromJson)
+    final List<Category>? brands,
+    @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
+    final List<SortOption>? sortData,
+    @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
     final List<FilterAttribute>? filterableAttributes,
-    @JsonKey(name: "applied_filters") final List<AppliedFilter>? appliedFilters,
+    @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
+    final List<AppliedFilter>? appliedFilters,
     @JsonKey(name: "category_discription") final String? categoryDiscription,
     @JsonKey(name: "cache_time") final DateTime? cacheTime,
   }) = _$CategoryProductsResponseImpl;
@@ -794,10 +820,10 @@ abstract class _CategoryProductsResponse implements CategoryProductsResponse {
   @JsonKey(name: "mobile_image")
   String? get mobileImage;
   @override
-  @JsonKey(name: "banner")
+  @JsonKey(name: "banner", fromJson: _slidersFromJson)
   List<Slider>? get banner;
   @override
-  @JsonKey(name: "filter_data")
+  @JsonKey(name: "filter_data", fromJson: _slidersFromJson)
   List<Slider>? get filterData;
   @override
   @JsonKey(name: "featured_product_total", fromJson: _toIntSafe)
@@ -806,25 +832,25 @@ abstract class _CategoryProductsResponse implements CategoryProductsResponse {
   @JsonKey(name: "total_cat_prods", fromJson: _toIntSafe)
   int? get totalCatProds;
   @override
-  @JsonKey(name: "cat_prods")
+  @JsonKey(name: "cat_prods", fromJson: _productsFromJson)
   List<Product>? get catProds;
   @override
-  @JsonKey(name: "featured_products")
+  @JsonKey(name: "featured_products", fromJson: _productsFromJson)
   List<Product>? get featuredProducts;
   @override
-  @JsonKey(name: "featured_category")
+  @JsonKey(name: "featured_category", fromJson: _featuredCategoriesFromJson)
   List<FeaturedCategory>? get featuredCategory;
   @override
-  @JsonKey(name: "brands")
+  @JsonKey(name: "brands", fromJson: _categoriesFromJson)
   List<Category>? get brands;
   @override
-  @JsonKey(name: "sort_data")
+  @JsonKey(name: "sort_data", fromJson: _sortOptionsFromJson)
   List<SortOption>? get sortData;
   @override
-  @JsonKey(name: "filterable_attributes")
+  @JsonKey(name: "filterable_attributes", fromJson: _filterAttributesFromJson)
   List<FilterAttribute>? get filterableAttributes;
   @override
-  @JsonKey(name: "applied_filters")
+  @JsonKey(name: "applied_filters", fromJson: _appliedFiltersFromJson)
   List<AppliedFilter>? get appliedFilters;
   @override
   @JsonKey(name: "category_discription")
@@ -1098,7 +1124,7 @@ mixin _$FeaturedCategory {
   String? get categoryName => throw _privateConstructorUsedError;
   @JsonKey(name: "slug")
   String? get slug => throw _privateConstructorUsedError;
-  @JsonKey(name: "products")
+  @JsonKey(name: "products", fromJson: _productsFromJson)
   List<Product>? get products => throw _privateConstructorUsedError;
 
   /// Serializes this FeaturedCategory to a JSON map.
@@ -1122,7 +1148,8 @@ abstract class $FeaturedCategoryCopyWith<$Res> {
     @JsonKey(name: "category_id", fromJson: _toIntSafe) int? categoryId,
     @JsonKey(name: "category_name") String? categoryName,
     @JsonKey(name: "slug") String? slug,
-    @JsonKey(name: "products") List<Product>? products,
+    @JsonKey(name: "products", fromJson: _productsFromJson)
+    List<Product>? products,
   });
 }
 
@@ -1187,7 +1214,8 @@ abstract class _$$FeaturedCategoryImplCopyWith<$Res>
     @JsonKey(name: "category_id", fromJson: _toIntSafe) int? categoryId,
     @JsonKey(name: "category_name") String? categoryName,
     @JsonKey(name: "slug") String? slug,
-    @JsonKey(name: "products") List<Product>? products,
+    @JsonKey(name: "products", fromJson: _productsFromJson)
+    List<Product>? products,
   });
 }
 
@@ -1244,7 +1272,8 @@ class _$FeaturedCategoryImpl implements _FeaturedCategory {
     @JsonKey(name: "category_id", fromJson: _toIntSafe) this.categoryId,
     @JsonKey(name: "category_name") this.categoryName,
     @JsonKey(name: "slug") this.slug,
-    @JsonKey(name: "products") final List<Product>? products,
+    @JsonKey(name: "products", fromJson: _productsFromJson)
+    final List<Product>? products,
   }) : _products = products;
 
   factory _$FeaturedCategoryImpl.fromJson(Map<String, dynamic> json) =>
@@ -1261,7 +1290,7 @@ class _$FeaturedCategoryImpl implements _FeaturedCategory {
   final String? slug;
   final List<Product>? _products;
   @override
-  @JsonKey(name: "products")
+  @JsonKey(name: "products", fromJson: _productsFromJson)
   List<Product>? get products {
     final value = _products;
     if (value == null) return null;
@@ -1320,7 +1349,8 @@ abstract class _FeaturedCategory implements FeaturedCategory {
     @JsonKey(name: "category_id", fromJson: _toIntSafe) final int? categoryId,
     @JsonKey(name: "category_name") final String? categoryName,
     @JsonKey(name: "slug") final String? slug,
-    @JsonKey(name: "products") final List<Product>? products,
+    @JsonKey(name: "products", fromJson: _productsFromJson)
+    final List<Product>? products,
   }) = _$FeaturedCategoryImpl;
 
   factory _FeaturedCategory.fromJson(Map<String, dynamic> json) =
@@ -1336,7 +1366,7 @@ abstract class _FeaturedCategory implements FeaturedCategory {
   @JsonKey(name: "slug")
   String? get slug;
   @override
-  @JsonKey(name: "products")
+  @JsonKey(name: "products", fromJson: _productsFromJson)
   List<Product>? get products;
 
   /// Create a copy of FeaturedCategory

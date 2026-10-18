@@ -71,5 +71,29 @@ void main() {
       expect(find.byType(AppLoader), findsNothing);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('renders category text with increased font size and bolder selected style', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(
+          HomeCategoryNav(
+            categories: const [testCategory],
+            selectedCategory: 'Smartphones',
+            onCategorySelected: (_) {},
+            onViewAll: () {},
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // Selected category 'Smartphones' should be bold (w700)
+      final smartphonesText = tester.widget<Text>(find.text('Smartphones'));
+      expect(smartphonesText.style?.fontSize, 10.2.sp);
+      expect(smartphonesText.style?.fontWeight, FontWeight.w700);
+
+      // Unselected category 'For You' should be semi-bold (w600)
+      final forYouText = tester.widget<Text>(find.text('For You'));
+      expect(forYouText.style?.fontSize, 10.2.sp);
+      expect(forYouText.style?.fontWeight, FontWeight.w600);
+    });
   });
 }

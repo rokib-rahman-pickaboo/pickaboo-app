@@ -140,7 +140,7 @@ class OfferDealsGrid extends StatelessWidget {
       ),
       padding: EdgeInsets.all(AppSpacing.sameGroupItemSpacing.w),
       decoration: BoxDecoration(
-        color: AppColors.surfaceBlue,
+        color: AppColors.white,
         borderRadius: AppRadius.k8,
         border: Border.all(
           color: AppColors.border,
@@ -268,7 +268,7 @@ class _OfferDealCard extends StatelessWidget {
               height: 44.h,
               padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
               alignment: Alignment.center,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.vertical(
                   bottom: AppRadius.rad8,

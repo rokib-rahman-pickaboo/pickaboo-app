@@ -2133,7 +2133,7 @@ mixin _$DetailedRating {
   @JsonKey(name: "rating")
   String? get rating => throw _privateConstructorUsedError;
   @HiveField(1)
-  @JsonKey(name: "avg_value")
+  @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
   double? get avgValue => throw _privateConstructorUsedError;
 
   /// Serializes this DetailedRating to a JSON map.
@@ -2155,7 +2155,9 @@ abstract class $DetailedRatingCopyWith<$Res> {
   @useResult
   $Res call({
     @HiveField(0) @JsonKey(name: "rating") String? rating,
-    @HiveField(1) @JsonKey(name: "avg_value") double? avgValue,
+    @HiveField(1)
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
+    double? avgValue,
   });
 }
 
@@ -2203,7 +2205,9 @@ abstract class _$$DetailedRatingImplCopyWith<$Res>
   @useResult
   $Res call({
     @HiveField(0) @JsonKey(name: "rating") String? rating,
-    @HiveField(1) @JsonKey(name: "avg_value") double? avgValue,
+    @HiveField(1)
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
+    double? avgValue,
   });
 }
 
@@ -2243,7 +2247,9 @@ class __$$DetailedRatingImplCopyWithImpl<$Res>
 class _$DetailedRatingImpl implements _DetailedRating {
   const _$DetailedRatingImpl({
     @HiveField(0) @JsonKey(name: "rating") this.rating,
-    @HiveField(1) @JsonKey(name: "avg_value") this.avgValue,
+    @HiveField(1)
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
+    this.avgValue,
   });
 
   factory _$DetailedRatingImpl.fromJson(Map<String, dynamic> json) =>
@@ -2255,7 +2261,7 @@ class _$DetailedRatingImpl implements _DetailedRating {
   final String? rating;
   @override
   @HiveField(1)
-  @JsonKey(name: "avg_value")
+  @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
   final double? avgValue;
 
   @override
@@ -2297,7 +2303,9 @@ class _$DetailedRatingImpl implements _DetailedRating {
 abstract class _DetailedRating implements DetailedRating {
   const factory _DetailedRating({
     @HiveField(0) @JsonKey(name: "rating") final String? rating,
-    @HiveField(1) @JsonKey(name: "avg_value") final double? avgValue,
+    @HiveField(1)
+    @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
+    final double? avgValue,
   }) = _$DetailedRatingImpl;
 
   factory _DetailedRating.fromJson(Map<String, dynamic> json) =
@@ -2309,7 +2317,7 @@ abstract class _DetailedRating implements DetailedRating {
   String? get rating;
   @override
   @HiveField(1)
-  @JsonKey(name: "avg_value")
+  @JsonKey(name: "avg_value", fromJson: _toDoubleSafe)
   double? get avgValue;
 
   /// Create a copy of DetailedRating

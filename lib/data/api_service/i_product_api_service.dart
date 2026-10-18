@@ -470,11 +470,11 @@ class IProductApiService extends ProductApiService {
   }
 
   @override
-  Future<Either<ErrorResponse, RecommendedProductResponse>> getRecommendedProducts({required String slug}) async {
+  Future<Either<ErrorResponse, RecommendedProductResponse>> getRecommendedProducts({required String productId}) async {
     try {
 
       final response = await _client.get(
-        ApiEndpoints.sellerRecommendedProductsUrl(slug: slug),
+        ApiEndpoints.sellerRecommendedProductsUrl(productId: productId),
       );
 
       final data = response.data;
@@ -498,10 +498,10 @@ class IProductApiService extends ProductApiService {
   }
 
   @override
-  Future<Either<ErrorResponse, RelatedProductResponse>> getRelatedProducts({required String slug}) async {
+  Future<Either<ErrorResponse, RelatedProductResponse>> getRelatedProducts({required String productId}) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.relatedProductsUrl(slug: slug),
+        ApiEndpoints.relatedProductsUrl(productId: productId),
       );
 
       final data = response.data;
@@ -529,11 +529,19 @@ class IProductApiService extends ProductApiService {
     required String productId,
     required int page,
     required int pageSize,
+    int? customerId,
   }) async {
     try {
+      final queryParameters = <String, dynamic>{
+        'page': page,
+        'pageSize': pageSize,
+      };
+      if (customerId != null) {
+        queryParameters['customerId'] = customerId;
+      }
       final response = await _client.get(
         ApiEndpoints.productReviewsUrl(productId: productId),
-        queryParameters: {'page': page, 'pageSize': pageSize},
+        queryParameters: queryParameters,
       );
 
       final data = response.data;
@@ -639,7 +647,7 @@ class IProductApiService extends ProductApiService {
         ));
       }
 
-      final response = await _client.post(
+      await _client.post(
         ApiEndpoints.writeReviewUrl,
         data: formData,
         options: Options(
@@ -670,7 +678,7 @@ class IProductApiService extends ProductApiService {
         'type': voteType,
       });
 
-      final response = await _client.post(
+      await _client.post(
         ApiEndpoints.reviewVoteUrl,
         data: formData,
       );

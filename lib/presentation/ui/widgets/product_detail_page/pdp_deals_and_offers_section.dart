@@ -29,7 +29,7 @@ class PdpDealsAndOffersSection extends StatelessWidget {
         final sale = flashSaleState.flashSale?.flashSale;
         final isFlashSaleActive = flashSaleState.status == ProductFlashSaleStatus.success &&
             flashSaleState.flashSale?.inFlashSale == true &&
-            sale?.endTime != null;
+            (sale?.startTime != null || sale?.endTime != null);
 
         if (!isFlashSaleActive && !hasOffers) {
           return const SizedBox.shrink();
@@ -44,7 +44,8 @@ class PdpDealsAndOffersSection extends StatelessWidget {
               ProductSaleTimerSection(
                 title: sale.title,
                 subtitle: sale.shortDescription,
-                endTime: sale.endTime!,
+                startTime: sale.startTime,
+                endTime: sale.endTime,
                 onLearnMore: () {
                   final segments = sale.slug
                       .split('/')

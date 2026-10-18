@@ -344,32 +344,23 @@ class _OrderItemCardState extends State<OrderItemCard> {
     VoidCallback onTap, {
     bool isLoading = false,
   }) {
+    final effectiveColor = isLoading ? AppColors.muted : color;
     return Material(
       color: AppColors.transparent,
       child: InkWell(
         onTap: isLoading ? null : onTap,
-        splashColor: color.withValues(alpha: 0.1),
-        highlightColor: color.withValues(alpha: 0.05),
+        splashColor: effectiveColor.withValues(alpha: 0.1),
+        highlightColor: effectiveColor.withValues(alpha: 0.05),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 12.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (isLoading)
-                SizedBox(
-                  width: 14.r,
-                  height: 14.r,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.w,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                  ),
-                )
-              else
-                Icon(icon, size: 16.sp, color: color),
+              Icon(icon, size: 16.sp, color: effectiveColor),
               SizedBox(width: 6.w),
               Text(
-                isLoading ? 'Adding...' : label,
-                style: AppTypography.titleSmall.withColor(color),
+                label,
+                style: AppTypography.titleSmall.withColor(effectiveColor),
               ),
             ],
           ),

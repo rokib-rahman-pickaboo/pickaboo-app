@@ -8,11 +8,13 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 class CategoryPreviewBanner extends StatelessWidget {
   final List<CategoryBannerEntity> banners;
   final int index;
+  final double? topPadding;
 
   const CategoryPreviewBanner({
     super.key,
     required this.banners,
     required this.index,
+    this.topPadding,
   });
 
   @override
@@ -27,15 +29,22 @@ class CategoryPreviewBanner extends StatelessWidget {
         : banner.imageUrl;
     if (image.isEmpty) return const SizedBox.shrink();
 
-    final width = MediaQuery.sizeOf(context).width - 32.w;
+    final horizontalPadding = AppSpacing.sameGroupItemSpacing.w;
+    final width = MediaQuery.sizeOf(context).width - (horizontalPadding * 2);
 
     final banimage = ClipRRect(
       borderRadius: AppRadius.k8,
       child: AppImage(imageUrl: image, width: width, fit: BoxFit.fitWidth),
     );
 
+    final defaultTop = (index == 0) ? 0.0 : 12.h;
+
     return Padding(
-      padding: EdgeInsets.only(top: 12.h, left: 16.w, right: 16.w),
+      padding: EdgeInsets.only(
+        top: topPadding ?? defaultTop,
+        left: horizontalPadding,
+        right: horizontalPadding,
+      ),
       child: GestureDetector(
         onTap: () => context.handleBannerTap(
           linkType: banner.linkType,

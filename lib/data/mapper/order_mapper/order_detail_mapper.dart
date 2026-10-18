@@ -36,8 +36,9 @@ extension OrderDetailResponseMapper on OrderDetailResponse {
       shippingMethod: shippingMethod ?? '',
       paymentMethod: paymentMethod ?? '',
       paymentInformation: _buildPaymentInformation(),
-      statusHistory:
-          statusHistory?.map((history) => history.toEntity()).toList() ?? [],
+      statusHistory: (statusHistoryNew != null && statusHistoryNew!.isNotEmpty)
+          ? statusHistoryNew!.map((history) => history.toEntity()).toList()
+          : (statusHistory?.map((history) => history.toEntity()).toList() ?? []),
       remoteIp: remoteIp,
       justForYou: justForYou,
       statusLabel: statusLabel?.map((label) => label.toEntity()).toList() ?? [],
@@ -99,16 +100,16 @@ extension OrderDetailResponseMapper on OrderDetailResponse {
 extension ItemMapper on OrderItemDetailModel {
   OrderItemDetailEntity toEntity() {
     return OrderItemDetailEntity(
-      itemId: int.tryParse(itemId ?? '0') ?? 0,
+      itemId: int.tryParse(itemId?.toString() ?? '0') ?? 0,
       itemName: itemName ?? '',
-      productId: int.tryParse(productId ?? '0') ?? 0,
+      productId: int.tryParse(productId?.toString() ?? '0') ?? 0,
       productSlug: productSlug ?? '',
       productCategoryIds:
-          productCategoryIds?.map((e) => int.tryParse(e) ?? 0).toList() ?? [],
+          productCategoryIds?.map((e) => int.tryParse(e?.toString() ?? '0') ?? 0).toList() ?? [],
       productCategoryNames: productCategoryNames ?? [],
       image: image,
       soldBy: soldBy,
-      qty: qty ?? 0,
+      qty: (qty ?? 0).toInt(),
       regularPrice: (regularPrice ?? 0).toDouble(),
       finalPrice: (finalPrice ?? 0).toDouble(),
       discount: (discount ?? 0).toDouble(),
@@ -155,12 +156,12 @@ extension OrderSummaryMapper on OrderSummaryDetailModel {
 
     return OrderSummaryDetailEntity(
       subtotal: subtotalVal,
-      totalOrderQty: totalOrderQty ?? 0,
+      totalOrderQty: (totalOrderQty ?? 0).toInt(),
       discountAmount: discountVal,
       rewardsDiscount: (rewardsDiscount ?? 0).toDouble(),
       shippingFee: shippingVal,
       grandTotal: grandTotalVal,
-      rewardEarned: rewardEarned ?? 0,
+      rewardEarned: (rewardEarned ?? 0).toInt(),
       convenienceFee: feeVal,
       convenienceFeePercent: feePercentStr,
     );
@@ -171,7 +172,7 @@ extension ShippingAddressMapper on ShippingAddressModel {
   ShippingAddressEntity toEntity() {
     return ShippingAddressEntity(
       name: name ?? '',
-      mobile: mobile ?? '',
+      mobile: mobile?.toString() ?? '',
       email: email ?? '',
       address: address ?? '',
     );
@@ -184,12 +185,12 @@ extension PaymentAddressMapper on PaymentAddressModel {
       region: region ?? '',
       street: street ?? [],
       city: city ?? '',
-      postcode: postcode ?? '',
+      postcode: postcode?.toString() ?? '',
       firstname: firstname ?? '',
       lastname: lastname ?? '',
       email: email ?? '',
-      telephone: telephone ?? '',
-      quoteId: quoteId,
+      telephone: telephone?.toString() ?? '',
+      quoteId: quoteId?.toString(),
     );
   }
 }
@@ -207,10 +208,14 @@ extension PaymentInformationMapper on PaymentInfoModel {
 extension StatusHistoryMapper on StatusHistoryModel {
   StatusHistoryEntity toEntity() {
     return StatusHistoryEntity(
-      entityId: int.tryParse(entityId ?? '0') ?? 0,
+      entityId: int.tryParse(entityId?.toString() ?? '0') ?? 0,
       comment: comment,
-      status: status ?? '',
-      createdAt: createdAt?.toIso8601String() ?? '',
+      status: (status != null && status!.isNotEmpty)
+          ? status!
+          : (label ?? ''),
+      label: label,
+      time: timeRaw ?? (createdAt ?? time)?.toIso8601String(),
+      createdAt: (createdAt ?? time)?.toIso8601String() ?? (timeRaw ?? ''),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:pickaboo/domain/entity/wishlist/wishlist_entity.dart';
 import 'package:pickaboo/domain/repository/wishlist_repository.dart';
 import 'package:pickaboo/presentation/bloc/wishlist/wishlist_event.dart';
 import 'package:pickaboo/presentation/bloc/wishlist/wishlist_state.dart';
@@ -13,6 +14,9 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
   final WishlistRepository _repository;
   final AnalyticsService _analytics;
 
+  List<WishlistEntity>? _cachedItems;
+  List<WishlistEntity>? get cachedItems => _cachedItems;
+
   WishlistBloc(this._repository, this._analytics)
     : super(const WishlistState.initial()) {
     on<Started>(_onStarted);
@@ -21,15 +25,24 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
   }
 
   Future<void> _onStarted(Started event, Emitter<WishlistState> emit) async {
-    emit(const WishlistState.loading());
+    if (_cachedItems == null) {
+      emit(const WishlistState.loading());
+    }
     final result = await _repository.getWishlist();
     result.fold(
-      (error) => emit(
-        WishlistState.error(
-          error.message ?? 'Failed to load wishlist',
-        ),
-      ),
-      (items) => emit(WishlistState.loaded(items)),
+      (error) {
+        if (_cachedItems == null) {
+          emit(
+            WishlistState.error(
+              error.message ?? 'Failed to load wishlist',
+            ),
+          );
+        }
+      },
+      (items) {
+        _cachedItems = items;
+        emit(WishlistState.loaded(items));
+      },
     );
   }
 
@@ -37,7 +50,6 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
     AddToWishlist event,
     Emitter<WishlistState> emit,
   ) async {
-    emit(const WishlistState.loading());
     final result = await _repository.addToWishlist(event.productId);
 
     result.fold(
@@ -48,7 +60,7 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
           ),
         );
       },
-      (success) {
+      (success) async {
         if (success) {
           _analytics.logAddToWishlist(id: event.productId.toString());
           emit(
@@ -56,7 +68,14 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
               'Product added to wishlist successfully.',
             ),
           );
-          add(const WishlistEvent.started());
+          final refreshResult = await _repository.getWishlist();
+          refreshResult.fold(
+            (_) {},
+            (items) {
+              _cachedItems = items;
+              emit(WishlistState.loaded(items));
+            },
+          );
         } else {
           emit(const WishlistState.error('Failed to add to wishlist'));
         }
@@ -68,24 +87,52 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
     RemoveFromWishlist event,
     Emitter<WishlistState> emit,
   ) async {
-    emit(const WishlistState.loading());
+    final previousItems = _cachedItems;
+
+    // Optimistically update memory and UI immediately
+    if (previousItems != null) {
+      _cachedItems = previousItems
+          .where((item) => item.productId != event.productId)
+          .toList();
+      emit(WishlistState.loaded(_cachedItems!));
+    }
+
     final result = await _repository.removeFromWishlist(event.productId);
 
     result.fold(
-      (error) => emit(
-        WishlistState.error(
-          error.message ?? 'Failed to remove from wishlist',
-        ),
-      ),
-      (success) {
+      (error) {
+        // Rollback on error
+        if (previousItems != null) {
+          _cachedItems = previousItems;
+          emit(WishlistState.loaded(previousItems));
+        }
+        emit(
+          WishlistState.error(
+            error.message ?? 'Failed to remove from wishlist',
+          ),
+        );
+      },
+      (success) async {
         if (success) {
           emit(
             const WishlistState.actionSuccess(
               'Product removed from wishlist successfully.',
             ),
           );
-          add(const WishlistEvent.started());
+          // Silently sync server state
+          final refreshResult = await _repository.getWishlist();
+          refreshResult.fold(
+            (_) {},
+            (items) {
+              _cachedItems = items;
+              emit(WishlistState.loaded(items));
+            },
+          );
         } else {
+          if (previousItems != null) {
+            _cachedItems = previousItems;
+            emit(WishlistState.loaded(previousItems));
+          }
           emit(
             const WishlistState.error(
               'Failed to remove from wishlist',

@@ -24,7 +24,7 @@ class RecommendedProductsBloc extends Bloc<RecommendedProductsEvent, Recommended
   Future<void> _onLoad(_Load event, Emitter<RecommendedProductsState> emit) async {
     emit(const RecommendedProductsState.loading());
 
-    final result = await repository.getRecommendedProducts(slug: event.slug);
+    final result = await repository.getRecommendedProducts(productId: event.productId);
 
     await result.fold(
       (error) async => emit(RecommendedProductsState.error(error)),

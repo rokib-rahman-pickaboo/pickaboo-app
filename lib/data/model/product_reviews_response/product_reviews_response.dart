@@ -4,6 +4,20 @@ import 'package:pickaboo/core/utils/date_time_utils.dart';
 part 'product_reviews_response.freezed.dart';
 part 'product_reviews_response.g.dart';
 
+String? _toStringSafe(dynamic value) => value?.toString();
+
+bool? _toBoolSafe(dynamic value) {
+  if (value == null) return null;
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  if (value is String) {
+    final normalized = value.trim().toLowerCase();
+    if (normalized.isEmpty) return null;
+    return normalized == 'true' || normalized == '1' || normalized == 'yes';
+  }
+  return null;
+}
+
 double? _toDoubleSafe(dynamic value) {
   if (value == null) return null;
   if (value is double) return value;
@@ -50,6 +64,7 @@ class ProductReviewItemResponse with _$ProductReviewItemResponse {
     @JsonKey(name: "review_id", fromJson: _toIntSafe) int? reviewId,
     @JsonKey(name: "posted_on", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson)
     DateTime? postedOn,
+    @JsonKey(name: "reviewer_id", fromJson: _toStringSafe) String? reviewerId,
     @JsonKey(name: "reviewer_name") String? reviewerName,
     @JsonKey(name: "reviewer_image") String? reviewerImage,
     @JsonKey(name: "reviewer_rating", fromJson: _toDoubleSafe) double? reviewerRating,
@@ -57,6 +72,10 @@ class ProductReviewItemResponse with _$ProductReviewItemResponse {
     @JsonKey(name: "detail") String? detail,
     @JsonKey(name: "is_recommended") String? isRecommended,
     @JsonKey(name: "images") List<String>? images,
+    @JsonKey(name: "like_count", fromJson: _toIntSafe) int? likeCount,
+    @JsonKey(name: "dislikes_count", fromJson: _toIntSafe) int? dislikesCount,
+    @JsonKey(name: "do_like", fromJson: _toBoolSafe) bool? doLike,
+    @JsonKey(name: "do_dislike", fromJson: _toBoolSafe) bool? doDislike,
   }) = _ProductReviewItemResponse;
 
   factory ProductReviewItemResponse.fromJson(Map<String, dynamic> json) =>

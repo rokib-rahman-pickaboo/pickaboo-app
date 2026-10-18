@@ -15,6 +15,7 @@ import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
 
 class FlashSaleBannerWidget extends StatelessWidget {
+
   final FlashSaleBannerEntity banner;
   final DateTime? startTime;
   final DateTime? endTime;
@@ -51,150 +52,153 @@ class FlashSaleBannerWidget extends StatelessWidget {
     final resolvedDescriptionColor = hexToColor(descriptionColor) ?? AppColors.text;
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
-
     return RepaintBoundary(
-      child: Container(
-        constraints: BoxConstraints(minHeight: 160.h),
-        margin: EdgeInsets.fromLTRB(
-          AppSpacing.sameGroupItemSpacing.w,
-          AppSpacing.sameGroupItemSpacing.h,
-          AppSpacing.sameGroupItemSpacing.w,
-          0,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.pickabooBlue.withValues(alpha: 0.2),
-          borderRadius: AppRadius.k8,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: AppRadius.k8,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: AppImage(
-                  imageUrl: banner.mobileImageUrl.isNotEmpty
-                      ? banner.mobileImageUrl
-                      : banner.imageUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
-                  cacheWidth: (screenWidth * devicePixelRatio).round(),
-                  placeholder: Container(
-                    color: AppColors.pickabooBlue.withValues(alpha: 0.3),
-                  ),
-                  errorWidget: Container(
-                    color: AppColors.pickabooBlue.withValues(alpha: 0.3),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onShopNow,
+        child: Container(
+          constraints: BoxConstraints(minHeight: 160.h),
+          margin: EdgeInsets.fromLTRB(
+            AppSpacing.sameGroupItemSpacing.w,
+            AppSpacing.sameGroupItemSpacing.h,
+            AppSpacing.sameGroupItemSpacing.w,
+            0,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.pickabooBlue.withValues(alpha: 0.2),
+            borderRadius: AppRadius.k8,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: AppRadius.k8,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: AppImage(
+                    imageUrl: banner.mobileImageUrl.isNotEmpty
+                        ? banner.mobileImageUrl
+                        : banner.imageUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    cacheWidth: (screenWidth * devicePixelRatio).round(),
+                    placeholder: Container(
+                      color: AppColors.pickabooBlue.withValues(alpha: 0.3),
+                    ),
+                    errorWidget: Container(
+                      color: AppColors.pickabooBlue.withValues(alpha: 0.3),
+                    ),
                   ),
                 ),
-              ),
 
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Spacer(flex: 9),
-                  Expanded(
-                    flex: 8,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10.w,
-                        vertical: 14.h,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SvgPicture.asset(
-                                AppAssets.token,
-                                width: 8.w,
-                                height: 8.w,
-                                colorFilter: ColorFilter.mode(
-                                  resolvedTitleColor,
-                                  BlendMode.srcIn,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Spacer(flex: 9),
+                    Expanded(
+                      flex: 8,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 14.h,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  AppAssets.token,
+                                  width: 8.w,
+                                  height: 8.w,
+                                  colorFilter: ColorFilter.mode(
+                                    resolvedTitleColor,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  title,
+                                  style: AppTypography.bodySmall.bold().copyWith(
+                                    color: resolvedTitleColor,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 10.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: 8.h),
+
+                            if (shortDescription.isNotEmpty) ...[
+                              Text(
+                                shortDescription,
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: resolvedHeadlineColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10.sp,
+                                  height: 1.3,
                                 ),
                               ),
-                              SizedBox(width: 4.w),
+                              SizedBox(height: 6.h),
+                            ],
+
+                            if (description.isNotEmpty)
                               Text(
-                                title,
-                                style: AppTypography.bodySmall.bold().copyWith(
-                                  color: resolvedTitleColor,
+                                description,
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: resolvedDescriptionColor,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 10.sp,
+                                  fontSize: 12.sp,
+                                  height: 1.3,
+                                ),
+                              ),
+
+                            if (startTime != null || endTime != null) ...[
+                              SizedBox(height: hasCopy ? 12.h : 10.h),
+                              RepaintBoundary(
+                                child: _CountdownView(
+                                  startTime: startTime,
+                                  endTime: endTime,
                                 ),
                               ),
                             ],
-                          ),
 
-                          SizedBox(height: 8.h),
+                            SizedBox(height: 12.h),
 
-                          if (shortDescription.isNotEmpty) ...[
-                            Text(
-                              shortDescription,
-                              style: AppTypography.bodySmall.copyWith(
-                                color: resolvedHeadlineColor,
+                            AppButton.primary(
+                              isFullWidth: false,
+                              height: 30.h,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 22.w,
+                                vertical: 0,
+                              ),
+                              borderRadius: AppRadius.k8,
+                              onPressed: onShopNow,
+                              text: 'Shop Now',
+                              textStyle: AppTypography.bodyMedium.copyWith(
+                                color: AppColors.white,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 10.sp,
-                                height: 1.3,
-                              ),
-                            ),
-                            SizedBox(height: 6.h),
-                          ],
-
-                          if (description.isNotEmpty)
-                            Text(
-                              description,
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: resolvedDescriptionColor,
-                                fontWeight: FontWeight.w800,
                                 fontSize: 12.sp,
-                                height: 1.3,
-                              ),
-                            ),
-
-                          if (startTime != null || endTime != null) ...[
-                            SizedBox(height: hasCopy ? 12.h : 10.h),
-                            RepaintBoundary(
-                              child: _CountdownView(
-                                startTime: startTime,
-                                endTime: endTime,
                               ),
                             ),
                           ],
-
-                          SizedBox(height: 12.h),
-
-                          AppButton.primary(
-                            isFullWidth: false,
-                            height: 30.h,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 22.w,
-                              vertical: 0,
-                            ),
-                            borderRadius: AppRadius.k8,
-                            onPressed: onShopNow,
-                            text: 'Shop Now',
-                            textStyle: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -184,7 +184,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     return result.fold(
       (_) => cart,
       (checkout) {
-        final mergedCart = _checkoutToCartEntity(checkout);
+        final mergedCart = _checkoutToCartEntity(checkout, baseCart: cart);
         _currentCart = mergedCart;
         return mergedCart;
       },
@@ -232,8 +232,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
   /// Safeguard: If the cart has only 1 remaining item and it is about to be removed,
   /// this resets applied club points to 0 to prevent locked points on backend quotes.
-  Future<void> _releaseRewardPointsBeforeDrain(String reason) async {
-    final cart = _currentCart;
+  Future<void> _releaseRewardPointsBeforeDrain(
+    String reason, {
+    CartEntity? cartOverride,
+  }) async {
+    final cart = cartOverride ?? _currentCart;
     if (cart == null || cart.items.length != 1) return;
 
     await _releaseRewardPoints(cart.id, reason: reason);
@@ -584,10 +587,43 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   /// Automatically releases applied reward points if removing the final item, preventing
   /// orphaned points on backend quotes. Emits empty state if no items remain.
   Future<void> _onRemoveItem(_RemoveItem event, Emitter<CartState> emit) async {
-    if (_currentCart != null) {
+    final previousCart = _currentCart;
+
+    // 1. Optimistic UI update: Remove item and recalculate estimated totals immediately
+    if (previousCart != null) {
+      final updatedItems = previousCart.items
+          .where((item) => item.itemId != event.itemId)
+          .toList();
+
+      CartItemEntity? removedItem;
+      for (final item in previousCart.items) {
+        if (item.itemId == event.itemId) {
+          removedItem = item;
+          break;
+        }
+      }
+      final removedAmount = removedItem != null
+          ? (removedItem.rowTotal > 0
+              ? removedItem.rowTotal
+              : removedItem.price * removedItem.qty)
+          : 0.0;
+
+      final updatedSubtotal =
+          (previousCart.subtotal - removedAmount).clamp(0.0, double.infinity);
+      final updatedGrandTotal =
+          (previousCart.grandTotal - removedAmount).clamp(0.0, double.infinity);
+
+      final optimisticCart = previousCart.copyWith(
+        items: updatedItems,
+        itemsCount: updatedItems.length,
+        subtotal: updatedSubtotal,
+        grandTotal: updatedGrandTotal,
+      );
+
+      _currentCart = optimisticCart;
       emit(
         CartState.operationInProgress(
-          cart: _currentCart!,
+          cart: optimisticCart,
           operation: 'removing_item',
         ),
       );
@@ -608,8 +644,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return;
     }
 
+    // Release reward points if removing the final item (checked against previousCart)
     if (!isGuest) {
-      await _releaseRewardPointsBeforeDrain('removing last item');
+      await _releaseRewardPointsBeforeDrain(
+        'removing last item',
+        cartOverride: previousCart,
+      );
     }
 
     final result = isGuest
@@ -621,7 +661,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     await result.fold(
       (error) async {
-        emit(CartState.error(error: error, lastCart: _currentCart));
+        if (previousCart != null) {
+          _currentCart = previousCart;
+        }
+        emit(CartState.error(error: error, lastCart: previousCart));
       },
       (_) async {
         final cartResult = isGuest
@@ -632,13 +675,42 @@ class CartBloc extends Bloc<CartEvent, CartState> {
           (error) async =>
               emit(CartState.error(error: error, lastCart: _currentCart)),
           (cart) async {
-            if (cart.items.isEmpty) {
+            // Guard against backend cache lag: ensure deleted item is stripped
+            final cleanItems = cart.items
+                .where((item) => item.itemId != event.itemId)
+                .toList();
+
+            if (cleanItems.isEmpty) {
               emit(const CartState.empty());
               _forgetCart();
             } else {
-              final finalCart = isGuest ? cart : await _withCheckoutTotals(cart);
-              _currentCart = finalCart;
-              emit(CartState.loaded(finalCart));
+              final cleanCart = cart.copyWith(
+                items: cleanItems,
+                itemsCount: cleanItems.length,
+              );
+              final enrichedCart = isGuest
+                  ? cleanCart
+                  : await _withCheckoutTotals(cleanCart);
+
+              // Secondary guard: ensure checkout totals didn't resurrect the item
+              final safeItems = enrichedCart.items
+                  .where((item) => item.itemId != event.itemId)
+                  .toList();
+
+              if (safeItems.isEmpty) {
+                emit(const CartState.empty());
+                _forgetCart();
+              } else {
+                final finalCart = safeItems.length != enrichedCart.items.length
+                    ? enrichedCart.copyWith(
+                        items: safeItems,
+                        itemsCount: safeItems.length,
+                      )
+                    : enrichedCart;
+
+                _currentCart = finalCart;
+                emit(CartState.loaded(finalCart));
+              }
             }
           },
         );
@@ -849,16 +921,52 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     _SaveForLater event,
     Emitter<CartState> emit,
   ) async {
-    if (_currentCart != null) {
+    final previousCart = _currentCart;
+
+    // 1. Optimistic UI update: Remove item and recalculate estimated totals immediately
+    if (previousCart != null) {
+      final updatedItems = previousCart.items
+          .where((item) => item.itemId != event.itemId)
+          .toList();
+
+      CartItemEntity? savedItem;
+      for (final item in previousCart.items) {
+        if (item.itemId == event.itemId) {
+          savedItem = item;
+          break;
+        }
+      }
+      final savedAmount = savedItem != null
+          ? (savedItem.rowTotal > 0
+              ? savedItem.rowTotal
+              : savedItem.price * savedItem.qty)
+          : 0.0;
+
+      final updatedSubtotal =
+          (previousCart.subtotal - savedAmount).clamp(0.0, double.infinity);
+      final updatedGrandTotal =
+          (previousCart.grandTotal - savedAmount).clamp(0.0, double.infinity);
+
+      final optimisticCart = previousCart.copyWith(
+        items: updatedItems,
+        itemsCount: updatedItems.length,
+        subtotal: updatedSubtotal,
+        grandTotal: updatedGrandTotal,
+      );
+
+      _currentCart = optimisticCart;
       emit(
         CartState.operationInProgress(
-          cart: _currentCart!,
+          cart: optimisticCart,
           operation: 'saving_for_later',
         ),
       );
     }
 
-    await _releaseRewardPointsBeforeDrain('saving last item for later');
+    await _releaseRewardPointsBeforeDrain(
+      'saving last item for later',
+      cartOverride: previousCart,
+    );
 
     final result = await repository.saveForLater(
       customerId: event.customerId,
@@ -868,7 +976,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     await result.fold(
       (error) async {
-        emit(CartState.error(error: error, lastCart: _currentCart));
+        if (previousCart != null) {
+          _currentCart = previousCart;
+        }
+        emit(CartState.error(error: error, lastCart: previousCart));
       },
       (_) async {
         final cartResult = await repository.getBasicCart();
@@ -876,12 +987,20 @@ class CartBloc extends Bloc<CartEvent, CartState> {
           (error) async =>
               emit(CartState.error(error: error, lastCart: _currentCart)),
           (cart) async {
-            if (cart.items.isEmpty) {
+            final cleanItems = cart.items
+                .where((item) => item.itemId != event.itemId)
+                .toList();
+
+            if (cleanItems.isEmpty) {
               emit(const CartState.empty());
               _forgetCart();
             } else {
-              _currentCart = cart;
-              emit(CartState.loaded(cart));
+              final cleanCart = cart.copyWith(
+                items: cleanItems,
+                itemsCount: cleanItems.length,
+              );
+              _currentCart = cleanCart;
+              emit(CartState.loaded(cleanCart));
             }
           },
         );
@@ -1350,7 +1469,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     return null;
   }
 
-  CartEntity _checkoutToCartEntity(CheckoutEntity checkout) {
+  CartEntity _checkoutToCartEntity(
+    CheckoutEntity checkout, {
+    CartEntity? baseCart,
+  }) {
     final totals = checkout.cartTotals;
 
     double rewardPointsDiscount = 0;
@@ -1388,15 +1510,17 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       }
     }
 
-    final pointsToEarn = checkout.cart.items.fold<int>(
+    final effectiveItems = baseCart?.items ?? checkout.cart.items;
+
+    final pointsToEarn = effectiveItems.fold<int>(
       0,
       (sum, item) => sum + item.earnPoints * item.qty,
     );
 
     return CartEntity(
       id: checkout.cart.id.toString(),
-      itemsCount: checkout.cart.itemsCount,
-      items: checkout.cart.items,
+      itemsCount: effectiveItems.length,
+      items: effectiveItems,
       subtotal: segmentSubtotal ?? totals.subtotal,
       grandTotal: segmentGrandTotal ?? totals.grandTotal,
       discountAmount: segmentDiscount ?? totals.discountAmount,
@@ -1409,9 +1533,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       appliedPoints: appliedPoints,
       pointsToEarn: pointsToEarn,
       discountTitle: discountTitle,
-      customer: checkout.cart.customer,
-      billingAddress: checkout.cart.billingAddress,
-      shippingAddress: checkout.cart.shippingAddress,
+      customer: checkout.cart.customer ?? baseCart?.customer,
+      billingAddress: checkout.cart.billingAddress ?? baseCart?.billingAddress,
+      shippingAddress: checkout.cart.shippingAddress ?? baseCart?.shippingAddress,
     );
   }
 }

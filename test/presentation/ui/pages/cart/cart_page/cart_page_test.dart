@@ -50,6 +50,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(const CartEvent.getCart());
+    registerFallbackValue(const CartEvent.removeItem(itemId: 1));
     registerFallbackValue(const UserProfileEvent.loadUserProfile());
     registerFallbackValue(const ClubPointEvent.getClubPoints());
   });
@@ -457,6 +458,185 @@ void main() {
           find.text('2 items of your cart are currently out of stock'),
           findsOneWidget,
         );
+      },
+    );
+
+    testWidgets(
+      'absorbs pointers and disables remove button when cart operation is in progress',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const tCartItem = CartItemEntity(
+          itemId: 1,
+          sku: 'SKU1',
+          qty: 1,
+          name: 'Product 1',
+          price: 100,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 100,
+          regularPrice: 100,
+          specialPrice: 100,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p1',
+          productId: 101,
+          brand: 'Brand',
+          stockAvailable: true,
+        );
+
+        const tCart = CartEntity(
+          id: '1',
+          itemsCount: 1,
+          items: [tCartItem],
+          subtotal: 100,
+          grandTotal: 100,
+          discountAmount: 0,
+          shippingAmount: 0,
+          taxAmount: 0,
+          couponCode: '',
+        );
+
+        when(() => mockCartBloc.state).thenReturn(
+          const CartState.operationInProgress(
+            cart: tCart,
+            operation: 'removing_item',
+          ),
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pump();
+
+        final absorbPointerFinder = find.byWidgetPredicate(
+          (widget) => widget is AbsorbPointer && widget.absorbing == true,
+        );
+        expect(absorbPointerFinder, findsWidgets);
+
+        // Tap the Remove button - should not trigger event
+        await tester.tap(find.text('Remove'), warnIfMissed: false);
+        await tester.pump();
+
+        verifyNever(
+          () => mockCartBloc.add(const CartEvent.removeItem(itemId: 1)),
+        );
+      },
+    );
+
+    testWidgets(
+      'checkout button is disabled and does not show loader when cart operation is in progress',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const tCartItem = CartItemEntity(
+          itemId: 1,
+          sku: 'SKU1',
+          qty: 1,
+          name: 'Product 1',
+          price: 100,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 100,
+          regularPrice: 100,
+          specialPrice: 100,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p1',
+          productId: 101,
+          brand: 'Brand',
+          stockAvailable: true,
+        );
+
+        const tCart = CartEntity(
+          id: '1',
+          itemsCount: 1,
+          items: [tCartItem],
+          subtotal: 100,
+          grandTotal: 100,
+          discountAmount: 0,
+          shippingAmount: 0,
+          taxAmount: 0,
+          couponCode: '',
+        );
+
+        when(() => mockCartBloc.state).thenReturn(
+          const CartState.operationInProgress(
+            cart: tCart,
+            operation: 'updating_quantity',
+          ),
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pump();
+
+        // Checkout button must display 'Checkout' text and no loader spinner
+        expect(find.text('Checkout'), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'allows remove button tap when cart is loaded and not busy',
+      (tester) async {
+        const testSize = Size(800, 1200);
+        tester.view.physicalSize = testSize;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const tCartItem = CartItemEntity(
+          itemId: 1,
+          sku: 'SKU1',
+          qty: 1,
+          name: 'Product 1',
+          price: 100,
+          productType: 'simple',
+          quoteId: '1',
+          rowTotal: 100,
+          regularPrice: 100,
+          specialPrice: 100,
+          discount: '0',
+          imageUrl: '',
+          productUrlKey: 'p1',
+          productId: 101,
+          brand: 'Brand',
+          stockAvailable: true,
+        );
+
+        const tCart = CartEntity(
+          id: '1',
+          itemsCount: 1,
+          items: [tCartItem],
+          subtotal: 100,
+          grandTotal: 100,
+          discountAmount: 0,
+          shippingAmount: 0,
+          taxAmount: 0,
+          couponCode: '',
+        );
+
+        when(() => mockCartBloc.state).thenReturn(const CartState.loaded(tCart));
+
+        await tester.pumpWidget(createWidgetUnderTest(designSize: testSize));
+        await tester.pumpAndSettle();
+
+        // AbsorbPointer should NOT be absorbing
+        final absorbPointerFinder = find.byWidgetPredicate(
+          (widget) => widget is AbsorbPointer && widget.absorbing == true,
+        );
+        expect(absorbPointerFinder, findsNothing);
+
+        // Tap Remove
+        await tester.tap(find.text('Remove'));
+        await tester.pump();
+
+        verify(
+          () => mockCartBloc.add(const CartEvent.removeItem(itemId: 1)),
+        ).called(1);
       },
     );
   });

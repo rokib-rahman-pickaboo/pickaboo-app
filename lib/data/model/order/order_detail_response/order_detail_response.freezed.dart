@@ -37,7 +37,7 @@ mixin _$OrderDetailResponse {
   String? get state => throw _privateConstructorUsedError;
   @JsonKey(name: "status")
   String? get status => throw _privateConstructorUsedError;
-  @JsonKey(name: "items")
+  @JsonKey(name: "items", fromJson: safeItemsFromJson, toJson: safeItemsToJson)
   List<OrderItemDetailModel>? get items => throw _privateConstructorUsedError;
   @JsonKey(name: "coupon_code")
   String? get couponCode => throw _privateConstructorUsedError;
@@ -46,10 +46,18 @@ mixin _$OrderDetailResponse {
   @JsonKey(name: "order_summary")
   OrderSummaryDetailModel? get orderSummary =>
       throw _privateConstructorUsedError;
-  @JsonKey(name: "shipping_address")
+  @JsonKey(
+    name: "shipping_address",
+    fromJson: safeShippingAddressFromJson,
+    toJson: safeShippingAddressToJson,
+  )
   List<ShippingAddressModel>? get shippingAddress =>
       throw _privateConstructorUsedError;
-  @JsonKey(name: "payment_address")
+  @JsonKey(
+    name: "payment_address",
+    fromJson: safePaymentAddressFromJson,
+    toJson: safePaymentAddressToJson,
+  )
   List<PaymentAddressModel>? get paymentAddress =>
       throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_method")
@@ -67,10 +75,25 @@ mixin _$OrderDetailResponse {
       throw _privateConstructorUsedError;
   @JsonKey(name: "just_for_you")
   Object? get justForYou => throw _privateConstructorUsedError;
-  @JsonKey(name: "status_history")
+  @JsonKey(
+    name: "status_history",
+    fromJson: safeStatusHistoryFromJson,
+    toJson: safeStatusHistoryToJson,
+  )
   List<StatusHistoryModel>? get statusHistory =>
       throw _privateConstructorUsedError;
-  @JsonKey(name: "status_label")
+  @JsonKey(
+    name: "status_history_new",
+    fromJson: safeStatusHistoryFromJson,
+    toJson: safeStatusHistoryToJson,
+  )
+  List<StatusHistoryModel>? get statusHistoryNew =>
+      throw _privateConstructorUsedError;
+  @JsonKey(
+    name: "status_label",
+    fromJson: safeStatusLabelFromJson,
+    toJson: safeStatusLabelToJson,
+  )
   List<StatusLabel>? get statusLabel => throw _privateConstructorUsedError;
   @JsonKey(name: "customer_name")
   String? get customerName => throw _privateConstructorUsedError;
@@ -122,13 +145,27 @@ abstract class $OrderDetailResponseCopyWith<$Res> {
     DateTime? createdAt,
     @JsonKey(name: "state") String? state,
     @JsonKey(name: "status") String? status,
-    @JsonKey(name: "items") List<OrderItemDetailModel>? items,
+    @JsonKey(
+      name: "items",
+      fromJson: safeItemsFromJson,
+      toJson: safeItemsToJson,
+    )
+    List<OrderItemDetailModel>? items,
     @JsonKey(name: "coupon_code") String? couponCode,
     @JsonKey(name: "spent_reward_points") String? spentRewardPoints,
     @JsonKey(name: "order_summary") OrderSummaryDetailModel? orderSummary,
-    @JsonKey(name: "shipping_address")
+    @JsonKey(
+      name: "shipping_address",
+      fromJson: safeShippingAddressFromJson,
+      toJson: safeShippingAddressToJson,
+    )
     List<ShippingAddressModel>? shippingAddress,
-    @JsonKey(name: "payment_address") List<PaymentAddressModel>? paymentAddress,
+    @JsonKey(
+      name: "payment_address",
+      fromJson: safePaymentAddressFromJson,
+      toJson: safePaymentAddressToJson,
+    )
+    List<PaymentAddressModel>? paymentAddress,
     @JsonKey(name: "shipping_method") String? shippingMethod,
     @JsonKey(name: "remote_ip") String? remoteIp,
     @JsonKey(name: "payment_method") String? paymentMethod,
@@ -139,8 +176,24 @@ abstract class $OrderDetailResponseCopyWith<$Res> {
     )
     List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") Object? justForYou,
-    @JsonKey(name: "status_history") List<StatusHistoryModel>? statusHistory,
-    @JsonKey(name: "status_label") List<StatusLabel>? statusLabel,
+    @JsonKey(
+      name: "status_history",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    List<StatusHistoryModel>? statusHistory,
+    @JsonKey(
+      name: "status_history_new",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    List<StatusHistoryModel>? statusHistoryNew,
+    @JsonKey(
+      name: "status_label",
+      fromJson: safeStatusLabelFromJson,
+      toJson: safeStatusLabelToJson,
+    )
+    List<StatusLabel>? statusLabel,
     @JsonKey(name: "customer_name") String? customerName,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_phone") String? customerPhone,
@@ -189,6 +242,7 @@ class _$OrderDetailResponseCopyWithImpl<$Res, $Val extends OrderDetailResponse>
     Object? paymentInformation = freezed,
     Object? justForYou = freezed,
     Object? statusHistory = freezed,
+    Object? statusHistoryNew = freezed,
     Object? statusLabel = freezed,
     Object? customerName = freezed,
     Object? customerEmail = freezed,
@@ -289,6 +343,11 @@ class _$OrderDetailResponseCopyWithImpl<$Res, $Val extends OrderDetailResponse>
                     ? _value.statusHistory
                     : statusHistory // ignore: cast_nullable_to_non_nullable
                         as List<StatusHistoryModel>?,
+            statusHistoryNew:
+                freezed == statusHistoryNew
+                    ? _value.statusHistoryNew
+                    : statusHistoryNew // ignore: cast_nullable_to_non_nullable
+                        as List<StatusHistoryModel>?,
             statusLabel:
                 freezed == statusLabel
                     ? _value.statusLabel
@@ -387,13 +446,27 @@ abstract class _$$OrderDetailResponseImplCopyWith<$Res>
     DateTime? createdAt,
     @JsonKey(name: "state") String? state,
     @JsonKey(name: "status") String? status,
-    @JsonKey(name: "items") List<OrderItemDetailModel>? items,
+    @JsonKey(
+      name: "items",
+      fromJson: safeItemsFromJson,
+      toJson: safeItemsToJson,
+    )
+    List<OrderItemDetailModel>? items,
     @JsonKey(name: "coupon_code") String? couponCode,
     @JsonKey(name: "spent_reward_points") String? spentRewardPoints,
     @JsonKey(name: "order_summary") OrderSummaryDetailModel? orderSummary,
-    @JsonKey(name: "shipping_address")
+    @JsonKey(
+      name: "shipping_address",
+      fromJson: safeShippingAddressFromJson,
+      toJson: safeShippingAddressToJson,
+    )
     List<ShippingAddressModel>? shippingAddress,
-    @JsonKey(name: "payment_address") List<PaymentAddressModel>? paymentAddress,
+    @JsonKey(
+      name: "payment_address",
+      fromJson: safePaymentAddressFromJson,
+      toJson: safePaymentAddressToJson,
+    )
+    List<PaymentAddressModel>? paymentAddress,
     @JsonKey(name: "shipping_method") String? shippingMethod,
     @JsonKey(name: "remote_ip") String? remoteIp,
     @JsonKey(name: "payment_method") String? paymentMethod,
@@ -404,8 +477,24 @@ abstract class _$$OrderDetailResponseImplCopyWith<$Res>
     )
     List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") Object? justForYou,
-    @JsonKey(name: "status_history") List<StatusHistoryModel>? statusHistory,
-    @JsonKey(name: "status_label") List<StatusLabel>? statusLabel,
+    @JsonKey(
+      name: "status_history",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    List<StatusHistoryModel>? statusHistory,
+    @JsonKey(
+      name: "status_history_new",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    List<StatusHistoryModel>? statusHistoryNew,
+    @JsonKey(
+      name: "status_label",
+      fromJson: safeStatusLabelFromJson,
+      toJson: safeStatusLabelToJson,
+    )
+    List<StatusLabel>? statusLabel,
     @JsonKey(name: "customer_name") String? customerName,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_phone") String? customerPhone,
@@ -454,6 +543,7 @@ class __$$OrderDetailResponseImplCopyWithImpl<$Res>
     Object? paymentInformation = freezed,
     Object? justForYou = freezed,
     Object? statusHistory = freezed,
+    Object? statusHistoryNew = freezed,
     Object? statusLabel = freezed,
     Object? customerName = freezed,
     Object? customerEmail = freezed,
@@ -554,6 +644,11 @@ class __$$OrderDetailResponseImplCopyWithImpl<$Res>
                 ? _value._statusHistory
                 : statusHistory // ignore: cast_nullable_to_non_nullable
                     as List<StatusHistoryModel>?,
+        statusHistoryNew:
+            freezed == statusHistoryNew
+                ? _value._statusHistoryNew
+                : statusHistoryNew // ignore: cast_nullable_to_non_nullable
+                    as List<StatusHistoryModel>?,
         statusLabel:
             freezed == statusLabel
                 ? _value._statusLabel
@@ -629,13 +724,26 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     this.createdAt,
     @JsonKey(name: "state") this.state,
     @JsonKey(name: "status") this.status,
-    @JsonKey(name: "items") final List<OrderItemDetailModel>? items,
+    @JsonKey(
+      name: "items",
+      fromJson: safeItemsFromJson,
+      toJson: safeItemsToJson,
+    )
+    final List<OrderItemDetailModel>? items,
     @JsonKey(name: "coupon_code") this.couponCode,
     @JsonKey(name: "spent_reward_points") this.spentRewardPoints,
     @JsonKey(name: "order_summary") this.orderSummary,
-    @JsonKey(name: "shipping_address")
+    @JsonKey(
+      name: "shipping_address",
+      fromJson: safeShippingAddressFromJson,
+      toJson: safeShippingAddressToJson,
+    )
     final List<ShippingAddressModel>? shippingAddress,
-    @JsonKey(name: "payment_address")
+    @JsonKey(
+      name: "payment_address",
+      fromJson: safePaymentAddressFromJson,
+      toJson: safePaymentAddressToJson,
+    )
     final List<PaymentAddressModel>? paymentAddress,
     @JsonKey(name: "shipping_method") this.shippingMethod,
     @JsonKey(name: "remote_ip") this.remoteIp,
@@ -647,9 +755,24 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     )
     final List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") this.justForYou,
-    @JsonKey(name: "status_history")
+    @JsonKey(
+      name: "status_history",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
     final List<StatusHistoryModel>? statusHistory,
-    @JsonKey(name: "status_label") final List<StatusLabel>? statusLabel,
+    @JsonKey(
+      name: "status_history_new",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    final List<StatusHistoryModel>? statusHistoryNew,
+    @JsonKey(
+      name: "status_label",
+      fromJson: safeStatusLabelFromJson,
+      toJson: safeStatusLabelToJson,
+    )
+    final List<StatusLabel>? statusLabel,
     @JsonKey(name: "customer_name") this.customerName,
     @JsonKey(name: "customer_email") this.customerEmail,
     @JsonKey(name: "customer_phone") this.customerPhone,
@@ -665,6 +788,7 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
        _paymentAddress = paymentAddress,
        _paymentInformation = paymentInformation,
        _statusHistory = statusHistory,
+       _statusHistoryNew = statusHistoryNew,
        _statusLabel = statusLabel;
 
   factory _$OrderDetailResponseImpl.fromJson(Map<String, dynamic> json) =>
@@ -694,7 +818,7 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
   final String? status;
   final List<OrderItemDetailModel>? _items;
   @override
-  @JsonKey(name: "items")
+  @JsonKey(name: "items", fromJson: safeItemsFromJson, toJson: safeItemsToJson)
   List<OrderItemDetailModel>? get items {
     final value = _items;
     if (value == null) return null;
@@ -714,7 +838,11 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
   final OrderSummaryDetailModel? orderSummary;
   final List<ShippingAddressModel>? _shippingAddress;
   @override
-  @JsonKey(name: "shipping_address")
+  @JsonKey(
+    name: "shipping_address",
+    fromJson: safeShippingAddressFromJson,
+    toJson: safeShippingAddressToJson,
+  )
   List<ShippingAddressModel>? get shippingAddress {
     final value = _shippingAddress;
     if (value == null) return null;
@@ -725,7 +853,11 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
 
   final List<PaymentAddressModel>? _paymentAddress;
   @override
-  @JsonKey(name: "payment_address")
+  @JsonKey(
+    name: "payment_address",
+    fromJson: safePaymentAddressFromJson,
+    toJson: safePaymentAddressToJson,
+  )
   List<PaymentAddressModel>? get paymentAddress {
     final value = _paymentAddress;
     if (value == null) return null;
@@ -764,7 +896,11 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
   final Object? justForYou;
   final List<StatusHistoryModel>? _statusHistory;
   @override
-  @JsonKey(name: "status_history")
+  @JsonKey(
+    name: "status_history",
+    fromJson: safeStatusHistoryFromJson,
+    toJson: safeStatusHistoryToJson,
+  )
   List<StatusHistoryModel>? get statusHistory {
     final value = _statusHistory;
     if (value == null) return null;
@@ -773,9 +909,29 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     return EqualUnmodifiableListView(value);
   }
 
+  final List<StatusHistoryModel>? _statusHistoryNew;
+  @override
+  @JsonKey(
+    name: "status_history_new",
+    fromJson: safeStatusHistoryFromJson,
+    toJson: safeStatusHistoryToJson,
+  )
+  List<StatusHistoryModel>? get statusHistoryNew {
+    final value = _statusHistoryNew;
+    if (value == null) return null;
+    if (_statusHistoryNew is EqualUnmodifiableListView)
+      return _statusHistoryNew;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   final List<StatusLabel>? _statusLabel;
   @override
-  @JsonKey(name: "status_label")
+  @JsonKey(
+    name: "status_label",
+    fromJson: safeStatusLabelFromJson,
+    toJson: safeStatusLabelToJson,
+  )
   List<StatusLabel>? get statusLabel {
     final value = _statusLabel;
     if (value == null) return null;
@@ -817,7 +973,7 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
 
   @override
   String toString() {
-    return 'OrderDetailResponse(orderId: $orderId, orderNumber: $orderNumber, customerId: $customerId, createdAt: $createdAt, state: $state, status: $status, items: $items, couponCode: $couponCode, spentRewardPoints: $spentRewardPoints, orderSummary: $orderSummary, shippingAddress: $shippingAddress, paymentAddress: $paymentAddress, shippingMethod: $shippingMethod, remoteIp: $remoteIp, paymentMethod: $paymentMethod, paymentInformation: $paymentInformation, justForYou: $justForYou, statusHistory: $statusHistory, statusLabel: $statusLabel, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, convenienceFee: $convenienceFee, convenienceFeePercent: $convenienceFeePercent, paymentMode: $paymentMode, emiTenure: $emiTenure, emiBank: $emiBank, bankName: $bankName, tenure: $tenure)';
+    return 'OrderDetailResponse(orderId: $orderId, orderNumber: $orderNumber, customerId: $customerId, createdAt: $createdAt, state: $state, status: $status, items: $items, couponCode: $couponCode, spentRewardPoints: $spentRewardPoints, orderSummary: $orderSummary, shippingAddress: $shippingAddress, paymentAddress: $paymentAddress, shippingMethod: $shippingMethod, remoteIp: $remoteIp, paymentMethod: $paymentMethod, paymentInformation: $paymentInformation, justForYou: $justForYou, statusHistory: $statusHistory, statusHistoryNew: $statusHistoryNew, statusLabel: $statusLabel, customerName: $customerName, customerEmail: $customerEmail, customerPhone: $customerPhone, convenienceFee: $convenienceFee, convenienceFeePercent: $convenienceFeePercent, paymentMode: $paymentMode, emiTenure: $emiTenure, emiBank: $emiBank, bankName: $bankName, tenure: $tenure)';
   }
 
   @override
@@ -868,6 +1024,10 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
               _statusHistory,
             ) &&
             const DeepCollectionEquality().equals(
+              other._statusHistoryNew,
+              _statusHistoryNew,
+            ) &&
+            const DeepCollectionEquality().equals(
               other._statusLabel,
               _statusLabel,
             ) &&
@@ -912,6 +1072,7 @@ class _$OrderDetailResponseImpl implements _OrderDetailResponse {
     const DeepCollectionEquality().hash(_paymentInformation),
     const DeepCollectionEquality().hash(justForYou),
     const DeepCollectionEquality().hash(_statusHistory),
+    const DeepCollectionEquality().hash(_statusHistoryNew),
     const DeepCollectionEquality().hash(_statusLabel),
     customerName,
     customerEmail,
@@ -955,13 +1116,26 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
     final DateTime? createdAt,
     @JsonKey(name: "state") final String? state,
     @JsonKey(name: "status") final String? status,
-    @JsonKey(name: "items") final List<OrderItemDetailModel>? items,
+    @JsonKey(
+      name: "items",
+      fromJson: safeItemsFromJson,
+      toJson: safeItemsToJson,
+    )
+    final List<OrderItemDetailModel>? items,
     @JsonKey(name: "coupon_code") final String? couponCode,
     @JsonKey(name: "spent_reward_points") final String? spentRewardPoints,
     @JsonKey(name: "order_summary") final OrderSummaryDetailModel? orderSummary,
-    @JsonKey(name: "shipping_address")
+    @JsonKey(
+      name: "shipping_address",
+      fromJson: safeShippingAddressFromJson,
+      toJson: safeShippingAddressToJson,
+    )
     final List<ShippingAddressModel>? shippingAddress,
-    @JsonKey(name: "payment_address")
+    @JsonKey(
+      name: "payment_address",
+      fromJson: safePaymentAddressFromJson,
+      toJson: safePaymentAddressToJson,
+    )
     final List<PaymentAddressModel>? paymentAddress,
     @JsonKey(name: "shipping_method") final String? shippingMethod,
     @JsonKey(name: "remote_ip") final String? remoteIp,
@@ -973,9 +1147,24 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
     )
     final List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") final Object? justForYou,
-    @JsonKey(name: "status_history")
+    @JsonKey(
+      name: "status_history",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
     final List<StatusHistoryModel>? statusHistory,
-    @JsonKey(name: "status_label") final List<StatusLabel>? statusLabel,
+    @JsonKey(
+      name: "status_history_new",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    final List<StatusHistoryModel>? statusHistoryNew,
+    @JsonKey(
+      name: "status_label",
+      fromJson: safeStatusLabelFromJson,
+      toJson: safeStatusLabelToJson,
+    )
+    final List<StatusLabel>? statusLabel,
     @JsonKey(name: "customer_name") final String? customerName,
     @JsonKey(name: "customer_email") final String? customerEmail,
     @JsonKey(name: "customer_phone") final String? customerPhone,
@@ -1015,7 +1204,7 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
   @JsonKey(name: "status")
   String? get status;
   @override
-  @JsonKey(name: "items")
+  @JsonKey(name: "items", fromJson: safeItemsFromJson, toJson: safeItemsToJson)
   List<OrderItemDetailModel>? get items;
   @override
   @JsonKey(name: "coupon_code")
@@ -1027,10 +1216,18 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
   @JsonKey(name: "order_summary")
   OrderSummaryDetailModel? get orderSummary;
   @override
-  @JsonKey(name: "shipping_address")
+  @JsonKey(
+    name: "shipping_address",
+    fromJson: safeShippingAddressFromJson,
+    toJson: safeShippingAddressToJson,
+  )
   List<ShippingAddressModel>? get shippingAddress;
   @override
-  @JsonKey(name: "payment_address")
+  @JsonKey(
+    name: "payment_address",
+    fromJson: safePaymentAddressFromJson,
+    toJson: safePaymentAddressToJson,
+  )
   List<PaymentAddressModel>? get paymentAddress;
   @override
   @JsonKey(name: "shipping_method")
@@ -1052,10 +1249,25 @@ abstract class _OrderDetailResponse implements OrderDetailResponse {
   @JsonKey(name: "just_for_you")
   Object? get justForYou;
   @override
-  @JsonKey(name: "status_history")
+  @JsonKey(
+    name: "status_history",
+    fromJson: safeStatusHistoryFromJson,
+    toJson: safeStatusHistoryToJson,
+  )
   List<StatusHistoryModel>? get statusHistory;
   @override
-  @JsonKey(name: "status_label")
+  @JsonKey(
+    name: "status_history_new",
+    fromJson: safeStatusHistoryFromJson,
+    toJson: safeStatusHistoryToJson,
+  )
+  List<StatusHistoryModel>? get statusHistoryNew;
+  @override
+  @JsonKey(
+    name: "status_label",
+    fromJson: safeStatusLabelFromJson,
+    toJson: safeStatusLabelToJson,
+  )
   List<StatusLabel>? get statusLabel;
   @override
   @JsonKey(name: "customer_name")
@@ -1103,15 +1315,15 @@ OrderItemDetailModel _$OrderItemDetailModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$OrderItemDetailModel {
   @JsonKey(name: "item_id")
-  String? get itemId => throw _privateConstructorUsedError;
+  dynamic get itemId => throw _privateConstructorUsedError;
   @JsonKey(name: "item_name")
   String? get itemName => throw _privateConstructorUsedError;
   @JsonKey(name: "product_id")
-  String? get productId => throw _privateConstructorUsedError;
+  dynamic get productId => throw _privateConstructorUsedError;
   @JsonKey(name: "product_slug")
   String? get productSlug => throw _privateConstructorUsedError;
   @JsonKey(name: "product_category_ids")
-  List<String>? get productCategoryIds => throw _privateConstructorUsedError;
+  List<dynamic>? get productCategoryIds => throw _privateConstructorUsedError;
   @JsonKey(name: "product_category_names")
   List<String>? get productCategoryNames => throw _privateConstructorUsedError;
   @JsonKey(name: "image")
@@ -1123,13 +1335,13 @@ mixin _$OrderItemDetailModel {
   @JsonKey(name: "sold_by")
   String? get soldBy => throw _privateConstructorUsedError;
   @JsonKey(name: "qty")
-  int? get qty => throw _privateConstructorUsedError;
+  num? get qty => throw _privateConstructorUsedError;
   @JsonKey(name: "regular_price")
-  int? get regularPrice => throw _privateConstructorUsedError;
+  num? get regularPrice => throw _privateConstructorUsedError;
   @JsonKey(name: "final_price")
-  int? get finalPrice => throw _privateConstructorUsedError;
+  num? get finalPrice => throw _privateConstructorUsedError;
   @JsonKey(name: "discount")
-  int? get discount => throw _privateConstructorUsedError;
+  num? get discount => throw _privateConstructorUsedError;
 
   /// Serializes this OrderItemDetailModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1149,20 +1361,20 @@ abstract class $OrderItemDetailModelCopyWith<$Res> {
   ) = _$OrderItemDetailModelCopyWithImpl<$Res, OrderItemDetailModel>;
   @useResult
   $Res call({
-    @JsonKey(name: "item_id") String? itemId,
+    @JsonKey(name: "item_id") dynamic itemId,
     @JsonKey(name: "item_name") String? itemName,
-    @JsonKey(name: "product_id") String? productId,
+    @JsonKey(name: "product_id") dynamic productId,
     @JsonKey(name: "product_slug") String? productSlug,
-    @JsonKey(name: "product_category_ids") List<String>? productCategoryIds,
+    @JsonKey(name: "product_category_ids") List<dynamic>? productCategoryIds,
     @JsonKey(name: "product_category_names") List<String>? productCategoryNames,
     @JsonKey(name: "image") String? image,
     @JsonKey(name: "varient") List<Object>? varient,
     @JsonKey(name: "exta_options") List<Object>? extaOptions,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "qty") int? qty,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "final_price") int? finalPrice,
-    @JsonKey(name: "discount") int? discount,
+    @JsonKey(name: "qty") num? qty,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "final_price") num? finalPrice,
+    @JsonKey(name: "discount") num? discount,
   });
 }
 
@@ -1205,7 +1417,7 @@ class _$OrderItemDetailModelCopyWithImpl<
                 freezed == itemId
                     ? _value.itemId
                     : itemId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             itemName:
                 freezed == itemName
                     ? _value.itemName
@@ -1215,7 +1427,7 @@ class _$OrderItemDetailModelCopyWithImpl<
                 freezed == productId
                     ? _value.productId
                     : productId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             productSlug:
                 freezed == productSlug
                     ? _value.productSlug
@@ -1225,7 +1437,7 @@ class _$OrderItemDetailModelCopyWithImpl<
                 freezed == productCategoryIds
                     ? _value.productCategoryIds
                     : productCategoryIds // ignore: cast_nullable_to_non_nullable
-                        as List<String>?,
+                        as List<dynamic>?,
             productCategoryNames:
                 freezed == productCategoryNames
                     ? _value.productCategoryNames
@@ -1255,22 +1467,22 @@ class _$OrderItemDetailModelCopyWithImpl<
                 freezed == qty
                     ? _value.qty
                     : qty // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             regularPrice:
                 freezed == regularPrice
                     ? _value.regularPrice
                     : regularPrice // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             finalPrice:
                 freezed == finalPrice
                     ? _value.finalPrice
                     : finalPrice // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             discount:
                 freezed == discount
                     ? _value.discount
                     : discount // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
           )
           as $Val,
     );
@@ -1287,20 +1499,20 @@ abstract class _$$OrderItemDetailModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "item_id") String? itemId,
+    @JsonKey(name: "item_id") dynamic itemId,
     @JsonKey(name: "item_name") String? itemName,
-    @JsonKey(name: "product_id") String? productId,
+    @JsonKey(name: "product_id") dynamic productId,
     @JsonKey(name: "product_slug") String? productSlug,
-    @JsonKey(name: "product_category_ids") List<String>? productCategoryIds,
+    @JsonKey(name: "product_category_ids") List<dynamic>? productCategoryIds,
     @JsonKey(name: "product_category_names") List<String>? productCategoryNames,
     @JsonKey(name: "image") String? image,
     @JsonKey(name: "varient") List<Object>? varient,
     @JsonKey(name: "exta_options") List<Object>? extaOptions,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "qty") int? qty,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "final_price") int? finalPrice,
-    @JsonKey(name: "discount") int? discount,
+    @JsonKey(name: "qty") num? qty,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "final_price") num? finalPrice,
+    @JsonKey(name: "discount") num? discount,
   });
 }
 
@@ -1339,7 +1551,7 @@ class __$$OrderItemDetailModelImplCopyWithImpl<$Res>
             freezed == itemId
                 ? _value.itemId
                 : itemId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         itemName:
             freezed == itemName
                 ? _value.itemName
@@ -1349,7 +1561,7 @@ class __$$OrderItemDetailModelImplCopyWithImpl<$Res>
             freezed == productId
                 ? _value.productId
                 : productId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         productSlug:
             freezed == productSlug
                 ? _value.productSlug
@@ -1359,7 +1571,7 @@ class __$$OrderItemDetailModelImplCopyWithImpl<$Res>
             freezed == productCategoryIds
                 ? _value._productCategoryIds
                 : productCategoryIds // ignore: cast_nullable_to_non_nullable
-                    as List<String>?,
+                    as List<dynamic>?,
         productCategoryNames:
             freezed == productCategoryNames
                 ? _value._productCategoryNames
@@ -1389,22 +1601,22 @@ class __$$OrderItemDetailModelImplCopyWithImpl<$Res>
             freezed == qty
                 ? _value.qty
                 : qty // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         regularPrice:
             freezed == regularPrice
                 ? _value.regularPrice
                 : regularPrice // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         finalPrice:
             freezed == finalPrice
                 ? _value.finalPrice
                 : finalPrice // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         discount:
             freezed == discount
                 ? _value.discount
                 : discount // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
       ),
     );
   }
@@ -1419,7 +1631,7 @@ class _$OrderItemDetailModelImpl implements _OrderItemDetailModel {
     @JsonKey(name: "product_id") this.productId,
     @JsonKey(name: "product_slug") this.productSlug,
     @JsonKey(name: "product_category_ids")
-    final List<String>? productCategoryIds,
+    final List<dynamic>? productCategoryIds,
     @JsonKey(name: "product_category_names")
     final List<String>? productCategoryNames,
     @JsonKey(name: "image") this.image,
@@ -1440,20 +1652,20 @@ class _$OrderItemDetailModelImpl implements _OrderItemDetailModel {
 
   @override
   @JsonKey(name: "item_id")
-  final String? itemId;
+  final dynamic itemId;
   @override
   @JsonKey(name: "item_name")
   final String? itemName;
   @override
   @JsonKey(name: "product_id")
-  final String? productId;
+  final dynamic productId;
   @override
   @JsonKey(name: "product_slug")
   final String? productSlug;
-  final List<String>? _productCategoryIds;
+  final List<dynamic>? _productCategoryIds;
   @override
   @JsonKey(name: "product_category_ids")
-  List<String>? get productCategoryIds {
+  List<dynamic>? get productCategoryIds {
     final value = _productCategoryIds;
     if (value == null) return null;
     if (_productCategoryIds is EqualUnmodifiableListView)
@@ -1504,16 +1716,16 @@ class _$OrderItemDetailModelImpl implements _OrderItemDetailModel {
   final String? soldBy;
   @override
   @JsonKey(name: "qty")
-  final int? qty;
+  final num? qty;
   @override
   @JsonKey(name: "regular_price")
-  final int? regularPrice;
+  final num? regularPrice;
   @override
   @JsonKey(name: "final_price")
-  final int? finalPrice;
+  final num? finalPrice;
   @override
   @JsonKey(name: "discount")
-  final int? discount;
+  final num? discount;
 
   @override
   String toString() {
@@ -1525,11 +1737,10 @@ class _$OrderItemDetailModelImpl implements _OrderItemDetailModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$OrderItemDetailModelImpl &&
-            (identical(other.itemId, itemId) || other.itemId == itemId) &&
+            const DeepCollectionEquality().equals(other.itemId, itemId) &&
             (identical(other.itemName, itemName) ||
                 other.itemName == itemName) &&
-            (identical(other.productId, productId) ||
-                other.productId == productId) &&
+            const DeepCollectionEquality().equals(other.productId, productId) &&
             (identical(other.productSlug, productSlug) ||
                 other.productSlug == productSlug) &&
             const DeepCollectionEquality().equals(
@@ -1560,9 +1771,9 @@ class _$OrderItemDetailModelImpl implements _OrderItemDetailModel {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    itemId,
+    const DeepCollectionEquality().hash(itemId),
     itemName,
-    productId,
+    const DeepCollectionEquality().hash(productId),
     productSlug,
     const DeepCollectionEquality().hash(_productCategoryIds),
     const DeepCollectionEquality().hash(_productCategoryNames),
@@ -1596,22 +1807,22 @@ class _$OrderItemDetailModelImpl implements _OrderItemDetailModel {
 
 abstract class _OrderItemDetailModel implements OrderItemDetailModel {
   const factory _OrderItemDetailModel({
-    @JsonKey(name: "item_id") final String? itemId,
+    @JsonKey(name: "item_id") final dynamic itemId,
     @JsonKey(name: "item_name") final String? itemName,
-    @JsonKey(name: "product_id") final String? productId,
+    @JsonKey(name: "product_id") final dynamic productId,
     @JsonKey(name: "product_slug") final String? productSlug,
     @JsonKey(name: "product_category_ids")
-    final List<String>? productCategoryIds,
+    final List<dynamic>? productCategoryIds,
     @JsonKey(name: "product_category_names")
     final List<String>? productCategoryNames,
     @JsonKey(name: "image") final String? image,
     @JsonKey(name: "varient") final List<Object>? varient,
     @JsonKey(name: "exta_options") final List<Object>? extaOptions,
     @JsonKey(name: "sold_by") final String? soldBy,
-    @JsonKey(name: "qty") final int? qty,
-    @JsonKey(name: "regular_price") final int? regularPrice,
-    @JsonKey(name: "final_price") final int? finalPrice,
-    @JsonKey(name: "discount") final int? discount,
+    @JsonKey(name: "qty") final num? qty,
+    @JsonKey(name: "regular_price") final num? regularPrice,
+    @JsonKey(name: "final_price") final num? finalPrice,
+    @JsonKey(name: "discount") final num? discount,
   }) = _$OrderItemDetailModelImpl;
 
   factory _OrderItemDetailModel.fromJson(Map<String, dynamic> json) =
@@ -1619,19 +1830,19 @@ abstract class _OrderItemDetailModel implements OrderItemDetailModel {
 
   @override
   @JsonKey(name: "item_id")
-  String? get itemId;
+  dynamic get itemId;
   @override
   @JsonKey(name: "item_name")
   String? get itemName;
   @override
   @JsonKey(name: "product_id")
-  String? get productId;
+  dynamic get productId;
   @override
   @JsonKey(name: "product_slug")
   String? get productSlug;
   @override
   @JsonKey(name: "product_category_ids")
-  List<String>? get productCategoryIds;
+  List<dynamic>? get productCategoryIds;
   @override
   @JsonKey(name: "product_category_names")
   List<String>? get productCategoryNames;
@@ -1649,16 +1860,16 @@ abstract class _OrderItemDetailModel implements OrderItemDetailModel {
   String? get soldBy;
   @override
   @JsonKey(name: "qty")
-  int? get qty;
+  num? get qty;
   @override
   @JsonKey(name: "regular_price")
-  int? get regularPrice;
+  num? get regularPrice;
   @override
   @JsonKey(name: "final_price")
-  int? get finalPrice;
+  num? get finalPrice;
   @override
   @JsonKey(name: "discount")
-  int? get discount;
+  num? get discount;
 
   /// Create a copy of OrderItemDetailModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1679,7 +1890,7 @@ mixin _$OrderSummaryDetailModel {
   @JsonKey(name: "subtotal")
   num? get subtotal => throw _privateConstructorUsedError;
   @JsonKey(name: "total_order_qty")
-  int? get totalOrderQty => throw _privateConstructorUsedError;
+  num? get totalOrderQty => throw _privateConstructorUsedError;
   @JsonKey(name: "discount_amount")
   num? get discountAmount => throw _privateConstructorUsedError;
   @JsonKey(name: "rewards_discount")
@@ -1689,7 +1900,7 @@ mixin _$OrderSummaryDetailModel {
   @JsonKey(name: "grand_total")
   num? get grandTotal => throw _privateConstructorUsedError;
   @JsonKey(name: "reward_earned")
-  int? get rewardEarned => throw _privateConstructorUsedError;
+  num? get rewardEarned => throw _privateConstructorUsedError;
   @JsonKey(name: "convenience_fee")
   num? get convenienceFee => throw _privateConstructorUsedError;
   @JsonKey(name: "convenience_fee_percent")
@@ -1720,12 +1931,12 @@ abstract class $OrderSummaryDetailModelCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: "subtotal") num? subtotal,
-    @JsonKey(name: "total_order_qty") int? totalOrderQty,
+    @JsonKey(name: "total_order_qty") num? totalOrderQty,
     @JsonKey(name: "discount_amount") num? discountAmount,
     @JsonKey(name: "rewards_discount") num? rewardsDiscount,
     @JsonKey(name: "shipping_fee") num? shippingFee,
     @JsonKey(name: "grand_total") num? grandTotal,
-    @JsonKey(name: "reward_earned") int? rewardEarned,
+    @JsonKey(name: "reward_earned") num? rewardEarned,
     @JsonKey(name: "convenience_fee") num? convenienceFee,
     @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
     @JsonKey(name: "convenience_amount") num? convenienceAmount,
@@ -1776,7 +1987,7 @@ class _$OrderSummaryDetailModelCopyWithImpl<
                 freezed == totalOrderQty
                     ? _value.totalOrderQty
                     : totalOrderQty // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             discountAmount:
                 freezed == discountAmount
                     ? _value.discountAmount
@@ -1801,7 +2012,7 @@ class _$OrderSummaryDetailModelCopyWithImpl<
                 freezed == rewardEarned
                     ? _value.rewardEarned
                     : rewardEarned // ignore: cast_nullable_to_non_nullable
-                        as int?,
+                        as num?,
             convenienceFee:
                 freezed == convenienceFee
                     ? _value.convenienceFee
@@ -1844,12 +2055,12 @@ abstract class _$$OrderSummaryDetailModelImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: "subtotal") num? subtotal,
-    @JsonKey(name: "total_order_qty") int? totalOrderQty,
+    @JsonKey(name: "total_order_qty") num? totalOrderQty,
     @JsonKey(name: "discount_amount") num? discountAmount,
     @JsonKey(name: "rewards_discount") num? rewardsDiscount,
     @JsonKey(name: "shipping_fee") num? shippingFee,
     @JsonKey(name: "grand_total") num? grandTotal,
-    @JsonKey(name: "reward_earned") int? rewardEarned,
+    @JsonKey(name: "reward_earned") num? rewardEarned,
     @JsonKey(name: "convenience_fee") num? convenienceFee,
     @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
     @JsonKey(name: "convenience_amount") num? convenienceAmount,
@@ -1900,7 +2111,7 @@ class __$$OrderSummaryDetailModelImplCopyWithImpl<$Res>
             freezed == totalOrderQty
                 ? _value.totalOrderQty
                 : totalOrderQty // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         discountAmount:
             freezed == discountAmount
                 ? _value.discountAmount
@@ -1925,7 +2136,7 @@ class __$$OrderSummaryDetailModelImplCopyWithImpl<$Res>
             freezed == rewardEarned
                 ? _value.rewardEarned
                 : rewardEarned // ignore: cast_nullable_to_non_nullable
-                    as int?,
+                    as num?,
         convenienceFee:
             freezed == convenienceFee
                 ? _value.convenienceFee
@@ -1982,7 +2193,7 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
   final num? subtotal;
   @override
   @JsonKey(name: "total_order_qty")
-  final int? totalOrderQty;
+  final num? totalOrderQty;
   @override
   @JsonKey(name: "discount_amount")
   final num? discountAmount;
@@ -1997,7 +2208,7 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
   final num? grandTotal;
   @override
   @JsonKey(name: "reward_earned")
-  final int? rewardEarned;
+  final num? rewardEarned;
   @override
   @JsonKey(name: "convenience_fee")
   final num? convenienceFee;
@@ -2086,12 +2297,12 @@ class _$OrderSummaryDetailModelImpl implements _OrderSummaryDetailModel {
 abstract class _OrderSummaryDetailModel implements OrderSummaryDetailModel {
   const factory _OrderSummaryDetailModel({
     @JsonKey(name: "subtotal") final num? subtotal,
-    @JsonKey(name: "total_order_qty") final int? totalOrderQty,
+    @JsonKey(name: "total_order_qty") final num? totalOrderQty,
     @JsonKey(name: "discount_amount") final num? discountAmount,
     @JsonKey(name: "rewards_discount") final num? rewardsDiscount,
     @JsonKey(name: "shipping_fee") final num? shippingFee,
     @JsonKey(name: "grand_total") final num? grandTotal,
-    @JsonKey(name: "reward_earned") final int? rewardEarned,
+    @JsonKey(name: "reward_earned") final num? rewardEarned,
     @JsonKey(name: "convenience_fee") final num? convenienceFee,
     @JsonKey(name: "convenience_fee_percent")
     final String? convenienceFeePercent,
@@ -2108,7 +2319,7 @@ abstract class _OrderSummaryDetailModel implements OrderSummaryDetailModel {
   num? get subtotal;
   @override
   @JsonKey(name: "total_order_qty")
-  int? get totalOrderQty;
+  num? get totalOrderQty;
   @override
   @JsonKey(name: "discount_amount")
   num? get discountAmount;
@@ -2123,7 +2334,7 @@ abstract class _OrderSummaryDetailModel implements OrderSummaryDetailModel {
   num? get grandTotal;
   @override
   @JsonKey(name: "reward_earned")
-  int? get rewardEarned;
+  num? get rewardEarned;
   @override
   @JsonKey(name: "convenience_fee")
   num? get convenienceFee;
@@ -2157,7 +2368,7 @@ mixin _$ShippingAddressModel {
   @JsonKey(name: "name")
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: "mobile")
-  String? get mobile => throw _privateConstructorUsedError;
+  dynamic get mobile => throw _privateConstructorUsedError;
   @JsonKey(name: "email")
   String? get email => throw _privateConstructorUsedError;
   @JsonKey(name: "address")
@@ -2182,7 +2393,7 @@ abstract class $ShippingAddressModelCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "mobile") String? mobile,
+    @JsonKey(name: "mobile") dynamic mobile,
     @JsonKey(name: "email") String? email,
     @JsonKey(name: "address") String? address,
   });
@@ -2222,7 +2433,7 @@ class _$ShippingAddressModelCopyWithImpl<
                 freezed == mobile
                     ? _value.mobile
                     : mobile // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             email:
                 freezed == email
                     ? _value.email
@@ -2250,7 +2461,7 @@ abstract class _$$ShippingAddressModelImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "mobile") String? mobile,
+    @JsonKey(name: "mobile") dynamic mobile,
     @JsonKey(name: "email") String? email,
     @JsonKey(name: "address") String? address,
   });
@@ -2286,7 +2497,7 @@ class __$$ShippingAddressModelImplCopyWithImpl<$Res>
             freezed == mobile
                 ? _value.mobile
                 : mobile // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         email:
             freezed == email
                 ? _value.email
@@ -2320,7 +2531,7 @@ class _$ShippingAddressModelImpl implements _ShippingAddressModel {
   final String? name;
   @override
   @JsonKey(name: "mobile")
-  final String? mobile;
+  final dynamic mobile;
   @override
   @JsonKey(name: "email")
   final String? email;
@@ -2339,14 +2550,20 @@ class _$ShippingAddressModelImpl implements _ShippingAddressModel {
         (other.runtimeType == runtimeType &&
             other is _$ShippingAddressModelImpl &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.mobile, mobile) || other.mobile == mobile) &&
+            const DeepCollectionEquality().equals(other.mobile, mobile) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.address, address) || other.address == address));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, mobile, email, address);
+  int get hashCode => Object.hash(
+    runtimeType,
+    name,
+    const DeepCollectionEquality().hash(mobile),
+    email,
+    address,
+  );
 
   /// Create a copy of ShippingAddressModel
   /// with the given fields replaced by the non-null parameter values.
@@ -2369,7 +2586,7 @@ class _$ShippingAddressModelImpl implements _ShippingAddressModel {
 abstract class _ShippingAddressModel implements ShippingAddressModel {
   const factory _ShippingAddressModel({
     @JsonKey(name: "name") final String? name,
-    @JsonKey(name: "mobile") final String? mobile,
+    @JsonKey(name: "mobile") final dynamic mobile,
     @JsonKey(name: "email") final String? email,
     @JsonKey(name: "address") final String? address,
   }) = _$ShippingAddressModelImpl;
@@ -2382,7 +2599,7 @@ abstract class _ShippingAddressModel implements ShippingAddressModel {
   String? get name;
   @override
   @JsonKey(name: "mobile")
-  String? get mobile;
+  dynamic get mobile;
   @override
   @JsonKey(name: "email")
   String? get email;
@@ -2405,7 +2622,7 @@ PaymentAddressModel _$PaymentAddressModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$PaymentAddressModel {
   @JsonKey(name: "region_id")
-  String? get regionId => throw _privateConstructorUsedError;
+  dynamic get regionId => throw _privateConstructorUsedError;
   @JsonKey(name: "region_code")
   String? get regionCode => throw _privateConstructorUsedError;
   @JsonKey(name: "country_id")
@@ -2415,7 +2632,7 @@ mixin _$PaymentAddressModel {
   @JsonKey(name: "street")
   List<String>? get street => throw _privateConstructorUsedError;
   @JsonKey(name: "postcode")
-  String? get postcode => throw _privateConstructorUsedError;
+  dynamic get postcode => throw _privateConstructorUsedError;
   @JsonKey(name: "city")
   String? get city => throw _privateConstructorUsedError;
   @JsonKey(name: "firstname")
@@ -2423,17 +2640,17 @@ mixin _$PaymentAddressModel {
   @JsonKey(name: "lastname")
   String? get lastname => throw _privateConstructorUsedError;
   @JsonKey(name: "customer_id")
-  String? get customerId => throw _privateConstructorUsedError;
+  dynamic get customerId => throw _privateConstructorUsedError;
   @JsonKey(name: "email")
   String? get email => throw _privateConstructorUsedError;
   @JsonKey(name: "telephone")
-  String? get telephone => throw _privateConstructorUsedError;
+  dynamic get telephone => throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_carrier_code")
   String? get shippingCarrierCode => throw _privateConstructorUsedError;
   @JsonKey(name: "shipping_method_code")
   String? get shippingMethodCode => throw _privateConstructorUsedError;
   @JsonKey(name: "quoteId")
-  String? get quoteId => throw _privateConstructorUsedError;
+  dynamic get quoteId => throw _privateConstructorUsedError;
 
   /// Serializes this PaymentAddressModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -2453,21 +2670,21 @@ abstract class $PaymentAddressModelCopyWith<$Res> {
   ) = _$PaymentAddressModelCopyWithImpl<$Res, PaymentAddressModel>;
   @useResult
   $Res call({
-    @JsonKey(name: "region_id") String? regionId,
+    @JsonKey(name: "region_id") dynamic regionId,
     @JsonKey(name: "region_code") String? regionCode,
     @JsonKey(name: "country_id") String? countryId,
     @JsonKey(name: "region") String? region,
     @JsonKey(name: "street") List<String>? street,
-    @JsonKey(name: "postcode") String? postcode,
+    @JsonKey(name: "postcode") dynamic postcode,
     @JsonKey(name: "city") String? city,
     @JsonKey(name: "firstname") String? firstname,
     @JsonKey(name: "lastname") String? lastname,
-    @JsonKey(name: "customer_id") String? customerId,
+    @JsonKey(name: "customer_id") dynamic customerId,
     @JsonKey(name: "email") String? email,
-    @JsonKey(name: "telephone") String? telephone,
+    @JsonKey(name: "telephone") dynamic telephone,
     @JsonKey(name: "shipping_carrier_code") String? shippingCarrierCode,
     @JsonKey(name: "shipping_method_code") String? shippingMethodCode,
-    @JsonKey(name: "quoteId") String? quoteId,
+    @JsonKey(name: "quoteId") dynamic quoteId,
   });
 }
 
@@ -2508,7 +2725,7 @@ class _$PaymentAddressModelCopyWithImpl<$Res, $Val extends PaymentAddressModel>
                 freezed == regionId
                     ? _value.regionId
                     : regionId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             regionCode:
                 freezed == regionCode
                     ? _value.regionCode
@@ -2533,7 +2750,7 @@ class _$PaymentAddressModelCopyWithImpl<$Res, $Val extends PaymentAddressModel>
                 freezed == postcode
                     ? _value.postcode
                     : postcode // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             city:
                 freezed == city
                     ? _value.city
@@ -2553,7 +2770,7 @@ class _$PaymentAddressModelCopyWithImpl<$Res, $Val extends PaymentAddressModel>
                 freezed == customerId
                     ? _value.customerId
                     : customerId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             email:
                 freezed == email
                     ? _value.email
@@ -2563,7 +2780,7 @@ class _$PaymentAddressModelCopyWithImpl<$Res, $Val extends PaymentAddressModel>
                 freezed == telephone
                     ? _value.telephone
                     : telephone // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             shippingCarrierCode:
                 freezed == shippingCarrierCode
                     ? _value.shippingCarrierCode
@@ -2578,7 +2795,7 @@ class _$PaymentAddressModelCopyWithImpl<$Res, $Val extends PaymentAddressModel>
                 freezed == quoteId
                     ? _value.quoteId
                     : quoteId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
           )
           as $Val,
     );
@@ -2595,21 +2812,21 @@ abstract class _$$PaymentAddressModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "region_id") String? regionId,
+    @JsonKey(name: "region_id") dynamic regionId,
     @JsonKey(name: "region_code") String? regionCode,
     @JsonKey(name: "country_id") String? countryId,
     @JsonKey(name: "region") String? region,
     @JsonKey(name: "street") List<String>? street,
-    @JsonKey(name: "postcode") String? postcode,
+    @JsonKey(name: "postcode") dynamic postcode,
     @JsonKey(name: "city") String? city,
     @JsonKey(name: "firstname") String? firstname,
     @JsonKey(name: "lastname") String? lastname,
-    @JsonKey(name: "customer_id") String? customerId,
+    @JsonKey(name: "customer_id") dynamic customerId,
     @JsonKey(name: "email") String? email,
-    @JsonKey(name: "telephone") String? telephone,
+    @JsonKey(name: "telephone") dynamic telephone,
     @JsonKey(name: "shipping_carrier_code") String? shippingCarrierCode,
     @JsonKey(name: "shipping_method_code") String? shippingMethodCode,
-    @JsonKey(name: "quoteId") String? quoteId,
+    @JsonKey(name: "quoteId") dynamic quoteId,
   });
 }
 
@@ -2649,7 +2866,7 @@ class __$$PaymentAddressModelImplCopyWithImpl<$Res>
             freezed == regionId
                 ? _value.regionId
                 : regionId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         regionCode:
             freezed == regionCode
                 ? _value.regionCode
@@ -2674,7 +2891,7 @@ class __$$PaymentAddressModelImplCopyWithImpl<$Res>
             freezed == postcode
                 ? _value.postcode
                 : postcode // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         city:
             freezed == city
                 ? _value.city
@@ -2694,7 +2911,7 @@ class __$$PaymentAddressModelImplCopyWithImpl<$Res>
             freezed == customerId
                 ? _value.customerId
                 : customerId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         email:
             freezed == email
                 ? _value.email
@@ -2704,7 +2921,7 @@ class __$$PaymentAddressModelImplCopyWithImpl<$Res>
             freezed == telephone
                 ? _value.telephone
                 : telephone // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         shippingCarrierCode:
             freezed == shippingCarrierCode
                 ? _value.shippingCarrierCode
@@ -2719,7 +2936,7 @@ class __$$PaymentAddressModelImplCopyWithImpl<$Res>
             freezed == quoteId
                 ? _value.quoteId
                 : quoteId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
       ),
     );
   }
@@ -2751,7 +2968,7 @@ class _$PaymentAddressModelImpl implements _PaymentAddressModel {
 
   @override
   @JsonKey(name: "region_id")
-  final String? regionId;
+  final dynamic regionId;
   @override
   @JsonKey(name: "region_code")
   final String? regionCode;
@@ -2774,7 +2991,7 @@ class _$PaymentAddressModelImpl implements _PaymentAddressModel {
 
   @override
   @JsonKey(name: "postcode")
-  final String? postcode;
+  final dynamic postcode;
   @override
   @JsonKey(name: "city")
   final String? city;
@@ -2786,13 +3003,13 @@ class _$PaymentAddressModelImpl implements _PaymentAddressModel {
   final String? lastname;
   @override
   @JsonKey(name: "customer_id")
-  final String? customerId;
+  final dynamic customerId;
   @override
   @JsonKey(name: "email")
   final String? email;
   @override
   @JsonKey(name: "telephone")
-  final String? telephone;
+  final dynamic telephone;
   @override
   @JsonKey(name: "shipping_carrier_code")
   final String? shippingCarrierCode;
@@ -2801,7 +3018,7 @@ class _$PaymentAddressModelImpl implements _PaymentAddressModel {
   final String? shippingMethodCode;
   @override
   @JsonKey(name: "quoteId")
-  final String? quoteId;
+  final dynamic quoteId;
 
   @override
   String toString() {
@@ -2813,52 +3030,51 @@ class _$PaymentAddressModelImpl implements _PaymentAddressModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PaymentAddressModelImpl &&
-            (identical(other.regionId, regionId) ||
-                other.regionId == regionId) &&
+            const DeepCollectionEquality().equals(other.regionId, regionId) &&
             (identical(other.regionCode, regionCode) ||
                 other.regionCode == regionCode) &&
             (identical(other.countryId, countryId) ||
                 other.countryId == countryId) &&
             (identical(other.region, region) || other.region == region) &&
             const DeepCollectionEquality().equals(other._street, _street) &&
-            (identical(other.postcode, postcode) ||
-                other.postcode == postcode) &&
+            const DeepCollectionEquality().equals(other.postcode, postcode) &&
             (identical(other.city, city) || other.city == city) &&
             (identical(other.firstname, firstname) ||
                 other.firstname == firstname) &&
             (identical(other.lastname, lastname) ||
                 other.lastname == lastname) &&
-            (identical(other.customerId, customerId) ||
-                other.customerId == customerId) &&
+            const DeepCollectionEquality().equals(
+              other.customerId,
+              customerId,
+            ) &&
             (identical(other.email, email) || other.email == email) &&
-            (identical(other.telephone, telephone) ||
-                other.telephone == telephone) &&
+            const DeepCollectionEquality().equals(other.telephone, telephone) &&
             (identical(other.shippingCarrierCode, shippingCarrierCode) ||
                 other.shippingCarrierCode == shippingCarrierCode) &&
             (identical(other.shippingMethodCode, shippingMethodCode) ||
                 other.shippingMethodCode == shippingMethodCode) &&
-            (identical(other.quoteId, quoteId) || other.quoteId == quoteId));
+            const DeepCollectionEquality().equals(other.quoteId, quoteId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    regionId,
+    const DeepCollectionEquality().hash(regionId),
     regionCode,
     countryId,
     region,
     const DeepCollectionEquality().hash(_street),
-    postcode,
+    const DeepCollectionEquality().hash(postcode),
     city,
     firstname,
     lastname,
-    customerId,
+    const DeepCollectionEquality().hash(customerId),
     email,
-    telephone,
+    const DeepCollectionEquality().hash(telephone),
     shippingCarrierCode,
     shippingMethodCode,
-    quoteId,
+    const DeepCollectionEquality().hash(quoteId),
   );
 
   /// Create a copy of PaymentAddressModel
@@ -2880,21 +3096,21 @@ class _$PaymentAddressModelImpl implements _PaymentAddressModel {
 
 abstract class _PaymentAddressModel implements PaymentAddressModel {
   const factory _PaymentAddressModel({
-    @JsonKey(name: "region_id") final String? regionId,
+    @JsonKey(name: "region_id") final dynamic regionId,
     @JsonKey(name: "region_code") final String? regionCode,
     @JsonKey(name: "country_id") final String? countryId,
     @JsonKey(name: "region") final String? region,
     @JsonKey(name: "street") final List<String>? street,
-    @JsonKey(name: "postcode") final String? postcode,
+    @JsonKey(name: "postcode") final dynamic postcode,
     @JsonKey(name: "city") final String? city,
     @JsonKey(name: "firstname") final String? firstname,
     @JsonKey(name: "lastname") final String? lastname,
-    @JsonKey(name: "customer_id") final String? customerId,
+    @JsonKey(name: "customer_id") final dynamic customerId,
     @JsonKey(name: "email") final String? email,
-    @JsonKey(name: "telephone") final String? telephone,
+    @JsonKey(name: "telephone") final dynamic telephone,
     @JsonKey(name: "shipping_carrier_code") final String? shippingCarrierCode,
     @JsonKey(name: "shipping_method_code") final String? shippingMethodCode,
-    @JsonKey(name: "quoteId") final String? quoteId,
+    @JsonKey(name: "quoteId") final dynamic quoteId,
   }) = _$PaymentAddressModelImpl;
 
   factory _PaymentAddressModel.fromJson(Map<String, dynamic> json) =
@@ -2902,7 +3118,7 @@ abstract class _PaymentAddressModel implements PaymentAddressModel {
 
   @override
   @JsonKey(name: "region_id")
-  String? get regionId;
+  dynamic get regionId;
   @override
   @JsonKey(name: "region_code")
   String? get regionCode;
@@ -2917,7 +3133,7 @@ abstract class _PaymentAddressModel implements PaymentAddressModel {
   List<String>? get street;
   @override
   @JsonKey(name: "postcode")
-  String? get postcode;
+  dynamic get postcode;
   @override
   @JsonKey(name: "city")
   String? get city;
@@ -2929,13 +3145,13 @@ abstract class _PaymentAddressModel implements PaymentAddressModel {
   String? get lastname;
   @override
   @JsonKey(name: "customer_id")
-  String? get customerId;
+  dynamic get customerId;
   @override
   @JsonKey(name: "email")
   String? get email;
   @override
   @JsonKey(name: "telephone")
-  String? get telephone;
+  dynamic get telephone;
   @override
   @JsonKey(name: "shipping_carrier_code")
   String? get shippingCarrierCode;
@@ -2944,7 +3160,7 @@ abstract class _PaymentAddressModel implements PaymentAddressModel {
   String? get shippingMethodCode;
   @override
   @JsonKey(name: "quoteId")
-  String? get quoteId;
+  dynamic get quoteId;
 
   /// Create a copy of PaymentAddressModel
   /// with the given fields replaced by the non-null parameter values.
@@ -3179,23 +3395,33 @@ StatusHistoryModel _$StatusHistoryModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$StatusHistoryModel {
   @JsonKey(name: "entity_id")
-  String? get entityId => throw _privateConstructorUsedError;
+  dynamic get entityId => throw _privateConstructorUsedError;
   @JsonKey(name: "parent_id")
-  String? get parentId => throw _privateConstructorUsedError;
+  dynamic get parentId => throw _privateConstructorUsedError;
   @JsonKey(name: "is_customer_notified")
-  String? get isCustomerNotified => throw _privateConstructorUsedError;
+  dynamic get isCustomerNotified => throw _privateConstructorUsedError;
   @JsonKey(name: "is_visible_on_front")
-  String? get isVisibleOnFront => throw _privateConstructorUsedError;
+  dynamic get isVisibleOnFront => throw _privateConstructorUsedError;
   @JsonKey(name: "comment")
   String? get comment => throw _privateConstructorUsedError;
   @JsonKey(name: "status")
   String? get status => throw _privateConstructorUsedError;
+  @JsonKey(name: "label")
+  String? get label => throw _privateConstructorUsedError;
   @JsonKey(
     name: "created_at",
     fromJson: safeDateTimeFromJson,
     toJson: safeDateTimeToJson,
   )
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(
+    name: "time",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
+  DateTime? get time => throw _privateConstructorUsedError;
+  @JsonKey(name: "time_raw")
+  String? get timeRaw => throw _privateConstructorUsedError;
   @JsonKey(
     name: "entity_name",
     fromJson: safeEntityNameFromJson,
@@ -3223,18 +3449,26 @@ abstract class $StatusHistoryModelCopyWith<$Res> {
   ) = _$StatusHistoryModelCopyWithImpl<$Res, StatusHistoryModel>;
   @useResult
   $Res call({
-    @JsonKey(name: "entity_id") String? entityId,
-    @JsonKey(name: "parent_id") String? parentId,
-    @JsonKey(name: "is_customer_notified") String? isCustomerNotified,
-    @JsonKey(name: "is_visible_on_front") String? isVisibleOnFront,
+    @JsonKey(name: "entity_id") dynamic entityId,
+    @JsonKey(name: "parent_id") dynamic parentId,
+    @JsonKey(name: "is_customer_notified") dynamic isCustomerNotified,
+    @JsonKey(name: "is_visible_on_front") dynamic isVisibleOnFront,
     @JsonKey(name: "comment") String? comment,
     @JsonKey(name: "status") String? status,
+    @JsonKey(name: "label") String? label,
     @JsonKey(
       name: "created_at",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     DateTime? createdAt,
+    @JsonKey(
+      name: "time",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? time,
+    @JsonKey(name: "time_raw") String? timeRaw,
     @JsonKey(
       name: "entity_name",
       fromJson: safeEntityNameFromJson,
@@ -3266,7 +3500,10 @@ class _$StatusHistoryModelCopyWithImpl<$Res, $Val extends StatusHistoryModel>
     Object? isVisibleOnFront = freezed,
     Object? comment = freezed,
     Object? status = freezed,
+    Object? label = freezed,
     Object? createdAt = freezed,
+    Object? time = freezed,
+    Object? timeRaw = freezed,
     Object? entityName = freezed,
     Object? sellerOrderId = freezed,
   }) {
@@ -3276,22 +3513,22 @@ class _$StatusHistoryModelCopyWithImpl<$Res, $Val extends StatusHistoryModel>
                 freezed == entityId
                     ? _value.entityId
                     : entityId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             parentId:
                 freezed == parentId
                     ? _value.parentId
                     : parentId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             isCustomerNotified:
                 freezed == isCustomerNotified
                     ? _value.isCustomerNotified
                     : isCustomerNotified // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             isVisibleOnFront:
                 freezed == isVisibleOnFront
                     ? _value.isVisibleOnFront
                     : isVisibleOnFront // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as dynamic,
             comment:
                 freezed == comment
                     ? _value.comment
@@ -3302,11 +3539,26 @@ class _$StatusHistoryModelCopyWithImpl<$Res, $Val extends StatusHistoryModel>
                     ? _value.status
                     : status // ignore: cast_nullable_to_non_nullable
                         as String?,
+            label:
+                freezed == label
+                    ? _value.label
+                    : label // ignore: cast_nullable_to_non_nullable
+                        as String?,
             createdAt:
                 freezed == createdAt
                     ? _value.createdAt
                     : createdAt // ignore: cast_nullable_to_non_nullable
                         as DateTime?,
+            time:
+                freezed == time
+                    ? _value.time
+                    : time // ignore: cast_nullable_to_non_nullable
+                        as DateTime?,
+            timeRaw:
+                freezed == timeRaw
+                    ? _value.timeRaw
+                    : timeRaw // ignore: cast_nullable_to_non_nullable
+                        as String?,
             entityName:
                 freezed == entityName
                     ? _value.entityName
@@ -3333,18 +3585,26 @@ abstract class _$$StatusHistoryModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: "entity_id") String? entityId,
-    @JsonKey(name: "parent_id") String? parentId,
-    @JsonKey(name: "is_customer_notified") String? isCustomerNotified,
-    @JsonKey(name: "is_visible_on_front") String? isVisibleOnFront,
+    @JsonKey(name: "entity_id") dynamic entityId,
+    @JsonKey(name: "parent_id") dynamic parentId,
+    @JsonKey(name: "is_customer_notified") dynamic isCustomerNotified,
+    @JsonKey(name: "is_visible_on_front") dynamic isVisibleOnFront,
     @JsonKey(name: "comment") String? comment,
     @JsonKey(name: "status") String? status,
+    @JsonKey(name: "label") String? label,
     @JsonKey(
       name: "created_at",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     DateTime? createdAt,
+    @JsonKey(
+      name: "time",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    DateTime? time,
+    @JsonKey(name: "time_raw") String? timeRaw,
     @JsonKey(
       name: "entity_name",
       fromJson: safeEntityNameFromJson,
@@ -3375,7 +3635,10 @@ class __$$StatusHistoryModelImplCopyWithImpl<$Res>
     Object? isVisibleOnFront = freezed,
     Object? comment = freezed,
     Object? status = freezed,
+    Object? label = freezed,
     Object? createdAt = freezed,
+    Object? time = freezed,
+    Object? timeRaw = freezed,
     Object? entityName = freezed,
     Object? sellerOrderId = freezed,
   }) {
@@ -3385,22 +3648,22 @@ class __$$StatusHistoryModelImplCopyWithImpl<$Res>
             freezed == entityId
                 ? _value.entityId
                 : entityId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         parentId:
             freezed == parentId
                 ? _value.parentId
                 : parentId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         isCustomerNotified:
             freezed == isCustomerNotified
                 ? _value.isCustomerNotified
                 : isCustomerNotified // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         isVisibleOnFront:
             freezed == isVisibleOnFront
                 ? _value.isVisibleOnFront
                 : isVisibleOnFront // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as dynamic,
         comment:
             freezed == comment
                 ? _value.comment
@@ -3411,11 +3674,26 @@ class __$$StatusHistoryModelImplCopyWithImpl<$Res>
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
                     as String?,
+        label:
+            freezed == label
+                ? _value.label
+                : label // ignore: cast_nullable_to_non_nullable
+                    as String?,
         createdAt:
             freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                     as DateTime?,
+        time:
+            freezed == time
+                ? _value.time
+                : time // ignore: cast_nullable_to_non_nullable
+                    as DateTime?,
+        timeRaw:
+            freezed == timeRaw
+                ? _value.timeRaw
+                : timeRaw // ignore: cast_nullable_to_non_nullable
+                    as String?,
         entityName:
             freezed == entityName
                 ? _value.entityName
@@ -3441,12 +3719,20 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
     @JsonKey(name: "is_visible_on_front") this.isVisibleOnFront,
     @JsonKey(name: "comment") this.comment,
     @JsonKey(name: "status") this.status,
+    @JsonKey(name: "label") this.label,
     @JsonKey(
       name: "created_at",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     this.createdAt,
+    @JsonKey(
+      name: "time",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    this.time,
+    @JsonKey(name: "time_raw") this.timeRaw,
     @JsonKey(
       name: "entity_name",
       fromJson: safeEntityNameFromJson,
@@ -3461,16 +3747,16 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
 
   @override
   @JsonKey(name: "entity_id")
-  final String? entityId;
+  final dynamic entityId;
   @override
   @JsonKey(name: "parent_id")
-  final String? parentId;
+  final dynamic parentId;
   @override
   @JsonKey(name: "is_customer_notified")
-  final String? isCustomerNotified;
+  final dynamic isCustomerNotified;
   @override
   @JsonKey(name: "is_visible_on_front")
-  final String? isVisibleOnFront;
+  final dynamic isVisibleOnFront;
   @override
   @JsonKey(name: "comment")
   final String? comment;
@@ -3478,12 +3764,25 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
   @JsonKey(name: "status")
   final String? status;
   @override
+  @JsonKey(name: "label")
+  final String? label;
+  @override
   @JsonKey(
     name: "created_at",
     fromJson: safeDateTimeFromJson,
     toJson: safeDateTimeToJson,
   )
   final DateTime? createdAt;
+  @override
+  @JsonKey(
+    name: "time",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
+  final DateTime? time;
+  @override
+  @JsonKey(name: "time_raw")
+  final String? timeRaw;
   @override
   @JsonKey(
     name: "entity_name",
@@ -3497,7 +3796,7 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
 
   @override
   String toString() {
-    return 'StatusHistoryModel(entityId: $entityId, parentId: $parentId, isCustomerNotified: $isCustomerNotified, isVisibleOnFront: $isVisibleOnFront, comment: $comment, status: $status, createdAt: $createdAt, entityName: $entityName, sellerOrderId: $sellerOrderId)';
+    return 'StatusHistoryModel(entityId: $entityId, parentId: $parentId, isCustomerNotified: $isCustomerNotified, isVisibleOnFront: $isVisibleOnFront, comment: $comment, status: $status, label: $label, createdAt: $createdAt, time: $time, timeRaw: $timeRaw, entityName: $entityName, sellerOrderId: $sellerOrderId)';
   }
 
   @override
@@ -3505,18 +3804,23 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$StatusHistoryModelImpl &&
-            (identical(other.entityId, entityId) ||
-                other.entityId == entityId) &&
-            (identical(other.parentId, parentId) ||
-                other.parentId == parentId) &&
-            (identical(other.isCustomerNotified, isCustomerNotified) ||
-                other.isCustomerNotified == isCustomerNotified) &&
-            (identical(other.isVisibleOnFront, isVisibleOnFront) ||
-                other.isVisibleOnFront == isVisibleOnFront) &&
+            const DeepCollectionEquality().equals(other.entityId, entityId) &&
+            const DeepCollectionEquality().equals(other.parentId, parentId) &&
+            const DeepCollectionEquality().equals(
+              other.isCustomerNotified,
+              isCustomerNotified,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other.isVisibleOnFront,
+              isVisibleOnFront,
+            ) &&
             (identical(other.comment, comment) || other.comment == comment) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.label, label) || other.label == label) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
+            (identical(other.time, time) || other.time == time) &&
+            (identical(other.timeRaw, timeRaw) || other.timeRaw == timeRaw) &&
             (identical(other.entityName, entityName) ||
                 other.entityName == entityName) &&
             const DeepCollectionEquality().equals(
@@ -3529,13 +3833,16 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    entityId,
-    parentId,
-    isCustomerNotified,
-    isVisibleOnFront,
+    const DeepCollectionEquality().hash(entityId),
+    const DeepCollectionEquality().hash(parentId),
+    const DeepCollectionEquality().hash(isCustomerNotified),
+    const DeepCollectionEquality().hash(isVisibleOnFront),
     comment,
     status,
+    label,
     createdAt,
+    time,
+    timeRaw,
     entityName,
     const DeepCollectionEquality().hash(sellerOrderId),
   );
@@ -3559,18 +3866,26 @@ class _$StatusHistoryModelImpl implements _StatusHistoryModel {
 
 abstract class _StatusHistoryModel implements StatusHistoryModel {
   const factory _StatusHistoryModel({
-    @JsonKey(name: "entity_id") final String? entityId,
-    @JsonKey(name: "parent_id") final String? parentId,
-    @JsonKey(name: "is_customer_notified") final String? isCustomerNotified,
-    @JsonKey(name: "is_visible_on_front") final String? isVisibleOnFront,
+    @JsonKey(name: "entity_id") final dynamic entityId,
+    @JsonKey(name: "parent_id") final dynamic parentId,
+    @JsonKey(name: "is_customer_notified") final dynamic isCustomerNotified,
+    @JsonKey(name: "is_visible_on_front") final dynamic isVisibleOnFront,
     @JsonKey(name: "comment") final String? comment,
     @JsonKey(name: "status") final String? status,
+    @JsonKey(name: "label") final String? label,
     @JsonKey(
       name: "created_at",
       fromJson: safeDateTimeFromJson,
       toJson: safeDateTimeToJson,
     )
     final DateTime? createdAt,
+    @JsonKey(
+      name: "time",
+      fromJson: safeDateTimeFromJson,
+      toJson: safeDateTimeToJson,
+    )
+    final DateTime? time,
+    @JsonKey(name: "time_raw") final String? timeRaw,
     @JsonKey(
       name: "entity_name",
       fromJson: safeEntityNameFromJson,
@@ -3585,16 +3900,16 @@ abstract class _StatusHistoryModel implements StatusHistoryModel {
 
   @override
   @JsonKey(name: "entity_id")
-  String? get entityId;
+  dynamic get entityId;
   @override
   @JsonKey(name: "parent_id")
-  String? get parentId;
+  dynamic get parentId;
   @override
   @JsonKey(name: "is_customer_notified")
-  String? get isCustomerNotified;
+  dynamic get isCustomerNotified;
   @override
   @JsonKey(name: "is_visible_on_front")
-  String? get isVisibleOnFront;
+  dynamic get isVisibleOnFront;
   @override
   @JsonKey(name: "comment")
   String? get comment;
@@ -3602,12 +3917,25 @@ abstract class _StatusHistoryModel implements StatusHistoryModel {
   @JsonKey(name: "status")
   String? get status;
   @override
+  @JsonKey(name: "label")
+  String? get label;
+  @override
   @JsonKey(
     name: "created_at",
     fromJson: safeDateTimeFromJson,
     toJson: safeDateTimeToJson,
   )
   DateTime? get createdAt;
+  @override
+  @JsonKey(
+    name: "time",
+    fromJson: safeDateTimeFromJson,
+    toJson: safeDateTimeToJson,
+  )
+  DateTime? get time;
+  @override
+  @JsonKey(name: "time_raw")
+  String? get timeRaw;
   @override
   @JsonKey(
     name: "entity_name",

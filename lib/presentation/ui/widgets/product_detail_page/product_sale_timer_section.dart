@@ -5,6 +5,7 @@ import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
 
 class ProductSaleTimerSection extends StatefulWidget {
+  final DateTime? startTime;
   final DateTime? endTime;
   final VoidCallback? onLearnMore;
   final String title;
@@ -13,6 +14,7 @@ class ProductSaleTimerSection extends StatefulWidget {
 
   const ProductSaleTimerSection({
     super.key,
+    this.startTime,
     this.endTime,
     this.onLearnMore,
     required this.title,
@@ -31,8 +33,25 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
   @override
   void initState() {
     super.initState();
-    _calculateRemainingTime();
+    _remainingTime = _computeRemainingTime();
     _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant ProductSaleTimerSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.startTime != widget.startTime ||
+        oldWidget.endTime != widget.endTime) {
+      final remaining = _computeRemainingTime();
+      setState(() {
+        _remainingTime = remaining;
+      });
+      if (remaining > Duration.zero) {
+        _startTimer();
+      } else {
+        _timer?.cancel();
+      }
+    }
   }
 
   @override
@@ -41,24 +60,39 @@ class _ProductSaleTimerSectionState extends State<ProductSaleTimerSection> {
     super.dispose();
   }
 
-  void _calculateRemainingTime() {
-    final endTime =
-        widget.endTime ?? DateTime.now().add(const Duration(days: 7));
+  Duration _computeRemainingTime() {
     final now = DateTime.now();
+    final start = widget.startTime;
+    final end = widget.endTime;
+
+    if (start != null && now.isBefore(start)) {
+      return start.difference(now);
+    } else if (end != null && now.isBefore(end)) {
+      return end.difference(now);
+    } else {
+      return Duration.zero;
+    }
+  }
+
+  void _calculateRemainingTime() {
+    final remaining = _computeRemainingTime();
+    if (remaining == Duration.zero) {
+      _timer?.cancel();
+    }
+    if (!mounted) return;
+    if (remaining.inSeconds == _remainingTime.inSeconds) {
+      return;
+    }
     setState(() {
-      _remainingTime = endTime.difference(now);
-      if (_remainingTime.isNegative) {
-        _remainingTime = Duration.zero;
-      }
+      _remainingTime = remaining;
     });
   }
 
   void _startTimer() {
+    _timer?.cancel();
+    if (_remainingTime == Duration.zero) return;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _calculateRemainingTime();
-      if (_remainingTime == Duration.zero) {
-        timer.cancel();
-      }
     });
   }
 

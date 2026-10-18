@@ -173,18 +173,23 @@ class UnifiedCheckoutBottomBar extends StatelessWidget {
                   SizedBox(width: 10.w),
 
                   // Right: Action Button (No arrow, padded evenly)
-                  AppButton.primary(
-                    width: buttonWidth ?? 140.w,
-                    height: 40.h,
-                    isLoading: isLoading,
-                    backgroundColor: isDisabled ? AppColors.border : null,
-                    textColor: isDisabled ? AppColors.muted : null,
-                    onPressed: onPressed,
-                    text: buttonText,
-                    textStyle: AppTypography.button.copyWith(
-                      fontSize: 13.sp,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onPressed,
+                    child: AppButton.primary(
+                      width: buttonWidth ?? 140.w,
+                      height: 40.h,
+                      isLoading: isLoading,
+                      isDisabled: isDisabled,
+                      onPressed: isDisabled ? null : onPressed,
+                      text: buttonText,
+                      textStyle: AppTypography.button.copyWith(
+                        fontSize: 13.sp,
+                      ),
                     ),
                   ),
+
+
                 ],
               ),
             ),

@@ -29,7 +29,7 @@ extension ProductReviewItemResponseMapper on ProductReviewItemResponse {
   ReviewEntity toEntity() => ReviewEntity(
     reviewId: reviewId?.toString() ?? '',
     postedOn: postedOn ?? DateTime.now(),
-    reviwerId: '',
+    reviwerId: reviewerId ?? '',
     reviwerName: reviewerName ?? '',
     reviwerImage: reviewerImage ?? '',
     reviwerRating: reviewerRating ?? 0,
@@ -37,10 +37,10 @@ extension ProductReviewItemResponseMapper on ProductReviewItemResponse {
     detail: detail ?? '',
     isRecommended: isRecommended == '1' || isRecommended == 'true',
     images: images ?? const [],
-    likeCount: 0,
-    dislikesCount: 0,
-    doLike: false,
-    doDislike: false,
+    likeCount: likeCount ?? 0,
+    dislikesCount: dislikesCount ?? 0,
+    doLike: doLike ?? false,
+    doDislike: doDislike ?? false,
   );
 }
 

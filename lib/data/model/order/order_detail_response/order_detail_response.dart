@@ -13,13 +13,27 @@ class OrderDetailResponse with _$OrderDetailResponse {
     @JsonKey(name: "created_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? createdAt,
     @JsonKey(name: "state") String? state,
     @JsonKey(name: "status") String? status,
-    @JsonKey(name: "items") List<OrderItemDetailModel>? items,
+    @JsonKey(
+      name: "items",
+      fromJson: safeItemsFromJson,
+      toJson: safeItemsToJson,
+    )
+    List<OrderItemDetailModel>? items,
     @JsonKey(name: "coupon_code") String? couponCode,
     @JsonKey(name: "spent_reward_points") String? spentRewardPoints,
     @JsonKey(name: "order_summary") OrderSummaryDetailModel? orderSummary,
-    @JsonKey(name: "shipping_address")
+    @JsonKey(
+      name: "shipping_address",
+      fromJson: safeShippingAddressFromJson,
+      toJson: safeShippingAddressToJson,
+    )
     List<ShippingAddressModel>? shippingAddress,
-    @JsonKey(name: "payment_address") List<PaymentAddressModel>? paymentAddress,
+    @JsonKey(
+      name: "payment_address",
+      fromJson: safePaymentAddressFromJson,
+      toJson: safePaymentAddressToJson,
+    )
+    List<PaymentAddressModel>? paymentAddress,
     @JsonKey(name: "shipping_method") String? shippingMethod,
     @JsonKey(name: "remote_ip") String? remoteIp,
     @JsonKey(name: "payment_method") String? paymentMethod,
@@ -30,8 +44,24 @@ class OrderDetailResponse with _$OrderDetailResponse {
     )
     List<PaymentInfoModel>? paymentInformation,
     @JsonKey(name: "just_for_you") Object? justForYou,
-    @JsonKey(name: "status_history") List<StatusHistoryModel>? statusHistory,
-    @JsonKey(name: "status_label") List<StatusLabel>? statusLabel,
+    @JsonKey(
+      name: "status_history",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    List<StatusHistoryModel>? statusHistory,
+    @JsonKey(
+      name: "status_history_new",
+      fromJson: safeStatusHistoryFromJson,
+      toJson: safeStatusHistoryToJson,
+    )
+    List<StatusHistoryModel>? statusHistoryNew,
+    @JsonKey(
+      name: "status_label",
+      fromJson: safeStatusLabelFromJson,
+      toJson: safeStatusLabelToJson,
+    )
+    List<StatusLabel>? statusLabel,
     @JsonKey(name: "customer_name") String? customerName,
     @JsonKey(name: "customer_email") String? customerEmail,
     @JsonKey(name: "customer_phone") String? customerPhone,
@@ -51,20 +81,20 @@ class OrderDetailResponse with _$OrderDetailResponse {
 @freezed
 class OrderItemDetailModel with _$OrderItemDetailModel {
   const factory OrderItemDetailModel({
-    @JsonKey(name: "item_id") String? itemId,
+    @JsonKey(name: "item_id") dynamic itemId,
     @JsonKey(name: "item_name") String? itemName,
-    @JsonKey(name: "product_id") String? productId,
+    @JsonKey(name: "product_id") dynamic productId,
     @JsonKey(name: "product_slug") String? productSlug,
-    @JsonKey(name: "product_category_ids") List<String>? productCategoryIds,
+    @JsonKey(name: "product_category_ids") List<dynamic>? productCategoryIds,
     @JsonKey(name: "product_category_names") List<String>? productCategoryNames,
     @JsonKey(name: "image") String? image,
     @JsonKey(name: "varient") List<Object>? varient,
     @JsonKey(name: "exta_options") List<Object>? extaOptions,
     @JsonKey(name: "sold_by") String? soldBy,
-    @JsonKey(name: "qty") int? qty,
-    @JsonKey(name: "regular_price") int? regularPrice,
-    @JsonKey(name: "final_price") int? finalPrice,
-    @JsonKey(name: "discount") int? discount,
+    @JsonKey(name: "qty") num? qty,
+    @JsonKey(name: "regular_price") num? regularPrice,
+    @JsonKey(name: "final_price") num? finalPrice,
+    @JsonKey(name: "discount") num? discount,
   }) = _OrderItemDetailModel;
 
   factory OrderItemDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -75,12 +105,12 @@ class OrderItemDetailModel with _$OrderItemDetailModel {
 class OrderSummaryDetailModel with _$OrderSummaryDetailModel {
   const factory OrderSummaryDetailModel({
     @JsonKey(name: "subtotal") num? subtotal,
-    @JsonKey(name: "total_order_qty") int? totalOrderQty,
+    @JsonKey(name: "total_order_qty") num? totalOrderQty,
     @JsonKey(name: "discount_amount") num? discountAmount,
     @JsonKey(name: "rewards_discount") num? rewardsDiscount,
     @JsonKey(name: "shipping_fee") num? shippingFee,
     @JsonKey(name: "grand_total") num? grandTotal,
-    @JsonKey(name: "reward_earned") int? rewardEarned,
+    @JsonKey(name: "reward_earned") num? rewardEarned,
     @JsonKey(name: "convenience_fee") num? convenienceFee,
     @JsonKey(name: "convenience_fee_percent") String? convenienceFeePercent,
     @JsonKey(name: "convenience_amount") num? convenienceAmount,
@@ -96,7 +126,7 @@ class OrderSummaryDetailModel with _$OrderSummaryDetailModel {
 class ShippingAddressModel with _$ShippingAddressModel {
   const factory ShippingAddressModel({
     @JsonKey(name: "name") String? name,
-    @JsonKey(name: "mobile") String? mobile,
+    @JsonKey(name: "mobile") dynamic mobile,
     @JsonKey(name: "email") String? email,
     @JsonKey(name: "address") String? address,
   }) = _ShippingAddressModel;
@@ -108,21 +138,21 @@ class ShippingAddressModel with _$ShippingAddressModel {
 @freezed
 class PaymentAddressModel with _$PaymentAddressModel {
   const factory PaymentAddressModel({
-    @JsonKey(name: "region_id") String? regionId,
+    @JsonKey(name: "region_id") dynamic regionId,
     @JsonKey(name: "region_code") String? regionCode,
     @JsonKey(name: "country_id") String? countryId,
     @JsonKey(name: "region") String? region,
     @JsonKey(name: "street") List<String>? street,
-    @JsonKey(name: "postcode") String? postcode,
+    @JsonKey(name: "postcode") dynamic postcode,
     @JsonKey(name: "city") String? city,
     @JsonKey(name: "firstname") String? firstname,
     @JsonKey(name: "lastname") String? lastname,
-    @JsonKey(name: "customer_id") String? customerId,
+    @JsonKey(name: "customer_id") dynamic customerId,
     @JsonKey(name: "email") String? email,
-    @JsonKey(name: "telephone") String? telephone,
+    @JsonKey(name: "telephone") dynamic telephone,
     @JsonKey(name: "shipping_carrier_code") String? shippingCarrierCode,
     @JsonKey(name: "shipping_method_code") String? shippingMethodCode,
-    @JsonKey(name: "quoteId") String? quoteId,
+    @JsonKey(name: "quoteId") dynamic quoteId,
   }) = _PaymentAddressModel;
 
   factory PaymentAddressModel.fromJson(Map<String, dynamic> json) =>
@@ -144,13 +174,16 @@ class PaymentInfoModel with _$PaymentInfoModel {
 @freezed
 class StatusHistoryModel with _$StatusHistoryModel {
   const factory StatusHistoryModel({
-    @JsonKey(name: "entity_id") String? entityId,
-    @JsonKey(name: "parent_id") String? parentId,
-    @JsonKey(name: "is_customer_notified") String? isCustomerNotified,
-    @JsonKey(name: "is_visible_on_front") String? isVisibleOnFront,
+    @JsonKey(name: "entity_id") dynamic entityId,
+    @JsonKey(name: "parent_id") dynamic parentId,
+    @JsonKey(name: "is_customer_notified") dynamic isCustomerNotified,
+    @JsonKey(name: "is_visible_on_front") dynamic isVisibleOnFront,
     @JsonKey(name: "comment") String? comment,
     @JsonKey(name: "status") String? status,
+    @JsonKey(name: "label") String? label,
     @JsonKey(name: "created_at", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? createdAt,
+    @JsonKey(name: "time", fromJson: safeDateTimeFromJson, toJson: safeDateTimeToJson) DateTime? time,
+    @JsonKey(name: "time_raw") String? timeRaw,
     @JsonKey(name: "entity_name", fromJson: safeEntityNameFromJson, toJson: safeEntityNameToJson)
     EntityName? entityName,
     @JsonKey(name: "seller_order_id") dynamic sellerOrderId,
@@ -250,6 +283,112 @@ List<PaymentInfoModel>? safePaymentInformationFromJson(Object? json) {
 }
 
 List<dynamic>? safePaymentInformationToJson(List<PaymentInfoModel>? list) {
+  return list?.map((e) => e.toJson()).toList();
+}
+
+List<OrderItemDetailModel>? safeItemsFromJson(Object? json) {
+  if (json == null) return null;
+  if (json is List) {
+    return json
+        .whereType<Map<String, dynamic>>()
+        .map((e) => OrderItemDetailModel.fromJson(e))
+        .toList();
+  }
+  if (json is Map<String, dynamic>) {
+    return [OrderItemDetailModel.fromJson(json)];
+  }
+  return null;
+}
+
+List<dynamic>? safeItemsToJson(List<OrderItemDetailModel>? list) {
+  return list?.map((e) => e.toJson()).toList();
+}
+
+List<ShippingAddressModel>? safeShippingAddressFromJson(Object? json) {
+  if (json == null) return null;
+  if (json is List) {
+    return json
+        .whereType<Map<String, dynamic>>()
+        .map((e) => ShippingAddressModel.fromJson(e))
+        .toList();
+  }
+  if (json is Map<String, dynamic>) {
+    return [ShippingAddressModel.fromJson(json)];
+  }
+  return null;
+}
+
+List<dynamic>? safeShippingAddressToJson(List<ShippingAddressModel>? list) {
+  return list?.map((e) => e.toJson()).toList();
+}
+
+List<PaymentAddressModel>? safePaymentAddressFromJson(Object? json) {
+  if (json == null) return null;
+  if (json is List) {
+    return json
+        .whereType<Map<String, dynamic>>()
+        .map((e) => PaymentAddressModel.fromJson(e))
+        .toList();
+  }
+  if (json is Map<String, dynamic>) {
+    return [PaymentAddressModel.fromJson(json)];
+  }
+  return null;
+}
+
+List<dynamic>? safePaymentAddressToJson(List<PaymentAddressModel>? list) {
+  return list?.map((e) => e.toJson()).toList();
+}
+
+List<StatusHistoryModel>? safeStatusHistoryFromJson(Object? json) {
+  if (json == null) return null;
+  if (json is List) {
+    return json.map((e) {
+      if (e is Map<String, dynamic>) {
+        final map = Map<String, dynamic>.from(e);
+        if (map.containsKey('time') && map['time'] != null && !map.containsKey('time_raw')) {
+          map['time_raw'] = map['time'].toString();
+        } else if (map.containsKey('created_at') && map['created_at'] != null && !map.containsKey('time_raw')) {
+          map['time_raw'] = map['created_at'].toString();
+        }
+        return StatusHistoryModel.fromJson(map);
+      }
+      if (e is String) {
+        return StatusHistoryModel(status: e, label: e);
+      }
+      return const StatusHistoryModel();
+    }).toList();
+  }
+  if (json is Map<String, dynamic>) {
+    return [StatusHistoryModel.fromJson(json)];
+  }
+  return null;
+}
+
+List<dynamic>? safeStatusHistoryToJson(List<StatusHistoryModel>? list) {
+  return list?.map((e) => e.toJson()).toList();
+}
+
+List<StatusLabel>? safeStatusLabelFromJson(Object? json) {
+  if (json == null) return null;
+  if (json is List) {
+    return json.map((e) {
+      if (e is Map<String, dynamic>) {
+        return StatusLabel.fromJson(e);
+      }
+      if (e is String) {
+        return StatusLabel(status: e, state: e);
+      }
+      return const StatusLabel();
+    }).toList();
+  }
+  if (json is Map<String, dynamic>) {
+    return [StatusLabel.fromJson(json)];
+  }
+  return null;
+}
+
+List<dynamic>? safeStatusLabelToJson(List<StatusLabel>? list) {
   return list?.map((e) => e.toJson()).toList();
 }
 

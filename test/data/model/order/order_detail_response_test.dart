@@ -203,4 +203,100 @@ void main() {
       expect(entity.paymentInformation, hasLength(3));
     });
   });
+
+  group('OrderDetailResponse status_label and status_history resilience', () {
+    test('successfully parses status_label when API returns List<String>', () {
+      final json = {
+        'order_id': 1237723,
+        'order_number': '1710711744',
+        'status_label': [
+          'Delivered',
+          'Complete',
+          'Authorized',
+          'In Delivery',
+          'Processing',
+          'Order Placed',
+          'Processing for Delivery',
+        ],
+        'status_history': [
+          {
+            'status': 'processing_for_delivery',
+            'label': 'Processing for Delivery',
+            'time': '2026-10-04 05:17:53 PM',
+          },
+          {
+            'status': 'pending',
+            'label': 'Order Placed',
+            'time': '2026-10-04 04:30:28 PM',
+          }
+        ],
+      };
+
+      // Must not throw "type 'String' is not a subtype of type 'Map<String, dynamic>' in type cast"
+      final response = OrderDetailResponse.fromJson(json);
+      expect(response.statusLabel, hasLength(7));
+      expect(response.statusLabel!.first.status, equals('Delivered'));
+      expect(response.statusHistory, hasLength(2));
+      expect(response.statusHistory!.first.status, equals('processing_for_delivery'));
+
+      final entity = response.toEntity();
+      expect(entity.statusLabel, hasLength(7));
+      expect(entity.statusHistory, hasLength(2));
+      expect(entity.statusHistory.first.status, equals('processing_for_delivery'));
+      expect(entity.statusHistory.first.createdAt, isNotEmpty);
+    });
+
+    test('successfully parses status_label when API returns List<Map<String, dynamic>>', () {
+      final json = {
+        'order_id': 1237723,
+        'status_label': [
+          {'status': 'delivered', 'state': 'complete'},
+          {'status': 'processing', 'state': 'processing'},
+        ],
+      };
+
+      final response = OrderDetailResponse.fromJson(json);
+      expect(response.statusLabel, hasLength(2));
+      expect(response.statusLabel!.first.status, equals('delivered'));
+      expect(response.statusLabel!.first.state, equals('complete'));
+    });
+
+    test('prioritizes status_history_new and populates label and time directly from API', () {
+      final json = {
+        'order_id': 1237723,
+        'status_history': [
+          {
+            'status': 'legacy_status',
+            'created_at': '2026-10-04 05:17:53 PM',
+            'entity_name': 'invoice',
+          }
+        ],
+        'status_history_new': [
+          {
+            'status': 'processing_for_delivery',
+            'label': 'Processing for Delivery',
+            'time': '2026-10-04 05:17:53 PM',
+          },
+          {
+            'status': 'pending',
+            'label': 'Order Placed',
+            'time': '2026-10-04 04:30:28 PM',
+          }
+        ],
+      };
+
+      final response = OrderDetailResponse.fromJson(json);
+      expect(response.statusHistoryNew, hasLength(2));
+      expect(response.statusHistoryNew![0].label, equals('Processing for Delivery'));
+      expect(response.statusHistoryNew![0].timeRaw, equals('2026-10-04 05:17:53 PM'));
+
+      final entity = response.toEntity();
+      // Should prioritize status_history_new over legacy status_history
+      expect(entity.statusHistory, hasLength(2));
+      expect(entity.statusHistory[0].label, equals('Processing for Delivery'));
+      expect(entity.statusHistory[0].time, equals('2026-10-04 05:17:53 PM'));
+      expect(entity.statusHistory[1].label, equals('Order Placed'));
+      expect(entity.statusHistory[1].time, equals('2026-10-04 04:30:28 PM'));
+    });
+  });
 }

@@ -17,18 +17,18 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$RecommendedProductsEvent {
-  String get slug => throw _privateConstructorUsedError;
+  String get productId => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String slug) load,
+    required TResult Function(String productId) load,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String slug)? load,
+    TResult? Function(String productId)? load,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String slug)? load,
+    TResult Function(String productId)? load,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -59,7 +59,7 @@ abstract class $RecommendedProductsEventCopyWith<$Res> {
     $Res Function(RecommendedProductsEvent) then,
   ) = _$RecommendedProductsEventCopyWithImpl<$Res, RecommendedProductsEvent>;
   @useResult
-  $Res call({String slug});
+  $Res call({String productId});
 }
 
 /// @nodoc
@@ -79,13 +79,13 @@ class _$RecommendedProductsEventCopyWithImpl<
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? slug = null}) {
+  $Res call({Object? productId = null}) {
     return _then(
       _value.copyWith(
-            slug:
-                null == slug
-                    ? _value.slug
-                    : slug // ignore: cast_nullable_to_non_nullable
+            productId:
+                null == productId
+                    ? _value.productId
+                    : productId // ignore: cast_nullable_to_non_nullable
                         as String,
           )
           as $Val,
@@ -102,7 +102,7 @@ abstract class _$$LoadImplCopyWith<$Res>
   ) = __$$LoadImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String slug});
+  $Res call({String productId});
 }
 
 /// @nodoc
@@ -116,13 +116,13 @@ class __$$LoadImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? slug = null}) {
+  $Res call({Object? productId = null}) {
     return _then(
       _$LoadImpl(
-        slug:
-            null == slug
-                ? _value.slug
-                : slug // ignore: cast_nullable_to_non_nullable
+        productId:
+            null == productId
+                ? _value.productId
+                : productId // ignore: cast_nullable_to_non_nullable
                     as String,
       ),
     );
@@ -132,14 +132,14 @@ class __$$LoadImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$LoadImpl implements _Load {
-  const _$LoadImpl({required this.slug});
+  const _$LoadImpl({required this.productId});
 
   @override
-  final String slug;
+  final String productId;
 
   @override
   String toString() {
-    return 'RecommendedProductsEvent.load(slug: $slug)';
+    return 'RecommendedProductsEvent.load(productId: $productId)';
   }
 
   @override
@@ -147,11 +147,12 @@ class _$LoadImpl implements _Load {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$LoadImpl &&
-            (identical(other.slug, slug) || other.slug == slug));
+            (identical(other.productId, productId) ||
+                other.productId == productId));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, slug);
+  int get hashCode => Object.hash(runtimeType, productId);
 
   /// Create a copy of RecommendedProductsEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -164,27 +165,27 @@ class _$LoadImpl implements _Load {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String slug) load,
+    required TResult Function(String productId) load,
   }) {
-    return load(slug);
+    return load(productId);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String slug)? load,
+    TResult? Function(String productId)? load,
   }) {
-    return load?.call(slug);
+    return load?.call(productId);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String slug)? load,
+    TResult Function(String productId)? load,
     required TResult orElse(),
   }) {
     if (load != null) {
-      return load(slug);
+      return load(productId);
     }
     return orElse();
   }
@@ -219,10 +220,10 @@ class _$LoadImpl implements _Load {
 }
 
 abstract class _Load implements RecommendedProductsEvent {
-  const factory _Load({required final String slug}) = _$LoadImpl;
+  const factory _Load({required final String productId}) = _$LoadImpl;
 
   @override
-  String get slug;
+  String get productId;
 
   /// Create a copy of RecommendedProductsEvent
   /// with the given fields replaced by the non-null parameter values.

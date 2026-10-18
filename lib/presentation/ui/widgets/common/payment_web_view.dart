@@ -14,7 +14,7 @@ import 'package:pickaboo/core/color/app_colors.dart';
 import 'package:pickaboo/core/endpoints/api_endpoints.dart';
 import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/app_button.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
+import 'package:pickaboo/presentation/ui/widgets/common/payment_gateway_skeleton.dart';
 import 'package:pickaboo/presentation/ui/widgets/common/pickaboo_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -57,6 +57,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(AppColors.white)
       ..setUserAgent(
         Platform.isIOS
             ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
@@ -86,6 +87,20 @@ class _PaymentWebViewState extends State<PaymentWebView> {
             if (mounted) {
               setState(() => _isLoading = false);
             }
+            // Auto-scroll input into view on focus for iOS keyboard handling
+            _controller.runJavaScript('''
+              (function() {
+                if (window._paymentKeyboardFixApplied) return;
+                window._paymentKeyboardFixApplied = true;
+                window.addEventListener('focusin', function(e) {
+                  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) {
+                    setTimeout(function() {
+                      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                  }
+                }, true);
+              })();
+            ''');
             _checkUrl(url);
           },
           onWebResourceError: (WebResourceError error) {
@@ -96,6 +111,20 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                   _errorMessage = error.description.isNotEmpty
                       ? error.description
                       : 'Could not connect to payment gateway.';
+                  _isLoading = false;
+                });
+              }
+            }
+          },
+          onHttpError: (HttpResponseError error) {
+            final statusCode = error.response?.statusCode;
+            if (statusCode != null && statusCode >= 400) {
+              if (mounted) {
+                setState(() {
+                  _hasError = true;
+                  _errorMessage = statusCode == 403
+                      ? 'Payment gateway session expired or blocked (HTTP 403).'
+                      : 'Payment gateway error (HTTP $statusCode).';
                   _isLoading = false;
                 });
               }
@@ -133,6 +162,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     if (widget.formFields != null && widget.formFields!.isNotEmpty) {
       _loadFormPost();
     } else {
+      if (_checkUrl(widget.url)) return;
       final uri = Uri.tryParse(widget.url.trim());
       if (uri != null && uri.hasScheme) {
         _controller.loadRequest(uri);
@@ -332,9 +362,18 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       }
     }
 
-    if (url.contains('dcastalia-citybank/returnpath')) {
-      final status = Uri.tryParse(url)?.queryParameters['STATUS'] ?? '';
-      if (status.toUpperCase() == 'APPROVED') {
+    final lowerUrl = url.toLowerCase();
+    final parsedUri = Uri.tryParse(url);
+    final queryParams = parsedUri?.queryParameters ?? {};
+    final statusParam = (queryParams['status'] ??
+            queryParams['STATUS'] ??
+            queryParams['Status'] ??
+            '')
+        .toLowerCase();
+
+    if (lowerUrl.contains('dcastalia-citybank/returnpath')) {
+      final status = (queryParams['STATUS'] ?? queryParams['status'] ?? '').toUpperCase();
+      if (status == 'APPROVED' || status == 'SUCCESS') {
         _fireResult(true, 'Payment Successful');
       } else {
         _fireResult(false, 'City Bank payment failed');
@@ -342,9 +381,8 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       return true;
     }
 
-    if (url.contains('payment-status') && url.contains('bracbank')) {
-      final status = Uri.tryParse(url)?.queryParameters['status'] ?? '';
-      if (status == 'Success') {
+    if (lowerUrl.contains('payment-status') && lowerUrl.contains('bracbank')) {
+      if (statusParam == 'success' || statusParam == 'approved') {
         _fireResult(true, 'Payment Successful');
       } else {
         _fireResult(false, 'Brac Bank payment failed');
@@ -352,11 +390,9 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       return true;
     }
 
-    if (url.contains('mtb') &&
-        url.contains('status=') &&
-        url.contains(Uri.parse(ApiEndpoints.baseUrl).host)) {
-      final status = Uri.tryParse(url)?.queryParameters['status'] ?? '';
-      if (status == 'Success') {
+    if ((lowerUrl.contains('mtb') || lowerUrl.contains('payment-status/mtb')) &&
+        (lowerUrl.contains('status=') || statusParam.isNotEmpty)) {
+      if (statusParam == 'success' || statusParam == 'approved') {
         _fireResult(true, 'Payment Successful');
       } else {
         _fireResult(false, 'MTB payment failed');
@@ -364,13 +400,20 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       return true;
     }
 
+    if ((lowerUrl.contains('citybank') || lowerUrl.contains('payment-status/citybank')) &&
+        (lowerUrl.contains('status=') || statusParam.isNotEmpty)) {
+      if (statusParam == 'approved' || statusParam == 'success') {
+        _fireResult(true, 'Payment Successful');
+      } else {
+        _fireResult(false, 'City Bank payment failed');
+      }
+      return true;
+    }
+
     final successMarkers = [
-      'STATUS=APPROVED',
-      'status=Success',
+      'status=approved',
       'status=success',
-      'status=Validated',
       'status=validated',
-      'APPROVED',
       'success.php',
       'checkout/onepage/success',
       'payment-status=success',
@@ -378,35 +421,41 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     ];
 
     for (var marker in successMarkers) {
-      if (url.contains(marker)) {
+      if (lowerUrl.contains(marker)) {
         _fireResult(true, 'Payment Successful');
         return true;
       }
     }
 
     final failureMarkers = [
-      'STATUS=DECLINED',
+      'status=declined',
+      'status=failed',
+      'status=fail',
+      'status=cancel',
+      'status=error',
       'checkout/onepage/failure',
       'cancel.php',
       'error.php',
       'payment-status=fail',
+      'payment-status=failed',
       'action=cancel',
-      'status=cancel',
     ];
 
     for (var marker in failureMarkers) {
-      if (url.contains(marker)) {
+      if (lowerUrl.contains(marker)) {
         _fireResult(false, 'Payment failed or cancelled');
         return true;
       }
     }
 
-    if (url.contains('cancel') ||
-        url.contains('fail') ||
-        url.contains('error')) {
-      if (url.contains(Uri.parse(ApiEndpoints.baseUrl).host) ||
-          url.contains('status=fail') ||
-          url.contains('status=error')) {
+    if (lowerUrl.contains('cancel') ||
+        lowerUrl.contains('fail') ||
+        lowerUrl.contains('error')) {
+      if (lowerUrl.contains('pickaboo.com') ||
+          lowerUrl.contains('status=fail') ||
+          lowerUrl.contains('status=failed') ||
+          lowerUrl.contains('status=error') ||
+          lowerUrl.contains('status=cancel')) {
         _fireResult(false, 'Payment failed or cancelled');
         return true;
       }
@@ -423,6 +472,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         if (!didPop) _handlePop();
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: AppColors.white,
         appBar: PickabooAppBar(
           title: widget.title.isNotEmpty ? widget.title : "Payment",
@@ -430,95 +480,92 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           showBackButton: true,
           onBackTap: _handlePop,
         ),
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          behavior: HitTestBehavior.translucent,
-          child: SafeArea(
-            top: false,
-            child: Stack(
-              children: [
-                if (!_hasError) WebViewWidget(controller: _controller),
-                if (_isLoading && _progress < 100)
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: LinearProgressIndicator(
-                      value: _progress > 0 ? _progress / 100.0 : null,
-                      backgroundColor: AppColors.border,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppColors.pickabooBlue,
-                      ),
-                      minHeight: 3.h,
+        body: SafeArea(
+          top: false,
+          bottom: false,
+          child: Stack(
+            children: [
+              if (!_hasError) WebViewWidget(controller: _controller),
+              if (_isLoading && !_hasError)
+                const PaymentGatewaySkeleton(),
+              if (_isLoading && _progress < 100)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: LinearProgressIndicator(
+                    value: _progress > 0 ? _progress / 100.0 : null,
+                    backgroundColor: AppColors.border,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.pickabooBlue,
+                    ),
+                    minHeight: 3.h,
+                  ),
+                ),
+              if (_hasError)
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 72.w,
+                          height: 72.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.red.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.wifi_off_rounded,
+                            size: 36.sp,
+                            color: AppColors.red,
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        Text(
+                          'Payment Connection Issue',
+                          style: AppTypography.titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          _errorMessage ??
+                              'Unable to connect to payment gateway. Please check your internet connection.',
+                          style: AppTypography.bodySmall.mutedLight,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 24.h),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AppButton.outline(
+                                text: 'Cancel',
+                                borderColor: AppColors.border,
+                                textColor: AppColors.navy,
+                                onPressed: () {
+                                  _fireResult(false, 'Payment cancelled');
+                                  widget.onUserClosed?.call();
+                                  if (Navigator.canPop(context)) {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: AppButton.primary(
+                                text: 'Try Again',
+                                onPressed: _startLoading,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                if (_isLoading && _progress == 0 && !_hasError)
-                  const AppLoader.fullPage(),
-                if (_hasError)
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.w),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 72.w,
-                            height: 72.w,
-                            decoration: BoxDecoration(
-                              color: AppColors.red.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.wifi_off_rounded,
-                              size: 36.sp,
-                              color: AppColors.red,
-                            ),
-                          ),
-                          SizedBox(height: 16.h),
-                          Text(
-                            'Payment Connection Issue',
-                            style: AppTypography.titleMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 8.h),
-                          Text(
-                            _errorMessage ??
-                                'Unable to connect to payment gateway. Please check your internet connection.',
-                            style: AppTypography.bodySmall.mutedLight,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 24.h),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: AppButton.outline(
-                                  text: 'Cancel',
-                                  borderColor: AppColors.border,
-                                  textColor: AppColors.navy,
-                                  onPressed: () {
-                                    _fireResult(false, 'Payment cancelled');
-                                    widget.onUserClosed?.call();
-                                    if (Navigator.canPop(context)) {
-                                      Navigator.pop(context);
-                                    }
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 12.w),
-                              Expanded(
-                                child: AppButton.primary(
-                                  text: 'Try Again',
-                                  onPressed: _startLoading,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),

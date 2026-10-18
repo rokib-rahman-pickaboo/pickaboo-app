@@ -37,7 +37,6 @@ import 'package:pickaboo/domain/entity/product_flash_sale/product_flash_sale_ent
 import 'package:pickaboo/data/mapper/product_flash_sale_mapper/product_flash_sale_mapper.dart';
 import 'package:pickaboo/domain/entity/review/product_reviews_entity.dart';
 import 'package:pickaboo/data/mapper/product_detail_mapper/product_reviews_mapper.dart';
-import 'package:pickaboo/data/model/review_response/review_response.dart';
 import 'package:pickaboo/domain/entity/user_review/user_review_entity.dart';
 import 'package:pickaboo/data/mapper/user_review_mapper/user_review_mapper.dart';
 import 'package:pickaboo/domain/entity/discover_category/discover_category_entity.dart';
@@ -57,9 +56,7 @@ class ProductRepositoryImpl implements ProductRepository {
   HomeFlashSaleEntity? _cachedFlashSale;
   DateTime? _cachedFlashSaleTime;
 
-  /// In-memory cache for review votes keyed by '$productId:$customerId'.
-  /// Prevents redundant DB queries across paginated review scroll requests.
-  final Map<String, List<ReviewResponse>> _reviewVotesCache = {};
+
 
   ProductRepositoryImpl(
     this.apiService,
@@ -387,10 +384,10 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<AppErrorEntity, RecommendedProductEntity>> getRecommendedProducts({
-    required String slug,
+    required String productId,
   }) async {
     try {
-      final result = await apiService.getRecommendedProducts(slug: slug);
+      final result = await apiService.getRecommendedProducts(productId: productId);
       return result.fold(
         (error) => left(error.toEntity()),
         (response) => right(response.toEntity()),
@@ -458,9 +455,9 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<AppErrorEntity, RelatedProductEntity>> getRelatedProducts({
-    required String slug,
+    required String productId,
   }) async {
-    final result = await apiService.getRelatedProducts(slug: slug);
+    final result = await apiService.getRelatedProducts(productId: productId);
     return result.fold(
       (error) => left(error.toEntity()),
       (response) => right(response.toEntity()),
@@ -512,47 +509,17 @@ class ProductRepositoryImpl implements ProductRepository {
     required int pageSize,
     int? customerId,
   }) async {
-    final cacheKey = '$productId:${customerId ?? 0}';
-    final cachedVotes = _reviewVotesCache[cacheKey];
-
-    final reviewsFuture = apiService.getProductReviews(
+    final result = await apiService.getProductReviews(
       productId: productId,
       page: page,
       pageSize: pageSize,
+      customerId: customerId,
     );
 
-    // Only query review votes if not already cached in memory for this product session.
-    // This halves network requests and database queries on all subsequent scroll pages.
-    final votesFuture = cachedVotes == null
-        ? apiService.getProductReviewVotes(
-            productId: productId,
-            customerId: customerId,
-          )
-        : null;
-
-    final reviewsResult = await reviewsFuture;
-    final votesResult = votesFuture != null ? await votesFuture : null;
-
-    return reviewsResult.fold((error) => left(error.toEntity()), (response) {
-      final reviews = response.toEntity();
-
-      List<ReviewResponse> votes = cachedVotes ?? const [];
-      if (votesResult != null) {
-        votes = votesResult.fold((_) => <ReviewResponse>[], (v) {
-          _reviewVotesCache[cacheKey] = v;
-          return v;
-        });
-      }
-
-      if (votes.isEmpty) return right(reviews);
-
-      final votesByReviewId = {
-        for (final vote in votes)
-          if (vote.reviewId != null) vote.reviewId!: vote,
-      };
-
-      return right(reviews.copyWithVotes(votesByReviewId));
-    });
+    return result.fold(
+      (error) => left(error.toEntity()),
+      (response) => right(response.toEntity()),
+    );
   }
 
   @override
@@ -562,8 +529,6 @@ class ProductRepositoryImpl implements ProductRepository {
     required List<Map<String, dynamic>> ratings,
     required List<String> imagePaths,
   }) async {
-    _reviewVotesCache.removeWhere((key, _) => key.startsWith('$productId:'));
-
     final result = await apiService.submitReview(
       productId: productId,
       detail: detail,
@@ -583,8 +548,6 @@ class ProductRepositoryImpl implements ProductRepository {
     required String reviewId,
     required String voteType,
   }) async {
-    _reviewVotesCache.removeWhere((key, _) => key.startsWith('$productId:'));
-
     final result = await apiService.voteReview(
       productId: productId,
       reviewId: reviewId,

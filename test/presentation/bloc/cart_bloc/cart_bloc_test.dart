@@ -305,12 +305,133 @@ void main() {
         expect: () => [
           const CartState.loading(),
           const CartState.loaded(tCartWithItems),
-          const CartState.operationInProgress(
-            cart: tCartWithItems,
+          CartState.operationInProgress(
+            cart: tCartWithItems.copyWith(
+              items: [],
+              itemsCount: 0,
+              subtotal: 0,
+              grandTotal: 0,
+            ),
             operation: 'removing_item',
           ),
           const CartState.empty(),
         ],
+      );
+
+      blocTest<CartBloc, CartState>(
+        'optimistically removes item from multiple items and updates totals immediately',
+        build: () {
+          const secondItem = CartItemEntity(
+            itemId: 2,
+            sku: 'SKU2',
+            qty: 1,
+            name: 'Product 2',
+            price: 50,
+            productType: 'simple',
+            quoteId: '1',
+            rowTotal: 50,
+            regularPrice: 50,
+            specialPrice: 50,
+            discount: '0',
+            imageUrl: 'image2.jpg',
+            productUrlKey: 'p2',
+            productId: 102,
+            brand: 'Brand',
+            stockAvailable: true,
+          );
+          const twoItemsCart = CartEntity(
+            id: '1',
+            itemsCount: 2,
+            items: [tCartItem, secondItem],
+            subtotal: 150,
+            grandTotal: 150,
+            discountAmount: 0,
+            shippingAmount: 0,
+            taxAmount: 0,
+            couponCode: '',
+          );
+          const singleItemCart = CartEntity(
+            id: '1',
+            itemsCount: 1,
+            items: [secondItem],
+            subtotal: 50,
+            grandTotal: 50,
+            discountAmount: 0,
+            shippingAmount: 0,
+            taxAmount: 0,
+            couponCode: '',
+          );
+
+          int callCount = 0;
+          when(() => mockCacheManager.getToken())
+              .thenAnswer((_) async => 'token');
+          when(() => mockRepository.getBasicCart()).thenAnswer((_) async {
+            if (callCount == 0) {
+              callCount++;
+              return const Right(twoItemsCart);
+            }
+            return const Right(singleItemCart);
+          });
+          when(() => mockRepository.deleteItem(itemId: any(named: 'itemId')))
+              .thenAnswer((_) async => const Right(true));
+          return cartBloc;
+        },
+        act: (bloc) async {
+          bloc.add(const CartEvent.getCart());
+          await Future.delayed(const Duration(milliseconds: 10));
+          bloc.add(const CartEvent.removeItem(itemId: 1));
+        },
+        expect: () {
+          const secondItem = CartItemEntity(
+            itemId: 2,
+            sku: 'SKU2',
+            qty: 1,
+            name: 'Product 2',
+            price: 50,
+            productType: 'simple',
+            quoteId: '1',
+            rowTotal: 50,
+            regularPrice: 50,
+            specialPrice: 50,
+            discount: '0',
+            imageUrl: 'image2.jpg',
+            productUrlKey: 'p2',
+            productId: 102,
+            brand: 'Brand',
+            stockAvailable: true,
+          );
+          const twoItemsCart = CartEntity(
+            id: '1',
+            itemsCount: 2,
+            items: [tCartItem, secondItem],
+            subtotal: 150,
+            grandTotal: 150,
+            discountAmount: 0,
+            shippingAmount: 0,
+            taxAmount: 0,
+            couponCode: '',
+          );
+          const singleItemCart = CartEntity(
+            id: '1',
+            itemsCount: 1,
+            items: [secondItem],
+            subtotal: 50,
+            grandTotal: 50,
+            discountAmount: 0,
+            shippingAmount: 0,
+            taxAmount: 0,
+            couponCode: '',
+          );
+          return [
+            const CartState.loading(),
+            const CartState.loaded(twoItemsCart),
+            CartState.operationInProgress(
+              cart: singleItemCart,
+              operation: 'removing_item',
+            ),
+            const CartState.loaded(singleItemCart),
+          ];
+        },
       );
     });
   });

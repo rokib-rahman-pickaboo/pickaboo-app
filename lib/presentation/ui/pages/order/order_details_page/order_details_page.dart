@@ -71,6 +71,18 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     context.read<OrderBloc>().add(OrderEvent.reorder(orderId));
   }
 
+  Widget _buildBuyAgainButton(OrderDetailEntity order) {
+    return AppButton.primary(
+      height: 48.h,
+      borderRadius: AppRadius.k8,
+      isDisabled: _isReordering,
+      text: 'Buy Again',
+      onPressed: _isReordering
+          ? null
+          : () => _handleReorder(context, order.orderId.toString()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -132,40 +144,24 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             borderRadius: AppRadius.k8,
                             borderColor: AppColors.red,
                             textColor: AppColors.red,
+                            isDisabled: _isReordering,
                             text: 'Cancel Order',
-                            onPressed: () {
-                              context.push(Routes.orderCancelled, extra: order);
-                            },
+                            onPressed: _isReordering
+                                ? null
+                                : () {
+                                    context.push(Routes.orderCancelled, extra: order);
+                                  },
                           ),
+
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
                           flex: 1,
-                          child: AppButton.primary(
-                            height: 48.h,
-                            borderRadius: AppRadius.k8,
-                            text: 'Buy Again',
-                            isLoading: _isReordering,
-                            onPressed: _isReordering
-                                ? null
-                                : () => _handleReorder(
-                                      context,
-                                      order.orderId.toString(),
-                                    ),
-                          ),
+                          child: _buildBuyAgainButton(order),
                         ),
                       ],
                     )
-                  : AppButton.primary(
-                      height: 48.h,
-                      borderRadius: AppRadius.k8,
-                      text: 'Buy Again',
-                      isLoading: _isReordering,
-                      onPressed: _isReordering
-                          ? null
-                          : () =>
-                              _handleReorder(context, order.orderId.toString()),
-                    ),
+                  : _buildBuyAgainButton(order),
             ),
           );
         },
@@ -225,11 +221,18 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
           final order = state.orderDetails!;
 
-          return SafeArea(
-            top: false,
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-            slivers: [
+          return Column(
+            children: [
+              if (_isReordering)
+                const AppLoader.linear(),
+              Expanded(
+                child: AbsorbPointer(
+                  absorbing: _isReordering,
+                  child: SafeArea(
+                    top: false,
+                    child: CustomScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      slivers: [
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.only(top: 8.h),
@@ -323,7 +326,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               SliverToBoxAdapter(child: SizedBox(height: 24.h)),
             ],
           ),
-        );
+        ),
+      ),
+    ),
+  ],
+);
       },
     ),
     ),
@@ -480,3 +487,4 @@ class OrderStatusAttributes {
 
   OrderStatusAttributes({required this.text, required this.backgroundColor});
 }
+

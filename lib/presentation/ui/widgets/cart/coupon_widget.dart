@@ -18,12 +18,14 @@ class CouponWidget extends StatefulWidget {
   final Function(String) onApply;
   final VoidCallback? onCancel;
   final String appliedCoupon;
+  final bool isEnabled;
 
   const CouponWidget({
     super.key,
     required this.onApply,
     this.onCancel,
     this.appliedCoupon = '',
+    this.isEnabled = true,
   });
 
   @override
@@ -67,6 +69,7 @@ class _CouponWidgetState extends State<CouponWidget> {
   }
 
   void _handleApply() {
+    if (!widget.isEnabled) return;
     final code = _controller.text.trim();
     if (code.isEmpty) {
       SnackBarUtils.showWarning(context, 'Please enter a discount code');
@@ -77,6 +80,7 @@ class _CouponWidgetState extends State<CouponWidget> {
   }
 
   void _handleCancel() {
+    if (!widget.isEnabled) return;
     FocusScope.of(context).unfocus();
     _controller.clear();
     widget.onCancel?.call();
@@ -140,13 +144,13 @@ class _CouponWidgetState extends State<CouponWidget> {
                     ),
                   ),
                   InkWell(
-                    onTap: _handleCancel,
+                    onTap: widget.isEnabled ? _handleCancel : null,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       child: Text(
                         'Remove',
                         style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.red,
+                          color: widget.isEnabled ? AppColors.red : AppColors.muted,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -162,23 +166,24 @@ class _CouponWidgetState extends State<CouponWidget> {
                   child: Container(
                     height: 40.h,
                     decoration: BoxDecoration(
-                      color: AppColors.white,
+                      color: widget.isEnabled ? AppColors.white : AppColors.itemBackground,
                       borderRadius: AppRadius.k8,
                       border: Border.all(
-                        color: _focusNode.hasFocus
+                        color: _focusNode.hasFocus && widget.isEnabled
                             ? AppColors.pickabooBlue
                             : AppColors.border,
-                        width: _focusNode.hasFocus ? 1.2 : 1.0,
+                        width: _focusNode.hasFocus && widget.isEnabled ? 1.2 : 1.0,
                       ),
                     ),
                     alignment: Alignment.center,
                     child: TextField(
                       controller: _controller,
                       focusNode: _focusNode,
+                      enabled: widget.isEnabled,
                       textAlignVertical: TextAlignVertical.center,
                       style: AppTypography.titleSmall.copyWith(
                         fontSize: 13.sp,
-                        color: AppColors.navy,
+                        color: widget.isEnabled ? AppColors.navy : AppColors.muted,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter Discount Code',
@@ -201,8 +206,9 @@ class _CouponWidgetState extends State<CouponWidget> {
                   height: 40.h,
                   size: AppButtonSize.sm,
                   isFullWidth: false,
+                  isDisabled: !widget.isEnabled,
                   padding: EdgeInsets.symmetric(horizontal: 22.w),
-                  onPressed: _handleApply,
+                  onPressed: widget.isEnabled ? _handleApply : null,
                 ),
               ],
             ),

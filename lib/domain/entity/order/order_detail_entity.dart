@@ -161,13 +161,17 @@ class StatusHistoryEntity {
   final int entityId;
   final String? comment;
   final String status;
+  final String? label;
   final String createdAt;
+  final String? time;
 
   const StatusHistoryEntity({
-    required this.entityId,
+    this.entityId = 0,
     this.comment,
     required this.status,
+    this.label,
     required this.createdAt,
+    this.time,
   });
 }
 

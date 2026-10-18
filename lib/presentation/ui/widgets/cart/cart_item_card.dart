@@ -22,6 +22,7 @@ class CartItemCard extends StatelessWidget {
   final Function(int) onQuantityChanged;
   final VoidCallback onRemove;
   final VoidCallback onSaveForLater;
+  final VoidCallback? onTap;
   final bool showActions;
   final bool isQuantityModifiable;
   final bool showDivider;
@@ -34,12 +35,14 @@ class CartItemCard extends StatelessWidget {
     required this.onQuantityChanged,
     required this.onRemove,
     required this.onSaveForLater,
+    this.onTap,
     this.showActions = true,
     this.isQuantityModifiable = false,
     this.showDivider = false,
     this.showOuterCard = false,
     this.isLoading = false,
   });
+
 
   String _formatPrice(double price) {
     final formatted = price.toStringAsFixed(0);
@@ -68,14 +71,21 @@ class CartItemCard extends StatelessWidget {
     final hasDiscount =
         unitOriginalPrice > unitPrice && lineOriginalPrice > lineTotalPrice;
 
-    final itemContent = Padding(
-      padding: EdgeInsets.all(10.w),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // ── 1. LEFT: ROUNDED PRODUCT THUMBNAIL (80x80px) ──
-          CartItemThumbnail(item: item, size: 80.w),
-          SizedBox(width: 10.w),
+    final itemContent = Material(
+      color: AppColors.transparent,
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        splashColor: AppColors.pickabooBlue.withAlpha(15),
+        highlightColor: AppColors.pickabooBlue.withAlpha(8),
+        child: Padding(
+          padding: EdgeInsets.all(10.w),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // ── 1. LEFT: ROUNDED PRODUCT THUMBNAIL (80x80px) ──
+              CartItemThumbnail(item: item, size: 80.w),
+              SizedBox(width: 10.w),
+
 
           // ── 2. RIGHT: PRODUCT DETAILS (TITLE, SELLER, PRICE+QTY, ACTIONS) ──
           Expanded(
@@ -393,18 +403,14 @@ class CartItemCard extends StatelessWidget {
                                     : AppColors.navy,
                               ),
                             ),
-                            if (isLoading) ...[
-                              SizedBox(width: 4.w),
-                              SizedBox(
-                                width: 10.w,
-                                height: 10.w,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 1.5.w,
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                    AppColors.pickabooBlue,
-                                  ),
-                                ),
+                            if (isQuantityModifiable) ...[
+                              SizedBox(width: 2.w),
+                              Icon(
+                                Icons.arrow_drop_down_rounded,
+                                size: 16.sp,
+                                color: isLoading
+                                    ? AppColors.muted
+                                    : AppColors.navy,
                               ),
                             ],
                           ],
@@ -421,7 +427,7 @@ class CartItemCard extends StatelessWidget {
                     children: [
                       // Save for later
                       InkWell(
-                        onTap: onSaveForLater,
+                        onTap: isLoading ? null : onSaveForLater,
                         borderRadius: AppRadius.k4,
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 2.h),
@@ -431,14 +437,18 @@ class CartItemCard extends StatelessWidget {
                               Icon(
                                 Icons.bookmark_border_rounded,
                                 size: 16.sp,
-                                color: AppColors.navy,
+                                color: isLoading
+                                    ? AppColors.muted
+                                    : AppColors.navy,
                               ),
                               SizedBox(width: 4.w),
                               Text(
                                 'Save for later',
                                 style: AppTypography.bodyMedium.copyWith(
                                   fontSize: 11.5.sp,
-                                  color: AppColors.navy,
+                                  color: isLoading
+                                      ? AppColors.muted
+                                      : AppColors.navy,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -449,7 +459,7 @@ class CartItemCard extends StatelessWidget {
 
                       // Remove
                       InkWell(
-                        onTap: onRemove,
+                        onTap: isLoading ? null : onRemove,
                         borderRadius: AppRadius.k4,
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 2.h),
@@ -459,14 +469,18 @@ class CartItemCard extends StatelessWidget {
                               Icon(
                                 Icons.delete_outline_rounded,
                                 size: 16.sp,
-                                color: AppColors.red,
+                                color: isLoading
+                                    ? AppColors.muted
+                                    : AppColors.red,
                               ),
                               SizedBox(width: 4.w),
                               Text(
                                 'Remove',
                                 style: AppTypography.bodyMedium.copyWith(
                                   fontSize: 11.5.sp,
-                                  color: AppColors.red,
+                                  color: isLoading
+                                      ? AppColors.muted
+                                      : AppColors.red,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -482,7 +496,11 @@ class CartItemCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
+
+
 
     if (showOuterCard) {
       return Container(

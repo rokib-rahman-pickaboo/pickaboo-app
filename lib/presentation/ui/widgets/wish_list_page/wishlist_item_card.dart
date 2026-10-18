@@ -10,7 +10,6 @@ import 'package:pickaboo/core/theme/app_decorations.dart';
 import 'package:pickaboo/domain/entity/wishlist/wishlist_entity.dart';
 
 import 'package:pickaboo/presentation/ui/widgets/common/app_image.dart';
-import 'package:pickaboo/presentation/ui/widgets/common/app_loader.dart';
 
 class WishlistItemCard extends StatelessWidget {
   final WishlistEntity item;
@@ -21,6 +20,7 @@ class WishlistItemCard extends StatelessWidget {
   final VoidCallback onTap;
 
   final bool isAddingToCart;
+  final bool isRemoving;
 
   const WishlistItemCard({
     super.key,
@@ -29,6 +29,7 @@ class WishlistItemCard extends StatelessWidget {
     required this.onAddToCart,
     required this.onTap,
     this.isAddingToCart = false,
+    this.isRemoving = false,
   });
 
   @override
@@ -48,7 +49,7 @@ class WishlistItemCard extends StatelessWidget {
                   Container(
                     width: 80.w,
                     height: 80.w,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       borderRadius: AppRadius.k4,
                     ),
                     child: item.thumbnail.isEmpty
@@ -156,12 +157,16 @@ class WishlistItemCard extends StatelessWidget {
                   child: Material(
                     color: AppColors.black.withValues(alpha: 0.0),
                     child: InkWell(
-                      onTap: onRemove,
+                      onTap: (isAddingToCart || isRemoving) ? null : onRemove,
                       borderRadius: const BorderRadius.only(
                         bottomRight: AppRadius.rad8,
                       ),
-                      splashColor: AppColors.red.withAlpha(20),
-                      highlightColor: AppColors.red.withAlpha(10),
+                      splashColor: (isAddingToCart || isRemoving)
+                          ? AppColors.transparent
+                          : AppColors.red.withAlpha(20),
+                      highlightColor: (isAddingToCart || isRemoving)
+                          ? AppColors.transparent
+                          : AppColors.red.withAlpha(10),
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         child: Row(
@@ -176,9 +181,12 @@ class WishlistItemCard extends StatelessWidget {
                             Text(
                               'Remove',
                               style: AppTypography.link.withColor(
-                                AppColors.black,
+                                (isAddingToCart || isRemoving)
+                                    ? AppColors.muted
+                                    : AppColors.black,
                               ),
                             ),
+
                           ],
                         ),
                       ),
@@ -198,11 +206,11 @@ class WishlistItemCard extends StatelessWidget {
       return _actionButton(
         icon: Icons.tune_rounded,
         label: 'View Details',
-        onTap: onTap,
+        onTap: (isAddingToCart || isRemoving) ? null : onTap,
       );
     }
 
-    final canAdd = item.inStock && !isAddingToCart;
+    final canAdd = item.inStock && !isAddingToCart && !isRemoving;
 
     return _actionButton(
       icon: Icons.shopping_cart_outlined,
@@ -218,27 +226,28 @@ class WishlistItemCard extends StatelessWidget {
     required VoidCallback? onTap,
     bool busy = false,
   }) {
-    final enabled = onTap != null;
+    final enabled = onTap != null && !busy;
     final foreground = enabled ? AppColors.pickabooBlue : AppColors.muted;
 
     return Material(
       color: AppColors.black.withValues(alpha: 0.0),
       child: InkWell(
-        onTap: onTap,
+        onTap: enabled ? onTap : null,
         borderRadius: const BorderRadius.only(
           bottomLeft: AppRadius.rad8,
         ),
-        splashColor: AppColors.pickabooBlue.withAlpha(20),
-        highlightColor: AppColors.pickabooBlue.withAlpha(10),
+        splashColor: enabled
+            ? AppColors.pickabooBlue.withAlpha(20)
+            : AppColors.transparent,
+        highlightColor: enabled
+            ? AppColors.pickabooBlue.withAlpha(10)
+            : AppColors.transparent,
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 12.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (busy)
-                const AppLoader.button(size: 18, color: AppColors.pickabooBlue)
-              else
-                Icon(icon, size: 18.sp, color: foreground),
+              Icon(icon, size: 18.sp, color: foreground),
               SizedBox(width: 6.w),
               Text(
                 label,

@@ -74,12 +74,10 @@ class PdpBottomActionBar extends StatelessWidget {
                 height: 44.h,
                 borderRadius: AppRadius.k8,
                 isDisabled: !isAvailable || isProcessing,
-                isLoading: isProcessing,
                 onPressed: isAvailable && !isProcessing ? onAddToCart : null,
                 text: AppStrings.pdpAddToCart.toUpperCase(),
                 textStyle: AppTypography.button.copyWith(
                   fontSize: 12.sp,
-                  color: isAvailable ? AppColors.pickabooBlue : AppColors.muted,
                 ),
               ),
             ),
@@ -90,15 +88,17 @@ class PdpBottomActionBar extends StatelessWidget {
               child: AppButton.primary(
                 height: 44.h,
                 borderRadius: AppRadius.k8,
-                backgroundColor: isAvailable ? AppColors.pickabooBlue : AppColors.muted,
                 isDisabled: !isAvailable || isProcessing,
                 onPressed: isAvailable && !isProcessing ? onBuyNow : null,
-                text: isAvailable ? AppStrings.pdpBuyNow.toUpperCase() : AppStrings.pdpStockOut.toUpperCase(),
+                text: isAvailable
+                    ? AppStrings.pdpBuyNow.toUpperCase()
+                    : AppStrings.pdpStockOut.toUpperCase(),
                 textStyle: AppTypography.button.copyWith(
                   fontSize: 12.sp,
                 ),
               ),
             ),
+
           ],
         ),
       ),
