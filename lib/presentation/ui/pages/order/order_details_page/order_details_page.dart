@@ -256,16 +256,15 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
+                        useSafeArea: true,
                         backgroundColor: AppColors.transparent,
                         builder: (context) => OrderReviewProductBottomSheet(
                           items: order.items,
                           onProductSelected: (item) {
                             context.pushNamed(
                               'writeReviewOrder',
-                              pathParameters: {
-                                'id': item.productId.toString(),
-                              },
                               extra: {
+                                'productId': item.productId.toString(),
                                 'productName': item.itemName,
                                 'productImage': item.image ?? '',
                               },

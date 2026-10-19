@@ -204,16 +204,24 @@ final List<RouteBase> dashboardRoutes = [
     path: Routes.writeReview,
     name: 'writeReviewOrder',
     builder: (context, state) {
-      final extra = state.extra as Map<String, dynamic>;
+      final extra = state.extra as Map<String, dynamic>?;
+      final productId = (extra?['productId'] ??
+              extra?['id'] ??
+              state.pathParameters['id'] ??
+              '')
+          .toString();
+      final productName = (extra?['productName'] ?? '').toString();
+      final productImage = (extra?['productImage'] ?? '').toString();
+
       return MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => getIt<WriteReviewBloc>()),
           BlocProvider(create: (context) => getIt<PhotoPickerBloc>()),
         ],
         child: WriteReviewPage(
-          productId: extra['productId'] as String,
-          productName: extra['productName'] as String,
-          productImage: extra['productImage'] as String? ?? "",
+          productId: productId,
+          productName: productName,
+          productImage: productImage,
         ),
       );
     },
