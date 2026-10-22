@@ -491,10 +491,21 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: PickabooAppBar(
-        titleWidget: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.home);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: PickabooAppBar(
+          showBackButton: true,
+          titleWidget: BlocBuilder<SpecialCategoryProductsBloc, SpecialCategoryProductsState>(
           builder: (context, state) {
             final categoryTitle = state.categoryData?.categoryName;
             final displayTitle = categoryTitle.isGenericOrPlaceholderTitle
@@ -555,7 +566,8 @@ class _SpecialCategoryProductPageState extends State<SpecialCategoryProductPage>
         ],
       ),
       body: bodyContent,
-    );
+    ),
+  );
   }
 
   String? _activeSortLabel(List<SortOptionEntity> options, String? value) {

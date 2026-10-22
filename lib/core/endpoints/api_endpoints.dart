@@ -296,6 +296,7 @@ class ApiEndpoints {
   static String resolveSlugUrl({required String type}) => type == "product"
       ? '/rest/V1/product-id/slug'
       : '/rest/V1/category-id/slug';
+  static const String productsRenderInfoUrl = '/rest/V1/products-render-info';
   static const String sellerProductsUrl =
       '/rest/V1/dcastalia-vendorshop/products';
 

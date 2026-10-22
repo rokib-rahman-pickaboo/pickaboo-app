@@ -131,7 +131,13 @@ class _MainPageState extends State<MainPage> {
     _deepLinkSubscription = getIt<PushNotificationService>().deepLinkStream
         .listen((link) {
           if (mounted) {
-            getIt<DeepLinkHandler>().handleDeepLink(link, GoRouter.of(context));
+            final isNotification =
+                getIt<PushNotificationService>().consumeIsNotification(link);
+            getIt<DeepLinkHandler>().handleDeepLink(
+              link,
+              GoRouter.of(context),
+              isNotification: isNotification,
+            );
           }
         });
   }

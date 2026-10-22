@@ -70,6 +70,26 @@ class ProductRepositoryImpl implements ProductRepository {
     required String slug,
     required String type,
   }) async {
+    if (type == 'auto' || type.isEmpty) {
+      final results = await Future.wait([
+        resolveSlug(slug: slug, type: 'category'),
+        resolveSlug(slug: slug, type: 'product'),
+      ]);
+      final catRes = results[0].fold((_) => null, (r) => r);
+      if (catRes != null && catRes.id.isNotEmpty) {
+        return right(catRes);
+      }
+      final prodRes = results[1].fold((_) => null, (r) => r);
+      if (prodRes != null && prodRes.id.isNotEmpty) {
+        return right(prodRes);
+      }
+      return left(
+        const AppErrorEntity(
+          message: 'Could not resolve product or category link',
+        ),
+      );
+    }
+
     final result = await apiService.resolveSlug(slug: slug, type: type);
 
     return result.fold(

@@ -4,6 +4,7 @@ import 'package:pickaboo/core/utils/product_image_resolver.dart';
 import 'package:pickaboo/domain/entity/cms_block/cms_block_entity.dart';
 import 'package:pickaboo/domain/entity/common/product/product_entity.dart';
 import 'package:pickaboo/domain/entity/product_detail/product_detail_entity.dart';
+import 'package:pickaboo/data/services/push_notification_service.dart';
 import 'package:pickaboo/injection.dart';
 import 'package:pickaboo/presentation/bloc/banner_bloc/banner_bloc.dart';
 import 'package:pickaboo/presentation/bloc/brand_products_bloc/brand_products_bloc.dart';
@@ -99,6 +100,34 @@ final List<RouteBase> productRoutes = [
   ),
 
   GoRoute(
+    path: '/brand/:slug',
+    builder: (context, state) {
+      final slug = state.pathParameters['slug'] ?? '';
+      return BlocProvider(
+        create: (context) => getIt<BrandProductsBloc>(),
+        child: BrandProductPage(
+          brandSlug: slug,
+          brandName: state.uri.queryParameters['name'] ?? '',
+        ),
+      );
+    },
+  ),
+
+  GoRoute(
+    path: '/brands/:slug',
+    builder: (context, state) {
+      final slug = state.pathParameters['slug'] ?? '';
+      return BlocProvider(
+        create: (context) => getIt<BrandProductsBloc>(),
+        child: BrandProductPage(
+          brandSlug: slug,
+          brandName: state.uri.queryParameters['name'] ?? '',
+        ),
+      );
+    },
+  ),
+
+  GoRoute(
     path: Routes.sellerProduct,
     name: 'sellerProduct',
     builder: (context, state) {
@@ -143,6 +172,13 @@ final List<RouteBase> productRoutes = [
       previewPrice ??= state.uri.queryParameters['price'];
 
       final intId = int.tryParse(rawId) ?? 0;
+      if (isNumericId) {
+        try {
+          final pushService = getIt<PushNotificationService>();
+          pushService.consumeInitialLink(rawId);
+          pushService.clearPendingDeepLink();
+        } catch (_) {}
+      }
       final cachedImage = ProductImageResolver.getCachedImage(intId);
 
       if (cachedImage != null && !ProductImageResolver.isPlaceholderOrBroken(cachedImage)) {

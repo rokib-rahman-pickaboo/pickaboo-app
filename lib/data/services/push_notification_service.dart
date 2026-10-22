@@ -21,12 +21,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     final String body = data['body'] ?? '';
 
     if (title.isNotEmpty || body.isNotEmpty) {
+      final deepLink = PushNotificationService.extractDeepLinkFromData(data);
       await showLocalNotification(
         title: title,
         body: body,
         imageUrl: data['bigPicture'] ?? data['image'],
-        deepLink:
-            data['deeplink'] ?? data['deepLink'] ?? data['url'] ?? data['link'],
+        deepLink: deepLink,
       );
     }
   }
@@ -115,7 +115,9 @@ class PushNotificationService {
         if (_pendingDeepLink != null) {
           final link = _pendingDeepLink!;
           _pendingDeepLink = null;
-          Future.microtask(() => _deepLinkController.add(link));
+          if (!isDeepLinkConsumed(link)) {
+            Future.microtask(() => _deepLinkController.add(link));
+          }
         }
       },
       onCancel: (_) {
@@ -133,7 +135,279 @@ class PushNotificationService {
   static const String _fcmTokenKey = 'fcm_token';
   static const String _notificationsEnabledKey = 'notifications_enabled';
 
-  void _emitDeepLink(String deepLink) {
+  String? _lastEmittedLink;
+  DateTime? _lastEmittedTime;
+  final Set<String> _consumedSlugsOrLinks = {};
+  final Set<String> _notificationLinks = {};
+
+  bool consumeIsNotification(String link) {
+    return _notificationLinks.remove(link);
+  }
+
+  /// Marks a deep link slug, path, or URL as already handled (e.g. by
+  /// GoRouter/DeepLinkResolverPage on app launch) so that background/queued
+  /// streams do not replay it and re-navigate when HomePage mounts.
+  void consumeInitialLink(String? slugOrLink) {
+    if (slugOrLink == null || slugOrLink.isEmpty) return;
+    final clean = slugOrLink.toLowerCase().trim();
+    _consumedSlugsOrLinks.add(clean);
+    if (clean.endsWith('.html')) {
+      _consumedSlugsOrLinks.add(clean.replaceAll('.html', ''));
+    }
+    if (clean.contains('?')) {
+      _consumedSlugsOrLinks.add(clean.split('?').first);
+    }
+    try {
+      final uri = Uri.parse(clean);
+      for (final seg in uri.pathSegments) {
+        if (seg.isNotEmpty) {
+          _consumedSlugsOrLinks.add(seg);
+          if (seg.endsWith('.html')) {
+            _consumedSlugsOrLinks.add(seg.replaceAll('.html', ''));
+          }
+        }
+      }
+    } catch (_) {}
+
+    if (_pendingDeepLink != null && isDeepLinkConsumed(_pendingDeepLink!)) {
+      _pendingDeepLink = null;
+    }
+  }
+
+  bool isDeepLinkConsumed(String deepLink) {
+    if (_consumedSlugsOrLinks.isEmpty) return false;
+    final lower = deepLink.toLowerCase();
+    for (final consumed in _consumedSlugsOrLinks) {
+      if (consumed.isNotEmpty && lower.contains(consumed)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Checks whether a link points to the root homepage or Google Ads click tracking
+  /// that lands on the homepage (with parameters like gclid, gad_source, etc.).
+  static bool isRootOrAdHome(String link) {
+    final clean = link.trim();
+    if (clean.isEmpty) return true;
+
+    // Check if it's an ad URL with an embedded adurl destination
+    if (clean.contains('adurl=')) {
+      try {
+        final uri = Uri.parse(clean);
+        final adurl = uri.queryParameters['adurl'];
+        if (adurl != null && adurl.isNotEmpty) {
+          return isRootOrAdHome(Uri.decodeComponent(adurl));
+        }
+      } catch (_) {}
+    }
+
+    final lower = clean.toLowerCase();
+    if (lower.contains('googleadservices.com') ||
+        lower.contains('doubleclick.net') ||
+        lower.contains('/pagead/aclk') ||
+        lower.contains('/aclk')) {
+      return true;
+    }
+
+    var toParse = clean;
+    if (!toParse.contains('://')) {
+      if (toParse.startsWith('/')) {
+        toParse = toParse.substring(1);
+      }
+      toParse = 'https://$toParse';
+    }
+
+    try {
+      final uri = Uri.parse(toParse);
+      final host = uri.host.toLowerCase();
+      final path = uri.path.trim();
+
+      if (host.isEmpty ||
+          host == 'pickaboo.com' ||
+          host == 'www.pickaboo.com' ||
+          host == 'pickaboo') {
+        var cleanPath = path;
+        while (cleanPath.endsWith('/') && cleanPath.length > 1) {
+          cleanPath = cleanPath.substring(0, cleanPath.length - 1);
+        }
+        if (cleanPath.isEmpty ||
+            cleanPath == '/' ||
+            cleanPath == '/home' ||
+            cleanPath == '/pickaboo' ||
+            cleanPath == '/pickaboo.com' ||
+            cleanPath == '/www.pickaboo.com' ||
+            cleanPath == '/index' ||
+            cleanPath == '/main') {
+          return true;
+        }
+        final segments = uri.pathSegments
+            .where((s) => s.trim().isNotEmpty)
+            .toList();
+        if (segments.isEmpty) return true;
+        if (segments.length == 1) {
+          final s0 = segments[0].toLowerCase();
+          if (s0 == 'home' ||
+              s0 == 'pickaboo' ||
+              s0 == 'pickaboo.com' ||
+              s0 == 'www.pickaboo.com' ||
+              s0 == 'index' ||
+              s0 == 'main' ||
+              s0 == 'aclk') {
+            return true;
+          }
+        }
+      }
+    } catch (_) {}
+
+    return false;
+  }
+
+  /// Extracts the real destination URL if the link is a Google Ads click redirect
+  static String extractDestinationUrl(String link) {
+    final clean = link.trim();
+    if (clean.contains('adurl=')) {
+      try {
+        final uri = Uri.parse(clean);
+        final adurl = uri.queryParameters['adurl'];
+        if (adurl != null && adurl.isNotEmpty) {
+          return Uri.decodeComponent(adurl).trim();
+        }
+      } catch (_) {}
+    }
+    return clean;
+  }
+
+  /// Strips query parameters so tracking tokens (srsltid, gclid, utm_*)
+  /// don't defeat deduplication.
+  static String _normalizeForDedup(String link) {
+    try {
+      final dest = extractDestinationUrl(link);
+      final uri = Uri.parse(dest);
+      return Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        path: uri.path,
+      ).toString();
+    } catch (_) {
+      return link;
+    }
+  }
+
+  /// Extracts the destination deep link from a notification's data payload.
+  /// Handles category, special category, product, brand, orders, full URLs, and raw paths.
+  static String? extractDeepLinkFromData(Map<String, dynamic>? data) {
+    if (data == null || data.isEmpty) return null;
+
+    final rawLink = data['deeplink'] ??
+        data['deepLink'] ??
+        data['url'] ??
+        data['link'] ??
+        data['click_action'];
+    if (rawLink != null && rawLink.toString().trim().isNotEmpty) {
+      return rawLink.toString().trim();
+    }
+
+    final type = (data['type'] ?? data['target_type'] ?? data['target'])
+        ?.toString()
+        .toLowerCase()
+        .trim();
+
+    if (type == 'special_category' ||
+        type == 'specialcategory' ||
+        type == 'special-category') {
+      final slug = data['slug'] ??
+          data['categorySlug'] ??
+          data['category_slug'] ??
+          data['specialCategorySlug'] ??
+          data['special_category_slug'] ??
+          data['id'];
+      if (slug != null && slug.toString().trim().isNotEmpty) {
+        return '/special-category/${slug.toString().trim()}';
+      }
+    }
+    final specialCatSlug = data['specialCategorySlug'] ??
+        data['special_category_slug'] ??
+        data['special_category_id'] ??
+        data['specialCategoryId'];
+    if (specialCatSlug != null && specialCatSlug.toString().trim().isNotEmpty) {
+      return '/special-category/${specialCatSlug.toString().trim()}';
+    }
+
+    if (type == 'category') {
+      final idOrSlug = data['id'] ??
+          data['categoryId'] ??
+          data['category_id'] ??
+          data['slug'] ??
+          data['categorySlug'] ??
+          data['category_slug'];
+      if (idOrSlug != null && idOrSlug.toString().trim().isNotEmpty) {
+        return '/category/${idOrSlug.toString().trim()}';
+      }
+    }
+    final catId = data['categoryId'] ??
+        data['category_id'] ??
+        data['categorySlug'] ??
+        data['category_slug'];
+    if (catId != null && catId.toString().trim().isNotEmpty) {
+      return '/category/${catId.toString().trim()}';
+    }
+
+    if (type == 'product') {
+      final idOrSlug = data['id'] ??
+          data['productId'] ??
+          data['product_id'] ??
+          data['slug'] ??
+          data['productSlug'] ??
+          data['product_slug'];
+      if (idOrSlug != null && idOrSlug.toString().trim().isNotEmpty) {
+        return '/product/${idOrSlug.toString().trim()}';
+      }
+    }
+    final prodId = data['productId'] ??
+        data['product_id'] ??
+        data['productSlug'] ??
+        data['product_slug'];
+    if (prodId != null && prodId.toString().trim().isNotEmpty) {
+      return '/product/${prodId.toString().trim()}';
+    }
+
+    if (type == 'brand') {
+      final idOrSlug = data['id'] ??
+          data['brandId'] ??
+          data['brand_id'] ??
+          data['slug'] ??
+          data['brandSlug'] ??
+          data['brand_slug'];
+      if (idOrSlug != null && idOrSlug.toString().trim().isNotEmpty) {
+        return '/brand/${idOrSlug.toString().trim()}';
+      }
+    }
+
+    return null;
+  }
+
+  void _emitDeepLink(String deepLink, {bool isNotification = false}) {
+    if (isNotification) {
+      _notificationLinks.add(deepLink);
+    }
+
+    if (!isNotification && isDeepLinkConsumed(deepLink)) {
+      return;
+    }
+
+    if (!isNotification) {
+      final normalized = _normalizeForDedup(deepLink);
+      final now = DateTime.now();
+      if (_lastEmittedLink == normalized &&
+          _lastEmittedTime != null &&
+          now.difference(_lastEmittedTime!).inSeconds < 30) {
+        return;
+      }
+      _lastEmittedLink = normalized;
+      _lastEmittedTime = now;
+    }
+
     if (_hasActiveListener || _deepLinkController.hasListener) {
       _deepLinkController.add(deepLink);
     } else {
@@ -141,22 +415,46 @@ class PushNotificationService {
     }
   }
 
+  void clearPendingDeepLink() {
+    _pendingDeepLink = null;
+  }
+
+  Future<String?> _waitForApnsToken({
+    int maxRetries = 10,
+    Duration delay = const Duration(milliseconds: 500),
+  }) async {
+    if (!Platform.isIOS) return null;
+    for (int i = 0; i < maxRetries; i++) {
+      try {
+        final apnsToken = await _firebaseMessaging.getAPNSToken();
+        if (apnsToken != null && apnsToken.isNotEmpty) {
+          debugPrint('✅ [APNS] Got APNs token');
+          return apnsToken;
+        }
+      } catch (e) {
+        debugPrint('⚠️ [APNS] Error reading APNs token (attempt ${i + 1}): $e');
+      }
+      await Future.delayed(delay);
+    }
+    debugPrint(
+      '⚠️ [APNS] APNs token not available after $maxRetries attempts (expected on simulator)',
+    );
+    return null;
+  }
+
   Future<void> initialize() async {
     try {
-
       await _initializeLocalNotifications();
 
-      _requestPermissions().then((_) {
+      _requestPermissions().then((_) async {
+        await _subscribeToTopics();
+        await _getAndSaveFcmToken();
+      });
+
+      _firebaseMessaging.onTokenRefresh.listen((token) {
+        _onTokenRefresh(token);
         _subscribeToTopics();
       });
-
-      _getAndSaveFcmToken().then((token) {
-        if (token != null) {
-          _tokenController.add(token);
-        }
-      });
-
-      _firebaseMessaging.onTokenRefresh.listen(_onTokenRefresh);
 
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
@@ -167,10 +465,15 @@ class PushNotificationService {
       _handleInitialAppRoute();
 
       _appLinks.uriLinkStream.listen((uri) {
-        _emitDeepLink(uri.toString());
+        final uriStr = uri.toString();
+        if (isRootOrAdHome(uriStr)) {
+          consumeInitialLink(uriStr);
+          return;
+        }
+        _emitDeepLink(uriStr);
       });
-
     } catch (e) {
+      debugPrint('❌ Error initializing PushNotificationService: $e');
     }
   }
 
@@ -180,23 +483,31 @@ class PushNotificationService {
         await _firebaseMessaging.subscribeToTopic(
           'pickaboo_notification_android',
         );
+        debugPrint('✅ Subscribed to pickaboo_notification_android');
       } else if (Platform.isIOS) {
+        await _waitForApnsToken();
         await _firebaseMessaging.subscribeToTopic(
           'pickaboo_notification_ios_new',
         );
+        debugPrint('✅ Subscribed to pickaboo_notification_ios_new');
       }
     } catch (e) {
+      debugPrint('❌ Error subscribing to topics: $e');
     }
   }
 
   /// Directly binds authenticated user to Firebase topics & analytics.
   Future<void> bindUserToFirebase(String userId) async {
     try {
+      if (Platform.isIOS) {
+        await _waitForApnsToken();
+      }
       final userTopic = 'user_$userId';
       final customerTopic = 'customer_$userId';
       await _firebaseMessaging.subscribeToTopic(userTopic);
       await _firebaseMessaging.subscribeToTopic(customerTopic);
     } catch (e) {
+      debugPrint('❌ Error binding user to Firebase: $e');
     }
   }
 
@@ -208,6 +519,7 @@ class PushNotificationService {
       await _firebaseMessaging.unsubscribeFromTopic(userTopic);
       await _firebaseMessaging.unsubscribeFromTopic(customerTopic);
     } catch (e) {
+      debugPrint('❌ Error unbinding user from Firebase: $e');
     }
   }
 
@@ -221,6 +533,13 @@ class PushNotificationService {
       provisional: false,
     );
 
+    if (Platform.isIOS) {
+      await _firebaseMessaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
   }
 
   Future<void> _initializeLocalNotifications() async {
@@ -259,12 +578,18 @@ class PushNotificationService {
 
   Future<String?> _getAndSaveFcmToken() async {
     try {
+      if (Platform.isIOS) {
+        await _waitForApnsToken();
+      }
       final token = await _firebaseMessaging.getToken();
-      if (token != null) {
+      if (token != null && token.isNotEmpty) {
         await _saveTokenLocally(token);
+        _tokenController.add(token);
+        debugPrint('🔥 [FCM] Got token: $token');
         return token;
       }
     } catch (e) {
+      debugPrint('❌ [FCM] Error getting token: $e');
     }
     return null;
   }
@@ -300,8 +625,7 @@ class PushNotificationService {
         title: title,
         body: body,
         imageUrl: data['bigPicture'] ?? data['image'],
-        deepLink:
-            data['deeplink'] ?? data['deepLink'] ?? data['url'] ?? data['link'],
+        deepLink: extractDeepLinkFromData(data),
       );
     }
   }
@@ -309,17 +633,15 @@ class PushNotificationService {
   void _onLocalNotificationTap(NotificationResponse response) {
     final deepLink = response.payload;
     if (deepLink != null && deepLink.isNotEmpty) {
-      _emitDeepLink(deepLink);
+      _emitDeepLink(deepLink, isNotification: true);
     }
   }
 
   Future<void> _handleInitialMessage() async {
-
     final initialMessage = await _firebaseMessaging.getInitialMessage();
-
     if (initialMessage != null) {
       _handleNotificationTap(initialMessage);
-    } else {}
+    }
   }
 
   Future<void> _handleLocalNotificationInitialMessage() async {
@@ -330,7 +652,6 @@ class PushNotificationService {
         final payload = details.notificationResponse?.payload;
         if (payload != null && payload.isNotEmpty) {
           if (kDebugMode) {
-
             final prefs = await SharedPreferences.getInstance();
             final lastPayload = prefs.getString('last_initial_payload');
 
@@ -339,7 +660,7 @@ class PushNotificationService {
             }
             await prefs.setString('last_initial_payload', payload);
           }
-          _emitDeepLink(payload);
+          _emitDeepLink(payload, isNotification: true);
         }
       }
     } catch (e) {
@@ -350,30 +671,35 @@ class PushNotificationService {
     try {
       final initialUri = await _appLinks.getInitialLink();
       if (initialUri != null) {
-        if (kDebugMode) {
-          final prefs = await SharedPreferences.getInstance();
-          final lastLink = prefs.getString('last_initial_link');
+        final uriStr = initialUri.toString();
+        if (isDeepLinkConsumed(uriStr)) {
+          return;
+        }
+        final prefs = await SharedPreferences.getInstance();
+        final normalized = _normalizeForDedup(uriStr);
+        final lastLink = prefs.getString('last_initial_link');
 
-          if (lastLink == initialUri.toString()) {
-            return;
-          }
-          await prefs.setString('last_initial_link', initialUri.toString());
+        if (lastLink == normalized) {
+          return;
+        }
+        await prefs.setString('last_initial_link', normalized);
+
+        if (isRootOrAdHome(uriStr)) {
+          consumeInitialLink(uriStr);
+          consumeInitialLink(normalized);
+          return;
         }
 
-        _emitDeepLink(initialUri.toString());
+        _emitDeepLink(uriStr);
       }
     } catch (e) {
     }
   }
 
   void _handleNotificationTap(RemoteMessage message) {
-    final deepLink =
-        message.data['deeplink'] ??
-        message.data['deepLink'] ??
-        message.data['url'] ??
-        message.data['link'];
+    final deepLink = extractDeepLinkFromData(message.data);
     if (deepLink != null && deepLink.isNotEmpty) {
-      _emitDeepLink(deepLink);
+      _emitDeepLink(deepLink, isNotification: true);
     }
   }
 
@@ -389,7 +715,6 @@ class PushNotificationService {
 
   Future<void> enableNotifications() async {
     try {
-
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_notificationsEnabledKey, true);
 
@@ -398,8 +723,9 @@ class PushNotificationService {
       await _requestPermissions();
 
       await _getAndSaveFcmToken();
-
+      await _subscribeToTopics();
     } catch (e) {
+      debugPrint('❌ Error enabling notifications: $e');
       rethrow;
     }
   }

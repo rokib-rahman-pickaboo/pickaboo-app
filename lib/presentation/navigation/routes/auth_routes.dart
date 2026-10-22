@@ -79,10 +79,31 @@ final List<RouteBase> authRoutes = [
     },
   ),
   GoRoute(
+    path: '/product-details/:slug',
+    builder: (context, state) {
+      final slug = state.pathParameters['slug'] ?? '';
+      return DeepLinkResolverPage(slug: slug, type: 'product');
+    },
+  ),
+  GoRoute(
     path: '/category/:slug',
     builder: (context, state) {
       final slug = state.pathParameters['slug'] ?? '';
       return DeepLinkResolverPage(slug: slug, type: 'category');
+    },
+  ),
+  GoRoute(
+    path: '/categories/:slug',
+    builder: (context, state) {
+      final slug = state.pathParameters['slug'] ?? '';
+      return DeepLinkResolverPage(slug: slug, type: 'category');
+    },
+  ),
+  GoRoute(
+    path: '/special-category/:slug',
+    builder: (context, state) {
+      final slug = state.pathParameters['slug'] ?? '';
+      return DeepLinkResolverPage(slug: slug, type: 'special_category');
     },
   ),
   GoRoute(

@@ -43,31 +43,95 @@ class IProductApiService extends ProductApiService {
     required String slug,
     required String type,
   }) async {
+    final cleanSlug = slug.trim().replaceAll('.html', '');
     try {
       final response = await _client.get(
-        '${ApiEndpoints.resolveSlugUrl(type: type)}/$slug',
+        '${ApiEndpoints.resolveSlugUrl(type: type)}/$cleanSlug',
       );
 
       final data = response.data;
+      SlugResolutionResponse? result;
 
       if (data is List && data.isNotEmpty) {
-        final result = SlugResolutionResponse.fromJson(
-          data.first as Map<String, dynamic>,
-        );
-        return right(result);
+        final first = data.first;
+        if (first is Map<String, dynamic>) {
+          result = SlugResolutionResponse.fromJson(first);
+        } else if (first is Map) {
+          result = SlugResolutionResponse.fromJson(
+            Map<String, dynamic>.from(first),
+          );
+        }
       } else if (data is Map<String, dynamic>) {
-        final result = SlugResolutionResponse.fromJson(data);
-        return right(result);
-      } else {
-        return left(
-          const ErrorResponse(
-            message: 'Invalid slug resolution response format',
-          ),
+        result = SlugResolutionResponse.fromJson(data);
+      } else if (data is Map) {
+        result = SlugResolutionResponse.fromJson(
+          Map<String, dynamic>.from(data),
         );
       }
+
+      if (result != null &&
+          result.prodId != null &&
+          result.prodId!.trim().isNotEmpty) {
+        return right(result);
+      }
+
+      // Fallback for product slugs: query Magento products-render-info by url_key
+      if (type == 'product') {
+        final fallback = await _resolveProductViaRenderInfo(cleanSlug);
+        if (fallback != null) {
+          return right(fallback);
+        }
+      }
+
+      if (result != null) {
+        return right(result);
+      }
+
+      return left(
+        const ErrorResponse(
+          message: 'Invalid slug resolution response format',
+        ),
+      );
     } on DioException catch (e) {
+      if (type == 'product') {
+        final fallback = await _resolveProductViaRenderInfo(cleanSlug);
+        if (fallback != null) {
+          return right(fallback);
+        }
+      }
       return left(checkErrorResponse(e));
+    } catch (e) {
+      return left(ErrorResponse(message: e.toString()));
     }
+  }
+
+  Future<SlugResolutionResponse?> _resolveProductViaRenderInfo(
+    String slug,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.productsRenderInfoUrl,
+        queryParameters: {
+          'storeId': 1,
+          'currencyCode': 'BDT',
+          'searchCriteria[filterGroups][0][filters][0][field]': 'url_key',
+          'searchCriteria[filterGroups][0][filters][0][value]': slug,
+        },
+      );
+      final data = response.data;
+      if (data is Map &&
+          data['items'] is List &&
+          (data['items'] as List).isNotEmpty) {
+        final firstItem = (data['items'] as List).first;
+        if (firstItem is Map && firstItem['id'] != null) {
+          final idStr = firstItem['id'].toString();
+          if (idStr.isNotEmpty) {
+            return SlugResolutionResponse(prodId: idStr);
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   ErrorResponse? _tryParseErrorList(dynamic data) {

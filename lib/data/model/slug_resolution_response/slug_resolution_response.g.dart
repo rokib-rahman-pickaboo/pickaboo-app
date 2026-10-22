@@ -9,8 +9,8 @@ part of 'slug_resolution_response.dart';
 _$SlugResolutionResponseImpl _$$SlugResolutionResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$SlugResolutionResponseImpl(
-  prodId: json['prodId'] as String?,
-  execTime: json['exec_time'] as String?,
+  prodId: _stringFromJson(json['prodId']),
+  execTime: _stringFromJson(json['exec_time']),
 );
 
 Map<String, dynamic> _$$SlugResolutionResponseImplToJson(

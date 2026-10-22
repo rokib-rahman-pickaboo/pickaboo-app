@@ -497,6 +497,7 @@ class _CategoryProductPageState extends State<CategoryProductPage> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: PickabooAppBar(
+          showBackButton: true,
           titleWidget: BlocBuilder<CategoryProductsBloc, CategoryProductsState>(
             builder: (context, state) {
               final categoryTitle = state.categoryData?.categoryName;

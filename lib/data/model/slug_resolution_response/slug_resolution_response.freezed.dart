@@ -23,9 +23,9 @@ SlugResolutionResponse _$SlugResolutionResponseFromJson(
 
 /// @nodoc
 mixin _$SlugResolutionResponse {
-  @JsonKey(name: 'prodId')
+  @JsonKey(name: 'prodId', fromJson: _stringFromJson)
   String? get prodId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'exec_time')
+  @JsonKey(name: 'exec_time', fromJson: _stringFromJson)
   String? get execTime => throw _privateConstructorUsedError;
 
   /// Serializes this SlugResolutionResponse to a JSON map.
@@ -46,8 +46,8 @@ abstract class $SlugResolutionResponseCopyWith<$Res> {
   ) = _$SlugResolutionResponseCopyWithImpl<$Res, SlugResolutionResponse>;
   @useResult
   $Res call({
-    @JsonKey(name: 'prodId') String? prodId,
-    @JsonKey(name: 'exec_time') String? execTime,
+    @JsonKey(name: 'prodId', fromJson: _stringFromJson) String? prodId,
+    @JsonKey(name: 'exec_time', fromJson: _stringFromJson) String? execTime,
   });
 }
 
@@ -97,8 +97,8 @@ abstract class _$$SlugResolutionResponseImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: 'prodId') String? prodId,
-    @JsonKey(name: 'exec_time') String? execTime,
+    @JsonKey(name: 'prodId', fromJson: _stringFromJson) String? prodId,
+    @JsonKey(name: 'exec_time', fromJson: _stringFromJson) String? execTime,
   });
 }
 
@@ -138,18 +138,18 @@ class __$$SlugResolutionResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SlugResolutionResponseImpl implements _SlugResolutionResponse {
   const _$SlugResolutionResponseImpl({
-    @JsonKey(name: 'prodId') this.prodId,
-    @JsonKey(name: 'exec_time') this.execTime,
+    @JsonKey(name: 'prodId', fromJson: _stringFromJson) this.prodId,
+    @JsonKey(name: 'exec_time', fromJson: _stringFromJson) this.execTime,
   });
 
   factory _$SlugResolutionResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$SlugResolutionResponseImplFromJson(json);
 
   @override
-  @JsonKey(name: 'prodId')
+  @JsonKey(name: 'prodId', fromJson: _stringFromJson)
   final String? prodId;
   @override
-  @JsonKey(name: 'exec_time')
+  @JsonKey(name: 'exec_time', fromJson: _stringFromJson)
   final String? execTime;
 
   @override
@@ -191,18 +191,19 @@ class _$SlugResolutionResponseImpl implements _SlugResolutionResponse {
 
 abstract class _SlugResolutionResponse implements SlugResolutionResponse {
   const factory _SlugResolutionResponse({
-    @JsonKey(name: 'prodId') final String? prodId,
-    @JsonKey(name: 'exec_time') final String? execTime,
+    @JsonKey(name: 'prodId', fromJson: _stringFromJson) final String? prodId,
+    @JsonKey(name: 'exec_time', fromJson: _stringFromJson)
+    final String? execTime,
   }) = _$SlugResolutionResponseImpl;
 
   factory _SlugResolutionResponse.fromJson(Map<String, dynamic> json) =
       _$SlugResolutionResponseImpl.fromJson;
 
   @override
-  @JsonKey(name: 'prodId')
+  @JsonKey(name: 'prodId', fromJson: _stringFromJson)
   String? get prodId;
   @override
-  @JsonKey(name: 'exec_time')
+  @JsonKey(name: 'exec_time', fromJson: _stringFromJson)
   String? get execTime;
 
   /// Create a copy of SlugResolutionResponse

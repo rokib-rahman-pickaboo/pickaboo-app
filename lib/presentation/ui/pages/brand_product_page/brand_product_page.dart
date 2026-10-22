@@ -108,9 +108,20 @@ class _BrandProductPageState extends State<BrandProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: PickabooAppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.home);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: PickabooAppBar(
+          showBackButton: true,
         titleWidget: BlocBuilder<BrandProductsBloc, BrandProductsState>(
           builder: (context, state) {
             final brandTitle = state.brandData?.brandName;
@@ -393,7 +404,8 @@ class _BrandProductPageState extends State<BrandProductPage> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   String? _activeSortLabel(List<SortOptionEntity> options, String? value) {

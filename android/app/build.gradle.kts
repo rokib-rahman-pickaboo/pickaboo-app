@@ -34,8 +34,8 @@ android {
         // Pinned to continue the React Native app's Play Store track
         // (live was 72011). Must stay > the live versionCode.
         // Decoupled from pubspec because iOS is on a separate version track.
-        versionCode = 72016
-        versionName = "7.0.16"
+        versionCode = 72017
+        versionName = "7.0.17"
     }
 
     signingConfigs {
